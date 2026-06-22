@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import { site } from '../lib/site';
+
+const fieldClass =
+  'mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30';
+---
+
+<Base
+  title="Contact"
+  description="Demander un échange stratégique, un pilote Premium, ou transmettre une critique."
+>
+  <Section width="prose" class="py-14">
+    <h1 class="text-3xl">Échange stratégique</h1>
+    <p class="prose-ag mt-3">
+      Nous échangeons d’abord sur un problème réel — pas sur une offre. Vingt minutes pour identifier
+      vos angles morts opérationnels sur un corridor qui vous expose.
+    </p>
+
+    <form id="contact-form" class="mt-8 space-y-4">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm">
+          <span class="font-medium">Nom</span>
+          <input name="name" required class={fieldClass} />
+        </label>
+        <label class="block text-sm">
+          <span class="font-medium">Organisation</span>
+          <input name="org" class={fieldClass} />
+        </label>
+      </div>
+      <label class="block text-sm">
+        <span class="font-medium">Email</span>
+        <input type="email" name="email" required class={fieldClass} />
+      </label>
+      <label class="block text-sm">
+        <span class="font-medium">Sujet</span>
+        <select name="subject" class={fieldClass}>
+          <option value="echange">Échange stratégique</option>
+          <option value="pilote">Pilote Premium</option>
+          <option value="critique">Critique d’un dossier</option>
+          <option value="presse">Presse / partenariat</option>
+        </select>
+      </label>
+      <label class="block text-sm">
+        <span class="font-medium">Message</span>
+        <textarea name="message" rows="5" class={fieldClass}></textarea>
+      </label>
+      <button
+        type="submit"
+        class="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent/90"
+      >
+        Envoyer
+      </button>
+      <p class="text-xs text-muted">
+        Vos informations servent uniquement à répondre à votre demande. Vous pouvez aussi écrire
+        directement à <a href={`mailto:${site.email}`} class="text-accent underline">{site.email}</a>.
+      </p>
+    </form>
+  </Section>
+
+  <script is:inline define:vars={{ email: site.email }}>
+    const form = document.getElementById('contact-form');
+    const params = new URLSearchParams(location.search);
+    const presel = params.get('sujet');
+    if (presel) {
+      const sel = form?.querySelector('select[name="subject"]');
+      if (sel) sel.value = presel;
+    }
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      const subjects = {
+        echange: 'Échange stratégique',
+        pilote: 'Pilote Premium',
+        critique: 'Critique d’un dossier',
+        presse: 'Presse / partenariat',
+      };
+      const subject = subjects[f.get('subject')] || 'Contact';
+      const body =
+        `Nom : ${f.get('name') || ''}\n` +
+        `Organisation : ${f.get('org') || ''}\n` +
+        `Email : ${f.get('email') || ''}\n\n` +
+        `${f.get('message') || ''}`;
+      // TODO (ADR 0006): POST vers l'endpoint lead auto-hébergé quand le contrat d'API est fourni.
+      // En attendant, on ouvre le client mail de l'utilisateur.
+      location.href = `mailto:${email}?subject=${encodeURIComponent('[AG] ' + subject)}&body=${encodeURIComponent(body)}`;
+    });
+  </script>
+</Base>

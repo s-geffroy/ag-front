@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background-color: #fcfcfd;
+    @apply text-ink;
+    font-family: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif font-semibold tracking-tight;
+  }
+  ::selection {
+    background: rgba(31, 78, 121, 0.18);
+  }
+}
+
+@layer components {
+  .label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-muted;
+  }
+  .prose-ag {
+    @apply text-[1.0625rem] leading-relaxed text-ink/90;
+  }
+  .prose-ag h2 { @apply mb-3 mt-10 text-2xl text-ink; }
+  .prose-ag h3 { @apply mb-2 mt-7 text-lg text-ink; }
+  .prose-ag p { @apply my-4; }
+  .prose-ag ul { @apply my-4 list-disc space-y-1.5 pl-5; }
+  .prose-ag ol { @apply my-4 list-decimal space-y-1.5 pl-5; }
+  .prose-ag a { @apply text-accent underline underline-offset-2; }
+  .prose-ag strong { @apply font-semibold text-ink; }
+  .prose-ag blockquote { @apply my-5 border-l-2 border-accent/40 pl-4 italic text-muted; }
+  .prose-ag hr { @apply my-8 border-line; }
+}

@@ -43,3 +43,24 @@ services:
       - '127.0.0.1:8787:8787'
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/cockpit', 'start']
+
+  # Public site www.applied-geopolitics.com — Caddy serves the static Astro build with automatic
+  # HTTPS (Let's Encrypt). Ports bind the PUBLIC IP only (not 0.0.0.0) so they never collide with the
+  # cockpit's `tailscale serve` on the Tailscale interface (ADR 0010). Cert provisions once DNS points
+  # at PUBLIC_IP. Build the site first: npm --workspace @ag/public run build.
+  public:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - '${PUBLIC_IP:-72.61.101.1}:80:80'
+      - '${PUBLIC_IP:-72.61.101.1}:443:443'
+      - '${PUBLIC_IP:-72.61.101.1}:443:443/udp'
+    volumes:
+      - ../apps/public/dist:/srv:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

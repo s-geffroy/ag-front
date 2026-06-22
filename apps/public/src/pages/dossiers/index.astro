@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import EntryCard from '../../components/EntryCard.astro';
+
+const dossiers = (await getCollection('dossiers')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Base
+  title="Dossiers"
+  description="Dossiers longs : une question stratégique, des scénarios, des seuils de bascule et des implications décisionnelles."
+>
+  <Section class="py-14">
+    <h1 class="text-3xl">Dossiers</h1>
+    <p class="prose-ag mt-3 max-w-prose">
+      Chaque dossier répond à une question stratégique unique : verdict provisoire, scénarios, seuils de
+      bascule et implications pour les directions risques et résilience. Le résumé exécutif est public ;
+      le dossier complet est réservé aux offres payantes.
+    </p>
+    <div class="mt-8 grid gap-4 md:grid-cols-2">
+      {
+        dossiers.map((d) => (
+          <EntryCard
+            href={`/dossiers/${d.slug}`}
+            kicker="Dossier"
+            title={d.data.title}
+            summary={d.data.strategic_question}
+            access={d.data.access}
+            date={d.data.date}
+          />
+        ))
+      }
+    </div>
+  </Section>
+</Base>

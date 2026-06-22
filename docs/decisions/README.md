@@ -19,5 +19,6 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0007](0007-data-model-separation.md) | Separate content vs cockpit data models | Accepted |
 | [0008](0008-shared-packages-strategy.md) | Shared packages = types/logic/tokens, not React UI | Accepted |
 | [0009](0009-cockpit-serving-tailscale.md) | Cockpit serving over Tailscale (tailnet only) | Accepted |
+| [0010](0010-public-deploy-caddy.md) | Public deployment via Caddy on the VPS (auto-HTTPS) | Accepted |
 | [0027](0027-thinking-skills-guardrails.md) | Thinking-skills data-integrity guardrails | Accepted (carried) |
 | [0029](0029-plugins.md) | Installed plugins (commit-commands, security-guidance) | Accepted (carried) |

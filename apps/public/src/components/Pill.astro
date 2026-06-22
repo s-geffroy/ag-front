@@ -1,0 +1,20 @@
+---
+import type { Tone } from '../lib/labels';
+interface Props {
+  tone?: Tone;
+  class?: string;
+}
+const { tone = 'neutral', class: cls = '' } = Astro.props;
+const tones: Record<Tone, string> = {
+  neutral: 'border-line bg-line/40 text-muted',
+  accent: 'border-accent/30 bg-accent/10 text-accent',
+  on: 'border-status-on_track/30 bg-status-on_track/10 text-status-on_track',
+  risk: 'border-status-at_risk/30 bg-status-at_risk/10 text-status-at_risk',
+  blocked: 'border-status-blocked/30 bg-status-blocked/10 text-status-blocked',
+};
+---
+<span
+  class={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[11px] font-medium leading-none ${tones[tone]} ${cls}`}
+>
+  <slot />
+</span>

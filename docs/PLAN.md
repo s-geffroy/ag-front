@@ -63,11 +63,15 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
 - **Skills** : `frontend-design` (UI), `owasp-security` (auth/inputs même derrière Tailscale),
   `thinking-theory-of-constraints` / `thinking-leverage-points` (analyse CVI/corridors).
 
-### Phase 3 — `apps/public` (www.applied-geopolitics.com) — **Astro** (ADR 0004)
-- Scaffold Astro (SSG + content collections) ; FR principal, SEO « slow asset » ; consomme
-  `@ag/schema/content` (schémas de collections) + `@ag/tokens`.
-- Pages : landing, Atlas, dossiers, notes, méthode CVI, offres Basic/Standard/Premium, contact/about.
-- Capture de leads + newsletter → **endpoint auto-hébergé** (ADR 0006 ; contrat API fourni par l'utilisateur).
+### Phase 3 — `apps/public` (www.applied-geopolitics.com) — ✅ FAIT (2026-06-22)
+- Astro (SSG + content collections), FR, SEO (sitemap, robots, OG, canonical, RSS notes). Design sobre
+  via `@ag/tokens` ; dimensions CVI via `@ag/cvi`.
+- 8 sections : accueil, Atlas (liste + fiches), dossiers, notes, méthode CVI, offres, à propos, contact.
+- Seed de contenu = candidates pending validation (3 notes, 3 fiches Atlas, 1 dossier) + sources/confiance.
+- **Déployé via Caddy** (HTTPS auto Let's Encrypt) sur le VPS `72.61.101.1`, ports liés à l'IP publique
+  (pas de conflit avec le tailscale serve du cockpit) — ADR 0010, runbook `docs/public-deploy.md`.
+- **En attente du repointage DNS** chez Hostinger (A `@`/`www` → `72.61.101.1`) pour l'émission du certificat.
+- Lead capture : formulaire `mailto` en attendant l'endpoint auto-hébergé (ADR 0006, contrat API à venir).
 - **Skills** : `frontend-design`, `owasp-security` (formulaires/inputs publics = surface d'attaque),
   `canvas-design` (visuels Atlas/dossiers si livrables PDF/poster).
 

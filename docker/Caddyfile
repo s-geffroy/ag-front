@@ -1,0 +1,26 @@
+# Public site www.applied-geopolitics.com — automatic HTTPS (Let's Encrypt).
+# Caddy obtains + renews certs once DNS points at this server (ADR 0010).
+{
+	email contact@applied-geopolitics.com
+}
+
+# Canonical host: serve the static Astro build.
+www.applied-geopolitics.com {
+	root * /srv
+	encode zstd gzip
+	file_server
+
+	# Long-cache hashed assets; HTML stays fresh.
+	@assets path /_astro/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}
+
+# Apex → www (single canonical origin for SEO).
+applied-geopolitics.com {
+	redir https://www.applied-geopolitics.com{uri} permanent
+}

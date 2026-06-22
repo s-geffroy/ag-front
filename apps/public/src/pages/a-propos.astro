@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import { site } from '../lib/site';
+---
+
+<Base title="À propos" description={site.positioning}>
+  <Section width="prose" class="py-14">
+    <h1 class="text-3xl">À propos</h1>
+    <p class="prose-ag mt-4">{site.positioning}</p>
+
+    <h2 class="mt-10 text-2xl">Marque &amp; signature</h2>
+    <p class="prose-ag mt-3">
+      <strong>Applied Geopolitics</strong> publie. <strong>Sylvain Geffroy</strong> signe en tant que
+      fondateur et analyste responsable. <strong>LucidAxis</strong> porte la structure en arrière-plan.
+    </p>
+
+    <h2 class="mt-10 text-2xl">Méthode</h2>
+    <p class="prose-ag mt-3">
+      Une chaîne unique : corridors → flux → dépendances → vulnérabilités → seuils → scénarios →
+      décisions. Le contenu décisionnel passe par une phase contradictoire et une revue humaine finale ;
+      aucune affirmation structurante n’est publiée sans source ou marqueur d’incertitude.
+    </p>
+
+    <h2 class="mt-10 text-2xl">Limites &amp; responsabilité</h2>
+    <p class="prose-ag mt-3">Applied Geopolitics fournit :</p>
+    <ul class="prose-ag">
+      <li>des analyses structurées, des scénarios, des seuils et des signaux à suivre ;</li>
+      <li>des diagnostics d’exposition et des options d’arbitrage ;</li>
+      <li>des niveaux de confiance et des limites explicites.</li>
+    </ul>
+    <p class="prose-ag mt-3">Applied Geopolitics ne fournit pas :</p>
+    <ul class="prose-ag">
+      <li>de garantie de prédiction ;</li>
+      <li>de conseil juridique, financier ou assurantiel engageant ;</li>
+      <li>de décision à la place du client, ni de surveillance temps réel (sauf offre explicite).</li>
+    </ul>
+  </Section>
+</Base>

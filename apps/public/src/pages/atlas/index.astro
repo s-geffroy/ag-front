@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import Pill from '../../components/Pill.astro';
+import { cviLevelLabel, familyLabel } from '../../lib/labels';
+
+const fiches = (await getCollection('atlas')).sort((a, b) =>
+  a.data.priority.localeCompare(b.data.priority),
+);
+---
+
+<Base
+  title="Atlas des corridors"
+  description="L’Atlas stratégique des corridors : fiches structurées par corridor, flux, vulnérabilités et seuils."
+>
+  <Section class="py-14">
+    <h1 class="text-3xl">Atlas stratégique des corridors</h1>
+    <p class="prose-ag mt-3 max-w-prose">
+      L’Atlas est une grille de lecture et une base de fiches comparables. Chaque fiche commence par un
+      verdict stratégique, explicite les flux et propose des seuils d’alerte. Le scoring CVI 0–5 par
+      dimension est réservé aux offres payantes.
+    </p>
+    <div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {
+        fiches.map((f) => (
+          <EntryCard
+            href={`/atlas/${f.slug}`}
+            kicker={familyLabel[f.data.family] ?? f.data.family}
+            title={f.data.title}
+            summary={f.data.verdict}
+            access={f.data.access}
+          >
+            {f.data.cvi_level ? <Pill>{cviLevelLabel[f.data.cvi_level]}</Pill> : null}
+          </EntryCard>
+        ))
+      }
+    </div>
+  </Section>
+</Base>

@@ -1,0 +1,28 @@
+---
+import { sourceTypeLabel } from '../lib/labels';
+interface Props {
+  sources: { label: string; type: string; url?: string }[];
+}
+const { sources } = Astro.props;
+---
+{
+  sources.length ? (
+    <section class="mt-10 border-t border-line pt-6">
+      <div class="label mb-2">Sources principales</div>
+      <ul class="space-y-1.5 text-sm text-muted">
+        {sources.map((s) => (
+          <li>
+            {s.url ? (
+              <a href={s.url} class="underline hover:text-ink" rel="nofollow">
+                {s.label}
+              </a>
+            ) : (
+              s.label
+            )}
+            <span class="text-xs"> · {sourceTypeLabel[s.type] ?? s.type}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ) : null
+}

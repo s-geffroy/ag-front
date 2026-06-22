@@ -1,0 +1,42 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import Sources from '../../components/Sources.astro';
+import { confidenceLabel, formatDate } from '../../lib/labels';
+
+export async function getStaticPaths() {
+  const dossiers = await getCollection('dossiers');
+  return dossiers.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'dossiers'>;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await entry.render();
+---
+
+<Base title={d.title} description={d.summary} type="article">
+  <Section width="prose" class="py-12">
+    <a href="/dossiers" class="text-sm text-accent hover:underline">← Dossiers</a>
+    <h1 class="mt-4 text-3xl">{d.title}</h1>
+    <p class="mt-4 border-l-2 border-accent/50 pl-4 font-serif text-lg leading-snug text-ink">
+      {d.strategic_question}
+    </p>
+    <div class="mt-3 text-xs text-muted">{formatDate(d.date)} · {confidenceLabel[d.confidence]}</div>
+
+    <article class="prose-ag mt-8"><Content /></article>
+
+    <div class="mt-10 rounded-lg border border-accent/30 bg-accent/[0.04] p-5">
+      <div class="label mb-1">Dossier complet</div>
+      <p class="text-sm text-muted">
+        La version complète (15–25 pages) est réservée aux offres payantes.
+        <a href="/contact" class="text-accent underline">Demander l’accès</a>.
+      </p>
+    </div>
+
+    <Sources sources={d.sources} />
+  </Section>
+</Base>
