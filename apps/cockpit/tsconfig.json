@@ -9,6 +9,7 @@
     "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
+      "@ag/chokepoints": ["../../packages/chokepoints/src/index.ts"],
       "@ag/schema": ["../../packages/schema/src/index.ts"],
       "@ag/schema/cockpit": ["../../packages/schema/src/cockpit/index.ts"],
       "@ag/schema/content": ["../../packages/schema/src/content/index.ts"],

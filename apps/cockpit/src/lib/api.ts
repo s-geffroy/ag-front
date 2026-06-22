@@ -1,4 +1,5 @@
 import type { Contact, Deliverable, Milestone, Scorecard } from '@ag/schema/cockpit';
+import type { ChokepointDetail, ChokepointList } from '@ag/chokepoints';
 import type { CockpitState } from '../types';
 
 async function asJson<T>(res: Response): Promise<T> {
@@ -27,4 +28,10 @@ export const api = {
   putContact: (c: Contact) =>
     fetch(`/api/contacts/${encodeURIComponent(c.id)}`, put(c)).then(asJson<Contact>),
   putMetrics: (s: Scorecard) => fetch('/api/metrics', put(s)).then(asJson<Scorecard>),
+  getChokepoints: (priority?: string) =>
+    fetch(`/api/chokepoints${priority ? `?priority=${encodeURIComponent(priority)}` : ''}`).then(
+      asJson<ChokepointList>,
+    ),
+  getChokepointDetail: (id: string) =>
+    fetch(`/api/chokepoints/${encodeURIComponent(id)}`).then(asJson<ChokepointDetail>),
 };

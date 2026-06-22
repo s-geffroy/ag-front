@@ -76,8 +76,11 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
   Acquisition du cockpit ; email SMTP optionnel (ADR 0006/0011). Repli `mailto` si réseau KO.
 - **Mode nuit** du site public : tokens sémantiques (vars CSS) + toggle header, défaut préférence système.
 - **Atlas ↔ Chokepoints Read API** : intégration **au build** via `@ag/chokepoints` (client typé, scope
-  `read`, taint-aware), section base de données + pages détail `/atlas/chokepoints/[id]`. Dégradation
-  gracieuse sans token. Token build-only via `docker/.env` (ADR 0012).
+  `read`, taint-aware), section base de données + pages détail `/atlas/chokepoints/[id]` + **carte
+  Leaflet** (`/atlas/carte`, export GeoJSON). Dégradation gracieuse sans token. Token build-only (ADR 0012).
+- **Scope `read_tainted` = interne uniquement** (ADR 0013) : le **site public reste clair** ; les données
+  restreintes ne vivent que dans le **cockpit** (vue **Exploration**, Tailscale, proxy serveur + token
+  tainted dédié). 0 tainted aujourd'hui ; frontière prospective.
 - **Skills** : `frontend-design`, `owasp-security` (formulaires/inputs publics = surface d'attaque),
   `canvas-design` (visuels Atlas/dossiers si livrables PDF/poster).
 

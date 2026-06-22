@@ -5,6 +5,11 @@ export type ChokepointsClientOptions = {
   token: string;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
+  /**
+   * Opt-in to redistribution-restricted ("tainted") records. Defaults to **false** (clear only).
+   * Requires a `read_tainted` token AND a non-public surface — never enable on the public site.
+   */
+  includeTainted?: boolean;
 };
 
 export type ListParams = {
@@ -24,9 +29,10 @@ export type ChokepointsClient = {
 /**
  * Read-only client for the Chokepoints Read API.
  *
- * PUBLIC-SAFE BY CONSTRUCTION: only the `read` scope is ever exercised — `include_tainted` is never
- * sent, so redistribution-restricted ("tainted") records stay excluded. Intended for **build-time**
- * use on a tailnet host; the Bearer token must never reach the client.
+ * SAFE BY DEFAULT: `include_tainted` is sent **only** when `includeTainted: true` is explicitly set
+ * (which also requires a `read_tainted` token). Left unset, redistribution-restricted records stay
+ * excluded — the public build never opts in. The Bearer token must never reach the browser; intended
+ * for build-time (public) or server-side (cockpit) use on a tailnet host.
  */
 export function createChokepointsClient(opts: ChokepointsClientOptions): ChokepointsClient {
   const fetchImpl = opts.fetchImpl ?? fetch;
@@ -43,6 +49,7 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
         if (v !== undefined) url.searchParams.set(k, String(v));
       }
     }
+    if (opts.includeTainted) url.searchParams.set('include_tainted', 'true');
     const res = await fetchImpl(url, {
       headers: { Authorization: `Bearer ${opts.token}`, Accept: 'application/json' },
       signal: AbortSignal.timeout(timeoutMs),

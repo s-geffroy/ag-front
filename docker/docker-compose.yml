@@ -44,6 +44,11 @@ services:
     environment:
       HOST: '0.0.0.0' # inside the isolated container; host only publishes on 127.0.0.1
       PORT: '8787'
+      # Internal chokepoints exploration: read_tainted scope (include_tainted). Tailnet-only surface —
+      # restricted records are NEVER published to the public site (ADR 0013).
+      CHOKEPOINTS_API_URL: ${CHOKEPOINTS_API_URL:-https://srv1305127.tail880531.ts.net/api}
+      CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN_TAINTED:-}
+      CHOKEPOINTS_INCLUDE_TAINTED: 'true'
     ports:
       - '127.0.0.1:8787:8787'
     restart: unless-stopped

@@ -7,6 +7,7 @@ import {
   writeCollection,
   type ItemCollectionName,
 } from './store';
+import { chokepointsClient } from './chokepoints';
 
 /**
  * Read + narrow-write API over the E-light JSON model. No auth: the cockpit is reachable only on
@@ -25,6 +26,35 @@ export function createApiRouter(): Router {
       res.json(await readState());
     } catch (err) {
       next(err);
+    }
+  });
+
+  // Internal chokepoints exploration (read_tainted, Tailscale-only). Server-side proxy keeps the token
+  // off the client and restricted data off the public surface.
+  r.get('/chokepoints', async (req: Request, res: Response, next: NextFunction) => {
+    const client = chokepointsClient();
+    if (!client) {
+      res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+      return;
+    }
+    try {
+      const priority = typeof req.query.priority === 'string' ? req.query.priority : undefined;
+      res.json(await client.listChokepoints({ priority_class: priority, limit: 500 }));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  r.get('/chokepoints/:id', async (req: Request, res: Response) => {
+    const client = chokepointsClient();
+    if (!client) {
+      res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+      return;
+    }
+    try {
+      res.json(await client.getChokepoint(req.params.id));
+    } catch (err) {
+      res.status(502).json({ error: 'upstream', detail: String(err) });
     }
   });
 

@@ -11,6 +11,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      '@ag/chokepoints': pkg('chokepoints/src/index.ts'),
       '@ag/schema/cockpit': pkg('schema/src/cockpit/index.ts'),
       '@ag/schema/content': pkg('schema/src/content/index.ts'),
       '@ag/schema': pkg('schema/src/index.ts'),

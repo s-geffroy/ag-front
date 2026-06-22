@@ -6,6 +6,7 @@ import { RoadmapPage } from './pages/RoadmapPage';
 import { QualityGatesPage } from './pages/QualityGatesPage';
 import { ScorecardPage } from './pages/ScorecardPage';
 import { AcquisitionPage } from './pages/AcquisitionPage';
+import { ExplorationPage } from './pages/ExplorationPage';
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
       { path: 'quality', element: <QualityGatesPage /> },
       { path: 'scorecard', element: <ScorecardPage /> },
       { path: 'acquisition', element: <AcquisitionPage /> },
+      { path: 'exploration', element: <ExplorationPage /> },
     ],
   },
 ]);

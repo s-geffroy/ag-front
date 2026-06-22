@@ -29,6 +29,21 @@ describe('chokepoints client', () => {
     expect(calledUrl).not.toContain('include_tainted');
   });
 
+  it('sends include_tainted=true only when explicitly opted in', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      includeTainted: true,
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse({ items: [] });
+      },
+    });
+    await client.listChokepoints();
+    expect(calledUrl).toContain('include_tainted=true');
+  });
+
   it('throws on a non-200 response', async () => {
     const client = createChokepointsClient({
       baseUrl: 'https://host/api',

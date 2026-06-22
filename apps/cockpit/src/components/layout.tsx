@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Download,
+  Globe2,
   KanbanSquare,
   LayoutDashboard,
   Map as MapIcon,
@@ -25,6 +26,7 @@ const NAV = [
   { to: '/quality', label: 'Quality Gates', icon: ShieldCheck, end: false },
   { to: '/scorecard', label: 'Scorecard', icon: BarChart3, end: false },
   { to: '/acquisition', label: 'Acquisition', icon: Users, end: false },
+  { to: '/exploration', label: 'Exploration', icon: Globe2, end: false },
 ];
 
 function Sidebar() {
