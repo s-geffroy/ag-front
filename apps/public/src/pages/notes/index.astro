@@ -14,12 +14,14 @@ const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
   description="Notes courtes : un angle analytique, trois signaux à suivre, une implication décisionnelle."
 >
   <Section class="py-14">
-    <h1 class="text-3xl">Notes &amp; analyses</h1>
-    <p class="prose-ag mt-3 max-w-prose">
+    <p class="eyebrow">Notes &amp; analyses</p>
+    <h1 class="mt-4 font-serif text-title font-bold">Notes &amp; analyses</h1>
+    <p class="prose-ag mt-4 max-w-prose">
       Des notes courtes, lisibles en quelques minutes : un angle, des signaux à suivre, une implication
       pour les directions risques et résilience. <a href="/notes/rss.xml">Flux RSS</a>.
     </p>
-    <div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="section-rule mt-12"><span class="label">Toutes les notes</span></div>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {
         notes.map((n) => (
           <EntryCard
@@ -27,6 +29,7 @@ const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
             kicker="Note"
             title={n.data.title}
             summary={n.data.summary}
+            access={n.data.access}
             date={n.data.date}
           />
         ))

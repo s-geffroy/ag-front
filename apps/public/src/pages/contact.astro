@@ -4,7 +4,7 @@ import Section from '../components/Section.astro';
 import { site } from '../lib/site';
 
 const fieldClass =
-  'mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30';
+  'mt-1 w-full rounded-[3px] border border-hairline bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25';
 ---
 
 <Base
@@ -12,8 +12,9 @@ const fieldClass =
   description="Demander un échange stratégique, un pilote Premium, ou transmettre une critique."
 >
   <Section width="prose" class="py-14">
-    <h1 class="text-3xl">Échange stratégique</h1>
-    <p class="prose-ag mt-3">
+    <p class="eyebrow">Contact</p>
+    <h1 class="mt-4 font-serif text-title font-bold">Échange stratégique</h1>
+    <p class="prose-ag mt-4">
       Nous échangeons d’abord sur un problème réel — pas sur une offre. Vingt minutes pour identifier
       vos angles morts opérationnels sur un corridor qui vous expose.
     </p>
@@ -55,12 +56,7 @@ const fieldClass =
         aria-hidden="true"
         class="hidden"
       />
-      <button
-        type="submit"
-        class="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent/90"
-      >
-        Envoyer
-      </button>
+      <button type="submit" class="btn-primary"> Envoyer </button>
       <p id="form-status" class="text-sm" role="status" aria-live="polite"></p>
       <p class="text-xs text-muted">
         Vos informations servent uniquement à répondre à votre demande. Vous pouvez aussi écrire

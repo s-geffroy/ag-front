@@ -1,0 +1,59 @@
+---
+/**
+ * CVI vulnerability meter — the site's signature instrument.
+ * A 4-segment calibrated thermometer (bas → critique) that fills up to the
+ * scored level, each segment carrying its own ramp colour. Reused on cards,
+ * fiche headers and the method page so vulnerability is always read the same way.
+ */
+type Level = 'bas' | 'modere' | 'eleve' | 'critique';
+interface Props {
+  level: Level;
+  showLabel?: boolean;
+  class?: string;
+}
+const { level, showLabel = true, class: cls = '' } = Astro.props;
+
+const order: Level[] = ['bas', 'modere', 'eleve', 'critique'];
+const idx = order.indexOf(level);
+const shortLabel: Record<Level, string> = {
+  bas: 'Basse',
+  modere: 'Modérée',
+  eleve: 'Élevée',
+  critique: 'Critique',
+};
+// Each segment owns a ramp colour; segments up to the level light up.
+const segVar = ['--cvi-1', '--cvi-2', '--cvi-3', '--cvi-4'];
+const labelVar = segVar[idx];
+---
+
+<span
+  class={`inline-flex items-center gap-2 ${cls}`}
+  role="img"
+  aria-label={`Vulnérabilité ${shortLabel[level].toLowerCase()}`}
+  title={`Vulnérabilité ${shortLabel[level].toLowerCase()}`}
+>
+  <span class="flex items-center gap-[3px]" aria-hidden="true">
+    {
+      segVar.map((sv, i) => (
+        <span
+          class="h-[7px] w-[14px] rounded-[1px]"
+          style={
+            i <= idx
+              ? `background: rgb(var(${sv}))`
+              : 'background: rgb(var(--line))'
+          }
+        />
+      ))
+    }
+  </span>
+  {
+    showLabel ? (
+      <span
+        class="font-mono text-[10px] font-semibold uppercase tracking-[0.1em]"
+        style={`color: rgb(var(${labelVar}))`}
+      >
+        {shortLabel[level]}
+      </span>
+    ) : null
+  }
+</span>

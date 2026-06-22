@@ -2,16 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Semantic tokens as RGB triplets, flipped by the `.dark` class on <html>. */
+/* ─────────────────────────────────────────────────────────────────────────
+   Applied Geopolitics — editorial design tokens.
+   Identity: a strategic-intelligence briefing. Newsprint ground, one decisive
+   signal-red accent (the colour of a binding constraint), maritime navy kept
+   as structural ink for the corridor motif, and a calibrated CVI vulnerability
+   ramp (bas → critique) reused wherever a corridor is scored.
+   Colours are RGB triplets so the whole site flips with the `.dark` class.
+   ───────────────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
-  --canvas: 252 252 253;
+  --canvas: 250 249 246; /* warm newsprint */
   --surface: 255 255 255;
-  --subtle: 240 242 245;
-  --ink: 19 21 26;
-  --muted: 91 100 112;
-  --line: 227 230 235;
-  --accent: 31 78 121;
+  --subtle: 243 241 236;
+  --ink: 26 26 28;
+  --muted: 92 96 104;
+  --line: 224 221 214; /* warm hairline */
+  --hairline: 209 205 196; /* slightly darker rule */
+  --accent: 198 27 38; /* editorial signal red */
+  --navy: 31 78 121; /* maritime corridor ink */
+  /* Calibrated vulnerability ramp — sequential, encodes meaning, never decoration. */
+  --cvi-1: 31 122 77; /* bas       */
+  --cvi-2: 178 130 24; /* modéré    */
+  --cvi-3: 196 75 18; /* élevé     */
+  --cvi-4: 178 38 30; /* critique  */
+  /* Operational status (kept for parity with shared tokens). */
   --st-on: 31 122 77;
   --st-risk: 182 118 27;
   --st-blocked: 179 38 30;
@@ -20,13 +35,19 @@
 
 .dark {
   color-scheme: dark;
-  --canvas: 14 16 20;
-  --surface: 22 25 31;
-  --subtle: 30 34 42;
-  --ink: 231 234 239;
-  --muted: 150 159 171;
-  --line: 39 44 53;
-  --accent: 122 167 214;
+  --canvas: 17 18 21;
+  --surface: 24 26 30;
+  --subtle: 32 35 41;
+  --ink: 233 231 226;
+  --muted: 150 156 166;
+  --line: 42 45 52;
+  --hairline: 55 59 67;
+  --accent: 233 86 92;
+  --navy: 124 168 214;
+  --cvi-1: 63 191 134;
+  --cvi-2: 224 178 70;
+  --cvi-3: 232 140 90;
+  --cvi-4: 232 109 101;
   --st-on: 63 191 134;
   --st-risk: 224 168 58;
   --st-blocked: 232 121 111;
@@ -40,28 +61,94 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  h1, h2, h3, h4 {
-    @apply font-serif font-semibold tracking-tight;
+  body {
+    font-feature-settings: 'cv05', 'ss01';
   }
+  h1, h2, h3, h4 {
+    @apply font-serif font-semibold tracking-tight text-ink;
+  }
+  h1 { letter-spacing: -0.02em; }
   ::selection {
-    background: rgb(var(--accent) / 0.22);
+    background: rgb(var(--accent) / 0.18);
+  }
+  /* Quiet, accessible focus ring on the editorial accent. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent) / 0.7);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 
 @layer components {
+  /* Mono instrument layer — datelines, section tags, scores, source counts. */
   .label {
-    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-muted;
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted;
   }
+  /* Eyebrow = a dateline/section tag in the accent, the recurring structural device. */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-accent;
+  }
+  .eyebrow::before {
+    content: '';
+    @apply inline-block h-[2px] w-6 bg-accent;
+  }
+  /* Section divider: a thin rule carrying a mono tag, Espresso-style. */
+  .section-rule {
+    @apply mb-6 flex items-baseline gap-3 border-t-2 border-ink pt-2;
+  }
+
+  /* Editorial body prose. */
   .prose-ag {
-    @apply text-[1.0625rem] leading-relaxed text-ink/90;
+    @apply text-[1.0625rem] leading-[1.72] text-ink/90;
   }
-  .prose-ag h2 { @apply mb-3 mt-10 text-2xl text-ink; }
-  .prose-ag h3 { @apply mb-2 mt-7 text-lg text-ink; }
+  .prose-ag h2 { @apply mb-3 mt-12 text-[1.7rem] leading-tight text-ink; }
+  .prose-ag h3 { @apply mb-2 mt-8 text-xl text-ink; }
   .prose-ag p { @apply my-4; }
-  .prose-ag ul { @apply my-4 list-disc space-y-1.5 pl-5; }
-  .prose-ag ol { @apply my-4 list-decimal space-y-1.5 pl-5; }
-  .prose-ag a { @apply text-accent underline underline-offset-2; }
+  .prose-ag ul { @apply my-4 list-disc space-y-1.5 pl-5 marker:text-accent; }
+  .prose-ag ol { @apply my-4 list-decimal space-y-1.5 pl-5 marker:text-muted; }
+  .prose-ag a { @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent; }
   .prose-ag strong { @apply font-semibold text-ink; }
-  .prose-ag blockquote { @apply my-5 border-l-2 border-accent/40 pl-4 italic text-muted; }
-  .prose-ag hr { @apply my-8 border-line; }
+  .prose-ag em { @apply italic; }
+  .prose-ag blockquote { @apply my-6 border-l-2 border-accent pl-4 font-serif text-lg italic text-ink/80; }
+  .prose-ag hr { @apply my-10 border-line; }
+
+  /* First line of a fiche/dossier: the strategic verdict, drawn like a pull-quote. */
+  .verdict {
+    @apply border-l-2 border-accent pl-4 font-serif text-xl leading-snug text-ink;
+  }
+
+  /* Primary / secondary editorial buttons. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 text-sm font-medium transition-colors;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent/90;
+  }
+  .btn-ghost {
+    @apply btn border border-hairline bg-surface text-ink hover:border-ink/50;
+  }
+
+  /* Briefing card — the repeated content unit. */
+  .card {
+    @apply relative flex flex-col border border-line bg-surface p-5 transition-colors;
+  }
+  .card-link {
+    @apply card hover:border-ink/40;
+  }
+  /* The accent tick that grows on hover — the only motion on a card. */
+  .card-link::before {
+    content: '';
+    @apply absolute left-0 top-0 h-[2px] w-0 bg-accent transition-all duration-200;
+  }
+  .card-link:hover::before { @apply w-12; }
 }
+
+/* Leaflet popups inherit the editorial surface in both themes. */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: rgb(var(--surface));
+  color: rgb(var(--ink));
+  border-radius: 3px;
+}
+.leaflet-container { background: rgb(var(--subtle)); font-family: inherit; }
+.leaflet-popup-content a { color: rgb(var(--accent)); }

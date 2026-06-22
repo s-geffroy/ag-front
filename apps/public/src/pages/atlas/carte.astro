@@ -18,15 +18,34 @@ const nodeCount = fc.features.filter((f) => (f.properties ?? {}).role === 'displ
   description="Carte interactive schématique des chokepoints (base canonique, lecture seule)."
 >
   <Section class="py-10">
-    <a href="/atlas" class="text-sm text-accent hover:underline">← Atlas</a>
-    <h1 class="mt-3 text-3xl">Carte des chokepoints</h1>
-    <p class="mt-2 max-w-prose text-sm text-muted">
-      {nodeCount} nœuds géolocalisés (schématiques). Couleur = priorité (P0 → P3). {note}
+    <a href="/atlas" class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent">
+      ← Atlas
+    </a>
+    <p class="eyebrow mt-4">Carte schématique</p>
+    <h1 class="mt-3 font-serif text-title font-bold">Carte des chokepoints</h1>
+    <p class="mt-3 max-w-prose text-sm text-muted">
+      {nodeCount} nœuds géolocalisés (schématiques). La couleur encode la priorité. {note}
     </p>
+
+    <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+      {
+        [
+          { p: 'P0', c: 'var(--cvi-4)', l: 'Critique' },
+          { p: 'P1', c: 'var(--cvi-3)', l: 'Élevée' },
+          { p: 'P2', c: 'var(--navy)', l: 'Structurelle' },
+          { p: 'P3', c: 'var(--st-none)', l: 'De veille' },
+        ].map((x) => (
+          <span class="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+            <span class="h-2.5 w-2.5 rounded-full" style={`background: rgb(${x.c})`} />
+            {x.p} · {x.l}
+          </span>
+        ))
+      }
+    </div>
 
     <div
       id="cp-map"
-      class="mt-6 h-[72vh] w-full overflow-hidden rounded-lg border border-line"
+      class="mt-6 h-[72vh] w-full overflow-hidden rounded border border-hairline"
       role="application"
       aria-label="Carte des chokepoints"
     >
@@ -67,8 +86,8 @@ const nodeCount = fc.features.filter((f) => (f.properties ?? {}).role === 'displ
       );
 
       const COLORS: Record<string, string> = {
-        P0: '#b3261e',
-        P1: '#b6761b',
+        P0: '#b2261e',
+        P1: '#c44b12',
         P2: '#1f4e79',
         P3: '#8a909a',
       };

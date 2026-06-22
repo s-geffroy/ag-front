@@ -4,7 +4,7 @@ import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import EntryCard from '../../components/EntryCard.astro';
 import Pill from '../../components/Pill.astro';
-import { cviLevelLabel, familyLabel, humanize, priorityTone } from '../../lib/labels';
+import { familyLabel, humanize, priorityTone } from '../../lib/labels';
 import { loadChokepoints } from '../../lib/atlas-data';
 
 const fiches = (await getCollection('atlas')).sort((a, b) =>
@@ -25,15 +25,18 @@ const nodes = chokepoints.items
   description="L’Atlas stratégique des corridors : fiches structurées et base de données des chokepoints."
 >
   <Section class="py-14">
-    <h1 class="text-3xl">Atlas stratégique des corridors</h1>
-    <p class="prose-ag mt-3 max-w-prose">
+    <p class="eyebrow">Atlas stratégique</p>
+    <h1 class="mt-4 max-w-3xl font-serif text-title font-bold">
+      Atlas stratégique des corridors
+    </h1>
+    <p class="prose-ag mt-4 max-w-prose">
       L’Atlas est une grille de lecture et une base de fiches comparables. Chaque fiche commence par un
       verdict stratégique, explicite les flux et propose des seuils d’alerte. Le scoring CVI 0–5 par
       dimension est réservé aux offres payantes.
     </p>
 
-    <h2 class="label mt-10">Fiches</h2>
-    <div class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="section-rule mt-12"><span class="label">Fiches</span></div>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {
         fiches.map((f) => (
           <EntryCard
@@ -42,26 +45,27 @@ const nodes = chokepoints.items
             title={f.data.title}
             summary={f.data.verdict}
             access={f.data.access}
-          >
-            {f.data.cvi_level ? <Pill>{cviLevelLabel[f.data.cvi_level]}</Pill> : null}
-          </EntryCard>
+            cvi={f.data.cvi_level}
+          />
         ))
       }
     </div>
 
     {
       chokepoints.ok && nodes.length ? (
-        <div class="mt-14">
-          <div class="flex flex-wrap items-end justify-between gap-2">
-            <h2 class="label">Chokepoints prioritaires (P0)</h2>
-            <a href="/atlas/carte" class="text-sm text-accent hover:underline">Voir la carte interactive →</a>
+        <div class="mt-16">
+          <div class="section-rule">
+            <span class="label">Chokepoints prioritaires · P0</span>
+            <a href="/atlas/carte" class="ml-auto text-sm text-accent hover:underline">
+              Carte interactive →
+            </a>
           </div>
-          <p class="mt-2 max-w-prose text-sm text-muted">
+          <p class="-mt-2 mb-5 max-w-prose text-sm text-muted">
             Cœur stratégique extrait de la base de données des chokepoints (plusieurs centaines de nœuds
             P0–P3, lecture seule). {chokepoints.attributionNotice ??
               'Géométrie schématique, sans valeur navigationnelle ou juridique.'}
           </p>
-          <div class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {nodes.map((c) => (
               <EntryCard
                 href={`/atlas/chokepoints/${c.id}`}

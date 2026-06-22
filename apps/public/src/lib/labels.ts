@@ -1,4 +1,4 @@
-export type Tone = 'neutral' | 'accent' | 'on' | 'risk' | 'blocked';
+export type Tone = 'neutral' | 'accent' | 'navy' | 'on' | 'risk' | 'blocked';
 
 export const accessLabel: Record<string, string> = {
   public: 'Public',

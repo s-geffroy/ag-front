@@ -25,3 +25,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0013](0013-tainted-scope-internal-only.md) | read_tainted internal-only; public stays clear | Accepted |
 | [0027](0027-thinking-skills-guardrails.md) | Thinking-skills data-integrity guardrails | Accepted (carried) |
 | [0029](0029-plugins.md) | Installed plugins (commit-commands, security-guidance) | Accepted (carried) |
+| [0030](0030-public-visual-identity.md) | Public site visual identity = editorial "strategic-briefing" | Accepted |

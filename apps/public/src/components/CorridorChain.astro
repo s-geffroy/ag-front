@@ -1,0 +1,52 @@
+---
+/**
+ * The doctrine chain rendered as an instrumented corridor: a navy rail with a
+ * node at each stage, terminating in an accent node at "Décisions" — the point
+ * the whole method drives toward. Structural, not decorative: the order is the
+ * argument (corridors → … → décisions).
+ */
+interface Props {
+  steps: string[];
+  class?: string;
+}
+const { steps, class: cls = '' } = Astro.props;
+const n = steps.length;
+const inset = `${50 / n}%`;
+---
+
+<div class={`overflow-x-auto ${cls}`}>
+  <ol
+    class="relative grid min-w-[600px] sm:min-w-0"
+    style={`grid-template-columns: repeat(${n}, minmax(0, 1fr))`}
+  >
+    <!-- The rail: starts at the first node centre, ends at the last. -->
+    <span
+      class="absolute top-[5px] h-px bg-navy/40"
+      style={`left: ${inset}; right: ${inset}`}
+      aria-hidden="true"
+    ></span>
+    {
+      steps.map((step, i) => {
+        const last = i === n - 1;
+        return (
+          <li class="relative flex flex-col items-center px-1 text-center">
+            <span
+              class={`z-10 h-[11px] w-[11px] rounded-full border-2 bg-canvas ${
+                last ? 'border-accent' : 'border-navy'
+              }`}
+              style={last ? 'background: rgb(var(--accent))' : ''}
+              aria-hidden="true"
+            />
+            <span
+              class={`mt-2.5 font-mono text-[10px] uppercase tracking-[0.08em] sm:text-[11px] ${
+                last ? 'font-semibold text-accent' : 'text-muted'
+              }`}
+            >
+              {step}
+            </span>
+          </li>
+        );
+      })
+    }
+  </ol>
+</div>

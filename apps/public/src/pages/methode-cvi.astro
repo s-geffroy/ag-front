@@ -3,12 +3,20 @@ import { cviDimensions, cviDimensionKeys } from '@ag/cvi';
 import Base from '../layouts/Base.astro';
 import Section from '../components/Section.astro';
 import Pill from '../components/Pill.astro';
+import CviMeter from '../components/CviMeter.astro';
 
 const scales = [
   { offer: 'Public / Basic', scale: 'Diagnostic qualitatif', detail: 'bas · modéré · élevé · critique' },
   { offer: 'Standard', scale: 'Score 0–5 par dimension', detail: '+ niveau global qualitatif' },
   { offer: 'Premium', scale: 'Score agrégé 0–100', detail: 'uniquement si la méthodologie est documentée' },
 ];
+
+const ramp = [
+  { level: 'bas', note: 'Alternatives crédibles, faible exposition.' },
+  { level: 'modere', note: 'Dépendance réelle, contournement coûteux.' },
+  { level: 'eleve', note: 'Peu d’alternatives, seuils proches.' },
+  { level: 'critique', note: 'Concentration extrême, perturbation systémique.' },
+] as const;
 ---
 
 <Base
@@ -16,23 +24,38 @@ const scales = [
   description="Le Corridor Vulnerability Index : huit dimensions pour évaluer la vulnérabilité d’un corridor, sans illusion de précision."
 >
   <Section width="prose" class="py-14">
-    <h1 class="text-3xl">Méthode CVI</h1>
-    <p class="prose-ag mt-3">
-      Le <strong>Corridor Vulnerability Index</strong> évalue la vulnérabilité d’un corridor de façon
-      structurée, <strong>sans créer d’illusion de précision mécanique</strong>. Il distingue
-      notamment la <em>menace</em> (un acteur ou un événement) de la <em>capacité réelle</em> de
-      perturbation.
+    <p class="eyebrow">Méthode</p>
+    <h1 class="mt-4 font-serif text-title font-bold">Corridor Vulnerability Index</h1>
+    <p class="prose-ag mt-4">
+      Le <strong>CVI</strong> évalue la vulnérabilité d’un corridor de façon structurée,
+      <strong>sans créer d’illusion de précision mécanique</strong>. Il distingue notamment la
+      <em>menace</em> (un acteur ou un événement) de la <em>capacité réelle</em> de perturbation.
     </p>
   </Section>
 
-  <Section class="pb-6">
-    <h2 class="mb-4 text-2xl">Les huit dimensions</h2>
-    <div class="grid gap-4 md:grid-cols-2">
+  <!-- The reading scale — the site's signature instrument, explained once. -->
+  <Section class="pb-4">
+    <div class="section-rule"><span class="label">Lire la vulnérabilité</span></div>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        ramp.map((r) => (
+          <div class="border border-line bg-surface p-4">
+            <CviMeter level={r.level} class="mb-3" />
+            <p class="text-sm text-muted">{r.note}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section class="py-10">
+    <div class="section-rule"><span class="label">Les huit dimensions</span></div>
+    <div class="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
       {
         cviDimensionKeys.map((k, i) => (
-          <div class="rounded-lg border border-line bg-surface p-5">
-            <div class="flex items-baseline gap-2">
-              <span class="font-serif text-sm text-accent">{String(i + 1).padStart(2, '0')}</span>
+          <div class="bg-surface p-5">
+            <div class="flex items-baseline gap-3">
+              <span class="font-mono text-sm font-semibold text-accent">{String(i + 1).padStart(2, '0')}</span>
               <h3 class="font-serif text-lg">{cviDimensions[k].label}</h3>
             </div>
             <p class="mt-1.5 text-sm text-muted">{cviDimensions[k].question}</p>
@@ -42,16 +65,16 @@ const scales = [
     </div>
   </Section>
 
-  <Section width="prose" class="py-10">
-    <h2 class="text-2xl">Une échelle progressive</h2>
-    <p class="prose-ag mt-3">
+  <Section width="prose" class="py-8">
+    <div class="section-rule"><span class="label">Une échelle progressive</span></div>
+    <p class="prose-ag">
       L’échelle dépend de l’offre. Règle dure : <strong>pas de score global 0–100 sans documentation
       méthodologique</strong>.
     </p>
     <div class="mt-5 space-y-3">
       {
         scales.map((s) => (
-          <div class="flex flex-wrap items-baseline justify-between gap-2 rounded-lg border border-line bg-surface p-4">
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border border-line bg-surface p-4">
             <div>
               <div class="font-medium text-ink">{s.scale}</div>
               <div class="text-sm text-muted">{s.detail}</div>

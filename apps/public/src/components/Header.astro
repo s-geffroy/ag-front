@@ -4,15 +4,28 @@ const path = Astro.url.pathname;
 const isActive = (href: string) => path === href || path.startsWith(href + '/');
 ---
 
-<header class="sticky top-0 z-30 border-b border-line bg-canvas/85 backdrop-blur">
-  <div class="mx-auto flex max-w-content flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-3">
-    <a href="/" class="font-serif text-lg font-semibold tracking-tight">Applied Geopolitics</a>
+<header
+  class="sticky top-0 z-30 border-t-[3px] border-t-accent border-b border-b-hairline bg-canvas/90 backdrop-blur"
+>
+  <div
+    class="mx-auto flex max-w-content flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-3"
+  >
+    <a href="/" class="group flex items-baseline gap-2 whitespace-nowrap">
+      <span class="font-serif text-lg font-bold tracking-tight text-ink">Applied Geopolitics</span>
+      <span class="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-muted sm:inline"
+        >Corridors · Flux · Vulnérabilités</span
+      >
+    </a>
     <nav class="order-3 flex w-full gap-x-5 gap-y-1 overflow-x-auto md:order-2 md:w-auto">
       {
         nav.map((n) => (
           <a
             href={n.href}
-            class={`whitespace-nowrap py-0.5 text-sm ${isActive(n.href) ? 'text-accent' : 'text-muted hover:text-ink'}`}
+            class={`whitespace-nowrap border-b-2 py-0.5 text-sm transition-colors ${
+              isActive(n.href)
+                ? 'border-accent font-medium text-ink'
+                : 'border-transparent text-muted hover:text-ink'
+            }`}
           >
             {n.label}
           </a>
@@ -25,7 +38,7 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
         type="button"
         aria-label="Basculer mode jour / nuit"
         title="Mode jour / nuit"
-        class="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-subtle hover:text-ink"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-[3px] text-muted hover:bg-subtle hover:text-ink"
       >
         <svg
           class="h-4 w-4 dark:hidden"
@@ -55,12 +68,7 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
           ></path>
         </svg>
       </button>
-      <a
-        href="/contact"
-        class="rounded-md bg-accent px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent/90"
-      >
-        Échange stratégique
-      </a>
+      <a href="/contact" class="btn-primary px-3.5 py-1.5"> Échange stratégique </a>
     </div>
   </div>
 

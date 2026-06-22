@@ -2,8 +2,9 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
+import Pill from '../../components/Pill.astro';
 import Sources from '../../components/Sources.astro';
-import { confidenceLabel, formatDate } from '../../lib/labels';
+import { accessLabel, accessTone, confidenceLabel, formatDate } from '../../lib/labels';
 
 export async function getStaticPaths() {
   const notes = await getCollection('notes');
@@ -20,17 +21,25 @@ const { Content } = await entry.render();
 
 <Base title={d.title} description={d.summary} type="article">
   <Section width="prose" class="py-12">
-    <a href="/notes" class="text-sm text-accent hover:underline">← Notes</a>
-    <h1 class="mt-4 text-3xl">{d.title}</h1>
-    <div class="mt-2 text-xs text-muted">{formatDate(d.date)} · {confidenceLabel[d.confidence]}</div>
+    <a href="/notes" class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent">
+      ← Notes
+    </a>
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <Pill tone="neutral">Note</Pill>
+      <Pill tone={accessTone[d.access]}>{accessLabel[d.access]}</Pill>
+    </div>
+    <h1 class="mt-5 font-serif text-title font-bold">{d.title}</h1>
+    <p class="mt-3 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+      {formatDate(d.date)} · {confidenceLabel[d.confidence]}
+    </p>
 
     <article class="prose-ag mt-8"><Content /></article>
 
     {
       d.signals.length ? (
-        <section class="mt-8 rounded-lg border border-line bg-surface p-5">
-          <div class="label mb-2">Signaux à suivre</div>
-          <ul class="list-disc space-y-1 pl-5 text-sm text-ink/90">
+        <section class="mt-10 border border-line bg-surface p-5">
+          <div class="eyebrow mb-3">Signaux à suivre</div>
+          <ul class="list-disc space-y-1.5 pl-5 text-sm text-ink/90 marker:text-accent">
             {d.signals.map((s) => (
               <li>{s}</li>
             ))}
@@ -41,7 +50,7 @@ const { Content } = await entry.render();
 
     {
       d.decision_implication ? (
-        <p class="mt-6 text-sm">
+        <p class="mt-6 text-sm leading-relaxed">
           <span class="label">Implication décisionnelle — </span>
           {d.decision_implication}
         </p>
@@ -49,7 +58,7 @@ const { Content } = await entry.render();
     }
     {
       d.blind_spot ? (
-        <p class="mt-3 text-sm text-muted">
+        <p class="mt-3 text-sm leading-relaxed text-muted">
           <span class="label">Angle mort — </span>
           {d.blind_spot}
         </p>

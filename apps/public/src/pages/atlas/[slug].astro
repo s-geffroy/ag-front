@@ -3,13 +3,12 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import Pill from '../../components/Pill.astro';
+import CviMeter from '../../components/CviMeter.astro';
 import Sources from '../../components/Sources.astro';
 import {
   accessLabel,
   accessTone,
   confidenceLabel,
-  cviLevelLabel,
-  cviLevelTone,
   familyLabel,
   formatDate,
 } from '../../lib/labels';
@@ -29,19 +28,30 @@ const { Content } = await entry.render();
 
 <Base title={d.title} description={d.verdict} type="article">
   <Section width="prose" class="py-12">
-    <a href="/atlas" class="text-sm text-accent hover:underline">← Atlas</a>
-    <div class="mt-4 flex flex-wrap gap-2">
-      <Pill tone="neutral">{familyLabel[d.family] ?? d.family}</Pill>
+    <a href="/atlas" class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent">
+      ← Atlas
+    </a>
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <Pill tone="navy">{familyLabel[d.family] ?? d.family}</Pill>
       <Pill tone={accessTone[d.access]}>{accessLabel[d.access]}</Pill>
-      {d.cvi_level ? <Pill tone={cviLevelTone[d.cvi_level]}>{cviLevelLabel[d.cvi_level]}</Pill> : null}
+      <Pill tone="neutral">{d.priority}</Pill>
     </div>
-    <h1 class="mt-4 text-3xl">{d.title}</h1>
-    <p class="mt-4 border-l-2 border-accent/50 pl-4 font-serif text-lg leading-snug text-ink">
-      {d.verdict}
-    </p>
-    <div class="mt-3 text-xs text-muted">
+    <h1 class="mt-5 font-serif text-title font-bold">{d.title}</h1>
+    <p class="verdict mt-5">{d.verdict}</p>
+    {
+      d.cvi_level ? (
+        <div class="mt-6 flex flex-wrap items-center gap-3 border-y border-line py-3">
+          <span class="label">Vulnérabilité</span>
+          <CviMeter level={d.cvi_level} />
+          <span class="ml-auto font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+            Score CVI 0–5 par dimension réservé aux offres
+          </span>
+        </div>
+      ) : null
+    }
+    <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
       Mis à jour le {formatDate(d.updated)} · {confidenceLabel[d.confidence]}
-    </div>
+    </p>
     <article class="prose-ag mt-8"><Content /></article>
     <Sources sources={d.sources} />
   </Section>

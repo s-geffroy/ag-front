@@ -19,26 +19,30 @@ const detail = await loadChokepointDetail(summary.id);
 
 <Base title={summary.name} description={`Chokepoint — ${humanize(summary.family)}`} type="article">
   <Section width="prose" class="py-12">
-    <a href="/atlas" class="text-sm text-accent hover:underline">← Atlas</a>
-    <div class="mt-4 flex flex-wrap gap-2">
-      <Pill tone="neutral">{humanize(summary.family) || 'Chokepoint'}</Pill>
+    <a href="/atlas" class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent">
+      ← Atlas
+    </a>
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <Pill tone="navy">{humanize(summary.family) || 'Chokepoint'}</Pill>
       {summary.priority ? <Pill tone={priorityTone[summary.priority] ?? 'neutral'}>{summary.priority}</Pill> : null}
       {summary.region ? <Pill tone="neutral">{summary.region}</Pill> : null}
     </div>
-    <h1 class="mt-4 text-3xl">{summary.name}</h1>
+    <h1 class="mt-5 font-serif text-title font-bold">{summary.name}</h1>
     {
       summary.attributions.length ? (
-        <p class="mt-3 text-xs text-muted">Attribution : {summary.attributions.join(' · ')}</p>
+        <p class="mt-3 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+          Attribution : {summary.attributions.join(' · ')}
+        </p>
       ) : null
     }
 
     {
       detail ? (
-        <div class="mt-8 space-y-8">
+        <div class="mt-10 space-y-10">
           {detail.flows.length ? (
             <section>
-              <h2 class="text-xl">Flux</h2>
-              <ul class="mt-2 space-y-1 text-sm">
+              <div class="section-rule"><span class="label">Flux</span></div>
+              <ul class="space-y-1.5 text-sm">
                 {detail.flows.map((f) => (
                   <li>
                     <span class="font-medium">{humanize(f.flow_type)}</span>
@@ -52,8 +56,8 @@ const detail = await loadChokepointDetail(summary.id);
 
           {detail.risks.length ? (
             <section>
-              <h2 class="text-xl">Risques</h2>
-              <ul class="mt-2 space-y-1 text-sm">
+              <div class="section-rule"><span class="label">Risques</span></div>
+              <ul class="space-y-1.5 text-sm">
                 {detail.risks.map((r) => (
                   <li>
                     <span class="font-medium">{humanize(r.risk_type)}</span>
@@ -67,8 +71,8 @@ const detail = await loadChokepointDetail(summary.id);
 
           {detail.alternatives.length ? (
             <section>
-              <h2 class="text-xl">Alternatives / bypass</h2>
-              <ul class="mt-2 space-y-2 text-sm">
+              <div class="section-rule"><span class="label">Alternatives / bypass</span></div>
+              <ul class="space-y-2 text-sm">
                 {detail.alternatives.map((a) => (
                   <li>
                     <span class="font-medium">{a.description}</span>
@@ -82,8 +86,8 @@ const detail = await loadChokepointDetail(summary.id);
 
           {detail.episodes.length ? (
             <section>
-              <h2 class="text-xl">Épisodes de perturbation</h2>
-              <ul class="mt-2 space-y-1 text-sm">
+              <div class="section-rule"><span class="label">Épisodes de perturbation</span></div>
+              <ul class="space-y-1.5 text-sm">
                 {detail.episodes.map((e) => (
                   <li>
                     {e.name}
@@ -100,7 +104,7 @@ const detail = await loadChokepointDetail(summary.id);
       )
     }
 
-    <div class="mt-10 rounded-lg border border-line bg-surface p-4 text-xs leading-relaxed text-muted">
+    <div class="mt-12 border border-line bg-subtle p-4 text-xs leading-relaxed text-muted">
       Données canoniques issues de la base <strong>chokepoints</strong> (lecture seule).{' '}
       {detail?.geometry_disclaimer ??
         'Géométrie schématique, sans valeur navigationnelle ou juridique.'}{' '}

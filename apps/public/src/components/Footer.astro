@@ -3,25 +3,25 @@ import { nav, site } from '../lib/site';
 const year = 2026;
 ---
 
-<footer class="mt-20 border-t border-line bg-surface">
+<footer class="mt-24 border-t-2 border-t-ink bg-surface">
   <div class="mx-auto max-w-content px-5 py-12">
-    <div class="grid gap-8 md:grid-cols-[1.5fr_1fr_1fr]">
+    <div class="grid gap-8 md:grid-cols-[1.6fr_1fr_1fr]">
       <div>
-        <div class="font-serif text-lg font-semibold">Applied Geopolitics</div>
+        <div class="font-serif text-lg font-bold text-ink">Applied Geopolitics</div>
         <p class="mt-2 max-w-sm text-sm text-muted">{site.baseline}</p>
-        <p class="mt-4 text-xs leading-relaxed text-muted">
+        <p class="mt-4 max-w-sm text-xs leading-relaxed text-muted">
           Applied Geopolitics publie. <span class="text-ink">Sylvain Geffroy</span> signe.
           <span class="text-ink">LucidAxis</span> porte structurellement.
         </p>
       </div>
       <nav class="text-sm">
-        <div class="label mb-2">Explorer</div>
+        <div class="label mb-3">Explorer</div>
         <ul class="space-y-1.5">
           {nav.map((n) => <li><a href={n.href} class="text-muted hover:text-ink">{n.label}</a></li>)}
         </ul>
       </nav>
       <div class="text-sm">
-        <div class="label mb-2">Contact</div>
+        <div class="label mb-3">Contact</div>
         <ul class="space-y-1.5 text-muted">
           <li><a href="/contact" class="hover:text-ink">Demander un échange</a></li>
           <li><a href={`mailto:${site.email}`} class="hover:text-ink">{site.email}</a></li>
@@ -36,7 +36,9 @@ const year = 2026;
         financier ou assurantiel engageant, et ne se substitue pas à la décision interne du client.
         La géométrie des cartes est schématique, sans valeur navigationnelle ou juridique.
       </p>
-      <p class="mt-3">© {year} Applied Geopolitics — LucidAxis. Tous droits réservés.</p>
+      <p class="mt-3 font-mono uppercase tracking-[0.08em]">
+        © {year} Applied Geopolitics — LucidAxis. Tous droits réservés.
+      </p>
     </div>
   </div>
 </footer>

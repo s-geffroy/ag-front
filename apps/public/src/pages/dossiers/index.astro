@@ -14,13 +14,15 @@ const dossiers = (await getCollection('dossiers')).sort(
   description="Dossiers longs : une question stratégique, des scénarios, des seuils de bascule et des implications décisionnelles."
 >
   <Section class="py-14">
-    <h1 class="text-3xl">Dossiers</h1>
-    <p class="prose-ag mt-3 max-w-prose">
+    <p class="eyebrow">Dossiers stratégiques</p>
+    <h1 class="mt-4 font-serif text-title font-bold">Dossiers</h1>
+    <p class="prose-ag mt-4 max-w-prose">
       Chaque dossier répond à une question stratégique unique : verdict provisoire, scénarios, seuils de
       bascule et implications pour les directions risques et résilience. Le résumé exécutif est public ;
       le dossier complet est réservé aux offres payantes.
     </p>
-    <div class="mt-8 grid gap-4 md:grid-cols-2">
+    <div class="section-rule mt-12"><span class="label">Tous les dossiers</span></div>
+    <div class="grid gap-4 md:grid-cols-2">
       {
         dossiers.map((d) => (
           <EntryCard
