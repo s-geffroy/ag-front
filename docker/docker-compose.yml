@@ -19,6 +19,11 @@ services:
     working_dir: /workspace
     volumes:
       - ..:/workspace
+    environment:
+      # Build-time Atlas ↔ Chokepoints Read API (read scope). Token via docker/.env; empty = graceful
+      # build (Atlas omits the chokepoints section). The token is NEVER shipped to the client.
+      CHOKEPOINTS_API_URL: ${CHOKEPOINTS_API_URL:-https://srv1305127.tail880531.ts.net/api}
+      CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN:-}
     ports:
       - '127.0.0.1:5173:5173' # apps/cockpit dev server (Vite) — Phase 2
       - '127.0.0.1:4321:4321' # apps/public dev server (Astro) — Phase 3

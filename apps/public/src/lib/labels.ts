@@ -56,3 +56,17 @@ export const sourceTypeLabel: Record<string, string> = {
 export function formatDate(d: Date): string {
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
+
+/** Humanise a controlled-vocabulary key (e.g. `maritime_chokepoint` → `Maritime chokepoint`). */
+export function humanize(s?: string | null): string {
+  if (!s) return '';
+  const t = s.replace(/_/g, ' ').trim();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+export const priorityTone: Record<string, Tone> = {
+  P0: 'blocked',
+  P1: 'risk',
+  P2: 'neutral',
+  P3: 'neutral',
+};

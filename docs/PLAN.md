@@ -75,6 +75,9 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
   derrière Caddy, same-origin) — zod + honeypot + rate-limit ; les leads alimentent le pipeline
   Acquisition du cockpit ; email SMTP optionnel (ADR 0006/0011). Repli `mailto` si réseau KO.
 - **Mode nuit** du site public : tokens sémantiques (vars CSS) + toggle header, défaut préférence système.
+- **Atlas ↔ Chokepoints Read API** : intégration **au build** via `@ag/chokepoints` (client typé, scope
+  `read`, taint-aware), section base de données + pages détail `/atlas/chokepoints/[id]`. Dégradation
+  gracieuse sans token. Token build-only via `docker/.env` (ADR 0012).
 - **Skills** : `frontend-design`, `owasp-security` (formulaires/inputs publics = surface d'attaque),
   `canvas-design` (visuels Atlas/dossiers si livrables PDF/poster).
 

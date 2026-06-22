@@ -1,0 +1,21 @@
+{
+  "name": "@ag/chokepoints",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Typed read-only client for the Chokepoints Read API (Bearer, read scope, taint-aware).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

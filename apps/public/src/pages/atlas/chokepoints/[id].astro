@@ -1,0 +1,111 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Section from '../../../components/Section.astro';
+import Pill from '../../../components/Pill.astro';
+import { humanize, priorityTone } from '../../../lib/labels';
+import { loadChokepoints, loadChokepointDetail, type AtlasChokepoint } from '../../../lib/atlas-data';
+
+export async function getStaticPaths() {
+  const { items } = await loadChokepoints();
+  return items.map((summary) => ({ params: { id: summary.id }, props: { summary } }));
+}
+
+interface Props {
+  summary: AtlasChokepoint;
+}
+const { summary } = Astro.props;
+const detail = await loadChokepointDetail(summary.id);
+---
+
+<Base title={summary.name} description={`Chokepoint — ${humanize(summary.family)}`} type="article">
+  <Section width="prose" class="py-12">
+    <a href="/atlas" class="text-sm text-accent hover:underline">← Atlas</a>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <Pill tone="neutral">{humanize(summary.family) || 'Chokepoint'}</Pill>
+      {summary.priority ? <Pill tone={priorityTone[summary.priority] ?? 'neutral'}>{summary.priority}</Pill> : null}
+      {summary.region ? <Pill tone="neutral">{summary.region}</Pill> : null}
+    </div>
+    <h1 class="mt-4 text-3xl">{summary.name}</h1>
+    {
+      summary.attributions.length ? (
+        <p class="mt-3 text-xs text-muted">Attribution : {summary.attributions.join(' · ')}</p>
+      ) : null
+    }
+
+    {
+      detail ? (
+        <div class="mt-8 space-y-8">
+          {detail.flows.length ? (
+            <section>
+              <h2 class="text-xl">Flux</h2>
+              <ul class="mt-2 space-y-1 text-sm">
+                {detail.flows.map((f) => (
+                  <li>
+                    <span class="font-medium">{humanize(f.flow_type)}</span>
+                    {f.directionality ? ` · ${f.directionality}` : ''}
+                    {f.importance_score != null ? ` · importance ${f.importance_score}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {detail.risks.length ? (
+            <section>
+              <h2 class="text-xl">Risques</h2>
+              <ul class="mt-2 space-y-1 text-sm">
+                {detail.risks.map((r) => (
+                  <li>
+                    <span class="font-medium">{humanize(r.risk_type)}</span>
+                    {r.current_status ? ` · ${r.current_status}` : ''}
+                    {r.impact_score != null ? ` · impact ${r.impact_score}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {detail.alternatives.length ? (
+            <section>
+              <h2 class="text-xl">Alternatives / bypass</h2>
+              <ul class="mt-2 space-y-2 text-sm">
+                {detail.alternatives.map((a) => (
+                  <li>
+                    <span class="font-medium">{a.description}</span>
+                    {a.feasibility ? ` — faisabilité : ${a.feasibility}` : ''}
+                    {a.substitution_note ? <div class="text-muted">{a.substitution_note}</div> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {detail.episodes.length ? (
+            <section>
+              <h2 class="text-xl">Épisodes de perturbation</h2>
+              <ul class="mt-2 space-y-1 text-sm">
+                {detail.episodes.map((e) => (
+                  <li>
+                    {e.name}
+                    {e.severity ? ` · ${e.severity}` : ''}
+                    {e.status ? ` · ${e.status}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </div>
+      ) : (
+        <p class="mt-8 text-sm text-muted">Détail indisponible pour ce nœud.</p>
+      )
+    }
+
+    <div class="mt-10 rounded-lg border border-line bg-surface p-4 text-xs leading-relaxed text-muted">
+      Données canoniques issues de la base <strong>chokepoints</strong> (lecture seule).{' '}
+      {detail?.geometry_disclaimer ??
+        'Géométrie schématique, sans valeur navigationnelle ou juridique.'}{' '}
+      Les résultats analytiques dérivés sont des candidats en attente de validation humaine et ne
+      constituent ni une prédiction ni un conseil engageant.
+    </div>
+  </Section>
+</Base>

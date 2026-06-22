@@ -4,16 +4,25 @@ import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import EntryCard from '../../components/EntryCard.astro';
 import Pill from '../../components/Pill.astro';
-import { cviLevelLabel, familyLabel } from '../../lib/labels';
+import { cviLevelLabel, familyLabel, humanize, priorityTone } from '../../lib/labels';
+import { loadChokepoints } from '../../lib/atlas-data';
 
 const fiches = (await getCollection('atlas')).sort((a, b) =>
   a.data.priority.localeCompare(b.data.priority),
 );
+
+const chokepoints = await loadChokepoints();
+const nodes = chokepoints.items
+  .slice()
+  .sort(
+    (a, b) =>
+      (a.priority ?? 'P9').localeCompare(b.priority ?? 'P9') || a.name.localeCompare(b.name),
+  );
 ---
 
 <Base
   title="Atlas des corridors"
-  description="L’Atlas stratégique des corridors : fiches structurées par corridor, flux, vulnérabilités et seuils."
+  description="L’Atlas stratégique des corridors : fiches structurées et base de données des chokepoints."
 >
   <Section class="py-14">
     <h1 class="text-3xl">Atlas stratégique des corridors</h1>
@@ -22,7 +31,9 @@ const fiches = (await getCollection('atlas')).sort((a, b) =>
       verdict stratégique, explicite les flux et propose des seuils d’alerte. Le scoring CVI 0–5 par
       dimension est réservé aux offres payantes.
     </p>
-    <div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+    <h2 class="label mt-10">Fiches</h2>
+    <div class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {
         fiches.map((f) => (
           <EntryCard
@@ -37,5 +48,34 @@ const fiches = (await getCollection('atlas')).sort((a, b) =>
         ))
       }
     </div>
+
+    {
+      chokepoints.ok && nodes.length ? (
+        <div class="mt-14">
+          <div class="flex flex-wrap items-end justify-between gap-2">
+            <h2 class="label">Chokepoints prioritaires (P0)</h2>
+            <span class="text-xs text-muted">{nodes.length} nœuds P0 · base canonique</span>
+          </div>
+          <p class="mt-2 max-w-prose text-sm text-muted">
+            Cœur stratégique extrait de la base de données des chokepoints (plusieurs centaines de nœuds
+            P0–P3, lecture seule). {chokepoints.attributionNotice ??
+              'Géométrie schématique, sans valeur navigationnelle ou juridique.'}
+          </p>
+          <div class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {nodes.map((c) => (
+              <EntryCard
+                href={`/atlas/chokepoints/${c.id}`}
+                kicker={humanize(c.family) || 'Chokepoint'}
+                title={c.name}
+                summary={c.region ? `Région : ${c.region}` : 'Nœud canonique de la base chokepoints.'}
+              >
+                {c.priority ? <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill> : null}
+                {c.attributions.length ? <Pill tone="neutral">Attribution requise</Pill> : null}
+              </EntryCard>
+            ))}
+          </div>
+        </div>
+      ) : null
+    }
   </Section>
 </Base>
