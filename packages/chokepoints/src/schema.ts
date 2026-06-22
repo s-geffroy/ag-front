@@ -67,6 +67,24 @@ const Episode = z
   })
   .passthrough();
 
+/** GeoJSON export (/exports/geojson). Geometry kept loose; we only read feature properties + geometry. */
+export const GeoJsonFeature = z
+  .object({
+    type: z.string(),
+    geometry: z.any().nullable(),
+    properties: z.record(z.any()).nullish(),
+  })
+  .passthrough();
+
+export const GeoJsonFeatureCollection = z
+  .object({
+    type: z.literal('FeatureCollection'),
+    note: z.string().optional(),
+    features: z.array(GeoJsonFeature).default([]),
+  })
+  .passthrough();
+export type GeoJsonFeatureCollection = z.infer<typeof GeoJsonFeatureCollection>;
+
 export const ChokepointDetail = ChokepointSummary.extend({
   flows: z.array(Flow).default([]),
   risks: z.array(Risk).default([]),

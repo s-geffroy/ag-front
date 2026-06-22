@@ -1,0 +1,107 @@
+---
+import 'leaflet/dist/leaflet.css';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import { loadChokepoints, loadGeoJson } from '../../lib/atlas-data';
+
+// P0 ids that have a detail page → the map can deep-link to them.
+const { items } = await loadChokepoints();
+const detailIds = items.map((i) => i.id);
+
+const fc = await loadGeoJson();
+const note = fc.note ?? 'Géométrie schématique, sans valeur navigationnelle ou juridique.';
+const nodeCount = fc.features.filter((f) => (f.properties ?? {}).role === 'display_point').length;
+---
+
+<Base
+  title="Carte des chokepoints"
+  description="Carte interactive schématique des chokepoints (base canonique, lecture seule)."
+>
+  <Section class="py-10">
+    <a href="/atlas" class="text-sm text-accent hover:underline">← Atlas</a>
+    <h1 class="mt-3 text-3xl">Carte des chokepoints</h1>
+    <p class="mt-2 max-w-prose text-sm text-muted">
+      {nodeCount} nœuds géolocalisés (schématiques). Couleur = priorité (P0 → P3). {note}
+    </p>
+
+    <div
+      id="cp-map"
+      class="mt-6 h-[72vh] w-full overflow-hidden rounded-lg border border-line"
+      role="application"
+      aria-label="Carte des chokepoints"
+    >
+    </div>
+
+    <p class="mt-3 max-w-prose text-xs text-muted">
+      Les points, zones d’influence et tracés sont <strong>schématiques</strong>. Données canoniques en
+      lecture seule ; les résultats analytiques dérivés sont des candidats en attente de validation
+      humaine et ne constituent ni une prédiction ni un conseil engageant.
+    </p>
+  </Section>
+
+  <script id="cp-detail-ids" type="application/json" set:html={JSON.stringify(detailIds)}></script>
+
+  <script>
+    import L from 'leaflet';
+
+    const el = document.getElementById('cp-map');
+    if (el) {
+      const idsRaw = document.getElementById('cp-detail-ids')?.textContent || '[]';
+      const detailIds = new Set<string>(JSON.parse(idsRaw));
+
+      const LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+      const DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      const isDark = () => document.documentElement.classList.contains('dark');
+
+      const map = L.map(el, { preferCanvas: true, worldCopyJump: true, minZoom: 1 }).setView([22, 40], 2);
+      const tiles = L.tileLayer(isDark() ? DARK : LIGHT, {
+        subdomains: 'abcd',
+        maxZoom: 8,
+        attribution: '&copy; OpenStreetMap, &copy; CARTO',
+      }).addTo(map);
+
+      // Swap basemap when the site theme toggles.
+      new MutationObserver(() => tiles.setUrl(isDark() ? DARK : LIGHT)).observe(
+        document.documentElement,
+        { attributes: true, attributeFilter: ['class'] },
+      );
+
+      const COLORS: Record<string, string> = {
+        P0: '#b3261e',
+        P1: '#b6761b',
+        P2: '#1f4e79',
+        P3: '#8a909a',
+      };
+      const RADIUS: Record<string, number> = { P0: 6, P1: 5, P2: 4, P3: 3 };
+
+      fetch('/data/chokepoints.geojson')
+        .then((r) => r.json())
+        .then((data) => {
+          L.geoJSON(data, {
+            pointToLayer: (feat: any, latlng: any) => {
+              const p = feat.properties || {};
+              return L.circleMarker(latlng, {
+                radius: RADIUS[p.priority] || 3,
+                color: COLORS[p.priority] || '#8a909a',
+                weight: 1,
+                fillOpacity: 0.75,
+              });
+            },
+            style: () => ({ color: '#1f4e79', weight: 1, opacity: 0.4, fillOpacity: 0.05 }),
+            onEachFeature: (feat: any, layer: any) => {
+              const p = feat.properties || {};
+              const fam = String(p.family || '').replace(/_/g, ' ');
+              let html = `<strong>${p.name || p.id || ''}</strong><br><span style="color:#5b6470">${fam} · ${p.priority || ''}</span>`;
+              if (detailIds.has(p.id)) {
+                html += `<br><a href="/atlas/chokepoints/${p.id}/">Voir la fiche →</a>`;
+              }
+              layer.bindPopup(html);
+            },
+          }).addTo(map);
+        })
+        .catch(() => {
+          /* graceful: empty map */
+        });
+    }
+  </script>
+</Base>

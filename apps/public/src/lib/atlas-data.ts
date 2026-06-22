@@ -2,6 +2,7 @@ import {
   createChokepointsClient,
   type ChokepointDetail,
   type ChokepointSummary,
+  type GeoJsonFeatureCollection,
 } from '@ag/chokepoints';
 
 export type AtlasChokepoint = {
@@ -67,6 +68,19 @@ export async function loadChokepoints(): Promise<ChokepointsLoad> {
     cache = { ok: false, items: [] };
   }
   return cache;
+}
+
+/** Build-time GeoJSON export (schematic geometries, clear records only). Graceful: empty on failure. */
+export async function loadGeoJson(): Promise<GeoJsonFeatureCollection> {
+  const empty: GeoJsonFeatureCollection = { type: 'FeatureCollection', features: [] };
+  const cfg = config();
+  if (!cfg) return empty;
+  try {
+    return await createChokepointsClient(cfg).exportGeoJson();
+  } catch (e) {
+    console.warn('[atlas] export GeoJSON injoignable au build :', String(e));
+    return empty;
+  }
 }
 
 export async function loadChokepointDetail(id: string): Promise<ChokepointDetail | null> {

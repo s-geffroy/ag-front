@@ -1,4 +1,4 @@
-import { ChokepointDetail, ChokepointList } from './schema';
+import { ChokepointDetail, ChokepointList, GeoJsonFeatureCollection } from './schema';
 
 export type ChokepointsClientOptions = {
   baseUrl: string;
@@ -18,6 +18,7 @@ export type ListParams = {
 export type ChokepointsClient = {
   listChokepoints(params?: ListParams): Promise<ChokepointList>;
   getChokepoint(id: string): Promise<ChokepointDetail>;
+  exportGeoJson(): Promise<GeoJsonFeatureCollection>;
 };
 
 /**
@@ -56,6 +57,10 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
     },
     async getChokepoint(id) {
       return ChokepointDetail.parse(await get(`/chokepoints/${encodeURIComponent(id)}`));
+    },
+    async exportGeoJson() {
+      // Schematic geometries, clear records only (include_tainted is never sent).
+      return GeoJsonFeatureCollection.parse(await get('/exports/geojson'));
     },
   };
 }
