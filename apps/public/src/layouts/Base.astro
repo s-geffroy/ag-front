@@ -33,6 +33,16 @@ const canonical = new URL(Astro.url.pathname, site.url).href;
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      // Apply theme before first paint: saved choice, else system preference. Avoids a flash.
+      (function () {
+        try {
+          var s = localStorage.getItem('ag-theme');
+          var dark = s ? s === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="flex min-h-full flex-col">
     <Header />

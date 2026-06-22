@@ -71,7 +71,10 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
 - **Déployé via Caddy** (HTTPS auto Let's Encrypt) sur le VPS `72.61.101.1`, ports liés à l'IP publique
   (pas de conflit avec le tailscale serve du cockpit) — ADR 0010, runbook `docs/public-deploy.md`.
 - **En attente du repointage DNS** chez Hostinger (A `@`/`www` → `72.61.101.1`) pour l'émission du certificat.
-- Lead capture : formulaire `mailto` en attendant l'endpoint auto-hébergé (ADR 0006, contrat API à venir).
+- Lead capture : **branchée** sur l'endpoint auto-hébergé `POST /api/lead` (service `apps/lead-api`,
+  derrière Caddy, same-origin) — zod + honeypot + rate-limit ; les leads alimentent le pipeline
+  Acquisition du cockpit ; email SMTP optionnel (ADR 0006/0011). Repli `mailto` si réseau KO.
+- **Mode nuit** du site public : tokens sémantiques (vars CSS) + toggle header, défaut préférence système.
 - **Skills** : `frontend-design`, `owasp-security` (formulaires/inputs publics = surface d'attaque),
   `canvas-design` (visuels Atlas/dossiers si livrables PDF/poster).
 

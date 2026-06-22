@@ -13,7 +13,7 @@ const { href, kicker, title, summary, access, date } = Astro.props;
 ---
 <a
   href={href}
-  class="group flex flex-col rounded-lg border border-line bg-white p-5 transition-colors hover:border-accent/40"
+  class="group flex flex-col rounded-lg border border-line bg-surface p-5 transition-colors hover:border-accent/40"
 >
   <div class="mb-2 flex items-center gap-2">
     {kicker ? <span class="label">{kicker}</span> : null}

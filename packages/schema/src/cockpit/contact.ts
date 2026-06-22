@@ -9,6 +9,8 @@ export const Contact = z.object({
   role: z.string(),
   profile_type: z.string(),
   stage: ContactStage,
+  email: z.string().email().optional(),
+  source: z.string().optional(),
   content_linked: z.array(z.string()).optional(),
   interest_signal: z.string().optional(),
   next_action: z.string(),

@@ -61,6 +61,29 @@ services:
       - caddy_data:/data
       - caddy_config:/config
 
+  # Self-hosted lead endpoint (POST /api/lead). Public only via Caddy reverse_proxy (no host port).
+  # Writes leads into the cockpit acquisition pipeline (apps/cockpit/data/contacts.json). Set SMTP_*
+  # to enable email notifications (ADR 0006 / 0011).
+  lead:
+    build:
+      context: ..
+      dockerfile: docker/tools.Dockerfile
+    image: app-geo-tools:local
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    environment:
+      HOST: '0.0.0.0'
+      PORT: '8080'
+      # SMTP_HOST: smtp.example.com   # uncomment + set to enable email notifications
+      # SMTP_PORT: '587'
+      # SMTP_USER: ''
+      # SMTP_PASS: ''
+      # LEAD_TO: contact@applied-geopolitics.com
+    restart: unless-stopped
+    command: ['npm', '--workspace', '@ag/lead-api', 'start']
+
 volumes:
   caddy_data:
   caddy_config:

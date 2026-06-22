@@ -4,7 +4,7 @@ import Section from '../components/Section.astro';
 import { site } from '../lib/site';
 
 const fieldClass =
-  'mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30';
+  'mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30';
 ---
 
 <Base
@@ -46,12 +46,22 @@ const fieldClass =
         <span class="font-medium">Message</span>
         <textarea name="message" rows="5" class={fieldClass}></textarea>
       </label>
+      <!-- honeypot anti-spam : laissé vide par les humains -->
+      <input
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+        aria-hidden="true"
+        class="hidden"
+      />
       <button
         type="submit"
         class="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent/90"
       >
         Envoyer
       </button>
+      <p id="form-status" class="text-sm" role="status" aria-live="polite"></p>
       <p class="text-xs text-muted">
         Vos informations servent uniquement à répondre à votre demande. Vous pouvez aussi écrire
         directement à <a href={`mailto:${site.email}`} class="text-accent underline">{site.email}</a>.
@@ -61,30 +71,69 @@ const fieldClass =
 
   <script is:inline define:vars={{ email: site.email }}>
     const form = document.getElementById('contact-form');
-    const params = new URLSearchParams(location.search);
-    const presel = params.get('sujet');
+    const statusEl = document.getElementById('form-status');
+    const subjects = {
+      echange: 'Échange stratégique',
+      pilote: 'Pilote Premium',
+      critique: 'Critique d’un dossier',
+      presse: 'Presse / partenariat',
+    };
+
+    const presel = new URLSearchParams(location.search).get('sujet');
     if (presel) {
       const sel = form?.querySelector('select[name="subject"]');
       if (sel) sel.value = presel;
     }
-    form?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const f = new FormData(form);
-      const subjects = {
-        echange: 'Échange stratégique',
-        pilote: 'Pilote Premium',
-        critique: 'Critique d’un dossier',
-        presse: 'Presse / partenariat',
-      };
+
+    function mailtoFallback(f) {
       const subject = subjects[f.get('subject')] || 'Contact';
       const body =
         `Nom : ${f.get('name') || ''}\n` +
         `Organisation : ${f.get('org') || ''}\n` +
         `Email : ${f.get('email') || ''}\n\n` +
         `${f.get('message') || ''}`;
-      // TODO (ADR 0006): POST vers l'endpoint lead auto-hébergé quand le contrat d'API est fourni.
-      // En attendant, on ouvre le client mail de l'utilisateur.
       location.href = `mailto:${email}?subject=${encodeURIComponent('[AG] ' + subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      const btn = form.querySelector('button[type="submit"]');
+      const payload = {
+        name: String(f.get('name') || ''),
+        email: String(f.get('email') || ''),
+        organization: String(f.get('org') || ''),
+        subject: String(f.get('subject') || 'echange'),
+        message: String(f.get('message') || ''),
+        website: String(f.get('website') || ''),
+      };
+      if (statusEl) {
+        statusEl.textContent = 'Envoi…';
+        statusEl.className = 'text-sm text-muted';
+      }
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch('/api/lead', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('status ' + res.status);
+        form.reset();
+        if (statusEl) {
+          statusEl.textContent =
+            'Merci, votre message a bien été reçu. Nous revenons vers vous rapidement.';
+          statusEl.className = 'text-sm text-status-on_track';
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.textContent = 'L’envoi a échoué — ouverture de votre client mail…';
+          statusEl.className = 'text-sm text-status-at_risk';
+        }
+        mailtoFallback(f);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     });
   </script>
 </Base>

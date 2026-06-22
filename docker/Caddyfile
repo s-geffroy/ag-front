@@ -4,15 +4,24 @@
 	email contact@applied-geopolitics.com
 }
 
-# Canonical host: serve the static Astro build.
+# Canonical host: static Astro build + same-origin lead endpoint.
 www.applied-geopolitics.com {
-	root * /srv
 	encode zstd gzip
-	file_server
+	root * /srv
 
 	# Long-cache hashed assets; HTML stays fresh.
 	@assets path /_astro/*
 	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	# Public lead endpoint → self-hosted lead service (ADR 0006 / 0011).
+	handle /api/* {
+		reverse_proxy lead:8080
+	}
+
+	# Everything else: the static site.
+	handle {
+		file_server
+	}
 
 	handle_errors {
 		rewrite * /404.html

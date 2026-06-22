@@ -91,6 +91,14 @@ function ContactDetail({
       <div>
         <div className="text-sm font-medium">{draft.role}</div>
         <div className="text-xs text-muted">{draft.organization}</div>
+        {draft.email ? (
+          <a className="text-xs text-accent hover:underline" href={`mailto:${draft.email}`}>
+            {draft.email}
+          </a>
+        ) : null}
+        {draft.source ? (
+          <div className="mt-0.5 text-[11px] text-muted">Source : {draft.source}</div>
+        ) : null}
       </div>
 
       <div>

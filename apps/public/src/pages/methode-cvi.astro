@@ -30,7 +30,7 @@ const scales = [
     <div class="grid gap-4 md:grid-cols-2">
       {
         cviDimensionKeys.map((k, i) => (
-          <div class="rounded-lg border border-line bg-white p-5">
+          <div class="rounded-lg border border-line bg-surface p-5">
             <div class="flex items-baseline gap-2">
               <span class="font-serif text-sm text-accent">{String(i + 1).padStart(2, '0')}</span>
               <h3 class="font-serif text-lg">{cviDimensions[k].label}</h3>
@@ -51,7 +51,7 @@ const scales = [
     <div class="mt-5 space-y-3">
       {
         scales.map((s) => (
-          <div class="flex flex-wrap items-baseline justify-between gap-2 rounded-lg border border-line bg-white p-4">
+          <div class="flex flex-wrap items-baseline justify-between gap-2 rounded-lg border border-line bg-surface p-4">
             <div>
               <div class="font-medium text-ink">{s.scale}</div>
               <div class="text-sm text-muted">{s.detail}</div>

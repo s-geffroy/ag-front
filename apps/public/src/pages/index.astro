@@ -42,7 +42,7 @@ const lead = dossiers[0];
       }
       <a
         href="/atlas"
-        class="rounded-md border border-line bg-white px-5 py-2.5 text-sm font-medium hover:border-accent/40"
+        class="rounded-md border border-line bg-surface px-5 py-2.5 text-sm font-medium hover:border-accent/40"
       >
         Découvrir l’Atlas
       </a>
@@ -50,7 +50,7 @@ const lead = dossiers[0];
   </Section>
 
   <!-- Doctrine chain -->
-  <Section class="border-y border-line bg-white py-10">
+  <Section class="border-y border-line bg-surface py-10">
     <p class="label mb-4">La chaîne d’analyse</p>
     <ol class="flex flex-wrap items-center gap-x-2 gap-y-2">
       {
@@ -138,7 +138,7 @@ const lead = dossiers[0];
     <div class="grid gap-4 md:grid-cols-3">
       {
         offers.map((o) => (
-          <div class={`rounded-lg border p-5 ${o.featured ? 'border-accent/40 bg-white' : 'border-line bg-white'}`}>
+          <div class={`rounded-lg border p-5 ${o.featured ? 'border-accent/40 bg-surface' : 'border-line bg-surface'}`}>
             <div class="flex items-baseline justify-between">
               <h3 class="font-serif text-xl">{o.name}</h3>
               <span class="label">{o.promise}</span>

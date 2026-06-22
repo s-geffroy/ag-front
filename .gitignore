@@ -11,6 +11,9 @@ coverage/
 # Tooling caches (agent-browser Chromium, etc.)
 .cache/
 
+# Lead ledger (runtime, may contain personal data)
+apps/lead-api/data/*.ndjson
+
 # Env (keep examples)
 .env
 .env.*

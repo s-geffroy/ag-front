@@ -2,10 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Semantic tokens as RGB triplets, flipped by the `.dark` class on <html>. */
+:root {
+  color-scheme: light;
+  --canvas: 252 252 253;
+  --surface: 255 255 255;
+  --subtle: 240 242 245;
+  --ink: 19 21 26;
+  --muted: 91 100 112;
+  --line: 227 230 235;
+  --accent: 31 78 121;
+  --st-on: 31 122 77;
+  --st-risk: 182 118 27;
+  --st-blocked: 179 38 30;
+  --st-none: 138 144 154;
+}
+
+.dark {
+  color-scheme: dark;
+  --canvas: 14 16 20;
+  --surface: 22 25 31;
+  --subtle: 30 34 42;
+  --ink: 231 234 239;
+  --muted: 150 159 171;
+  --line: 39 44 53;
+  --accent: 122 167 214;
+  --st-on: 63 191 134;
+  --st-risk: 224 168 58;
+  --st-blocked: 232 121 111;
+  --st-none: 154 163 176;
+}
+
 @layer base {
   html {
-    background-color: #fcfcfd;
-    @apply text-ink;
+    @apply bg-canvas text-ink;
     font-family: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -14,7 +44,7 @@
     @apply font-serif font-semibold tracking-tight;
   }
   ::selection {
-    background: rgba(31, 78, 121, 0.18);
+    background: rgb(var(--accent) / 0.22);
   }
 }
 
