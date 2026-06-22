@@ -1,0 +1,45 @@
+# Docker-only tooling for app-geo. The `tools` service is the ONLY way to run
+# project commands (npm, builds, tests, agent-browser). Nothing on the host.
+#
+#   docker compose -f docker/docker-compose.yml build tools
+#   docker compose -f docker/docker-compose.yml run --rm tools npm install
+#   docker compose -f docker/docker-compose.yml run --rm tools npm run test
+#
+# UID/GID default to 1000; override for other hosts via docker/.env (see .env.example).
+name: app-geo
+
+services:
+  tools:
+    build:
+      context: ..
+      dockerfile: docker/tools.Dockerfile
+    image: app-geo-tools:local
+    # Run as the host user so files written into the mounted repo stay owned by you.
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    ports:
+      - '127.0.0.1:5173:5173' # apps/cockpit dev server (Vite) — Phase 2
+      - '127.0.0.1:4321:4321' # apps/public dev server (Astro) — Phase 3
+    # Sensible default so `run --rm tools` with no args drops into a shell.
+    command: ['bash']
+
+  # Production cockpit server (built SPA + editable /api). Published on the host loopback only;
+  # Tailscale serve fronts it as tailnet-only HTTPS (ADR 0005 / 0009). Never bind to 0.0.0.0 on host.
+  cockpit:
+    build:
+      context: ..
+      dockerfile: docker/tools.Dockerfile
+    image: app-geo-tools:local
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    environment:
+      HOST: '0.0.0.0' # inside the isolated container; host only publishes on 127.0.0.1
+      PORT: '8787'
+    ports:
+      - '127.0.0.1:8787:8787'
+    restart: unless-stopped
+    command: ['npm', '--workspace', '@ag/cockpit', 'start']

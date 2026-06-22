@@ -1,0 +1,17 @@
+{
+  "name": "@ag/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared sober design tokens + Tailwind preset for apps/public (Astro) and apps/cockpit (React).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tailwind-preset": "./src/tailwind-preset.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

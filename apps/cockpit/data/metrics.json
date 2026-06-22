@@ -1,0 +1,47 @@
+[
+  {
+    "id": "production",
+    "label": "Production tenue",
+    "rank": 1,
+    "metrics": [
+      { "id": "notes_published", "label": "Notes publiées", "value": 2, "target_90d": 10, "target_12m": 50, "unit": "count", "status": "at_risk" },
+      { "id": "atlas_fiches", "label": "Fiches Atlas", "value": 0, "target_90d": 3, "target_12m": 18, "unit": "count", "status": "at_risk" },
+      { "id": "dossiers", "label": "Dossiers PDF", "value": 0, "target_90d": 1, "target_12m": 5, "unit": "count", "status": "at_risk" }
+    ]
+  },
+  {
+    "id": "credibility",
+    "label": "Signaux de crédibilité",
+    "rank": 2,
+    "metrics": [
+      { "id": "pdf_requests", "label": "Demandes PDF", "value": 0, "target_90d": 5, "target_12m": 30, "unit": "count", "status": "at_risk" },
+      { "id": "qualified_comments", "label": "Commentaires qualifiés", "value": 1, "target_90d": 5, "target_12m": 25, "unit": "count", "status": "on_track" }
+    ]
+  },
+  {
+    "id": "contacts",
+    "label": "Contacts qualifiés",
+    "rank": 3,
+    "metrics": [
+      { "id": "contacts_identified", "label": "Contacts identifiés", "value": 18, "target_90d": 50, "target_12m": 60, "unit": "count", "status": "on_track" },
+      { "id": "meetings_obtained", "label": "Échanges obtenus", "value": 0, "target_90d": 3, "target_12m": 20, "unit": "count", "status": "at_risk" }
+    ]
+  },
+  {
+    "id": "premium_pilots",
+    "label": "Pilotes Premium",
+    "rank": 4,
+    "metrics": [
+      { "id": "pilot_discussions", "label": "Discussions pilote", "value": 0, "target_90d": 1, "target_12m": 10, "unit": "count", "status": "at_risk" },
+      { "id": "pilots_accepted", "label": "Pilotes acceptés", "value": 0, "target_12m": 3, "unit": "count", "status": "on_track" }
+    ]
+  },
+  {
+    "id": "audience",
+    "label": "Audience secondaire",
+    "rank": 5,
+    "metrics": [
+      { "id": "linkedin_followers", "label": "Abonnés LinkedIn pertinents", "value": 0, "target_12m": 3000, "unit": "count", "status": "on_track" }
+    ]
+  }
+]

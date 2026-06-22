@@ -1,0 +1,132 @@
+[
+  {
+    "id": "deliv_red_sea_suez_dossier",
+    "title": "Dossier Mer Rouge / Suez",
+    "description": "Premier dossier PDF de preuve sur les conditions d’un retour durable de crédibilité commerciale du corridor.",
+    "type": "dossier",
+    "pillar": "production",
+    "status": "production",
+    "priority": "P0",
+    "progress": 45,
+    "deadline": "2026-09-15",
+    "blocker": "Sources assurance maritime insuffisantes.",
+    "next_action": "Compléter le corpus assurance maritime avec 3 sources spécialisées.",
+    "impact": "preuve_90_jours",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false,
+      "cvi_justified": false
+    },
+    "links": [
+      {
+        "label": "Plan dossier",
+        "url": "#"
+      }
+    ],
+    "internal_notes": "Ne pas dépasser 25 pages. Garder l’angle décisionnel."
+  },
+  {
+    "id": "deliv_atlas_red_sea_fiche",
+    "title": "Fiche Atlas — Mer Rouge / Suez / Bab el-Mandeb",
+    "description": "Fiche fondatrice de l’Atlas stratégique des corridors.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "review",
+    "priority": "P0",
+    "progress": 70,
+    "deadline": "2026-08-30",
+    "next_action": "Finaliser seuils d’alerte et carte statique.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": false,
+      "human_review_done": false,
+      "cvi_justified": false
+    },
+    "links": [],
+    "internal_notes": "Fiche 4–8 pages maximum."
+  },
+  {
+    "id": "deliv_atlas_malacca_fiche",
+    "title": "Fiche Atlas — Malacca",
+    "description": "Fiche comparative sur Malacca : énergie, conteneurs, alternatives limitées.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "sources",
+    "priority": "P0",
+    "progress": 30,
+    "deadline": "2026-09-05",
+    "blocker": "Périmètre encore trop large.",
+    "next_action": "Limiter la fiche à énergie + conteneurs + alternatives.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "blocked",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false,
+      "cvi_justified": false
+    },
+    "links": [],
+    "internal_notes": "Ne pas dériver vers géopolitique générale Indo-Pacifique."
+  },
+  {
+    "id": "deliv_site_homepage",
+    "title": "Page d’accueil Applied Geopolitics",
+    "description": "Page d’accueil avec promesse, CTA progressifs, accès Atlas et dossier Mer Rouge/Suez.",
+    "type": "site_page",
+    "pillar": "site",
+    "status": "framing",
+    "priority": "P0",
+    "progress": 20,
+    "deadline": "2026-09-01",
+    "next_action": "Rédiger hero, CTA phase 1 et structure de page.",
+    "impact": "site_credibility",
+    "offer": "public",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "links": [],
+    "internal_notes": "Applied Geopolitics en marque prioritaire. Sylvain Geffroy en signature secondaire."
+  },
+  {
+    "id": "deliv_contact_50_targets",
+    "title": "Identifier 50 contacts ciblés",
+    "description": "Liste initiale pour prospection Premium : risk, resilience, supply chain, intelligence économique, cabinets, relais.",
+    "type": "prospection",
+    "pillar": "acquisition",
+    "status": "production",
+    "priority": "P0",
+    "progress": 35,
+    "deadline": "2026-09-10",
+    "next_action": "Compléter 20 contacts risk/resilience avec profil LinkedIn et organisation.",
+    "impact": "premium_pilot",
+    "offer": "premium",
+    "quality_gate_status": "ok",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": true,
+      "human_review_done": false
+    },
+    "links": [],
+    "internal_notes": "Pas de vente directe. Demande de critique du dossier."
+  }
+]

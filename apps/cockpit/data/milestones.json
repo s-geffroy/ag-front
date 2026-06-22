@@ -1,0 +1,47 @@
+[
+  {
+    "id": "milestone_red_sea_dossier",
+    "title": "Publier le dossier Mer Rouge / Suez",
+    "horizon": "90d",
+    "due_date": "2026-09-15",
+    "status": "at_risk",
+    "linked_deliverables": ["deliv_red_sea_suez_dossier"],
+    "expected_proof": "Premier dossier sérieux transmissible à des contacts qualifiés.",
+    "success_metric": "1 dossier publié + 5 demandes ou envois ciblés.",
+    "blocker": "Sources assurance maritime insuffisantes.",
+    "next_action": "Compléter corpus et lancer contradiction LLM."
+  },
+  {
+    "id": "milestone_three_atlas_fiches",
+    "title": "Publier 3 fiches Atlas fondatrices",
+    "horizon": "90d",
+    "due_date": "2026-09-30",
+    "status": "in_progress",
+    "linked_deliverables": ["deliv_atlas_red_sea_fiche", "deliv_atlas_malacca_fiche"],
+    "expected_proof": "Atlas visible avec cas principal et cas secondaire.",
+    "success_metric": "3 fiches publiées.",
+    "next_action": "Finaliser Mer Rouge puis cadrer Malacca et Taïwan."
+  },
+  {
+    "id": "milestone_50_contacts",
+    "title": "Identifier 50 contacts ciblés",
+    "horizon": "90d",
+    "due_date": "2026-09-10",
+    "status": "in_progress",
+    "linked_deliverables": ["deliv_contact_50_targets"],
+    "expected_proof": "Base de prospection Premium fermée.",
+    "success_metric": "50 contacts qualifiés.",
+    "next_action": "Compléter profils risk/resilience."
+  },
+  {
+    "id": "milestone_premium_pilots_12m",
+    "title": "Obtenir 1–3 pilotes Premium",
+    "horizon": "12m",
+    "due_date": "2027-06-16",
+    "status": "not_started",
+    "linked_deliverables": [],
+    "expected_proof": "Validation de valeur réelle auprès d’organisations.",
+    "success_metric": "1–3 pilotes acceptés.",
+    "next_action": "Publier le dossier Mer Rouge/Suez puis contacter 50 profils."
+  }
+]

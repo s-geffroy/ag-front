@@ -1,0 +1,26 @@
+{
+  "name": "app-geo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Applied Geopolitics — monorepo (apps/public Astro, apps/cockpit React, shared packages). Docker-only tooling.",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

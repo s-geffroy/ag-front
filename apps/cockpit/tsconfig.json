@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@ag/schema": ["../../packages/schema/src/index.ts"],
+      "@ag/schema/cockpit": ["../../packages/schema/src/cockpit/index.ts"],
+      "@ag/schema/content": ["../../packages/schema/src/content/index.ts"],
+      "@ag/cvi": ["../../packages/cvi/src/index.ts"],
+      "@ag/tokens": ["../../packages/tokens/src/index.ts"],
+      "@ag/tokens/tailwind-preset": ["../../packages/tokens/src/tailwind-preset.ts"]
+    }
+  },
+  "include": ["src", "server", "vite.config.ts", "tailwind.config.ts"]
+}
