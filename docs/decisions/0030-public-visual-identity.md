@@ -1,6 +1,14 @@
 # 0030 — Public site visual identity = editorial "strategic-briefing"
 
-**Status:** Accepted · 2026-06-22 · refines the visual layer of ADR 0004; consumes ADR 0008 tokens
+**Status:** Superseded by [ADR 0031](0031-public-visual-identity-admiralty-chart.md) · 2026-06-24
+(originally Accepted · 2026-06-22 · refined the visual layer of ADR 0004; consumes ADR 0008 tokens)
+
+> **Superseded.** The editorial _Espresso_ register below was a clean first identity but read as a
+> newsprint clone. ADR 0031 keeps the same token architecture, signature instruments and no-decoration
+> brief, but breaks to an **"admiralty chart" / intelligence-cartography** language (cold chart-paper
+> light + radar-console dark, a four-family editorial type system, functional chart motifs). The
+> structural facts recorded here (token isolation per ADR 0008, CVI-meter/corridor-chain as reusable
+> signatures, CVI ramp doubling as the map legend) remain true.
 
 ## Context
 

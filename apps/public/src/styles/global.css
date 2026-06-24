@@ -3,55 +3,58 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Applied Geopolitics — editorial design tokens.
-   Identity: a strategic-intelligence briefing. Newsprint ground, one decisive
-   signal-red accent (the colour of a binding constraint), maritime navy kept
-   as structural ink for the corridor motif, and a calibrated CVI vulnerability
-   ramp (bas → critique) reused wherever a corridor is scored.
-   Colours are RGB triplets so the whole site flips with the `.dark` class.
+   Applied Geopolitics — design tokens · "carte d'état-major" (admiralty chart).
+   Identity: an intelligence chart, not a newspaper. Cold chart-paper ground in
+   light, a "night navigation / radar console" deep blue-black in dark. One
+   decisive signal accent (a precise vermilion — the colour of the binding
+   constraint), a deep teal-navy / luminous chart-cyan as the structural ink of
+   corridors and graticule, and a calibrated CVI vulnerability ramp
+   (bas → critique) reused wherever a corridor is scored — it doubles as the map
+   legend. Colours are RGB triplets so the whole site flips with the `.dark` class.
    ───────────────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
-  --canvas: 250 249 246; /* warm newsprint */
-  --surface: 255 255 255;
-  --subtle: 243 241 236;
-  --ink: 26 26 28;
-  --muted: 92 96 104;
-  --line: 224 221 214; /* warm hairline */
-  --hairline: 209 205 196; /* slightly darker rule */
-  --accent: 198 27 38; /* editorial signal red */
-  --navy: 31 78 121; /* maritime corridor ink */
-  /* Calibrated vulnerability ramp — sequential, encodes meaning, never decoration. */
-  --cvi-1: 31 122 77; /* bas       */
-  --cvi-2: 178 130 24; /* modéré    */
-  --cvi-3: 196 75 18; /* élevé     */
-  --cvi-4: 178 38 30; /* critique  */
+  --canvas: 244 246 248; /* cold chart paper */
+  --surface: 252 253 254; /* card / instrument face */
+  --subtle: 234 238 242; /* recessed cold neutral */
+  --ink: 20 28 38; /* blue-black chart ink */
+  --muted: 92 104 117; /* cold slate */
+  --line: 211 219 225; /* cold hairline */
+  --hairline: 191 202 211; /* slightly darker rule */
+  --accent: 200 40 44; /* precise signal vermilion */
+  --navy: 15 60 78; /* deep teal-navy structural ink */
+  /* Calibrated vulnerability ramp — sequential, encodes meaning, never decoration.
+     Re-tuned for contrast on the cold paper ground (amber/orange darkened). */
+  --cvi-1: 22 120 88; /* bas       */
+  --cvi-2: 168 116 14; /* modéré    */
+  --cvi-3: 194 78 18; /* élevé     */
+  --cvi-4: 184 38 34; /* critique  */
   /* Operational status (kept for parity with shared tokens). */
-  --st-on: 31 122 77;
-  --st-risk: 182 118 27;
-  --st-blocked: 179 38 30;
-  --st-none: 138 144 154;
+  --st-on: 22 120 88;
+  --st-risk: 172 114 20;
+  --st-blocked: 184 38 34;
+  --st-none: 120 134 148;
 }
 
 .dark {
   color-scheme: dark;
-  --canvas: 17 18 21;
-  --surface: 24 26 30;
-  --subtle: 32 35 41;
-  --ink: 233 231 226;
-  --muted: 150 156 166;
-  --line: 42 45 52;
-  --hairline: 55 59 67;
-  --accent: 233 86 92;
-  --navy: 124 168 214;
-  --cvi-1: 63 191 134;
-  --cvi-2: 224 178 70;
-  --cvi-3: 232 140 90;
-  --cvi-4: 232 109 101;
-  --st-on: 63 191 134;
-  --st-risk: 224 168 58;
-  --st-blocked: 232 121 111;
-  --st-none: 154 163 176;
+  --canvas: 10 15 22; /* night-navigation blue-black */
+  --surface: 16 23 32; /* console face */
+  --subtle: 23 32 43; /* raised panel */
+  --ink: 224 232 238; /* cold paper-white */
+  --muted: 138 153 167; /* cold slate */
+  --line: 33 44 57; /* dark graticule hairline */
+  --hairline: 48 62 78; /* slightly lighter rule */
+  --accent: 234 92 94; /* signal red, slightly livened */
+  --navy: 96 178 208; /* luminous chart cyan */
+  --cvi-1: 62 196 142;
+  --cvi-2: 226 184 82;
+  --cvi-3: 236 148 94;
+  --cvi-4: 236 112 104;
+  --st-on: 62 196 142;
+  --st-risk: 226 176 66;
+  --st-blocked: 236 122 114;
+  --st-none: 150 164 178;
 }
 
 @layer base {
@@ -66,6 +69,7 @@
   }
   h1, h2, h3, h4 {
     @apply font-serif font-semibold tracking-tight text-ink;
+    font-optical-sizing: auto; /* Fraunces opsz axis */
   }
   h1 { letter-spacing: -0.02em; }
   ::selection {
@@ -77,6 +81,15 @@
     outline-offset: 2px;
     border-radius: 2px;
   }
+  /* Respect reduced-motion: drop the chart-tick and hover transitions. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer components {
@@ -84,22 +97,22 @@
   .label {
     @apply font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted;
   }
-  /* Eyebrow = a dateline/section tag in the accent, the recurring structural device. */
+  /* Eyebrow = a dateline/section tag in the accent, marked by a chart crosshair. */
   .eyebrow {
-    @apply inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-accent;
+    @apply inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-accent;
   }
   .eyebrow::before {
-    content: '';
-    @apply inline-block h-[2px] w-6 bg-accent;
+    content: '+';
+    @apply font-mono text-[12px] font-normal not-italic leading-none text-accent;
   }
-  /* Section divider: a thin rule carrying a mono tag, Espresso-style. */
+  /* Section divider: a navy chart filet carrying a mono tag. */
   .section-rule {
-    @apply mb-6 flex items-baseline gap-3 border-t-2 border-ink pt-2;
+    @apply mb-6 flex items-baseline gap-3 border-t-2 border-navy pt-2;
   }
 
-  /* Editorial body prose. */
+  /* Editorial body prose — Newsreader, the long-form reading face. */
   .prose-ag {
-    @apply text-[1.0625rem] leading-[1.72] text-ink/90;
+    @apply font-prose text-[1.075rem] leading-[1.74] text-ink/90;
   }
   .prose-ag h2 { @apply mb-3 mt-12 text-[1.7rem] leading-tight text-ink; }
   .prose-ag h3 { @apply mb-2 mt-8 text-xl text-ink; }
@@ -109,7 +122,7 @@
   .prose-ag a { @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent; }
   .prose-ag strong { @apply font-semibold text-ink; }
   .prose-ag em { @apply italic; }
-  .prose-ag blockquote { @apply my-6 border-l-2 border-accent pl-4 font-serif text-lg italic text-ink/80; }
+  .prose-ag blockquote { @apply my-6 border-l-2 border-accent pl-4 font-serif text-lg text-ink/80; }
   .prose-ag hr { @apply my-10 border-line; }
 
   /* First line of a fiche/dossier: the strategic verdict, drawn like a pull-quote. */
@@ -119,28 +132,37 @@
 
   /* Primary / secondary editorial buttons. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 text-sm font-medium transition-colors;
+    @apply inline-flex items-center justify-center gap-2 rounded-[2px] px-5 py-2.5 text-sm font-medium transition-colors;
   }
   .btn-primary {
     @apply btn bg-accent text-white hover:bg-accent/90;
   }
   .btn-ghost {
-    @apply btn border border-hairline bg-surface text-ink hover:border-ink/50;
+    @apply btn border border-hairline bg-surface text-ink hover:border-navy/60;
   }
 
-  /* Briefing card — the repeated content unit. */
+  /* Briefing card — the repeated content unit (square, instrument-like). */
   .card {
     @apply relative flex flex-col border border-line bg-surface p-5 transition-colors;
   }
   .card-link {
-    @apply card hover:border-ink/40;
+    @apply card hover:border-navy/50;
   }
-  /* The accent tick that grows on hover — the only motion on a card. */
+  /* A chart corner-bracket that snaps in at the top-right on hover — the only motion on a card. */
   .card-link::before {
     content: '';
-    @apply absolute left-0 top-0 h-[2px] w-0 bg-accent transition-all duration-200;
+    @apply absolute right-0 top-0 h-0 w-0 border-r-2 border-t-2 border-accent opacity-0 transition-all duration-200;
   }
-  .card-link:hover::before { @apply w-12; }
+  .card-link:hover::before { @apply h-3 w-3 opacity-100; }
+
+  /* Graticule — a discreet coordinate grid, theme-aware, zero requests.
+     Functional chart texture; never applied over reading columns. */
+  .bg-graticule {
+    background-image:
+      repeating-linear-gradient(to right, rgb(var(--line) / 0.6) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(to bottom, rgb(var(--line) / 0.6) 0 1px, transparent 1px 56px);
+    background-position: center center;
+  }
 }
 
 /* Leaflet popups inherit the editorial surface in both themes. */
@@ -148,7 +170,8 @@
 .leaflet-popup-tip {
   background: rgb(var(--surface));
   color: rgb(var(--ink));
-  border-radius: 3px;
+  border-radius: 2px;
 }
 .leaflet-container { background: rgb(var(--subtle)); font-family: inherit; }
 .leaflet-popup-content a { color: rgb(var(--accent)); }
+.leaflet-popup-content .cp-pop-meta { color: rgb(var(--muted)); }

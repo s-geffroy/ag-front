@@ -33,17 +33,22 @@ export default {
         },
       },
       fontFamily: {
+        // UI chrome (nav, buttons, tables) stays on Inter.
         sans: ['Inter Variable', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['Source Serif 4 Variable', 'Georgia', 'serif'],
-        mono: ['ui-monospace', 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'monospace'],
+        // Display / headings — Fraunces, a high-character editorial serif.
+        serif: ['Fraunces Variable', 'Georgia', 'serif'],
+        // Long-form reading body — Newsreader, optimised on screen.
+        prose: ['Newsreader Variable', 'Georgia', 'serif'],
+        // Instrument layer — coordinates, CVI scores, datelines, sources.
+        mono: ['IBM Plex Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       fontSize: {
-        // Editorial display sizes with built-in tight leading.
-        display: ['clamp(2.4rem, 5vw, 3.75rem)', { lineHeight: '1.04', letterSpacing: '-0.025em' }],
-        title: ['clamp(1.9rem, 3vw, 2.6rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        // Editorial display sizes with built-in tight leading (tuned for Fraunces).
+        display: ['clamp(2.4rem, 5vw, 3.75rem)', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
+        title: ['clamp(1.9rem, 3vw, 2.6rem)', { lineHeight: '1.1', letterSpacing: '-0.015em' }],
       },
       maxWidth: { content: '74rem', prose: '44rem' },
-      borderRadius: { DEFAULT: '3px' },
+      borderRadius: { DEFAULT: '2px' },
     },
   },
 } satisfies Config;

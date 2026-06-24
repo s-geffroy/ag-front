@@ -5,6 +5,7 @@ import Section from '../components/Section.astro';
 import EntryCard from '../components/EntryCard.astro';
 import Pill from '../components/Pill.astro';
 import CorridorChain from '../components/CorridorChain.astro';
+import ChartFrame from '../components/ChartFrame.astro';
 import { doctrineChain, offers } from '../lib/site';
 import { accessLabel, accessTone, formatDate } from '../lib/labels';
 
@@ -21,25 +22,30 @@ const lead = dossiers[0];
 ---
 
 <Base>
-  <!-- Hero — the thesis, set as a masthead -->
-  <Section class="pb-12 pt-14 md:pt-20">
-    <p class="eyebrow">Note stratégique · Corridors &amp; flux de puissance</p>
-    <h1 class="mt-5 max-w-4xl font-serif text-display font-bold text-balance">
-      Comprendre les flux de puissance, révéler les dépendances critiques, anticiper les
-      vulnérabilités géopolitiques.
-    </h1>
-    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-      Applied Geopolitics aide les organisations exposées aux corridors stratégiques à transformer
-      l’analyse géopolitique en <strong class="font-semibold text-ink">décisions de résilience</strong>.
-    </p>
-    <div class="mt-8 flex flex-wrap gap-3">
-      {lead ? <a href={`/dossiers/${lead.slug}`} class="btn-primary">Lire le dossier Mer Rouge / Suez</a> : null}
-      <a href="/atlas" class="btn-ghost">Découvrir l’Atlas</a>
-    </div>
+  <!-- Hero — the thesis, set as a framed chart title block -->
+  <Section class="bg-graticule pb-12 pt-14 md:pt-20">
+    <ChartFrame tone="text-navy" class="bg-canvas/85 px-6 py-8 md:px-10 md:py-12">
+      <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <p class="eyebrow">Note stratégique · Corridors &amp; flux de puissance</p>
+        <span class="label">Relevé · Édition 2026</span>
+      </div>
+      <h1 class="mt-5 max-w-4xl font-serif text-display font-bold text-balance">
+        Comprendre les flux de puissance, révéler les dépendances critiques, anticiper les
+        vulnérabilités géopolitiques.
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+        Applied Geopolitics aide les organisations exposées aux corridors stratégiques à transformer
+        l’analyse géopolitique en <strong class="font-semibold text-ink">décisions de résilience</strong>.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        {lead ? <a href={`/dossiers/${lead.slug}`} class="btn-primary">Lire le dossier Mer Rouge / Suez</a> : null}
+        <a href="/atlas" class="btn-ghost">Découvrir l’Atlas</a>
+      </div>
+    </ChartFrame>
   </Section>
 
   <!-- Doctrine chain as an instrumented corridor -->
-  <Section class="border-y border-line bg-surface py-9">
+  <Section class="bg-graticule border-y border-line bg-surface py-9">
     <p class="label mb-5">La chaîne d’analyse</p>
     <CorridorChain steps={doctrineChain} />
   </Section>
@@ -163,7 +169,7 @@ const lead = dossiers[0];
 
   <!-- CTA -->
   <Section class="pb-24 pt-16">
-    <div class="border-2 border-ink bg-surface p-8 text-center md:p-12">
+    <ChartFrame tone="text-navy" class="bg-surface p-8 text-center md:p-12">
       <p class="eyebrow justify-center">Échange stratégique</p>
       <h2 class="mt-4 font-serif text-title font-semibold">Un corridor vous expose ?</h2>
       <p class="mx-auto mt-3 max-w-xl text-muted">
@@ -171,6 +177,6 @@ const lead = dossiers[0];
         identifier vos angles morts opérationnels.
       </p>
       <a href="/contact" class="btn-primary mt-6">Demander un échange stratégique</a>
-    </div>
+    </ChartFrame>
   </Section>
 </Base>

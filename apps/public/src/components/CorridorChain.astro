@@ -19,9 +19,9 @@ const inset = `${50 / n}%`;
     class="relative grid min-w-[600px] sm:min-w-0"
     style={`grid-template-columns: repeat(${n}, minmax(0, 1fr))`}
   >
-    <!-- The rail: starts at the first node centre, ends at the last. -->
+    <!-- The plotted route: a dashed bearing line from first to last waypoint. -->
     <span
-      class="absolute top-[5px] h-px bg-navy/40"
+      class="absolute top-[5px] border-t border-dashed border-navy/50"
       style={`left: ${inset}; right: ${inset}`}
       aria-hidden="true"
     ></span>
@@ -31,14 +31,22 @@ const inset = `${50 / n}%`;
         return (
           <li class="relative flex flex-col items-center px-1 text-center">
             <span
-              class={`z-10 h-[11px] w-[11px] rounded-full border-2 bg-canvas ${
+              class={`z-10 h-[11px] w-[11px] rotate-45 border-2 bg-canvas ${
                 last ? 'border-accent' : 'border-navy'
               }`}
               style={last ? 'background: rgb(var(--accent))' : ''}
               aria-hidden="true"
             />
             <span
-              class={`mt-2.5 font-mono text-[10px] uppercase tracking-[0.08em] sm:text-[11px] ${
+              class={`mt-3 font-mono text-[9px] tabular-nums tracking-[0.1em] ${
+                last ? 'text-accent' : 'text-muted/80'
+              }`}
+              aria-hidden="true"
+            >
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span
+              class={`mt-0.5 font-mono text-[10px] uppercase tracking-[0.08em] sm:text-[11px] ${
                 last ? 'font-semibold text-accent' : 'text-muted'
               }`}
             >
