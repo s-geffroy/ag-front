@@ -107,6 +107,14 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
 5. Déploiement : `www.applied-geopolitics.com` résout en public ; cockpit **uniquement** joignable
    via Tailscale (vérifier qu'il n'est pas exposé en clair).
 
+## Suivi sécurité / dette (post-revue)
+
+- [ ] **Rotation des tokens Chokepoints API** — `CHOKEPOINTS_API_TOKEN` (read) et
+      `CHOKEPOINTS_API_TOKEN_TAINTED` (read_tainted) dans `docker/.env`. Ils ont été stockés en clair
+      avec des permissions `644` ; le fichier est désormais en `600` et n'a jamais été versionné, mais
+      une rotation reste la bonne hygiène (action manuelle côté admin de l'API Chokepoints). Voir la
+      revue complète (commit `7024944`).
+
 ## Prochaine action recommandée
 
 Socle (Phases 0–1) **terminé et vérifié**. **Revue** du socle, puis trancher l'ordre des apps
