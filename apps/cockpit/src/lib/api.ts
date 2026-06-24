@@ -16,7 +16,11 @@ async function asJson<T>(res: Response): Promise<T> {
 }
 
 function put(body: unknown): RequestInit {
-  return { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
+  return {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  };
 }
 
 export const api = {

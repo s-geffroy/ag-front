@@ -10,7 +10,11 @@
   {
     "type": "atlas_fiche",
     "required_gates": [
-      { "id": "strategic_verdict", "label": "Verdict stratégique", "description": "La fiche commence par un verdict." },
+      {
+        "id": "strategic_verdict",
+        "label": "Verdict stratégique",
+        "description": "La fiche commence par un verdict."
+      },
       { "id": "flows", "label": "Flux", "description": "Les flux concernés sont explicités." },
       { "id": "thresholds", "label": "Seuils", "description": "Des seuils d’alerte sont proposés." }
     ]
@@ -18,7 +22,11 @@
   {
     "type": "dossier",
     "required_gates": [
-      { "id": "strategic_question", "label": "Question stratégique", "description": "Le dossier répond à une question unique." },
+      {
+        "id": "strategic_question",
+        "label": "Question stratégique",
+        "description": "Le dossier répond à une question unique."
+      },
       { "id": "scenarios", "label": "Scénarios", "description": "2 à 3 scénarios." },
       { "id": "limits", "label": "Limites", "description": "Limites et angles morts explicites." }
     ]
@@ -26,15 +34,31 @@
   {
     "type": "offer",
     "required_gates": [
-      { "id": "clear_promise", "label": "Promesse claire", "description": "Compréhensible en 20 secondes." },
-      { "id": "offer_boundary", "label": "Frontière d’offre", "description": "Différence Basic/Standard/Premium nette." }
+      {
+        "id": "clear_promise",
+        "label": "Promesse claire",
+        "description": "Compréhensible en 20 secondes."
+      },
+      {
+        "id": "offer_boundary",
+        "label": "Frontière d’offre",
+        "description": "Différence Basic/Standard/Premium nette."
+      }
     ]
   },
   {
     "type": "cvi",
     "required_gates": [
-      { "id": "dimensions", "label": "Dimensions explicites", "description": "Les 8 dimensions CVI sont présentes." },
-      { "id": "score_justified", "label": "Score justifié", "description": "Aucun score sans justification." }
+      {
+        "id": "dimensions",
+        "label": "Dimensions explicites",
+        "description": "Les 8 dimensions CVI sont présentes."
+      },
+      {
+        "id": "score_justified",
+        "label": "Score justifié",
+        "description": "Aucun score sans justification."
+      }
     ]
   }
 ]

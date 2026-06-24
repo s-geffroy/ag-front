@@ -6,10 +6,17 @@ import { cn } from '@/lib/cn';
 
 /* ---- Card ---------------------------------------------------------------- */
 export function Card({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('rounded-md border border-line bg-surface shadow-sm', className)} {...p} />;
+  return (
+    <div className={cn('rounded-md border border-line bg-surface shadow-sm', className)} {...p} />
+  );
 }
 export function CardHeader({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex items-center justify-between gap-2 px-4 pb-2 pt-4', className)} {...p} />;
+  return (
+    <div
+      className={cn('flex items-center justify-between gap-2 px-4 pb-2 pt-4', className)}
+      {...p}
+    />
+  );
 }
 export function CardTitle({ className, ...p }: HTMLAttributes<HTMLHeadingElement>) {
   return <h3 className={cn('text-sm font-semibold tracking-tight', className)} {...p} />;
@@ -29,7 +36,8 @@ export const badgeVariants = cva(
         on_track: 'border-status-on_track/30 bg-status-on_track/10 text-status-on_track',
         at_risk: 'border-status-at_risk/30 bg-status-at_risk/10 text-status-at_risk',
         blocked: 'border-status-blocked/30 bg-status-blocked/10 text-status-blocked',
-        not_started: 'border-status-not_started/30 bg-status-not_started/10 text-status-not_started',
+        not_started:
+          'border-status-not_started/30 bg-status-not_started/10 text-status-not_started',
       },
     },
     defaultVariants: { tone: 'neutral' },
@@ -55,7 +63,8 @@ export const buttonVariants = cva(
     defaultVariants: { variant: 'default', size: 'md' },
   },
 );
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>;
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof buttonVariants>;
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { className, variant, size, ...p },
   ref,

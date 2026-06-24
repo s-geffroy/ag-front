@@ -28,7 +28,9 @@ export function AcquisitionPage() {
             <div key={s.id} className="flex w-64 shrink-0 flex-col rounded-md bg-subtle">
               <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted">
                 <span>{s.label}</span>
-                <span className="rounded-full bg-surface px-1.5 py-0.5 tabular-nums">{items.length}</span>
+                <span className="rounded-full bg-surface px-1.5 py-0.5 tabular-nums">
+                  {items.length}
+                </span>
               </div>
               <div className="flex-1 space-y-2 overflow-y-auto px-2 pb-2">
                 {items.map((c) => (
@@ -143,7 +145,9 @@ function ContactDetail({
         />
       </div>
 
-      <div className="text-[11px] text-muted">Dernier contact : {formatDate(draft.last_contact_date)}</div>
+      <div className="text-[11px] text-muted">
+        Dernier contact : {formatDate(draft.last_contact_date)}
+      </div>
 
       <div className="flex justify-end pt-2">
         <Button onClick={() => void onSave(draft)}>Enregistrer</Button>

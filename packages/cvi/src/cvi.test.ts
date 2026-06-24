@@ -53,7 +53,10 @@ describe('CVI 0-5 scale', () => {
     });
     expect(ok.ok).toBe(true);
 
-    const bad = validateCvi({ scale: '0-5', dimensions: { exposition: { score: 9, rationale: 'x' } } });
+    const bad = validateCvi({
+      scale: '0-5',
+      dimensions: { exposition: { score: 9, rationale: 'x' } },
+    });
     expect(bad.ok).toBe(false);
   });
 });

@@ -60,18 +60,29 @@
 @layer base {
   html {
     @apply bg-canvas text-ink;
-    font-family: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-family:
+      'Inter Variable',
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
   body {
     font-feature-settings: 'cv05', 'ss01';
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     @apply font-serif font-semibold tracking-tight text-ink;
     font-optical-sizing: auto; /* Fraunces opsz axis */
   }
-  h1 { letter-spacing: -0.02em; }
+  h1 {
+    letter-spacing: -0.02em;
+  }
   ::selection {
     background: rgb(var(--accent) / 0.18);
   }
@@ -83,7 +94,9 @@
   }
   /* Respect reduced-motion: drop the chart-tick and hover transitions. */
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -114,16 +127,36 @@
   .prose-ag {
     @apply font-prose text-[1.075rem] leading-[1.74] text-ink/90;
   }
-  .prose-ag h2 { @apply mb-3 mt-12 text-[1.7rem] leading-tight text-ink; }
-  .prose-ag h3 { @apply mb-2 mt-8 text-xl text-ink; }
-  .prose-ag p { @apply my-4; }
-  .prose-ag ul { @apply my-4 list-disc space-y-1.5 pl-5 marker:text-accent; }
-  .prose-ag ol { @apply my-4 list-decimal space-y-1.5 pl-5 marker:text-muted; }
-  .prose-ag a { @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent; }
-  .prose-ag strong { @apply font-semibold text-ink; }
-  .prose-ag em { @apply italic; }
-  .prose-ag blockquote { @apply my-6 border-l-2 border-accent pl-4 font-serif text-lg text-ink/80; }
-  .prose-ag hr { @apply my-10 border-line; }
+  .prose-ag h2 {
+    @apply mb-3 mt-12 text-[1.7rem] leading-tight text-ink;
+  }
+  .prose-ag h3 {
+    @apply mb-2 mt-8 text-xl text-ink;
+  }
+  .prose-ag p {
+    @apply my-4;
+  }
+  .prose-ag ul {
+    @apply my-4 list-disc space-y-1.5 pl-5 marker:text-accent;
+  }
+  .prose-ag ol {
+    @apply my-4 list-decimal space-y-1.5 pl-5 marker:text-muted;
+  }
+  .prose-ag a {
+    @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent;
+  }
+  .prose-ag strong {
+    @apply font-semibold text-ink;
+  }
+  .prose-ag em {
+    @apply italic;
+  }
+  .prose-ag blockquote {
+    @apply my-6 border-l-2 border-accent pl-4 font-serif text-lg text-ink/80;
+  }
+  .prose-ag hr {
+    @apply my-10 border-line;
+  }
 
   /* First line of a fiche/dossier: the strategic verdict, drawn like a pull-quote. */
   .verdict {
@@ -153,7 +186,9 @@
     content: '';
     @apply absolute right-0 top-0 h-0 w-0 border-r-2 border-t-2 border-accent opacity-0 transition-all duration-200;
   }
-  .card-link:hover::before { @apply h-3 w-3 opacity-100; }
+  .card-link:hover::before {
+    @apply h-3 w-3 opacity-100;
+  }
 
   /* Graticule — a discreet coordinate grid, theme-aware, zero requests.
      Functional chart texture; never applied over reading columns. */
@@ -172,6 +207,13 @@
   color: rgb(var(--ink));
   border-radius: 2px;
 }
-.leaflet-container { background: rgb(var(--subtle)); font-family: inherit; }
-.leaflet-popup-content a { color: rgb(var(--accent)); }
-.leaflet-popup-content .cp-pop-meta { color: rgb(var(--muted)); }
+.leaflet-container {
+  background: rgb(var(--subtle));
+  font-family: inherit;
+}
+.leaflet-popup-content a {
+  color: rgb(var(--accent));
+}
+.leaflet-popup-content .cp-pop-meta {
+  color: rgb(var(--muted));
+}

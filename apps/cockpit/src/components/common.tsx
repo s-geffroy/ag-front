@@ -1,9 +1,4 @@
-import type {
-  HealthState,
-  MilestoneStatus,
-  Priority,
-  QualityGateStatus,
-} from '@ag/schema/cockpit';
+import type { HealthState, MilestoneStatus, Priority, QualityGateStatus } from '@ag/schema/cockpit';
 import type { ReactNode } from 'react';
 import { Badge } from './ui';
 import {

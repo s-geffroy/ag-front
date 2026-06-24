@@ -25,7 +25,10 @@ export function validateCvi(input: unknown): CviValidationResult {
 
   if (a.scale === '0-100') {
     if (a.aggregate_score === undefined) {
-      issues.push({ code: 'aggregate_missing', message: 'scale "0-100" requires an aggregate_score.' });
+      issues.push({
+        code: 'aggregate_missing',
+        message: 'scale "0-100" requires an aggregate_score.',
+      });
     }
     if (!a.methodology_documented) {
       issues.push({
@@ -36,7 +39,10 @@ export function validateCvi(input: unknown): CviValidationResult {
   }
 
   if (a.scale === '0-5' && (!a.dimensions || Object.keys(a.dimensions).length === 0)) {
-    issues.push({ code: 'dimensions_missing', message: 'scale "0-5" requires per-dimension scores.' });
+    issues.push({
+      code: 'dimensions_missing',
+      message: 'scale "0-5" requires per-dimension scores.',
+    });
   }
 
   return issues.length === 0 ? { ok: true, issues: [], data: a } : { ok: false, issues };

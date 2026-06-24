@@ -38,7 +38,14 @@ export const deliverableTypes = [
 export const DeliverableType = z.enum(deliverableTypes);
 export type DeliverableType = z.infer<typeof DeliverableType>;
 
-export const pillars = ['method', 'production', 'offers', 'acquisition', 'scorecard', 'site'] as const;
+export const pillars = [
+  'method',
+  'production',
+  'offers',
+  'acquisition',
+  'scorecard',
+  'site',
+] as const;
 export const Pillar = z.enum(pillars);
 export type Pillar = z.infer<typeof Pillar>;
 

@@ -72,7 +72,9 @@ export function ExplorationPage() {
 
       {error ? (
         <div className="rounded-md border border-status-at_risk/30 bg-status-at_risk/10 p-4 text-sm text-status-at_risk">
-          {error.includes('503') ? 'API chokepoints non configurée (token absent).' : `Erreur : ${error}`}
+          {error.includes('503')
+            ? 'API chokepoints non configurée (token absent).'
+            : `Erreur : ${error}`}
         </div>
       ) : null}
 
@@ -153,7 +155,9 @@ function DetailPanel({ id }: { id: string }) {
           {detail.license_taint ? <Badge tone="blocked">Restreint</Badge> : null}
         </div>
         <h3 className="mt-2 text-base font-semibold">{detail.canonical_name}</h3>
-        {detail.macro_region ? <div className="text-xs text-muted">{detail.macro_region}</div> : null}
+        {detail.macro_region ? (
+          <div className="text-xs text-muted">{detail.macro_region}</div>
+        ) : null}
       </div>
 
       {detail.required_attributions.length ? (
@@ -163,15 +167,25 @@ function DetailPanel({ id }: { id: string }) {
         </p>
       ) : null}
 
-      <Section title="Flux" rows={detail.flows.map((f) => `${humanize(f.flow_type)}${f.directionality ? ` · ${f.directionality}` : ''}`)} />
-      <Section title="Risques" rows={detail.risks.map((r) => `${humanize(r.risk_type)}${r.current_status ? ` · ${r.current_status}` : ''}`)} />
+      <Section
+        title="Flux"
+        rows={detail.flows.map(
+          (f) => `${humanize(f.flow_type)}${f.directionality ? ` · ${f.directionality}` : ''}`,
+        )}
+      />
+      <Section
+        title="Risques"
+        rows={detail.risks.map(
+          (r) => `${humanize(r.risk_type)}${r.current_status ? ` · ${r.current_status}` : ''}`,
+        )}
+      />
       <Section title="Alternatives" rows={detail.alternatives.map((a) => a.description)} />
       <Section title="Épisodes" rows={detail.episodes.map((e) => e.name)} />
 
       <Separator />
       <p className="text-[11px] text-muted">
-        Données canoniques (lecture seule). Géométrie schématique ; analytique dérivée = candidats en
-        attente de validation. Vue interne — ne pas republier les données restreintes.
+        Données canoniques (lecture seule). Géométrie schématique ; analytique dérivée = candidats
+        en attente de validation. Vue interne — ne pas republier les données restreintes.
       </p>
     </div>
   );

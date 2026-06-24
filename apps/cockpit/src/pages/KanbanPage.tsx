@@ -73,7 +73,10 @@ export function KanbanPage() {
           className={selectClass('h-8 w-40')}
           value={filter.type[0] ?? ''}
           onChange={(e) =>
-            setFilter((f) => ({ ...f, type: e.target.value ? [e.target.value as Deliverable['type']] : [] }))
+            setFilter((f) => ({
+              ...f,
+              type: e.target.value ? [e.target.value as Deliverable['type']] : [],
+            }))
           }
         >
           <option value="">Tous les types</option>
@@ -101,7 +104,9 @@ export function KanbanPage() {
             <div key={s.id} className="flex w-72 shrink-0 flex-col rounded-md bg-subtle">
               <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted">
                 <span>{s.label}</span>
-                <span className="rounded-full bg-surface px-1.5 py-0.5 tabular-nums">{items.length}</span>
+                <span className="rounded-full bg-surface px-1.5 py-0.5 tabular-nums">
+                  {items.length}
+                </span>
               </div>
               <div className="flex-1 space-y-2 overflow-y-auto px-2 pb-2">
                 {items.map((d) => (
@@ -257,7 +262,8 @@ function DeliverableDetail({
           })}
         </div>
         <p className="mt-1 text-[11px] text-muted">
-          {gateLabel[draft.quality_gate_status]} — un livrable peut être prêt mais bloqué méthodologiquement.
+          {gateLabel[draft.quality_gate_status]} — un livrable peut être prêt mais bloqué
+          méthodologiquement.
         </p>
       </div>
 

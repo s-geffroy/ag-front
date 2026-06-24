@@ -1,4 +1,11 @@
-import type { Deliverable, DeliverableType, Offer, Pillar, Priority, StatusId } from '@ag/schema/cockpit';
+import type {
+  Deliverable,
+  DeliverableType,
+  Offer,
+  Pillar,
+  Priority,
+  StatusId,
+} from '@ag/schema/cockpit';
 
 export type KanbanFilter = {
   priority: Priority[];
@@ -37,12 +44,16 @@ export function applyFilter(items: Deliverable[], f: KanbanFilter): Deliverable[
     if (f.pillar.length && !f.pillar.includes(d.pillar)) return false;
     if (f.offer.length && !f.offer.includes(d.offer)) return false;
     if (f.withBlockerOnly && !(d.blocker && d.blocker.trim())) return false;
-    if (q && !(d.title.toLowerCase().includes(q) || d.description.toLowerCase().includes(q))) return false;
+    if (q && !(d.title.toLowerCase().includes(q) || d.description.toLowerCase().includes(q)))
+      return false;
     return true;
   });
 }
 
-export function groupByStatus(items: Deliverable[], statuses: StatusId[]): Record<string, Deliverable[]> {
+export function groupByStatus(
+  items: Deliverable[],
+  statuses: StatusId[],
+): Record<string, Deliverable[]> {
   const groups: Record<string, Deliverable[]> = {};
   for (const s of statuses) groups[s] = [];
   for (const d of items) (groups[d.status] ??= []).push(d);

@@ -37,19 +37,28 @@ describe('globalHealth', () => {
   });
 
   it('is at_risk when a P0 is at risk or late', () => {
-    expect(globalHealth([deliv({ priority: 'P0', quality_gate_status: 'at_risk' })], NOW)).toBe('at_risk');
+    expect(globalHealth([deliv({ priority: 'P0', quality_gate_status: 'at_risk' })], NOW)).toBe(
+      'at_risk',
+    );
     expect(globalHealth([deliv({ priority: 'P0', deadline: '2026-01-01' })], NOW)).toBe('at_risk');
-    expect(globalHealth([deliv({ priority: 'P0', blocker: 'sources manquantes' })], NOW)).toBe('at_risk');
-  });
-
-  it('ignores published P0s', () => {
-    expect(globalHealth([deliv({ priority: 'P0', status: 'published', quality_gate_status: 'blocked' })], NOW)).toBe(
-      'on_track',
+    expect(globalHealth([deliv({ priority: 'P0', blocker: 'sources manquantes' })], NOW)).toBe(
+      'at_risk',
     );
   });
 
+  it('ignores published P0s', () => {
+    expect(
+      globalHealth(
+        [deliv({ priority: 'P0', status: 'published', quality_gate_status: 'blocked' })],
+        NOW,
+      ),
+    ).toBe('on_track');
+  });
+
   it('is on_track otherwise', () => {
-    expect(globalHealth([deliv({ priority: 'P0' }), deliv({ priority: 'P1' })], NOW)).toBe('on_track');
+    expect(globalHealth([deliv({ priority: 'P0' }), deliv({ priority: 'P1' })], NOW)).toBe(
+      'on_track',
+    );
   });
 });
 
@@ -92,7 +101,17 @@ describe('qualityAlerts', () => {
           human_review_done: false,
         },
       }),
-      deliv({ id: 'inprog', status: 'production', gates: { sources_ok: false, llm_draft_done: false, contradiction_done: false, compliance_done: false, human_review_done: false } }),
+      deliv({
+        id: 'inprog',
+        status: 'production',
+        gates: {
+          sources_ok: false,
+          llm_draft_done: false,
+          contradiction_done: false,
+          compliance_done: false,
+          human_review_done: false,
+        },
+      }),
     ];
     const alerts = qualityAlerts(list);
     expect(alerts.map((a) => a.deliverable.id)).toEqual(['bad']);
@@ -102,7 +121,11 @@ describe('qualityAlerts', () => {
 
 describe('criticalBlockers', () => {
   it('returns non-published deliverables carrying a blocker', () => {
-    const list = [deliv({ id: 'b', blocker: 'x' }), deliv({ id: 'n' }), deliv({ id: 'p', status: 'published', blocker: 'x' })];
+    const list = [
+      deliv({ id: 'b', blocker: 'x' }),
+      deliv({ id: 'n' }),
+      deliv({ id: 'p', status: 'published', blocker: 'x' }),
+    ];
     expect(criticalBlockers(list).map((d) => d.id)).toEqual(['b']);
   });
 });

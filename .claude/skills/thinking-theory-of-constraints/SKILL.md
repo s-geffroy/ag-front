@@ -13,7 +13,7 @@ throughput until the binding constraint is addressed.
 
 **Core principle:** in any route or supply network, **one** node sets the ceiling. Effort spent
 anywhere else is wasted motion until that node is relieved — and once it is, the ceiling moves to
-the *next* node. This is the grammar of a chokepoint.
+the _next_ node. This is the grammar of a chokepoint.
 
 This skill is an **analytical lens** for reasoning about chokepoint objects, their flows, and their
 relations. It does not improve measurement accuracy on its own — it structures the analysis so the
@@ -21,7 +21,7 @@ binding constraint, its substitutes, and its downstream shift are made explicit 
 
 ## When to use
 
-- Characterising a chokepoint: *what flow does it bind, and how hard?*
+- Characterising a chokepoint: _what flow does it bind, and how hard?_
 - Comparing a chokepoint against its substitution/bypass alternatives.
 - Mapping `systemic relations`: which chokepoint becomes binding once another is relieved or closed.
 - Prioritising attention across a corridor with several candidate chokepoints.
@@ -29,7 +29,7 @@ binding constraint, its substitutes, and its downstream shift are made explicit 
 ## When NOT to use
 
 - A single object with no flow network behind it — there is no "constraint to move".
-- You are asserting a *fact* about capacity or closure without a validated source. ToC structures the
+- You are asserting a _fact_ about capacity or closure without a validated source. ToC structures the
   reasoning; it never manufactures evidence. Seeds remain **candidates pending human validation**.
 - You need navigational or legal precision. Geometry and capacity here are **schematic** unless a
   validated source says otherwise.
@@ -96,39 +96,46 @@ Capture this as a `systemic relation`: Hormuz --(bypass shifts load to)--> Bab-e
 
 ```markdown
 ## Flow under analysis
+
 [Commodity / cargo / data flow, origin → destination, volume basis, source]
 
 ## 1. Binding constraint
+
 [Node + why binding: utilisation, absence of substitute, realised impact — each sourced]
 
 ## 2. Exploit (no new capacity)
+
 [Operational measures that defend throughput at constant capacity]
 
 ## 3. Subordinate
+
 [What the rest of the network must pace to; where queues/stockpiles build]
 
 ## 4. Elevate (substitution / bypass)
+
 [Candidate bypasses, each with sourced capacity ceiling + its own exposure]
 
 ## 5. Next constraint (systemic relation)
+
 [Which node binds once this one is relieved; record the relation explicitly]
 
 ## Evidence status
+
 [Validated sources vs. candidate seeds — priority (P0…) only where human-validated]
 ```
 
 ## Common patterns
 
-| Pattern | Reasoning |
-|---|---|
-| **The phantom bypass** | A "substitute" route is logged as relieving a chokepoint, but its own capacity is far below the flow. It elevates nothing at volume — record the ceiling, don't imply equivalence. |
-| **Optimising a non-constraint** | Investing in a node that isn't binding (extra terminal capacity, faster loading) while the strait is unchanged — throughput is unmoved; the queue just relocates. |
-| **The moved constraint** | Mitigation "solves" a chokepoint on paper but the load lands on a neighbour. If the analysis stops at step 4, the systemic relation is missed. |
+| Pattern                         | Reasoning                                                                                                                                                                          |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **The phantom bypass**          | A "substitute" route is logged as relieving a chokepoint, but its own capacity is far below the flow. It elevates nothing at volume — record the ceiling, don't imply equivalence. |
+| **Optimising a non-constraint** | Investing in a node that isn't binding (extra terminal capacity, faster loading) while the strait is unchanged — throughput is unmoved; the queue just relocates.                  |
+| **The moved constraint**        | Mitigation "solves" a chokepoint on paper but the load lands on a neighbour. If the analysis stops at step 4, the systemic relation is missed.                                     |
 
 ## Verification checklist
 
 - [ ] Named **one** binding constraint, with sourced reason (utilisation / no substitute / impact)
-- [ ] Separated *exploit* (operational, constant capacity) from *elevate* (new capacity / bypass)
+- [ ] Separated _exploit_ (operational, constant capacity) from _elevate_ (new capacity / bypass)
 - [ ] Stated what subordinates to the constraint and where queues/stockpiles accumulate
 - [ ] Listed substitution/bypass candidates with **sourced** capacity ceilings, not assumed equivalence
 - [ ] Identified the **next** binding constraint and recorded it as a `systemic relation`
@@ -140,7 +147,7 @@ This skill produces **derived analysis** over canonical records. It MUST NOT mut
 Constraint rankings, bypass capacities, and systemic relations are **candidates** until backed by a
 sourced, human-validated record; priority promotion (P0…) follows the same rule as everywhere in the
 project. Capacities and geometry are **schematic** unless a validated source states otherwise — never
-imply navigational or legal precision. See [[thinking-leverage-points]] for *where* to intervene once
+imply navigational or legal precision. See [[thinking-leverage-points]] for _where_ to intervene once
 the binding constraint is identified.
 
 ## Key questions
@@ -150,4 +157,4 @@ the binding constraint is identified.
 - "Is this 'bypass' actually at volume, or just nominal?"
 - "If this chokepoint is relieved, which neighbour binds next?"
 
-> "A chain is only as strong as its weakest link." — E. M. Goldratt, *The Goal*
+> "A chain is only as strong as its weakest link." — E. M. Goldratt, _The Goal_

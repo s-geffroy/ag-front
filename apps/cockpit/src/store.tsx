@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Contact, Deliverable, Milestone } from '@ag/schema/cockpit';
 import { api } from './lib/api';
 import type { CockpitState } from './types';
@@ -45,7 +38,9 @@ export function CockpitProvider({ children }: { children: ReactNode }) {
   const saveDeliverable = useCallback(
     async (d: Deliverable) => {
       setSaving(true);
-      setState((s) => (s ? { ...s, deliverables: s.deliverables.map((x) => (x.id === d.id ? d : x)) } : s));
+      setState((s) =>
+        s ? { ...s, deliverables: s.deliverables.map((x) => (x.id === d.id ? d : x)) } : s,
+      );
       try {
         await api.putDeliverable(d);
         setError(null);
@@ -79,7 +74,9 @@ export function CockpitProvider({ children }: { children: ReactNode }) {
   const saveMilestone = useCallback(
     async (m: Milestone) => {
       setSaving(true);
-      setState((s) => (s ? { ...s, milestones: s.milestones.map((x) => (x.id === m.id ? m : x)) } : s));
+      setState((s) =>
+        s ? { ...s, milestones: s.milestones.map((x) => (x.id === m.id ? m : x)) } : s,
+      );
       try {
         await api.putMilestone(m);
         setError(null);

@@ -1,9 +1,4 @@
-import type {
-  HealthState,
-  MilestoneStatus,
-  Priority,
-  QualityGateStatus,
-} from '@ag/schema/cockpit';
+import type { HealthState, MilestoneStatus, Priority, QualityGateStatus } from '@ag/schema/cockpit';
 
 export type Tone = 'neutral' | 'accent' | 'on_track' | 'at_risk' | 'blocked' | 'not_started';
 

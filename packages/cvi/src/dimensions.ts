@@ -21,11 +21,17 @@ export const cviDimensions: Record<CviDimensionKey, { label: string; question: s
     label: 'Capacité de perturbation',
     question: 'Ces acteurs ont-ils les moyens réels de perturber ?',
   },
-  resilience: { label: 'Résilience', question: 'Combien de temps pour contourner/réparer/absorber ?' },
+  resilience: {
+    label: 'Résilience',
+    question: 'Combien de temps pour contourner/réparer/absorber ?',
+  },
   cout_contournement: {
     label: 'Coût de contournement',
     question: 'Quel coût économique, logistique, assurantiel ou politique ?',
   },
   gouvernance: { label: 'Gouvernance', question: 'Qui peut sécuriser/coordonner/stabiliser ?' },
-  incertitude: { label: 'Incertitude', question: 'Que ne sait-on pas, avec quel niveau de confiance ?' },
+  incertitude: {
+    label: 'Incertitude',
+    question: 'Que ne sait-on pas, avec quel niveau de confiance ?',
+  },
 };

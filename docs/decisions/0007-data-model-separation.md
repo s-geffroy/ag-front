@@ -6,14 +6,14 @@
 
 Two models are easily conflated. The **product** model (corridors, flux, Atlas fiches, notes, dossiers,
 signals, thresholds, scenarios, CVI) is what the public site publishes. The **cockpit** model (E-light:
-config / deliverables / milestones / metrics / contacts / quality_gates) tracks the *launch*. They
+config / deliverables / milestones / metrics / contacts / quality*gates) tracks the \_launch*. They
 relate (a `deliverable` may produce a published fiche) but have different lifecycles and owners.
 
 ## Decision
 
 Model them as **two namespaces** in `@ag/schema`: `@ag/schema/content` and `@ag/schema/cockpit`, each
 with zod schemas + inferred types. CVI lives in its own package `@ag/cvi` and is referenced by content
-(a corridor *carries* a CVI assessment). **Derived analysis (CVI rankings, health) never mutates
+(a corridor _carries_ a CVI assessment). **Derived analysis (CVI rankings, health) never mutates
 canonical records** (data-integrity rule); seeds are candidates pending validation
 (`Provenance.validation_status` defaults to `candidate`).
 

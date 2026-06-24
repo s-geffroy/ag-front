@@ -44,8 +44,18 @@ function MetricCell({ metric: m }: { metric: Metric }) {
     <div className="rounded-md border border-line p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="text-2xl font-semibold tabular-nums">{m.value}</div>
-        <Badge tone={gateTone[m.status === 'on_track' ? 'ok' : m.status === 'blocked' ? 'blocked' : 'at_risk']}>
-          {m.status === 'on_track' ? 'Sur les rails' : m.status === 'blocked' ? 'Bloqué' : 'À risque'}
+        <Badge
+          tone={
+            gateTone[
+              m.status === 'on_track' ? 'ok' : m.status === 'blocked' ? 'blocked' : 'at_risk'
+            ]
+          }
+        >
+          {m.status === 'on_track'
+            ? 'Sur les rails'
+            : m.status === 'blocked'
+              ? 'Bloqué'
+              : 'À risque'}
         </Badge>
       </div>
       <div className="mt-0.5 text-sm">{m.label}</div>

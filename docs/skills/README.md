@@ -7,21 +7,21 @@ the "Data integrity" section of `CLAUDE.md`.
 
 ## Trigger moments
 
-| Trigger moment | Skill(s) |
-|---|---|
-| Any non-trivial code task — before writing code | `brainstorming` → `writing-plans` → `test-driven-development` (superpowers) |
-| A bug, test failure, or unexpected behavior | `systematic-debugging` (before proposing a fix) |
-| Parallel / multi-agent work | `using-git-worktrees`, `dispatching-parallel-agents`, `subagent-driven-development` |
-| Executing a written plan | `executing-plans` |
-| Wrapping up a branch | `finishing-a-development-branch`, `requesting-code-review`, `receiving-code-review` |
-| Before declaring work done | `verification-before-completion` |
-| Fetch/verify a web source for the evidence registry | `agent-browser` (runs inside the `tools` container) |
-| Changes touching the read API or admin/cockpit UI (auth, inputs, endpoints) | `owasp-security` |
-| Build/modify a front-end (components, layout, design system) | `frontend-design` |
-| Produce a visual deliverable (briefing/report PDF, poster) from derived data | `canvas-design` |
-| Analyse a chokepoint / flow network | `thinking-theory-of-constraints`, `thinking-leverage-points` |
-| Start of any conversation (auto) | `using-superpowers` (routes to the right superpowers skill) |
-| Creating/editing skills | `writing-skills` |
+| Trigger moment                                                               | Skill(s)                                                                            |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Any non-trivial code task — before writing code                              | `brainstorming` → `writing-plans` → `test-driven-development` (superpowers)         |
+| A bug, test failure, or unexpected behavior                                  | `systematic-debugging` (before proposing a fix)                                     |
+| Parallel / multi-agent work                                                  | `using-git-worktrees`, `dispatching-parallel-agents`, `subagent-driven-development` |
+| Executing a written plan                                                     | `executing-plans`                                                                   |
+| Wrapping up a branch                                                         | `finishing-a-development-branch`, `requesting-code-review`, `receiving-code-review` |
+| Before declaring work done                                                   | `verification-before-completion`                                                    |
+| Fetch/verify a web source for the evidence registry                          | `agent-browser` (runs inside the `tools` container)                                 |
+| Changes touching the read API or admin/cockpit UI (auth, inputs, endpoints)  | `owasp-security`                                                                    |
+| Build/modify a front-end (components, layout, design system)                 | `frontend-design`                                                                   |
+| Produce a visual deliverable (briefing/report PDF, poster) from derived data | `canvas-design`                                                                     |
+| Analyse a chokepoint / flow network                                          | `thinking-theory-of-constraints`, `thinking-leverage-points`                        |
+| Start of any conversation (auto)                                             | `using-superpowers` (routes to the right superpowers skill)                         |
+| Creating/editing skills                                                      | `writing-skills`                                                                    |
 
 ## Guardrails (override skill defaults)
 

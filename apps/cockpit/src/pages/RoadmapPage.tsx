@@ -14,7 +14,10 @@ export function RoadmapPage() {
 
   return (
     <div>
-      <PageHeader title="Roadmap" subtitle="Deux horizons : 90 jours (opérationnel) et 12 mois (stratégique)." />
+      <PageHeader
+        title="Roadmap"
+        subtitle="Deux horizons : 90 jours (opérationnel) et 12 mois (stratégique)."
+      />
 
       <section className="mb-8">
         <h2 className="mb-3 text-sm font-semibold text-muted">Horizon 90 jours</h2>

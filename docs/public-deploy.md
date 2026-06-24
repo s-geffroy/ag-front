@@ -24,10 +24,10 @@ The domain `applied-geopolitics.com` is managed at Hostinger and must be repoint
    The domain must use **Hostinger nameservers** for this zone editor to apply.
 2. **Edit the A records** (replace the old IP):
 
-   | Type | Name (Host) | Value / Points to | TTL |
-   |------|-------------|-------------------|-----|
+   | Type | Name (Host) | Value / Points to | TTL                           |
+   | ---- | ----------- | ----------------- | ----------------------------- |
    | A    | `@`         | `72.61.101.1`     | 3600 (or lower while testing) |
-   | A    | `www`       | `72.61.101.1`     | 3600 |
+   | A    | `www`       | `72.61.101.1`     | 3600                          |
 
 3. **Delete** any existing `A` records for `@` and `www` pointing to `148.230.117.243`, and any
    **CNAME** on `www` (a host can't have both A and CNAME).
@@ -44,6 +44,7 @@ The domain `applied-geopolitics.com` is managed at Hostinger and must be repoint
   ```bash
   dig +short www.applied-geopolitics.com      # must return 72.61.101.1
   ```
+
 - Within ~1 minute of correct DNS, Caddy issues the certificate and the site goes live on HTTPS.
   Watch it:
 

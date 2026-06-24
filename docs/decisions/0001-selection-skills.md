@@ -5,7 +5,7 @@
 ## Context
 
 The project adopts a curated set of agent skills under `.claude/skills/` (versioned). Skills are
-*agent tooling*, not project tooling, so they fall **outside** the Docker-only rule. `CLAUDE.md` points
+_agent tooling_, not project tooling, so they fall **outside** the Docker-only rule. `CLAUDE.md` points
 here for the selection rationale and maps trigger moments to skills.
 
 ## Decision

@@ -62,7 +62,11 @@ export async function loadChokepoints(): Promise<ChokepointsLoad> {
       priority_class: 'P0',
       limit: 100,
     });
-    cache = { ok: true, items: list.items.map(toAtlas), attributionNotice: list.attribution_notice };
+    cache = {
+      ok: true,
+      items: list.items.map(toAtlas),
+      attributionNotice: list.attribution_notice,
+    };
   } catch (e) {
     console.warn('[atlas] Chokepoints API injoignable au build :', String(e));
     cache = { ok: false, items: [] };

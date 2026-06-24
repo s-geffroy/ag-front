@@ -43,7 +43,12 @@ export const offers: Offer[] = [
       'Résumés exécutifs de dossiers',
       'Newsletter de synthèse',
     ],
-    excludes: ['Scoring CVI 0–5', 'Alertes thématiques', 'Historique d’évolution', 'Contextualisation client'],
+    excludes: [
+      'Scoring CVI 0–5',
+      'Alertes thématiques',
+      'Historique d’évolution',
+      'Contextualisation client',
+    ],
     cta: { label: 'Être informé du lancement', href: '/contact' },
   },
   {
@@ -61,7 +66,11 @@ export const offers: Offer[] = [
       'Comparaisons entre corridors',
       'Historique léger d’évolution',
     ],
-    excludes: ['Contextualisation client', 'Pondérations CVI sur mesure', 'Restitution personnalisée'],
+    excludes: [
+      'Contextualisation client',
+      'Pondérations CVI sur mesure',
+      'Restitution personnalisée',
+    ],
     cta: { label: 'Être informé du lancement', href: '/contact' },
     featured: true,
   },
@@ -80,7 +89,12 @@ export const offers: Offer[] = [
       'Restitution 45–60 min + note de décision',
       'Pilote fermé 6–8 semaines',
     ],
-    excludes: ['Audit complet de supply chain', 'Conseil juridique', 'Garantie de prédiction', 'Surveillance temps réel'],
+    excludes: [
+      'Audit complet de supply chain',
+      'Conseil juridique',
+      'Garantie de prédiction',
+      'Surveillance temps réel',
+    ],
     cta: { label: 'Demander un pilote', href: '/contact?sujet=pilote' },
   },
 ];

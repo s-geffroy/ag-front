@@ -32,7 +32,7 @@ agent-browser batch \
 ```
 
 `open` with no URL gives you a clean launch so any interception, cookies,
-or init scripts you register take effect on the *first* real navigation.
+or init scripts you register take effect on the _first_ real navigation.
 Use for SSR-only debug (`--resource-type script`), protected-origin auth,
 or capturing fresh `react suspense`/`vitals` state without noise from a
 prior page.
@@ -261,6 +261,7 @@ agent-browser frame main              # Return to main frame
 ```
 
 The `frame` command accepts:
+
 - **Element refs** — `frame @e3` resolves the ref to an iframe element
 - **CSS selectors** — `frame "#payment-iframe"` finds the iframe by selector
 - **Frame name/URL** — matches against the browser's frame tree
@@ -319,6 +320,7 @@ Credential provider plugins run out-of-process over the
 to require explicit approval before a plugin resolves secrets.
 
 Other capabilities use the same protocol:
+
 - `browser.provider`: `agent-browser --provider <name> open <url>`
 - `launch.mutate`: append local launch args, extensions, or init scripts
 - `command.run`: `agent-browser plugin run <name> <type> --payload <json>`
