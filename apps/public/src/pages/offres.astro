@@ -43,7 +43,7 @@ import { offers } from '../lib/site';
                     <span class="mt-0.5 text-status-on_track" aria-hidden="true">
                       ✓
                     </span>
-                    <span class={inc.endsWith(':') ? 'font-medium text-ink' : 'text-ink/90'}>{inc}</span>
+                    <span class={inc.trimEnd().endsWith(':') ? 'font-medium text-ink' : 'text-ink/90'}>{inc}</span>
                   </li>
                 ))}
                 {o.excludes.map((exc) => (

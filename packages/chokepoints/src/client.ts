@@ -1,4 +1,9 @@
-import { ChokepointDetail, ChokepointList, GeoJsonFeatureCollection } from './schema';
+import {
+  ChokepointDetail,
+  ChokepointList,
+  GeoJsonFeatureCollection,
+  toPublicFeatureCollection,
+} from './schema';
 
 export type ChokepointsClientOptions = {
   baseUrl: string;
@@ -42,14 +47,20 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
   async function get(
     path: string,
     params?: Record<string, string | number | undefined>,
+    callOpts?: { allowTainted?: boolean },
   ): Promise<unknown> {
+    // Per-call taint gate: tainted records are sent ONLY when the client opted in AND this
+    // specific call allows it. Public-redistribution paths (the GeoJSON export) pass
+    // `allowTainted: false`, so they can never request restricted records — the guarantee is a
+    // property of the call, not just of who built the client.
+    const allowTainted = callOpts?.allowTainted ?? true;
     const url = new URL(base + path);
     if (params) {
       for (const [k, v] of Object.entries(params)) {
         if (v !== undefined) url.searchParams.set(k, String(v));
       }
     }
-    if (opts.includeTainted) url.searchParams.set('include_tainted', 'true');
+    if (opts.includeTainted && allowTainted) url.searchParams.set('include_tainted', 'true');
     const res = await fetchImpl(url, {
       headers: { Authorization: `Bearer ${opts.token}`, Accept: 'application/json' },
       signal: AbortSignal.timeout(timeoutMs),
@@ -66,8 +77,15 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       return ChokepointDetail.parse(await get(`/chokepoints/${encodeURIComponent(id)}`));
     },
     async exportGeoJson() {
-      // Schematic geometries, clear records only (include_tainted is never sent).
-      return GeoJsonFeatureCollection.parse(await get('/exports/geojson'));
+      // Public redistribution surface. Two structural guarantees, independent of how the client
+      // was constructed: (1) `include_tainted` is never sent (allowTainted: false); (2) each feature
+      // is projected to a public-safe property allowlist, so restricted attributes
+      // (license_taint, max_license_risk, …) can never reach a clear consumer even if the upstream
+      // API leaks them. Geometries are schematic.
+      const raw = GeoJsonFeatureCollection.parse(
+        await get('/exports/geojson', undefined, { allowTainted: false }),
+      );
+      return toPublicFeatureCollection(raw);
     },
   };
 }

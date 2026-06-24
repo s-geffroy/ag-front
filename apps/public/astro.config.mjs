@@ -15,7 +15,6 @@ export default defineConfig({
       alias: {
         '@ag/chokepoints': pkg('chokepoints/src/index.ts'),
         '@ag/cvi': pkg('cvi/src/index.ts'),
-        '@ag/tokens': pkg('tokens/src/index.ts'),
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },

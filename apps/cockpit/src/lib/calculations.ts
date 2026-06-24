@@ -28,17 +28,17 @@ function hasBlocker(d: Deliverable): boolean {
 }
 
 /**
- * The deliverables to push now: non-published, ordered by priority, then blocker presence,
- * then nearest deadline, then lowest progress.
+ * The deliverables to push now: non-published, ordered by priority, then late-vs-`now`, then blocker
+ * presence, then nearest deadline, then lowest progress.
  */
 export function p0ToPush(deliverables: Deliverable[], now: Date, limit = 3): Deliverable[] {
-  void now;
   return deliverables
     .filter((d) => d.status !== 'published')
     .slice()
     .sort(
       (a, b) =>
         PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority] ||
+        Number(isLate(b, now)) - Number(isLate(a, now)) ||
         Number(hasBlocker(b)) - Number(hasBlocker(a)) ||
         new Date(a.deadline).getTime() - new Date(b.deadline).getTime() ||
         a.progress - b.progress,

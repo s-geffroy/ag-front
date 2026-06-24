@@ -8,10 +8,10 @@ consumes ADR 0008 tokens
 ADR 0030 gave `apps/public` a clean editorial identity adapted from _The Economist's Espresso_ (warm
 newsprint, signal-red, structural navy, CVI meter, corridor rail). It was correct but **stayed in the
 newsprint register** — a recognisable _Espresso_ clone rather than something native to the product. The
-founder asked to **rework the UI entirely** so it is *belle, esthétique, facile à utiliser et
-fonctionnelle*, drawing on web references (Espresso, FT/Bloomberg, intelligence platforms à la
-Stratfor/Seerist) — while keeping the B2B brief: sober, cold, decision-first, *"la carte sert
-l'arbitrage, pas la décoration."* This was scoped as an assumed **rupture**, not an evolution.
+founder asked to **rework the UI entirely** so it is _belle, esthétique, facile à utiliser et
+fonctionnelle_, drawing on web references (Espresso, FT/Bloomberg, intelligence platforms à la
+Stratfor/Seerist) — while keeping the B2B brief: sober, cold, decision-first, _"la carte sert
+l'arbitrage, pas la décoration."_ This was scoped as an assumed **rupture**, not an evolution.
 
 ## Decision
 
@@ -20,15 +20,15 @@ about corridors, chokepoints and flows. Same token architecture as ADR 0030 (so 
 CSS variables in `src/styles/global.css`, mapped to semantic Tailwind names in `tailwind.config.ts`;
 **`@ag/tokens` and the cockpit untouched** per ADR 0008).
 
-- **Palette** — light *"chart paper"* (cold off-white canvas, blue-black ink, deep teal-navy as
-  structural/graticule ink) and a first-class dark *"night-navigation / radar console"* (deep blue-black
+- **Palette** — light _"chart paper"_ (cold off-white canvas, blue-black ink, deep teal-navy as
+  structural/graticule ink) and a first-class dark _"night-navigation / radar console"_ (deep blue-black
   ground, luminous chart-cyan structural ink). **One decisive accent**, a precise signal **vermilion**
   (the colour of the binding constraint), kept over blue — blue is reserved for the structural layer.
   The **CVI ramp (`--cvi-1..4`, vert→ambre→orange→rouge) is preserved**, re-tuned for contrast on both
   cold grounds; it still doubles as the chokepoint-map legend.
 - **Type** — a four-family editorial system: **Fraunces** (variable, display/headings, high character),
   **Newsreader** (variable, long-form reading body — B2B dossiers run 15–25 p.), **Inter** kept for UI
-  chrome (nav, buttons, tables), **IBM Plex Mono** for the *instrument layer* (coordinates, CVI scores,
+  chrome (nav, buttons, tables), **IBM Plex Mono** for the _instrument layer_ (coordinates, CVI scores,
   datelines, sources). Latin subset + variable files keep the added weight modest.
 - **Motifs (functional, never decorative)** — a theme-aware `.bg-graticule` coordinate grid (CSS
   gradient, zero requests) used sparingly (hero, doctrine band, footer — **never over reading columns**),

@@ -23,3 +23,13 @@ introduce it then.
 - Coherent look (tokens) and data (schema) without coupling two render models.
 - Each app owns its components; less shared surface to break.
 - Packages are consumed as TS source (ADR 0003), so no build step gates app dev.
+
+## Amendment (2026-06-24) — public site owns its palette
+
+`@ag/tokens` is consumed by **`apps/cockpit`** (Tailwind preset). The **public site does not** consume
+it: ADR 0030, then **ADR 0031** ("admiralty chart" identity), gave `apps/public` a bespoke editorial
+palette + typography defined in `src/styles/global.css` + `tailwind.config.ts`. This is deliberate —
+the public brand and the internal cockpit are intentionally distinct render _and_ visual systems. The
+dead `@ag/tokens` alias/dep that lingered in `apps/public` (never imported) has been removed to stop the
+config contradicting reality. `@ag/tokens` stays isolated and is never mutated by either app (token
+_isolation_ holds; cross-app token _coherence_ is explicitly not a goal for the public surface).

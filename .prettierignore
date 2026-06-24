@@ -4,3 +4,6 @@ build/
 .astro/
 coverage/
 package-lock.json
+
+# Vendored agent tooling (version-matched, not our source).
+.claude/skills/

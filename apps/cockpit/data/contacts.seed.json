@@ -6,9 +6,7 @@
     "role": "Responsable risques / résilience",
     "profile_type": "risk_resilience",
     "stage": "identified",
-    "content_linked": [
-      "deliv_red_sea_suez_dossier"
-    ],
+    "content_linked": ["deliv_red_sea_suez_dossier"],
     "interest_signal": "Organisation potentiellement exposée aux corridors maritimes.",
     "next_action": "Identifier le bon interlocuteur LinkedIn.",
     "notes": "Ne pas vendre. Demander critique du dossier."
@@ -20,9 +18,7 @@
     "role": "Consultant senior supply chain risk",
     "profile_type": "specialized_consultancy",
     "stage": "to_contact",
-    "content_linked": [
-      "deliv_atlas_red_sea_fiche"
-    ],
+    "content_linked": ["deliv_atlas_red_sea_fiche"],
     "interest_signal": "Relais potentiel vers clients exposés.",
     "next_action": "Envoyer message court après publication fiche Mer Rouge/Suez."
   }

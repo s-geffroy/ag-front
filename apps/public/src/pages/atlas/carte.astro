@@ -46,8 +46,8 @@ const nodeCount = fc.features.filter((f) => (f.properties ?? {}).role === 'displ
     <div
       id="cp-map"
       class="mt-6 h-[72vh] w-full overflow-hidden rounded border border-hairline"
-      role="application"
-      aria-label="Carte des chokepoints"
+      role="region"
+      aria-label="Carte schématique des chokepoints"
     >
     </div>
 
@@ -133,10 +133,18 @@ const nodeCount = fc.features.filter((f) => (f.properties ?? {}).role === 'displ
             style: () => ({ color: lineColor(), weight: 1, opacity: 0.4, fillOpacity: 0.05 }),
             onEachFeature: (feat: any, layer: any) => {
               const p = feat.properties || {};
-              const fam = String(p.family || '').replace(/_/g, ' ');
-              let html = `<strong>${p.name || p.id || ''}</strong><br><span class="cp-pop-meta">${fam} · ${p.priority || ''}</span>`;
+              // Escape every interpolated field: properties come from the API as `z.record(z.any())`
+              // (unvalidated passthrough), and Leaflet injects this string as innerHTML.
+              const esc = (v: unknown) =>
+                String(v ?? '').replace(
+                  /[&<>"']/g,
+                  (c) =>
+                    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+                );
+              const fam = esc(String(p.family || '').replace(/_/g, ' '));
+              let html = `<strong>${esc(p.name || p.id)}</strong><br><span class="cp-pop-meta">${fam} · ${esc(p.priority)}</span>`;
               if (detailIds.has(p.id)) {
-                html += `<br><a href="/atlas/chokepoints/${p.id}/">Voir la fiche →</a>`;
+                html += `<br><a href="/atlas/chokepoints/${encodeURIComponent(p.id)}/">Voir la fiche →</a>`;
               }
               layer.bindPopup(html);
             },

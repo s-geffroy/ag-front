@@ -15,7 +15,7 @@ services:
       dockerfile: docker/tools.Dockerfile
     image: app-geo-tools:local
     # Run as the host user so files written into the mounted repo stay owned by you.
-    user: "${UID:-1000}:${GID:-1000}"
+    user: '${UID:-1000}:${GID:-1000}'
     working_dir: /workspace
     volumes:
       - ..:/workspace
@@ -37,7 +37,7 @@ services:
       context: ..
       dockerfile: docker/tools.Dockerfile
     image: app-geo-tools:local
-    user: "${UID:-1000}:${GID:-1000}"
+    user: '${UID:-1000}:${GID:-1000}'
     working_dir: /workspace
     volumes:
       - ..:/workspace
@@ -61,6 +61,8 @@ services:
   public:
     image: caddy:2.8-alpine
     restart: unless-stopped
+    depends_on:
+      - lead # Caddy reverse_proxies /api/* to the lead service; start it first
     ports:
       - '${PUBLIC_IP:-72.61.101.1}:80:80'
       - '${PUBLIC_IP:-72.61.101.1}:443:443'
@@ -79,7 +81,7 @@ services:
       context: ..
       dockerfile: docker/tools.Dockerfile
     image: app-geo-tools:local
-    user: "${UID:-1000}:${GID:-1000}"
+    user: '${UID:-1000}:${GID:-1000}'
     working_dir: /workspace
     volumes:
       - ..:/workspace

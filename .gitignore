@@ -14,6 +14,10 @@ coverage/
 # Lead ledger (runtime, may contain personal data)
 apps/lead-api/data/*.ndjson
 
+# Acquisition contacts: runtime state (receives visitor PII via the lead-api). Tracked seed is
+# contacts.seed.json; the live file is git-ignored and materialised from the seed on first run.
+apps/cockpit/data/contacts.json
+
 # Env (keep examples)
 .env
 .env.*

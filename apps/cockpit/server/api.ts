@@ -2,7 +2,7 @@ import express, { type NextFunction, type Request, type Response, type Router } 
 import { z } from 'zod';
 import {
   itemSchemas,
-  readCollection,
+  mutateCollection,
   readState,
   writeCollection,
   type ItemCollectionName,
@@ -54,7 +54,9 @@ export function createApiRouter(): Router {
     try {
       res.json(await client.getChokepoint(req.params.id));
     } catch (err) {
-      res.status(502).json({ error: 'upstream', detail: String(err) });
+      // Don't echo upstream URLs/messages to the client; log server-side instead.
+      console.error('[cockpit] chokepoint detail upstream error', err);
+      res.status(502).json({ error: 'upstream' });
     }
   });
 
@@ -80,15 +82,21 @@ export function createApiRouter(): Router {
         res.status(400).json({ error: 'body id does not match URL id' });
         return;
       }
-      const list = (await readCollection(name)) as { id: string }[];
-      const idx = list.findIndex((x) => x.id === item.id);
-      if (idx === -1) {
+      // Atomic read-modify-write under a file lock — safe against a concurrent lead-api write.
+      let found = false;
+      await mutateCollection(name, (list) => {
+        const arr = list as { id: string }[];
+        const idx = arr.findIndex((x) => x.id === item.id);
+        if (idx === -1) return arr;
+        found = true;
+        const next = arr.slice();
+        next[idx] = item;
+        return next;
+      });
+      if (!found) {
         res.status(404).json({ error: 'not found' });
         return;
       }
-      const next = list.slice();
-      next[idx] = item;
-      await writeCollection(name, next);
       res.json(item);
     } catch (err) {
       respond(err, res, next);

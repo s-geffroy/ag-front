@@ -16,7 +16,9 @@ describe('chokepoints client', () => {
         return jsonResponse({
           count: 1,
           attribution_notice: 'notice',
-          items: [{ id: 'p0_maritime_x', canonical_name: 'Détroit X', required_attributions: ['Src'] }],
+          items: [
+            { id: 'p0_maritime_x', canonical_name: 'Détroit X', required_attributions: ['Src'] },
+          ],
         });
       },
     });
@@ -42,6 +44,56 @@ describe('chokepoints client', () => {
     });
     await client.listChokepoints();
     expect(calledUrl).toContain('include_tainted=true');
+  });
+
+  it('exportGeoJson never sends include_tainted, even on a tainted client', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      includeTainted: true, // tainted client…
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse({ type: 'FeatureCollection', features: [] });
+      },
+    });
+    await client.exportGeoJson();
+    expect(calledUrl).toContain('/exports/geojson');
+    expect(calledUrl).not.toContain('include_tainted'); // …export is structurally clear-only
+  });
+
+  it('exportGeoJson strips restricted feature properties (public-safe allowlist)', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      includeTainted: true,
+      fetchImpl: async () =>
+        jsonResponse({
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: [0, 0] },
+              properties: {
+                id: 'p0_x',
+                name: 'Détroit X',
+                priority: 'P0',
+                license_taint: true, // restricted — must be dropped
+                max_license_risk: 'high', // restricted — must be dropped
+                internal_note: 'secret', // unknown — must be dropped
+              },
+            },
+          ],
+        }),
+    });
+    const fc = await client.exportGeoJson();
+    const props = fc.features[0]!.properties!;
+    expect(props.id).toBe('p0_x');
+    expect(props.name).toBe('Détroit X');
+    expect(props.priority).toBe('P0');
+    expect(props).not.toHaveProperty('license_taint');
+    expect(props).not.toHaveProperty('max_license_risk');
+    expect(props).not.toHaveProperty('internal_note');
   });
 
   it('throws on a non-200 response', async () => {

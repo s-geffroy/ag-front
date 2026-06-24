@@ -5,8 +5,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@ag/chokepoints": ["../../packages/chokepoints/src/index.ts"],
-      "@ag/cvi": ["../../packages/cvi/src/index.ts"],
-      "@ag/tokens": ["../../packages/tokens/src/index.ts"]
+      "@ag/cvi": ["../../packages/cvi/src/index.ts"]
     }
   },
   "include": [".astro/types.d.ts", "src/**/*"],

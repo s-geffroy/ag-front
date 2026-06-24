@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type ErrorRequestHandler } from 'express';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +21,13 @@ if (existsSync(dist)) {
   app.use(express.static(dist));
   app.get('*', (_req, res) => res.sendFile(resolve(dist, 'index.html')));
 }
+
+// Terminal error handler: handlers call next(err); never leak a stack trace to the client.
+const onError: ErrorRequestHandler = (err, _req, res, _next) => {
+  console.error('[cockpit] unhandled error', err);
+  if (!res.headersSent) res.status(500).json({ error: 'internal' });
+};
+app.use(onError);
 
 app.listen(PORT, HOST, () => {
   // eslint-disable-next-line no-console

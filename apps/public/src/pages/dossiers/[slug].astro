@@ -19,7 +19,12 @@ const d = entry.data;
 const { Content } = await entry.render();
 ---
 
-<Base title={d.title} description={d.summary} type="article">
+<Base
+  title={d.title}
+  description={d.summary}
+  type="article"
+  article={{ publishedTime: d.date.toISOString(), section: 'Dossier' }}
+>
   <Section width="prose" class="py-12">
     <a href="/dossiers" class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent">
       ← Dossiers

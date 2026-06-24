@@ -85,6 +85,38 @@ export const GeoJsonFeatureCollection = z
   .passthrough();
 export type GeoJsonFeatureCollection = z.infer<typeof GeoJsonFeatureCollection>;
 
+/**
+ * Feature properties safe to expose on the public redistribution surface (the GeoJSON export / map).
+ * Deny-by-default: any other key — notably taint markers like `license_taint` / `max_license_risk`,
+ * or restricted source notes the upstream API might leak — is dropped before a clear consumer sees it.
+ * Keep this list to fields the public map/Atlas actually renders, plus legally-required attributions.
+ */
+export const PUBLIC_FEATURE_PROPS = [
+  'id',
+  'name',
+  'canonical_name',
+  'family',
+  'priority',
+  'role',
+  'region',
+  'required_attributions',
+] as const;
+
+/** Project every feature onto the public-safe property allowlist (see PUBLIC_FEATURE_PROPS). */
+export function toPublicFeatureCollection(fc: GeoJsonFeatureCollection): GeoJsonFeatureCollection {
+  return {
+    ...fc,
+    features: fc.features.map((f) => {
+      const props = (f.properties ?? {}) as Record<string, unknown>;
+      const safe: Record<string, unknown> = {};
+      for (const k of PUBLIC_FEATURE_PROPS) {
+        if (k in props) safe[k] = props[k];
+      }
+      return { ...f, properties: safe };
+    }),
+  };
+}
+
 export const ChokepointDetail = ChokepointSummary.extend({
   flows: z.array(Flow).default([]),
   risks: z.array(Risk).default([]),

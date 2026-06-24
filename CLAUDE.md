@@ -6,6 +6,7 @@ proprietary **CVI** — Corridor Vulnerability Index — methodology). Connexe t
 strategic database. This is a **clean-room rebuild** — the directory starts empty.
 
 The repo ships **two UIs**:
+
 - **Public site** → `www.applied-geopolitics.com`: B2B content platform (landing, Atlas, dossiers,
   notes, CVI method, tiered offers, lead capture / newsletter). French primary; SEO is a slow-built
   asset, secondary to prospection.
@@ -21,8 +22,8 @@ This file is a living document; refine it as real structure lands.
   run inside containers. Build the Docker setup first rather than falling back to a local install.
   Expected shape once infra exists: a `tools` service, e.g.
   `docker compose -f docker/docker-compose.yml run --rm tools <cmd>`.
-- **`/home/deploy/sources/` is a reference to READ, not a template to COPY.** It holds the *Applied
-  Geopolitics* pack (12-month playbook, public-site spec, deployment-UI spec, data model, recommended
+- **`/home/deploy/sources/` is a reference to READ, not a template to COPY.** It holds the _Applied
+  Geopolitics_ pack (12-month playbook, public-site spec, deployment-UI spec, data model, recommended
   structure). Read it for domain methodology, controlled vocabularies, data-model semantics, content
   cadence, and example records. Do not copy its files, schema, or tooling.
 - **Challenge the source architecture.** Nothing from the pack is assumed correct (the proposed
@@ -62,6 +63,7 @@ docker compose -f docker/docker-compose.yml run --rm tools agent-browser open ht
 ```
 
 Layout:
+
 - `apps/public/` — public site (`www.applied-geopolitics.com`).
 - `apps/cockpit/` — internal cockpit (`src/{data,types,lib,components,pages}`).
 - `packages/` — shared code (types, UI primitives, CVI calculations).
@@ -79,21 +81,22 @@ Project skills live in `.claude/skills/` (versioned). They are agent tooling, no
 do **not** fall under the Docker-only rule. Selection rationale: `docs/decisions/0001-selection-skills.md`.
 Invoke the matching skill at these moments:
 
-| Trigger moment | Skill |
-|---|---|
-| Any non-trivial code task — before writing code | `brainstorming` → `writing-plans` → `test-driven-development` (the **superpowers** suite) |
-| A bug, test failure, or unexpected behavior | `systematic-debugging` (before proposing a fix) |
-| Parallel / multi-agent work | `using-git-worktrees`, `dispatching-parallel-agents`, `subagent-driven-development` |
-| Before declaring work done | `verification-before-completion` |
-| Fetch/verify a **web source** for the evidence registry (feed a seed, validate a claim) | `agent-browser` |
-| Any change touching the **read API** or **admin UI** — auth, input handling, endpoints | `owasp-security` |
-| Build/modify the **admin/exploration UI** (components, layout, design system) | `frontend-design` |
-| Produce a **visual deliverable** (briefing/report PDF, poster) from the data | `canvas-design` |
-| Analyse a **chokepoint / flow network** — binding node, where to intervene, cascade to neighbours | `thinking-theory-of-constraints`, `thinking-leverage-points` (ADR 0027) |
+| Trigger moment                                                                                    | Skill                                                                                     |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Any non-trivial code task — before writing code                                                   | `brainstorming` → `writing-plans` → `test-driven-development` (the **superpowers** suite) |
+| A bug, test failure, or unexpected behavior                                                       | `systematic-debugging` (before proposing a fix)                                           |
+| Parallel / multi-agent work                                                                       | `using-git-worktrees`, `dispatching-parallel-agents`, `subagent-driven-development`       |
+| Before declaring work done                                                                        | `verification-before-completion`                                                          |
+| Fetch/verify a **web source** for the evidence registry (feed a seed, validate a claim)           | `agent-browser`                                                                           |
+| Any change touching the **read API** or **admin UI** — auth, input handling, endpoints            | `owasp-security`                                                                          |
+| Build/modify the **admin/exploration UI** (components, layout, design system)                     | `frontend-design`                                                                         |
+| Produce a **visual deliverable** (briefing/report PDF, poster) from the data                      | `canvas-design`                                                                           |
+| Analyse a **chokepoint / flow network** — binding node, where to intervene, cascade to neighbours | `thinking-theory-of-constraints`, `thinking-leverage-points` (ADR 0027)                   |
 
 `using-superpowers` auto-loads at conversation start and routes to the right superpowers skill.
 
 **Data-integrity guardrails (override skill defaults):**
+
 - `agent-browser` collects **candidates pending human validation**, never facts — see "Data integrity" above.
 - `canvas-design` / `frontend-design` consume **derived** data only; they MUST NOT mutate canonical records.
 - `thinking-theory-of-constraints` / `thinking-leverage-points` produce **derived analysis** only — constraint
@@ -110,10 +113,10 @@ via `.claude/settings.json`. Like skills, plugin commands/hooks are **agent tool
 so they are **outside the Docker-only rule**. (`frontend-design` plugin was rejected — it only duplicates the
 already-vendored `frontend-design` skill.)
 
-| Plugin | What it adds | Notes |
-|---|---|---|
-| `commit-commands` | `/commit`, `/commit-push-pr`, `/clean_gone` | Keep the conventional-commit + `Co-Authored-By: Claude Opus 4.8` footer. `/commit-push-pr` assumes a `gh`/GitHub-PR flow → effectively a no-op for the `ag-back` deploy-key remote; use `/commit` and `/clean_gone`. |
-| `security-guidance` | Automatic security hooks | **Regex-only** (`ENABLE_CODE_SECURITY_REVIEW=0` in settings) → Layer 1 pattern warnings on Edit/Write, **no** automatic LLM calls. Complements, does not replace, the manual `owasp-security` skill. |
+| Plugin              | What it adds                                | Notes                                                                                                                                                                                                                          |
+| ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `commit-commands`   | `/commit`, `/commit-push-pr`, `/clean_gone` | Keep the conventional-commit + `Co-Authored-By: Claude Opus 4.8` footer. The remote is a normal GitHub repo (`origin` → `s-geffroy/ag-front`), so the `gh`/GitHub-PR flow works; current practice is direct commits to `main`. |
+| `security-guidance` | Automatic security hooks                    | **Regex-only** (`ENABLE_CODE_SECURITY_REVIEW=0` in settings) → Layer 1 pattern warnings on Edit/Write, **no** automatic LLM calls. Complements, does not replace, the manual `owasp-security` skill.                           |
 
 Activation is a one-time harness step (not done by `settings.json` alone): accept the trust/install prompt on
 launch, or run `/plugin marketplace add anthropics/claude-code` then

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type ErrorRequestHandler } from 'express';
 import { LeadInput } from '@ag/schema/cockpit';
 import { recordLead } from './store';
 import { notifyLead } from './email';
@@ -28,7 +28,11 @@ app.get('/api/health', (_req, res) => {
 
 app.post('/api/lead', async (req, res) => {
   const now = Date.now();
-  const ip = (req.headers['x-forwarded-for']?.toString().split(',')[0] || req.ip || 'unknown').trim();
+  const ip = (
+    req.headers['x-forwarded-for']?.toString().split(',')[0] ||
+    req.ip ||
+    'unknown'
+  ).trim();
   if (rateLimited(ip, now)) {
     res.status(429).json({ error: 'too_many_requests' });
     return;
@@ -54,6 +58,13 @@ app.post('/api/lead', async (req, res) => {
     res.status(500).json({ error: 'server_error' });
   }
 });
+
+// Terminal error handler (e.g. body-parser JSON / size errors) — never leak a stack trace.
+const onError: ErrorRequestHandler = (err, _req, res, _next) => {
+  console.error('[lead] unhandled error', err);
+  if (!res.headersSent) res.status(400).json({ error: 'invalid' });
+};
+app.use(onError);
 
 app.listen(PORT, HOST, () => {
   // eslint-disable-next-line no-console

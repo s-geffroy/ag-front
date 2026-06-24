@@ -1,0 +1,34 @@
+# Continuous integration: typecheck + tests + format check on every push / PR.
+# The "Docker-only" rule (CLAUDE.md / ADR 0002) governs the *developer host*; CI runners are
+# ephemeral throwaway VMs, so we run Node directly here (faster, no image build) rather than via
+# the `tools` compose service. Node is pinned to the same version as the Docker image (.nvmrc).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
+      - name: Format check
+        run: npm run format:check
