@@ -14,5 +14,9 @@
   },
   "env": {
     "ENABLE_CODE_SECURITY_REVIEW": "0"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/deploy/app-geo/.claude/statusline.sh"
   }
 }
