@@ -8,6 +8,7 @@
     "dev": "tsx watch server/index.ts",
     "start": "tsx server/index.ts",
     "seed:user": "tsx server/auth/seed-user.ts",
+    "seed:demo": "tsx server/seed-demo-case.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

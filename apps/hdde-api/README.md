@@ -38,6 +38,11 @@ docker compose -f docker/docker-compose.yml run --rm tools npm --workspace @ag/h
 docker compose -f docker/docker-compose.yml run --rm tools \
   npm --workspace @ag/hdde-api run seed:user -- you@example.com "a-long-password" owner_admin
 
+# seed the demo enterprise case (Dürr Group, illustrative — ADR 0036): full roster of
+# suppliers / customers / sites / partners, per-actor scoring + concentration synthesis
+docker compose -f docker/docker-compose.yml run --rm tools \
+  npm --workspace @ag/hdde-api run seed:demo -- you@example.com
+
 # run the production service (host loopback; Caddy fronts hdde.applied-geopolitics.com)
 docker compose -f docker/docker-compose.yml up -d hdde public
 ```

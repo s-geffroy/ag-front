@@ -1,7 +1,20 @@
 // V1 SQLite schema (ADR 0032). Single idempotent migration; bump SCHEMA_VERSION + add an `if` block
 // when evolving. Confidential client data lives here — the file is git-ignored and volume-mounted.
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
+
+// Additive columns applied to existing DBs via ALTER TABLE (idempotent; duplicate-column errors are
+// swallowed by the migrator). Fresh DBs get them from CREATE TABLE below.
+export const ADDED_COLUMNS: { table: string; column: string; ddl: string }[] = [
+  { table: 'cases', column: 'hq_country', ddl: 'ALTER TABLE cases ADD COLUMN hq_country TEXT' },
+  {
+    table: 'cases',
+    column: 'employee_band',
+    ddl: 'ALTER TABLE cases ADD COLUMN employee_band TEXT',
+  },
+  { table: 'cases', column: 'revenue_band', ddl: 'ALTER TABLE cases ADD COLUMN revenue_band TEXT' },
+  { table: 'cases', column: 'description', ddl: 'ALTER TABLE cases ADD COLUMN description TEXT' },
+];
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS users (
@@ -33,10 +46,36 @@ CREATE TABLE IF NOT EXISTS cases (
   business_function_at_risk TEXT NOT NULL,
   initial_concern           TEXT,
   status                    TEXT NOT NULL DEFAULT 'draft',
+  hq_country                TEXT,
+  employee_band             TEXT,
+  revenue_band              TEXT,
+  description               TEXT,
   created_at                TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at                TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_cases_owner ON cases(owner_id);
+
+-- Enterprise roster (schema v3, ADR 0036): suppliers / customers / sites / partners per case.
+CREATE TABLE IF NOT EXISTS case_entities (
+  id                TEXT PRIMARY KEY,
+  case_id           TEXT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+  entity_type       TEXT NOT NULL,
+  name              TEXT NOT NULL,
+  country           TEXT,
+  role              TEXT,
+  what_it_enables   TEXT,
+  tier              INTEGER,
+  criticality       INTEGER NOT NULL DEFAULT 0,
+  substitutability  TEXT NOT NULL DEFAULT 'unknown',
+  tier2_visibility  TEXT NOT NULL DEFAULT 'unknown',
+  jurisdiction_risk INTEGER NOT NULL DEFAULT 0,
+  time_to_impact    INTEGER NOT NULL DEFAULT 0,
+  single_source     INTEGER NOT NULL DEFAULT 0,
+  share_pct         INTEGER,
+  notes             TEXT,
+  created_at        TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_entities_case ON case_entities(case_id);
 
 CREATE TABLE IF NOT EXISTS interview_answers (
   id                TEXT PRIMARY KEY,

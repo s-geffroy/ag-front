@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { config } from '../config';
-import { SCHEMA_SQL } from './schema';
+import { SCHEMA_SQL, ADDED_COLUMNS } from './schema';
 
 export type DB = Database.Database;
 
@@ -16,6 +16,14 @@ export function migrate(db: DB): void {
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.exec(SCHEMA_SQL);
+  // Additive column migrations for pre-existing DBs (CREATE TABLE IF NOT EXISTS can't add columns).
+  for (const { ddl } of ADDED_COLUMNS) {
+    try {
+      db.exec(ddl);
+    } catch (e) {
+      if (!/duplicate column name/i.test((e as Error).message)) throw e;
+    }
+  }
 }
 
 /** Open (and migrate) a database at an explicit path — used by tests and the seeder. */

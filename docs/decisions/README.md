@@ -31,3 +31,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 |             [0033](0033-hdde-public-auth-surface.md) | HDDE: public authenticated surface (hdde.applied-geopolitics.com)    | Accepted           |
 |                [0034](0034-hdde-red-team-openai.md) | HDDE: OpenAI red team (gpt-4o), suggestion ≠ evidence                | Accepted           |
 |        [0035](0035-hdde-chokepoints-cvi-coupling.md) | HDDE: chokepoints (read scope) + CVI coupling, anti-tainted guard    | Accepted           |
+|                 [0036](0036-hdde-enterprise-model.md) | HDDE: enterprise model (first-class entities + per-actor scoring)    | Accepted           |

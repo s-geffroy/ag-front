@@ -7,12 +7,14 @@ import {
   InterviewAnswerInput,
   EvidenceInput,
   RedTeamRunInput,
+  CaseEntityInput,
+  CaseEntityPatch,
 } from '@ag/schema/hdde';
 import { z } from 'zod';
 import { requireAuth, isAdmin, type AuthedRequest } from '../auth/middleware';
 import { getPack } from '../pack';
-import { buildDiagnostic } from '../engine';
-import type { EngineAnswer } from '../engine';
+import { buildEnterpriseDiagnostic } from '../engine';
+import type { EngineAnswer, EntityLike } from '../engine';
 import { deriveFlowVulnerability } from '../integrations/cvi';
 import { suggestChokepoints } from '../integrations/chokepoints';
 import { runPersona, RedTeamError } from '../llm/openai';
@@ -100,6 +102,44 @@ casesRouter.post('/:id/interview/answers', loadCase, (req, res) => {
   res.status(201).json(repo.upsertAnswer(req.params.id, parsed.data));
 });
 
+// ----------------------------------------------------------------- enterprise entities (roster)
+casesRouter.get('/:id/entities', loadCase, (req, res) => {
+  res.json(repo.listEntities(req.params.id));
+});
+
+casesRouter.post('/:id/entities', loadCase, (req, res) => {
+  const parsed = CaseEntityInput.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'invalid', issues: parsed.error.flatten() });
+    return;
+  }
+  res.status(201).json(repo.createEntity(req.params.id, parsed.data));
+});
+
+casesRouter.patch('/:id/entities/:eid', loadCase, (req, res) => {
+  const parsed = CaseEntityPatch.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'invalid', issues: parsed.error.flatten() });
+    return;
+  }
+  const entity = repo.getEntity(req.params.eid);
+  if (!entity || entity.case_id !== req.params.id) {
+    res.status(404).json({ error: 'entity_not_found' });
+    return;
+  }
+  res.json(repo.patchEntity(req.params.eid, parsed.data));
+});
+
+casesRouter.delete('/:id/entities/:eid', loadCase, (req, res) => {
+  const entity = repo.getEntity(req.params.eid);
+  if (!entity || entity.case_id !== req.params.id) {
+    res.status(404).json({ error: 'entity_not_found' });
+    return;
+  }
+  repo.deleteEntity(req.params.eid);
+  res.json({ ok: true });
+});
+
 // ----------------------------------------------------------------- evidence
 casesRouter.get('/:id/evidence', loadCase, (req, res) => {
   res.json(repo.listEvidence(req.params.id));
@@ -141,14 +181,20 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, (req: CaseRequest, res) =>
   const pack = getPack();
   const answerRows = repo.listAnswers(req.params.id);
   const answers = toEngineAnswers(answerRows);
-  const core = buildDiagnostic(pack, answers);
+  const entityRows = repo.listEntities(req.params.id);
+  // Enterprise diagnostic: interview core + per-actor scoring + concentration synthesis (ADR 0036).
+  const core = buildEnterpriseDiagnostic(pack, answers, entityRows as unknown as EntityLike[]);
 
   // CVI enrichment (local, derived candidate — ADR 0035).
   const flowScore =
     core.scores.find((s) => s.dimension_id === 'flow_criticality_score')?.value ?? 0;
   const packetPayload = { ...core, cvi: deriveFlowVulnerability(flowScore) };
 
-  const snapshot = { answers: answerRows, generated_at: new Date().toISOString() };
+  const snapshot = {
+    answers: answerRows,
+    entities: entityRows,
+    generated_at: new Date().toISOString(),
+  };
   const packet = repo.createPacket(req.params.id, packetPayload, pack.packHash, snapshot);
   res.status(201).json(packet);
 });
@@ -229,10 +275,21 @@ casesRouter.post('/:id/red-team/run', loadCase, async (req: CaseRequest, res) =>
     (k) =>
       `${k.canonical_name}${k.family ? ` (${k.family})` : ''}${k.priority_class ? ` — ${k.priority_class}` : ''}`,
   );
+  // Enterprise roster summary so the red team attacks the whole company picture (ADR 0036).
+  const ents = repo.listEntities(req.params.id);
+  const byType = (t: string) => ents.filter((e) => e.entity_type === t);
+  const rosterSummary =
+    ents.length === 0
+      ? ''
+      : ` Roster: ${byType('supplier').length} fournisseurs, ${byType('customer').length} clients, ${byType('site').length} sites. ` +
+        ents
+          .slice(0, 12)
+          .map((e) => `${e.name} [${e.entity_type}${e.country ? `, ${e.country}` : ''}]`)
+          .join('; ');
   try {
     const { output, usage, model } = await runPersona(persona, {
       chokepointContext,
-      caseSummary: `${c.title} — ${c.critical_actor_name} (${c.critical_actor_type}). Fonction: ${c.business_function_at_risk}. ${c.suspected_dependency ?? ''}`,
+      caseSummary: `${c.title} (${c.sector}${c.hq_country ? `, HQ ${c.hq_country}` : ''}). Fonction critique: ${c.business_function_at_risk}. ${c.suspected_dependency ?? ''}${rosterSummary}`,
       provisionalDiagnosis: latest
         ? `${(latest.packet_json as Record<string, unknown>).primary_diagnosis} / posture ${latest.operational_verdict}`
         : 'Aucun packet généré.',

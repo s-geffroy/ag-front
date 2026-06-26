@@ -1,6 +1,13 @@
 // Thin typed data-access layer over better-sqlite3. JSON columns are stored as TEXT and parsed here.
 import { getDb, newId } from './index';
-import type { CaseInput, CasePatch, InterviewAnswerInput, EvidenceInput } from '@ag/schema/hdde';
+import type {
+  CaseInput,
+  CasePatch,
+  InterviewAnswerInput,
+  EvidenceInput,
+  CaseEntityInput,
+  CaseEntityPatch,
+} from '@ag/schema/hdde';
 import type { DiagnosticCore } from '../engine';
 
 type Row = Record<string, unknown>;
@@ -61,11 +68,28 @@ export function createCase(ownerId: string, input: CaseInput): Row {
   db()
     .prepare(
       `INSERT INTO cases (id, owner_id, title, client_name, sector, critical_actor_name,
-         critical_actor_type, suspected_dependency, business_function_at_risk, initial_concern)
+         critical_actor_type, suspected_dependency, business_function_at_risk, initial_concern,
+         hq_country, employee_band, revenue_band, description)
        VALUES (@id, @owner_id, @title, @client_name, @sector, @critical_actor_name,
-         @critical_actor_type, @suspected_dependency, @business_function_at_risk, @initial_concern)`,
+         @critical_actor_type, @suspected_dependency, @business_function_at_risk, @initial_concern,
+         @hq_country, @employee_band, @revenue_band, @description)`,
     )
-    .run({ id, owner_id: ownerId, ...input });
+    .run({
+      id,
+      owner_id: ownerId,
+      title: input.title,
+      client_name: input.client_name ?? '',
+      sector: input.sector,
+      critical_actor_name: input.critical_actor_name ?? '',
+      critical_actor_type: input.critical_actor_type ?? null,
+      suspected_dependency: input.suspected_dependency ?? '',
+      business_function_at_risk: input.business_function_at_risk,
+      initial_concern: input.initial_concern ?? '',
+      hq_country: input.hq_country ?? '',
+      employee_band: input.employee_band ?? '',
+      revenue_band: input.revenue_band ?? '',
+      description: input.description ?? '',
+    });
   return getCase(id)!;
 }
 
@@ -92,6 +116,10 @@ export function patchCase(id: string, patch: CasePatch): Row | undefined {
     'business_function_at_risk',
     'initial_concern',
     'status',
+    'hq_country',
+    'employee_band',
+    'revenue_band',
+    'description',
   ] as const;
   const sets: string[] = [];
   const params: Row = { id };
@@ -111,6 +139,95 @@ export function patchCase(id: string, patch: CasePatch): Row | undefined {
 
 function touchCase(id: string): void {
   db().prepare(`UPDATE cases SET updated_at = datetime('now') WHERE id = ?`).run(id);
+}
+
+// ---------------------------------------------------------------- case entities (enterprise roster)
+const ENTITY_COLUMNS = [
+  'entity_type',
+  'name',
+  'country',
+  'role',
+  'what_it_enables',
+  'tier',
+  'criticality',
+  'substitutability',
+  'tier2_visibility',
+  'jurisdiction_risk',
+  'time_to_impact',
+  'single_source',
+  'share_pct',
+  'notes',
+] as const;
+
+export function createEntity(caseId: string, input: CaseEntityInput): Row {
+  const id = newId();
+  db()
+    .prepare(
+      `INSERT INTO case_entities
+         (id, case_id, entity_type, name, country, role, what_it_enables, tier, criticality,
+          substitutability, tier2_visibility, jurisdiction_risk, time_to_impact, single_source,
+          share_pct, notes)
+       VALUES (@id, @case_id, @entity_type, @name, @country, @role, @what_it_enables, @tier,
+          @criticality, @substitutability, @tier2_visibility, @jurisdiction_risk, @time_to_impact,
+          @single_source, @share_pct, @notes)`,
+    )
+    .run({
+      id,
+      case_id: caseId,
+      entity_type: input.entity_type,
+      name: input.name,
+      country: input.country ?? '',
+      role: input.role ?? '',
+      what_it_enables: input.what_it_enables ?? '',
+      tier: input.tier ?? null,
+      criticality: input.criticality,
+      substitutability: input.substitutability,
+      tier2_visibility: input.tier2_visibility,
+      jurisdiction_risk: input.jurisdiction_risk,
+      time_to_impact: input.time_to_impact,
+      single_source: input.single_source ? 1 : 0,
+      share_pct: input.share_pct ?? null,
+      notes: input.notes ?? '',
+    });
+  touchCase(caseId);
+  return getEntity(id)!;
+}
+
+export function getEntity(id: string): Row | undefined {
+  const row = db().prepare('SELECT * FROM case_entities WHERE id = ?').get(id) as Row | undefined;
+  if (row) row.single_source = !!row.single_source;
+  return row;
+}
+
+export function listEntities(caseId: string): Row[] {
+  return (
+    db()
+      .prepare(
+        'SELECT * FROM case_entities WHERE case_id = ? ORDER BY entity_type, criticality DESC',
+      )
+      .all(caseId) as Row[]
+  ).map((r) => ({ ...r, single_source: !!r.single_source }));
+}
+
+export function patchEntity(id: string, patch: CaseEntityPatch): Row | undefined {
+  const sets: string[] = [];
+  const params: Row = { id };
+  for (const key of ENTITY_COLUMNS) {
+    const v = (patch as Record<string, unknown>)[key];
+    if (v !== undefined) {
+      sets.push(`${key} = @${key}`);
+      params[key] = key === 'single_source' ? (v ? 1 : 0) : (v as never);
+    }
+  }
+  if (sets.length === 0) return getEntity(id);
+  db()
+    .prepare(`UPDATE case_entities SET ${sets.join(', ')} WHERE id = @id`)
+    .run(params);
+  return getEntity(id);
+}
+
+export function deleteEntity(id: string): void {
+  db().prepare('DELETE FROM case_entities WHERE id = ?').run(id);
 }
 
 // ---------------------------------------------------------------- interview answers

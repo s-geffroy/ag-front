@@ -4,3 +4,10 @@ export { scoreAnswers, initialScores, overallConfidence } from './scoring';
 export { deriveVerdict } from './verdict';
 export { buildDiagnostic } from './diagnostic';
 export type { DiagnosticCore } from './diagnostic';
+export { buildEnterpriseDiagnostic, scoreEntity } from './enterprise';
+export type {
+  EntityLike,
+  EntityResult,
+  EnterpriseDiagnostic,
+  ConcentrationSummary,
+} from './enterprise';

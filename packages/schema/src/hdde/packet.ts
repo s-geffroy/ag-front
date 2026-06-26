@@ -45,6 +45,35 @@ export const PacketPayload = z.object({
       note: z.string(),
     })
     .optional(),
+  // Enterprise layer (ADR 0036): per-actor verdicts + concentration synthesis. Optional for back-compat.
+  entities: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        entity_type: z.string(),
+        country: z.string().optional(),
+        operational_verdict: Verdict,
+        confidence: Confidence,
+        top_risk: z.string(),
+        scores: z.array(Score),
+      }),
+    )
+    .optional(),
+  concentration: z
+    .object({
+      supplier_count: z.number(),
+      customer_count: z.number(),
+      site_count: z.number(),
+      single_source_supplier_count: z.number(),
+      tier2_blind_spots: z.number(),
+      customer_top_share_pct: z.number().nullable(),
+      customer_hhi: z.number().nullable(),
+      supplier_top_country: z.string().nullable(),
+      supplier_top_country_count: z.number(),
+      notes: z.array(z.string()),
+    })
+    .optional(),
 });
 export type PacketPayload = z.infer<typeof PacketPayload>;
 

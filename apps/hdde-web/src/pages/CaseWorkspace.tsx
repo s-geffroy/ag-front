@@ -33,8 +33,67 @@ interface Packet {
     open_uncertainties: { uncertainty: string; required_test: string }[];
     light_actions: { priority: number; action: string; purpose: string }[];
     cvi?: { vulnerability_level: string };
+    entities?: {
+      id: string;
+      name: string;
+      entity_type: string;
+      operational_verdict: string;
+      top_risk: string;
+    }[];
+    concentration?: {
+      supplier_count: number;
+      customer_count: number;
+      site_count: number;
+      single_source_supplier_count: number;
+      tier2_blind_spots: number;
+      customer_top_share_pct: number | null;
+      supplier_top_country: string | null;
+      supplier_top_country_count: number;
+      notes: string[];
+    };
+    matrix_rows: {
+      dependency: string;
+      actor: string;
+      actor_role: string;
+      mechanism: string;
+      risk_level: number;
+      confidence: string;
+    }[];
   };
 }
+
+interface Entity {
+  id: string;
+  entity_type: string;
+  name: string;
+  country?: string;
+  criticality: number;
+  substitutability: string;
+  tier2_visibility: string;
+  single_source: boolean;
+  share_pct?: number | null;
+  what_it_enables?: string;
+}
+const ENTITY_TYPES = [
+  'supplier',
+  'customer',
+  'site',
+  'logistics_provider',
+  'bank',
+  'insurer',
+  'regulator',
+  'partner',
+];
+const ENTITY_LABELS: Record<string, string> = {
+  supplier: 'Fournisseurs',
+  customer: 'Clients',
+  site: 'Sites',
+  logistics_provider: 'Logistique',
+  bank: 'Banques',
+  insurer: 'Assureurs',
+  regulator: 'Régulateurs',
+  partner: 'Partenaires',
+};
 const ANSWER_TYPES = [
   'verified_fact',
   'estimate',
@@ -51,6 +110,7 @@ export default function CaseWorkspace() {
     qc.invalidateQueries({ queryKey: ['packets', id] });
     qc.invalidateQueries({ queryKey: ['answers', id] });
     qc.invalidateQueries({ queryKey: ['suggestions', id] });
+    qc.invalidateQueries({ queryKey: ['entities', id] });
   };
 
   const { data: pack } = useQuery({
@@ -72,6 +132,10 @@ export default function CaseWorkspace() {
   const { data: suggestions } = useQuery({
     queryKey: ['suggestions', id],
     queryFn: () => api.get<any[]>(`/api/cases/${id}/red-team/suggestions`),
+  });
+  const { data: entities } = useQuery({
+    queryKey: ['entities', id],
+    queryFn: () => api.get<Entity[]>(`/api/cases/${id}/entities`),
   });
 
   const generate = useMutation({
@@ -105,10 +169,18 @@ export default function CaseWorkspace() {
         <section className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <h1 className="text-lg font-semibold">{caseRow.title}</h1>
           <p className="text-sm text-slatewarn dark:text-slate-400">
-            {caseRow.critical_actor_name} · {caseRow.critical_actor_type} · {caseRow.sector}
+            {caseRow.sector}
+            {caseRow.hq_country ? ` · HQ ${caseRow.hq_country}` : ''}
+            {caseRow.employee_band ? ` · ${caseRow.employee_band} emp.` : ''}
+            {caseRow.revenue_band ? ` · ${caseRow.revenue_band}` : ''}
           </p>
           <p className="mt-2 text-sm">{caseRow.business_function_at_risk}</p>
+          {caseRow.description && (
+            <p className="mt-1 text-xs text-slatewarn dark:text-slate-400">{caseRow.description}</p>
+          )}
         </section>
+
+        <RosterSection caseId={id!} entities={entities ?? []} onChange={inval} />
 
         <section className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <h2 className="font-semibold">{fr.interview.title}</h2>
@@ -354,6 +426,54 @@ function DiagnosticPanel({
         </ul>
       </details>
 
+      {packet.packet_json.concentration && (
+        <details open>
+          <summary className="cursor-pointer font-medium">Synthèse entreprise</summary>
+          <div className="mt-1 text-xs text-slatewarn dark:text-slate-400">
+            {packet.packet_json.concentration.supplier_count} fournisseurs ·{' '}
+            {packet.packet_json.concentration.customer_count} clients ·{' '}
+            {packet.packet_json.concentration.site_count} sites
+            {packet.packet_json.concentration.single_source_supplier_count > 0 &&
+              ` · ${packet.packet_json.concentration.single_source_supplier_count} source(s) unique(s)`}
+            {packet.packet_json.concentration.tier2_blind_spots > 0 &&
+              ` · ${packet.packet_json.concentration.tier2_blind_spots} angle(s) mort(s) rang 2`}
+          </div>
+          <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-slatewarn dark:text-slate-400">
+            {packet.packet_json.concentration.notes.map((n, i) => (
+              <li key={i}>{n}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      {packet.packet_json.entities && packet.packet_json.entities.length > 0 && (
+        <details>
+          <summary className="cursor-pointer font-medium">
+            Posture par acteur ({packet.packet_json.entities.length})
+          </summary>
+          <ul className="mt-1 space-y-1">
+            {packet.packet_json.entities
+              .slice()
+              .sort(
+                (a, b) =>
+                  ['monitor', 'prepare', 'act', 'escalate'].indexOf(b.operational_verdict) -
+                  ['monitor', 'prepare', 'act', 'escalate'].indexOf(a.operational_verdict),
+              )
+              .map((e) => (
+                <li key={e.id} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="truncate">{e.name}</span>
+                  <span className="flex shrink-0 items-center gap-1">
+                    <span className="text-slatewarn dark:text-slate-400">{e.top_risk}</span>
+                    <span className={`chip verdict-${e.operational_verdict}`}>
+                      {e.operational_verdict}
+                    </span>
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </details>
+      )}
+
       <Block
         title={fr.diagnostic.patterns}
         items={packet.packet_json.activated_patterns.map((p) => p.label_fr)}
@@ -482,5 +602,193 @@ function SuggestionCard({ caseId, s, onReview }: { caseId: string; s: any; onRev
         </div>
       )}
     </div>
+  );
+}
+
+function RosterSection({
+  caseId,
+  entities,
+  onChange,
+}: {
+  caseId: string;
+  entities: Entity[];
+  onChange: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const create = useMutation({
+    mutationFn: (body: Record<string, unknown>) => api.post(`/api/cases/${caseId}/entities`, body),
+    onSuccess: () => {
+      onChange();
+      setOpen(false);
+    },
+  });
+  const del = useMutation({
+    mutationFn: (eid: string) => api.del(`/api/cases/${caseId}/entities/${eid}`),
+    onSuccess: onChange,
+  });
+
+  function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const o = Object.fromEntries(f.entries()) as Record<string, string>;
+    create.mutate({
+      entity_type: o.entity_type,
+      name: o.name,
+      country: o.country,
+      what_it_enables: o.what_it_enables,
+      criticality: Number(o.criticality),
+      substitutability: o.substitutability,
+      tier2_visibility: o.tier2_visibility,
+      single_source: o.single_source === 'on',
+      share_pct: o.share_pct ? Number(o.share_pct) : null,
+    });
+  }
+
+  const grouped = ENTITY_TYPES.map((t) => ({
+    type: t,
+    items: entities.filter((e) => e.entity_type === t),
+  })).filter((g) => g.items.length > 0);
+
+  return (
+    <section className="rounded-xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold">
+          Entreprise — roster{' '}
+          <span className="font-normal text-slatewarn dark:text-slate-400">
+            ({entities.length} acteurs)
+          </span>
+        </h2>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="rounded-md bg-ink px-2.5 py-1 text-xs font-semibold text-white"
+        >
+          + Acteur
+        </button>
+      </div>
+
+      {open && (
+        <form
+          onSubmit={submit}
+          className="mt-3 grid grid-cols-2 gap-2 rounded-md border border-slate-200 p-3 text-xs dark:border-slate-700"
+        >
+          <select
+            name="entity_type"
+            className="rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+          >
+            {ENTITY_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {ENTITY_LABELS[t]}
+              </option>
+            ))}
+          </select>
+          <input
+            name="name"
+            placeholder="Nom"
+            required
+            className="rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+          />
+          <input
+            name="country"
+            placeholder="Pays / juridiction"
+            className="rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+          />
+          <input
+            name="what_it_enables"
+            placeholder="Ce qu'il rend possible"
+            className="rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+          />
+          <label className="flex items-center gap-1">
+            Criticité
+            <input
+              name="criticality"
+              type="number"
+              min={0}
+              max={5}
+              defaultValue={3}
+              className="w-14 rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+            />
+          </label>
+          <select
+            name="substitutability"
+            className="rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+            defaultValue="unknown"
+          >
+            {['yes', 'partial', 'no', 'unknown'].map((s) => (
+              <option key={s} value={s}>
+                substituable: {s}
+              </option>
+            ))}
+          </select>
+          <select
+            name="tier2_visibility"
+            className="rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+            defaultValue="unknown"
+          >
+            {['yes', 'partial', 'no', 'unknown'].map((s) => (
+              <option key={s} value={s}>
+                visib. rang 2: {s}
+              </option>
+            ))}
+          </select>
+          <label className="flex items-center gap-1">
+            Part %
+            <input
+              name="share_pct"
+              type="number"
+              min={0}
+              max={100}
+              className="w-16 rounded border border-slate-300 px-2 py-1 dark:border-slate-700"
+            />
+          </label>
+          <label className="flex items-center gap-1">
+            <input name="single_source" type="checkbox" /> source unique
+          </label>
+          <div className="col-span-2">
+            <button className="rounded bg-slate-700 px-2.5 py-1 font-semibold text-white">
+              Ajouter
+            </button>
+          </div>
+        </form>
+      )}
+
+      {entities.length === 0 && (
+        <p className="mt-3 text-sm text-slatewarn dark:text-slate-400">
+          Aucun acteur. Ajoute fournisseurs, clients, sites, partenaires pour un topo complet.
+        </p>
+      )}
+      <div className="mt-3 space-y-3">
+        {grouped.map((g) => (
+          <div key={g.type}>
+            <h3 className="text-xs font-semibold text-slatewarn dark:text-slate-400">
+              {ENTITY_LABELS[g.type]} ({g.items.length})
+            </h3>
+            <ul className="mt-1 divide-y divide-slate-100 dark:divide-slate-700">
+              {g.items.map((e) => (
+                <li key={e.id} className="flex items-center justify-between py-1.5 text-sm">
+                  <span>
+                    <span className="font-medium">{e.name}</span>
+                    {e.country ? (
+                      <span className="text-slatewarn dark:text-slate-400"> · {e.country}</span>
+                    ) : null}
+                    <span className="ml-2 text-xs text-slatewarn dark:text-slate-400">
+                      crit {e.criticality}/5 · subst {e.substitutability}
+                      {e.single_source ? ' · source unique' : ''}
+                      {e.share_pct ? ` · ${e.share_pct}%` : ''}
+                    </span>
+                  </span>
+                  <button
+                    onClick={() => del.mutate(e.id)}
+                    className="text-xs text-slate-400 hover:text-red-600"
+                    title="Supprimer"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
