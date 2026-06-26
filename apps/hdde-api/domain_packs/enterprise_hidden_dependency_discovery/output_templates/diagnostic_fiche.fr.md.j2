@@ -1,0 +1,55 @@
+# Fiche de diagnostic — dépendances géopolitiques cachées
+
+## 1. Résumé exécutif
+
+**Posture opérationnelle :** {{ packet.operational_verdict }}  
+**Confiance :** {{ packet.confidence }}  
+**Diagnostic principal :** {{ packet.primary_diagnosis }}
+
+## 2. Dépendance visible
+
+Acteur critique : {{ case.critical_actor_name }}  
+Type : {{ case.critical_actor_type }}  
+Fonction métier menacée : {{ case.business_function_at_risk }}
+
+## 3. Dépendance réelle probable
+
+{{ packet.probable_real_dependency.description }}
+
+## 4. Flux critique exposé
+
+Type de flux : {{ packet.critical_flow.flow_type }}  
+Substituabilité : {{ packet.critical_flow.substitutability }}  
+Délai avant impact : {{ packet.critical_flow.time_to_impact_days }} jours
+
+## 5. Acteurs de contrôle, nuisance et amplification
+
+Voir matrice associée.
+
+## 6. Scores et confiance
+
+{% for score in packet.scores %}
+- **{{ score.dimension_id }}** : {{ score.value }}/5 — confiance {{ score.confidence }}
+{% endfor %}
+
+## 7. Angles morts
+
+{% for flag in packet.red_flags %}
+- {{ flag.message }}
+{% endfor %}
+
+## 8. Ce qui reste non prouvé
+
+{% for uncertainty in packet.open_uncertainties %}
+- {{ uncertainty.uncertainty }} — test requis : {{ uncertainty.required_test }}
+{% endfor %}
+
+## 9. Tests prioritaires
+
+{% for action in packet.light_actions %}
+- {{ action.action }} — {{ action.purpose }}
+{% endfor %}
+
+## 10. Ce que le verdict ne signifie pas
+
+Ce verdict ne remplace pas une décision humaine. Il classe une posture opérationnelle recommandée.

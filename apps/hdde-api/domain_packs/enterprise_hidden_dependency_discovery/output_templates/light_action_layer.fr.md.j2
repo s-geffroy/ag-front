@@ -1,0 +1,7 @@
+# Couche d’action légère
+
+| Priorité | Action | But | Responsable suggéré | Délai indicatif | Risque lié |
+|---:|---|---|---|---|---|
+{% for action in packet.light_actions -%}
+| {{ action.priority }} | {{ action.action }} | {{ action.purpose }} | {{ action.owner_category }} | {{ action.suggested_delay }} | {{ action.linked_risk }} |
+{% endfor %}

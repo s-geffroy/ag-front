@@ -1,0 +1,55 @@
+# Diagnostic fiche — hidden geopolitical dependencies
+
+## 1. Executive summary
+
+**Operational posture:** {{ packet.operational_verdict }}  
+**Confidence:** {{ packet.confidence }}  
+**Primary diagnosis:** {{ packet.primary_diagnosis }}
+
+## 2. Visible dependency
+
+Critical actor: {{ case.critical_actor_name }}  
+Type: {{ case.critical_actor_type }}  
+Business function at risk: {{ case.business_function_at_risk }}
+
+## 3. Probable real dependency
+
+{{ packet.probable_real_dependency.description }}
+
+## 4. Exposed critical flow
+
+Flow type: {{ packet.critical_flow.flow_type }}  
+Substitutability: {{ packet.critical_flow.substitutability }}  
+Time to impact: {{ packet.critical_flow.time_to_impact_days }} days
+
+## 5. Control, nuisance and amplification actors
+
+See associated matrix.
+
+## 6. Scores and confidence
+
+{% for score in packet.scores %}
+- **{{ score.dimension_id }}**: {{ score.value }}/5 — confidence {{ score.confidence }}
+{% endfor %}
+
+## 7. Blind spots
+
+{% for flag in packet.red_flags %}
+- {{ flag.message }}
+{% endfor %}
+
+## 8. What remains unproven
+
+{% for uncertainty in packet.open_uncertainties %}
+- {{ uncertainty.uncertainty }} — required test: {{ uncertainty.required_test }}
+{% endfor %}
+
+## 9. Priority tests
+
+{% for action in packet.light_actions %}
+- {{ action.action }} — {{ action.purpose }}
+{% endfor %}
+
+## 10. What the verdict does not mean
+
+This verdict does not replace human decision-making. It classifies a recommended operational posture.

@@ -1,0 +1,22 @@
+red_flags:
+  - id: actor_without_business_function
+    severity: 3
+    message_fr: Acteur critique identifié, mais fonction métier menacée non formulée.
+  - id: alternative_not_tested
+    severity: 4
+    message_fr: Alternative déclarée mais non testée en conditions réelles.
+  - id: alternative_not_contractualized
+    severity: 4
+    message_fr: Alternative identifiée mais non contractualisée.
+  - id: tier2_unknown
+    severity: 4
+    message_fr: Dépendances de rang 2 inconnues ou non documentées.
+  - id: gatekeeper_unmapped
+    severity: 3
+    message_fr: Gatekeepers logistiques, financiers, assurantiels ou réglementaires non cartographiés.
+  - id: no_action_threshold
+    severity: 5
+    message_fr: Aucun seuil d’action défini.
+  - id: llm_output_unvalidated
+    severity: 5
+    message_fr: "Suggestion LLM non validée : ne pas utiliser comme preuve."

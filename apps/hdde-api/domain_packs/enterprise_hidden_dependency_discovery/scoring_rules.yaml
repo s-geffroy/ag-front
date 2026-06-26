@@ -1,0 +1,31 @@
+scoring_model: hybrid_v1
+rules:
+  - id: substitution_unproven_increases_weakness
+    if:
+      question_id: substitution_real_test_proof
+      evidence_quality_lte: 2
+    then:
+      adjust_dimension:
+        substitution_weakness_score: +1
+      activate_pattern: substitution_capacity_overestimated
+      add_red_flag: alternative_not_tested
+
+  - id: tier2_unknown_increases_hidden_dependency
+    if:
+      question_id: hidden_tier2_visibility
+      answer_in: [no, unknown]
+    then:
+      adjust_dimension:
+        hidden_dependency_score: +1
+      activate_pattern: hidden_second_tier_dependency
+      add_red_flag: tier2_unknown
+
+  - id: no_thresholds_increases_readiness_gap
+    if:
+      question_id: decision_thresholds_defined
+      answer_in: [no, unknown]
+    then:
+      adjust_dimension:
+        decision_readiness_score: -1
+      activate_pattern: decision_threshold_absence
+      add_red_flag: no_action_threshold

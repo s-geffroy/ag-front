@@ -1,0 +1,45 @@
+blocks:
+  - id: case_framing
+    order: 1
+    label_fr: Cadrage du cas
+    required: true
+  - id: critical_actor
+    order: 2
+    label_fr: Acteur critique visible
+    required: true
+  - id: dependency_type
+    order: 3
+    label_fr: Nature de la dépendance
+    required: true
+  - id: critical_flow
+    order: 4
+    label_fr: Flux critique
+    required: true
+  - id: substitution
+    order: 5
+    label_fr: Substitution réelle
+    required: true
+  - id: hidden_dependencies
+    order: 6
+    label_fr: Dépendances cachées
+    required: true
+  - id: control_and_nuisance_actors
+    order: 7
+    label_fr: Acteurs de contrôle et de nuisance
+    required: true
+  - id: time_to_impact
+    order: 8
+    label_fr: Temporalité d’impact
+    required: true
+  - id: decision_thresholds
+    order: 9
+    label_fr: Seuils de décision
+    required: true
+  - id: red_team
+    order: 10
+    label_fr: Red team
+    required: true
+  - id: synthesis
+    order: 11
+    label_fr: Synthèse
+    required: true

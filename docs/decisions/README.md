@@ -27,3 +27,7 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 |                                [0029](0029-plugins.md) | Installed plugins (commit-commands, security-guidance)               | Accepted (carried) |
 |                 [0030](0030-public-visual-identity.md) | Public site visual identity = editorial "strategic-briefing"         | Superseded by 0031 |
 | [0031](0031-public-visual-identity-admiralty-chart.md) | Public site visual identity = "carte d'état-major" (admiralty chart) | Accepted           |
+|                  [0032](0032-hdde-typescript-port.md) | HDDE: TypeScript port (Express + React + SQLite + nunjucks)          | Accepted           |
+|             [0033](0033-hdde-public-auth-surface.md) | HDDE: public authenticated surface (hdde.applied-geopolitics.com)    | Accepted           |
+|                [0034](0034-hdde-red-team-openai.md) | HDDE: OpenAI red team (gpt-4o), suggestion ≠ evidence                | Accepted           |
+|        [0035](0035-hdde-chokepoints-cvi-coupling.md) | HDDE: chokepoints (read scope) + CVI coupling, anti-tainted guard    | Accepted           |

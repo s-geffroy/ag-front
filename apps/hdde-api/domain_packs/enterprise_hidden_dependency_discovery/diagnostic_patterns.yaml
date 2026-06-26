@@ -1,0 +1,45 @@
+patterns:
+  - id: visible_supplier_dependency
+    label_fr: Dépendance à un acteur visible
+    label_en: Visible supplier dependency
+    description_fr: L’entreprise dépend fortement d’un acteur connu et contractuellement visible.
+  - id: hidden_second_tier_dependency
+    label_fr: Dépendance cachée de rang 2
+    label_en: Hidden second-tier dependency
+    description_fr: La vulnérabilité réelle est probablement située derrière l’acteur visible.
+  - id: jurisdictional_exposure
+    label_fr: Exposition juridictionnelle
+    label_en: Jurisdictional exposure
+    description_fr: Le risque passe par la juridiction, le droit, les contrôles ou la politique publique.
+  - id: state_linked_actor_risk
+    label_fr: Risque lié à un acteur connecté à l’État
+    label_en: State-linked actor risk
+    description_fr: L’acteur critique est contrôlé, influencé ou contraint par un État.
+  - id: sanctions_or_regulatory_exposure
+    label_fr: Exposition sanctions / régulation
+    label_en: Sanctions or regulatory exposure
+    description_fr: Le flux ou l’acteur peut être affecté par sanctions, contrôles export, douanes ou conformité.
+  - id: critical_flow_dependency
+    label_fr: Dépendance à un flux critique
+    label_en: Critical flow dependency
+    description_fr: L’activité dépend d’un flux matériel, informationnel, financier, logistique ou réglementaire.
+  - id: chokepoint_or_corridor_exposure
+    label_fr: Exposition à un chokepoint ou corridor
+    label_en: Chokepoint or corridor exposure
+    description_fr: Le flux dépend d’un passage, corridor, port, câble, canal ou détroit critique.
+  - id: substitution_capacity_overestimated
+    label_fr: Substitution surestimée
+    label_en: Substitution capacity overestimated
+    description_fr: Les alternatives existent sur le papier mais ne sont pas prouvées opérationnellement.
+  - id: logistics_or_insurance_gatekeeper
+    label_fr: Gatekeeper logistique ou assurantiel
+    label_en: Logistics or insurance gatekeeper
+    description_fr: Un acteur logistique, assurantiel ou financier peut amplifier ou bloquer le risque.
+  - id: supply_chain_single_point_failure
+    label_fr: Point de rupture unique supply chain
+    label_en: Supply chain single point of failure
+    description_fr: Une rupture locale peut affecter une fonction critique entière.
+  - id: decision_threshold_absence
+    label_fr: Absence de seuils de décision
+    label_en: Decision threshold absence
+    description_fr: L’entreprise ne sait pas quels signaux déclenchent quelle posture.

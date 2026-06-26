@@ -1,0 +1,29 @@
+actor_types:
+  - supplier
+  - logistics_provider
+  - insurer
+  - reinsurer
+  - bank
+  - regulator
+  - customs_authority
+  - platform_operator
+  - infrastructure_owner
+  - port_authority
+  - shipping_company
+  - state_owned_company
+  - customer
+  - certification_body
+  - armed_group
+  - state
+actor_roles:
+  - visible_dependency_source
+  - hidden_dependency_source
+  - formal_controller
+  - effective_controller
+  - disruptor
+  - protector
+  - gatekeeper
+  - price_amplifier
+  - regulator
+  - logistics_operator
+  - substitution_provider

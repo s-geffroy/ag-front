@@ -1,0 +1,26 @@
+pack_id: enterprise_hidden_dependency_discovery
+name: Enterprise Hidden Dependency Discovery
+version: 1.0.0
+status: active
+ui_language: fr
+technical_language: en
+output_languages:
+  - fr
+  - en
+description: >
+  Expert-guided interview domain pack for revealing hidden geopolitical dependencies
+  behind visible enterprise suppliers, actors, flows, jurisdictions, gatekeepers,
+  chokepoints, logistics nodes, insurers, regulators, and disruption actors.
+supported_case_types:
+  - critical_actor_or_supplier
+  - critical_flow
+  - supply_chain_dependency
+default_interview_mode: semi_adaptive
+outputs:
+  - diagnostic_fiche_fr
+  - diagnostic_fiche_en
+  - dependency_control_matrix_fr
+  - dependency_control_matrix_en
+  - light_action_layer_fr
+  - light_action_layer_en
+  - diagnostic_packet_json

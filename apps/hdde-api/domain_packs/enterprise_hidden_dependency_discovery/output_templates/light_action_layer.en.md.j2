@@ -1,0 +1,7 @@
+# Light action layer
+
+| Priority | Action | Purpose | Suggested owner | Indicative delay | Linked risk |
+|---:|---|---|---|---|---|
+{% for action in packet.light_actions -%}
+| {{ action.priority }} | {{ action.action }} | {{ action.purpose }} | {{ action.owner_category }} | {{ action.suggested_delay }} | {{ action.linked_risk }} |
+{% endfor %}

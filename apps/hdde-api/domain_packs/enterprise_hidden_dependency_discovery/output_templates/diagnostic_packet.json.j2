@@ -1,0 +1,17 @@
+{
+  "packet_id": "{{ packet.packet_id }}",
+  "case_id": "{{ case.id }}",
+  "domain_pack": {
+    "pack_id": "enterprise_hidden_dependency_discovery",
+    "pack_version": "1.0.0",
+    "pack_hash": "{{ pack_hash }}"
+  },
+  "operational_verdict": "{{ packet.operational_verdict }}",
+  "confidence": "{{ packet.confidence }}",
+  "primary_diagnosis": "{{ packet.primary_diagnosis }}",
+  "scores": {{ packet.scores_json }},
+  "matrix_rows": {{ packet.matrix_rows_json }},
+  "red_flags": {{ packet.red_flags_json }},
+  "open_uncertainties": {{ packet.open_uncertainties_json }},
+  "light_actions": {{ packet.light_actions_json }}
+}

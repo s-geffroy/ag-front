@@ -5,7 +5,7 @@ flows, critical dependencies and geopolitical vulnerabilities (offerings: Basic 
 proprietary **CVI** — Corridor Vulnerability Index — methodology). Connexe to the `chokepoints`
 strategic database. This is a **clean-room rebuild** — the directory starts empty.
 
-The repo ships **two UIs**:
+The repo ships **three UIs**:
 
 - **Public site** → `www.applied-geopolitics.com`: B2B content platform (landing, Atlas, dossiers,
   notes, CVI method, tiered offers, lead capture / newsletter). French primary; SEO is a slow-built
@@ -13,6 +13,11 @@ The repo ships **two UIs**:
 - **Internal cockpit** → served **only** over Tailscale at `https://srv1100990.tail880531.ts.net`:
   operational deployment cockpit tracking the launch (six views: Cockpit, Kanban, Roadmap, Quality
   Gates, Scorecard, Acquisition). Never exposed publicly.
+- **HDDE** (Hidden Dependency Discovery Engine) → `hdde.applied-geopolitics.com`: **public-Internet
+  behind app auth** (individual analyst accounts) — an expert-guided interview cockpit that reveals an
+  enterprise's hidden geopolitical dependencies (cases → guided interview → evidence → OpenAI red team
+  → diagnostic packet → diff/validate → FR/EN exports). Pack-driven (`apps/hdde-api/domain_packs/`),
+  SQLite, OpenAI `gpt-4o` red team, chokepoints (read scope) + CVI enrichment. ADRs 0032–0035.
 
 This file is a living document; refine it as real structure lands.
 
@@ -66,6 +71,8 @@ Layout:
 
 - `apps/public/` — public site (`www.applied-geopolitics.com`).
 - `apps/cockpit/` — internal cockpit (`src/{data,types,lib,components,pages}`).
+- `apps/hdde-api/` — HDDE backend (Express + SQLite; `server/{db,auth,routers,engine,llm,exports,integrations}`,
+  `domain_packs/`). `apps/hdde-web/` — HDDE SPA (React + Vite). ADRs 0032–0035.
 - `packages/` — shared code (types, UI primitives, CVI calculations).
 - `docker/` — `tools.Dockerfile`, `docker-compose.yml`, pinned Node stack.
 - `.claude/skills/` — adopted agent skills (see `docs/skills/README.md`).
@@ -73,7 +80,9 @@ Layout:
 
 **Deployment:** `apps/public` → `www.applied-geopolitics.com` (public). `apps/cockpit` → exposed
 **only** via Tailscale `https://srv1100990.tail880531.ts.net` (tailnet `tail880531.ts.net`); never
-published to the public internet.
+published to the public internet. `apps/hdde-api` + `apps/hdde-web` → `hdde.applied-geopolitics.com`
+(public-Internet **behind app auth**, fronted by Caddy; `hdde` service on host loopback). Seed the
+first account via `npm --workspace @ag/hdde-api run seed:user -- <email> <password> owner_admin`.
 
 ## Skills — when to use what
 

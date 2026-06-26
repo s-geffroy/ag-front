@@ -1,0 +1,46 @@
+evidence_types:
+  - id: client_statement
+    label_fr: Déclaration client
+    default_reliability: 2
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: contract
+    label_fr: Contrat
+    default_reliability: 4
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: supplier_document
+    label_fr: Document fournisseur
+    default_reliability: 3
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: logistics_data
+    label_fr: Donnée logistique
+    default_reliability: 4
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: insurance_clause
+    label_fr: Clause assurance
+    default_reliability: 4
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: official_source
+    label_fr: Source officielle
+    default_reliability: 5
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: analyst_note
+    label_fr: Note analyste
+    default_reliability: 3
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: news_signal
+    label_fr: Signal de veille
+    default_reliability: 2
+    allowed_as_evidence: true
+    requires_validation: true
+  - id: llm_generated_suggestion
+    label_fr: Suggestion LLM
+    default_reliability: 1
+    allowed_as_evidence: false
+    requires_validation: true

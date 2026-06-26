@@ -18,10 +18,18 @@ apps/lead-api/data/*.ndjson
 # contacts.seed.json; the live file is git-ignored and materialised from the seed on first run.
 apps/cockpit/data/contacts.json
 
-# Env (keep examples)
+# HDDE runtime: SQLite DB (confidential client cases) + rendered exports. Never tracked.
+apps/hdde-api/data/*.sqlite
+apps/hdde-api/data/*.sqlite-*
+apps/hdde-api/data/exports/*
+!apps/hdde-api/data/.gitkeep
+!apps/hdde-api/data/exports/.gitkeep
+
+# Env (keep examples + templates; real .env stays out)
 .env
 .env.*
 !.env.example
+!.env.template
 
 # Editor / OS
 .DS_Store

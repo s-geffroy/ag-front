@@ -1,0 +1,56 @@
+personas:
+  - id: procurement_buyer
+    label_fr: Achats
+    attacks:
+      - supplier replaceability
+      - contracts
+      - alternative suppliers
+  - id: supply_chain_operator
+    label_fr: Supply chain
+    attacks:
+      - operational feasibility
+      - lead times
+      - capacity
+      - stock buffers
+  - id: legal_compliance
+    label_fr: Juridique / conformité
+    attacks:
+      - sanctions
+      - export controls
+      - force majeure
+      - liability
+  - id: executive_management
+    label_fr: Direction générale
+    attacks:
+      - cost of action
+      - priority
+      - strategic trade-off
+      - reputation risk
+  - id: insurer_finance
+    label_fr: Assurance / finance
+    attacks:
+      - premiums
+      - exclusions
+      - financing
+      - cash impact
+  - id: logistics_operator
+    label_fr: Logistique
+    attacks:
+      - route realism
+      - port capacity
+      - rerouting
+      - congestion
+  - id: regulator_state
+    label_fr: Régulateur / État
+    attacks:
+      - authorizations
+      - customs
+      - export restrictions
+      - public decisions
+  - id: disruptive_actor
+    label_fr: Acteur perturbateur
+    attacks:
+      - nuisance power
+      - sabotage opportunity
+      - coercion
+      - exploitation of hidden dependency

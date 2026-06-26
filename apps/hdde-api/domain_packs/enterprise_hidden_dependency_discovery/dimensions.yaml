@@ -1,0 +1,37 @@
+dimensions:
+  - id: supplier_dependency_score
+    label_fr: Dépendance à l’acteur visible
+    label_en: Visible actor dependency
+    scale: 0-5
+  - id: hidden_dependency_score
+    label_fr: Dépendance cachée
+    label_en: Hidden dependency
+    scale: 0-5
+  - id: substitution_weakness_score
+    label_fr: Faiblesse de substitution
+    label_en: Substitution weakness
+    scale: 0-5
+  - id: jurisdictional_exposure_score
+    label_fr: Exposition juridictionnelle
+    label_en: Jurisdictional exposure
+    scale: 0-5
+  - id: flow_criticality_score
+    label_fr: Criticité du flux
+    label_en: Critical flow exposure
+    scale: 0-5
+  - id: time_to_impact_score
+    label_fr: Pression temporelle
+    label_en: Time to impact pressure
+    scale: 0-5
+  - id: gatekeeper_pressure_score
+    label_fr: Pression des gatekeepers
+    label_en: Gatekeeper pressure
+    scale: 0-5
+  - id: evidence_quality_score
+    label_fr: Qualité de preuve
+    label_en: Evidence quality
+    scale: 0-5
+  - id: decision_readiness_score
+    label_fr: Préparation décisionnelle
+    label_en: Decision readiness
+    scale: 0-5

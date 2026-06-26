@@ -1,0 +1,28 @@
+verdicts:
+  monitor:
+    description_fr: Surveillance structurée.
+  prepare:
+    description_fr: Préparation active.
+  act:
+    description_fr: Action opérationnelle limitée pour réduire l’incertitude ou sécuriser une option.
+  escalate:
+    description_fr: Escalade décisionnelle vers direction, juridique, finance ou crise.
+rules:
+  - id: prepare_when_dependency_significant_and_substitution_uncertain
+    if:
+      supplier_dependency_score_gte: 3
+      substitution_weakness_score_gte: 3
+      decision_readiness_score_lte: 2
+    verdict: prepare
+  - id: act_when_dependency_critical_and_time_short
+    if:
+      supplier_dependency_score_gte: 4
+      substitution_weakness_score_gte: 4
+      time_to_impact_score_gte: 4
+    verdict: act
+  - id: escalate_when_impact_major_and_scope_executive
+    if:
+      flow_criticality_score_gte: 5
+      time_to_impact_score_gte: 4
+      gatekeeper_pressure_score_gte: 4
+    verdict: escalate

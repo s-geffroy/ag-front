@@ -1,0 +1,7 @@
+# Matrice dépendance × acteur × mécanisme × preuve × risque
+
+| Dépendance | Acteur | Rôle | Mécanisme | Risque | Preuve | Confiance | Test recommandé |
+|---|---|---|---|---:|---|---|---|
+{% for row in packet.matrix_rows -%}
+| {{ row.dependency }} | {{ row.actor }} | {{ row.actor_role }} | {{ row.mechanism }} | {{ row.risk_level }}/5 | {{ row.evidence_summary }} | {{ row.confidence }} | {{ row.recommended_test }} |
+{% endfor %}

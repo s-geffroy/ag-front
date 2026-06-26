@@ -63,12 +63,14 @@ services:
     restart: unless-stopped
     depends_on:
       - lead # Caddy reverse_proxies /api/* to the lead service; start it first
+      - hdde # Caddy fronts hdde.applied-geopolitics.com → hdde service (ADR 0033)
     ports:
       - '${PUBLIC_IP:-72.61.101.1}:80:80'
       - '${PUBLIC_IP:-72.61.101.1}:443:443'
       - '${PUBLIC_IP:-72.61.101.1}:443:443/udp'
     volumes:
       - ../apps/public/dist:/srv:ro
+      - ../apps/hdde-web/dist:/srv-hdde:ro # built HDDE SPA (build first: npm --workspace @ag/hdde-web run build)
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
@@ -95,6 +97,41 @@ services:
       # LEAD_TO: contact@applied-geopolitics.com
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/lead-api', 'start']
+
+  # Hidden Dependency Discovery Engine API (ADR 0032/0033). Public ONLY via Caddy at
+  # hdde.applied-geopolitics.com, behind auth. Binds the host loopback; Caddy reverse_proxies /api/*.
+  # Seed the first account once running:
+  #   docker compose -f docker/docker-compose.yml run --rm tools \
+  #     npm --workspace @ag/hdde-api run seed:user -- you@example.com "a-long-password" owner_admin
+  hdde:
+    build:
+      context: ..
+      dockerfile: docker/tools.Dockerfile
+    image: app-geo-tools:local
+    user: '${UID:-1000}:${GID:-1000}'
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace # SQLite + exports persist under apps/hdde-api/data (git-ignored)
+    environment:
+      HOST: '0.0.0.0' # inside the isolated container; Caddy reaches it by service name
+      PORT: '8090'
+      APP_ENV: production
+      HDDE_DB_PATH: /workspace/apps/hdde-api/data/hdde.sqlite
+      HDDE_EXPORTS_DIR: /workspace/apps/hdde-api/data/exports
+      SESSION_SECRET: ${HDDE_SESSION_SECRET:-change-me-to-a-long-random-string}
+      ALLOW_SIGNUP: 'false'
+      COOKIE_SECURE: 'true' # served over HTTPS by Caddy
+      # OpenAI red team (ADR 0034). Set the key in docker/.env to enable; empty → offline facade.
+      LLM_ENABLED: ${HDDE_LLM_ENABLED:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      # Chokepoints Read API — READ SCOPE ONLY, never read_tainted (ADR 0035). Feeds interview + red team.
+      CHOKEPOINTS_API_URL: ${CHOKEPOINTS_API_URL:-https://srv1305127.tail880531.ts.net/api}
+      CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN:-}
+    ports:
+      - '127.0.0.1:8090:8090'
+    restart: unless-stopped
+    command: ['npm', '--workspace', '@ag/hdde-api', 'start']
 
 volumes:
   caddy_data:
