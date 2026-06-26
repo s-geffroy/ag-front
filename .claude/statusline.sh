@@ -82,7 +82,7 @@ quota() { # $1=label $2=pct $3=reset
 }
 
 # ── Rendu ──
-L=" ${CYN}🐼AG${RST}${SEP}${CYN}${model}${RST}"
+L=" ${CYN}🐼ag-front${RST}${SEP}${CYN}${model}${RST}"
 [ -n "$branch" ] && L+=" ${MAG}${branch}${RST}"
 [ -n "$ws" ]     && L+=" ${DIM}·${RST} ${YLW}${ws}${RST}"
 L+="${SEP}${DIM}ctx:${RST}$(col "$ctx")${ctx}%${RST} ${DIM}${used_k}k/${size_k}k${RST}"
