@@ -105,3 +105,69 @@ describe('chokepoints client', () => {
     await expect(client.listChokepoints()).rejects.toThrow();
   });
 });
+
+function textResponse(body: string, status = 200): Response {
+  return { ok: status < 400, status, text: async () => body } as unknown as Response;
+}
+
+describe('chokepoints client — v0.2.0 additive surface', () => {
+  it('by-flow returns an array of summaries with importance_score', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse([
+          { id: 'p0_maritime_strait_x', canonical_name: 'Détroit X', importance_score: 0.9 },
+        ]);
+      },
+    });
+    const rows = await client.chokepointsByFlow('crude_oil');
+    expect(calledUrl).toContain('/chokepoints/by-flow/crude_oil');
+    expect(rows[0]!.importance_score).toBe(0.9);
+  });
+
+  it('parses the typed analysis envelope', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          disclaimer: 'derived',
+          engines: [{ key: 'criticality_score', columns: ['a'], rows: [[1]] }],
+          relations: [],
+          claims: [],
+        }),
+    });
+    const a = await client.getChokepointAnalysis('p0_x');
+    expect(a.engines[0]!.key).toBe('criticality_score');
+  });
+
+  it('propagates the taint gate to a new endpoint when opted in', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      includeTainted: true,
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse([]);
+      },
+    });
+    await client.getChokepointActors('p0_x');
+    expect(calledUrl).toContain('/chokepoints/p0_x/actors');
+    expect(calledUrl).toContain('include_tainted=true');
+  });
+
+  it('reads markdown docs as text', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () => textResponse('# Synthèse\n…'),
+    });
+    const md = await client.getChokepointAnalysisDoc('p0_x', 'synthesis');
+    expect(md).toContain('# Synthèse');
+  });
+});

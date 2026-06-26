@@ -18,25 +18,26 @@ afterEach(() => vi.restoreAllMocks());
 describe('chokepoints enrichment (anti-tainted guard, ADR 0035)', () => {
   it('never returns a tainted record and never opts into include_tainted', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+      const u = String(url);
       // Assert the request did NOT ask for tainted records.
-      expect(String(url)).not.toContain('include_tainted');
+      expect(u).not.toContain('include_tainted');
+      // 'transport' → by-flow/container_ship (V2), which returns a bare array of summaries.
+      expect(u).toContain('/chokepoints/by-flow/container_ship');
       return new Response(
-        JSON.stringify({
-          items: [
-            {
-              id: 'clean-1',
-              canonical_name: 'Strait Clear',
-              family: 'maritime',
-              license_taint: false,
-            },
-            {
-              id: 'tainted-1',
-              canonical_name: 'Restricted Node',
-              family: 'maritime',
-              license_taint: true,
-            },
-          ],
-        }),
+        JSON.stringify([
+          {
+            id: 'clean-1',
+            canonical_name: 'Strait Clear',
+            importance_score: 0.9,
+            license_taint: false,
+          },
+          {
+            id: 'tainted-1',
+            canonical_name: 'Restricted Node',
+            importance_score: 0.8,
+            license_taint: true,
+          },
+        ]),
         { status: 200, headers: { 'content-type': 'application/json' } },
       );
     });

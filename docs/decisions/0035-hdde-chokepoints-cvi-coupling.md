@@ -44,3 +44,11 @@ client public ne voit ni le token ni la donnée tainted.
 - Un test doit prouver qu'aucun enregistrement `tainted` ne sort de `hdde-api`.
 - Couplage CVI complet (lier acteurs ↔ chokepoints, scorer la criticité de flux) reste prudent : tout
   reste candidat, jamais une décision.
+
+## Mise à jour — contrat API v0.2.0 (2026-06-26)
+
+Le client partagé `@ag/chokepoints` suit désormais le contrat **v0.2.0** (`docs/api-interface-contract_V2.md`,
+additif/rétrocompatible). L'enrichissement HDDE utilise l'endpoint **`GET /chokepoints/by-flow/{flow_type}`**
+(mapping flux HDDE → flow_type contrôlé, ex. `energy → crude_oil`), avec **repli sur les chokepoints
+stratégiques P0** si le flow_type n'est pas dans la vocabulaire (404) — l'enrichissement n'est jamais vide.
+Toujours scope `read`, server-side, `tainted` filtré.

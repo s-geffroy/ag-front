@@ -8,8 +8,10 @@ The Atlas lives on the **public, static** site, but the Chokepoints Read API
 (`docs/api-interface-contract.md`) is **read-only, Bearer-authenticated, and tailnet-only**
 (`srv1305127.tail880531.ts.net`). A public browser can neither reach it nor hold the token.
 
-Verified: the API is live (v0.1.0) and the build container reaches it over Tailscale (MagicDNS resolves
-inside Docker).
+Verified: the API is live and the build container reaches it over Tailscale (MagicDNS resolves
+inside Docker). The shared `@ag/chokepoints` client tracks the API contract — now **v0.2.0**
+(`docs/api-interface-contract_V2.md`, additive/backward-compatible; `.passthrough()` schemas absorbed
+the new fields and the client gained typed methods for the new read endpoints).
 
 ## Decision
 

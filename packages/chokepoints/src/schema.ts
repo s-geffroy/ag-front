@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-// Response shapes for the Chokepoints Read API (v0.1.0). Defensive: `.passthrough()` tolerates extra
-// fields and additive API changes; we only depend on what we render. Mirrors docs/api-interface-contract.md.
+// Response shapes for the Chokepoints Read API (v0.2.0). Defensive: `.passthrough()` tolerates extra
+// fields and additive API changes; we only depend on what we render. Mirrors
+// docs/api-interface-contract_V2.md (changelog 0.2.0 — additive, backward-compatible).
 
 export const ChokepointSummary = z
   .object({
@@ -126,3 +127,274 @@ export const ChokepointDetail = ChokepointSummary.extend({
   geometry_disclaimer: z.string().optional(),
 }).passthrough();
 export type ChokepointDetail = z.infer<typeof ChokepointDetail>;
+
+// ---------------------------------------------------------------------------------------------------
+// v0.2.0 additive surface (docs/api-interface-contract_V2.md). All shapes use .passthrough() and
+// nullish fields so the client stays forward-compatible; we only assert the fields the contract lists.
+// ---------------------------------------------------------------------------------------------------
+
+/** /chokepoints/by-flow/{flow_type} → ChokepointSummary + importance_score. */
+export const FlowChokepointOut = ChokepointSummary.extend({
+  importance_score: z.number().nullish(),
+}).passthrough();
+export type FlowChokepointOut = z.infer<typeof FlowChokepointOut>;
+
+/** /chokepoints/by-risk/{risk_type} → ChokepointSummary + impact_score. */
+export const RiskChokepointOut = ChokepointSummary.extend({
+  impact_score: z.number().nullish(),
+}).passthrough();
+export type RiskChokepointOut = z.infer<typeof RiskChokepointOut>;
+
+/** /actors → validated actors. */
+export const ActorOut = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    actor_type: z.string().nullish(),
+    jurisdiction: z.string().nullish(),
+    validation_status: z.string().nullish(),
+    control_edge_count: z.number().nullish(),
+  })
+  .passthrough();
+export type ActorOut = z.infer<typeof ActorOut>;
+
+/** /chokepoints/{id}/actors → validated actor↔chokepoint control edges. */
+export const ActorControlOut = z
+  .object({
+    actor_id: z.string(),
+    actor_name: z.string().nullish(),
+    actor_type: z.string().nullish(),
+    chokepoint_id: z.string(),
+    control_type: z.string().nullish(),
+    control_strength: z.union([z.number(), z.string()]).nullish(),
+    basis: z.string().nullish(),
+    source_confidence: z.union([z.number(), z.string()]).nullish(),
+    valid_from: z.string().nullish(),
+    valid_to: z.string().nullish(),
+  })
+  .passthrough();
+export type ActorControlOut = z.infer<typeof ActorControlOut>;
+
+/** /relations → chokepoint-to-chokepoint edges. */
+export const RelationOut = z
+  .object({
+    from_object_id: z.string(),
+    to_object_id: z.string(),
+    relation_type: z.string(),
+    directionality: z.string().nullish(),
+    strength_score: z.number().nullish(),
+    analytical_effect: z.array(z.string()).default([]),
+    affected_flows: z.array(z.string()).default([]),
+  })
+  .passthrough();
+export type RelationOut = z.infer<typeof RelationOut>;
+
+/** /strategic-systems → systems; member_count counts clear members only. */
+export const StrategicSystemOut = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    system_type: z.string().nullish(),
+    priority_class: z.string().nullish(),
+    notes: z.string().nullish(),
+    member_count: z.number().nullish(),
+  })
+  .passthrough();
+export type StrategicSystemOut = z.infer<typeof StrategicSystemOut>;
+
+export const SystemMemberOut = z
+  .object({
+    chokepoint_id: z.string(),
+    canonical_name: z.string().nullish(),
+    member_role: z.string().nullish(),
+    priority_class: z.string().nullish(),
+    license_taint: z.boolean().optional(),
+  })
+  .passthrough();
+
+export const StrategicSystemDetail = StrategicSystemOut.extend({
+  members: z.array(SystemMemberOut).default([]),
+}).passthrough();
+export type StrategicSystemDetail = z.infer<typeof StrategicSystemDetail>;
+
+/** /episodes → disruption episodes; object_count counts clear members only. */
+export const EpisodeOut = z
+  .object({
+    episode_key: z.string(),
+    name: z.string(),
+    description: z.string().nullish(),
+    started_on: z.string().nullish(),
+    ended_on: z.string().nullish(),
+    status: z.string().nullish(),
+    severity: z.string().nullish(),
+    affected_flows: z.array(z.string()).default([]),
+    object_count: z.number().nullish(),
+  })
+  .passthrough();
+export type EpisodeOut = z.infer<typeof EpisodeOut>;
+
+export const EpisodeMemberOut = z
+  .object({
+    chokepoint_id: z.string(),
+    canonical_name: z.string().nullish(),
+    object_role: z.string().nullish(),
+    priority_class: z.string().nullish(),
+    license_taint: z.boolean().optional(),
+  })
+  .passthrough();
+
+export const EpisodeDetail = EpisodeOut.extend({
+  members: z.array(EpisodeMemberOut).default([]),
+}).passthrough();
+export type EpisodeDetail = z.infer<typeof EpisodeDetail>;
+
+/** /sources → registry (now incl. watch coverage in 0.2.0). */
+export const SourceOut = z
+  .object({
+    source_id: z.string(),
+    source_name: z.string().nullish(),
+    source_level: z.string().nullish(),
+    url: z.string().nullish(),
+    redistribution_allowed: z.boolean().nullish(),
+    attribution_required: z.boolean().nullish(),
+    license_risk: z.string().nullish(),
+    domain_relevance: z.unknown().nullish(),
+    evidence_types: z.array(z.string()).default([]),
+    storage_policy: z.string().nullish(),
+  })
+  .passthrough();
+export type SourceOut = z.infer<typeof SourceOut>;
+
+/** /alerts → analytical alerts. An alert is a trigger for review, not a conclusion. */
+export const AlertOut = z
+  .object({
+    id: z.string(),
+    chokepoint_id: z.string().nullish(),
+    canonical_name: z.string().nullish(),
+    alert_type: z.string(),
+    level: z.string().nullish(),
+    time_horizon: z.string().nullish(),
+    queue: z.string().nullish(),
+    trigger_summary: z.string().nullish(),
+    affected_dimensions: z.array(z.string()).default([]),
+    affected_actors: z.array(z.string()).default([]),
+    confidence: z.union([z.number(), z.string()]).nullish(),
+    review_status: z.string().nullish(),
+    generated_at: z.string().nullish(),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type AlertOut = z.infer<typeof AlertOut>;
+
+/** /analytics/results → derived candidate outputs. */
+export const AnalyticalResultOut = z
+  .object({
+    id: z.string(),
+    run_id: z.string().nullish(),
+    engine_id: z.string().nullish(),
+    engine_version: z.string().nullish(),
+    object_id: z.string().nullish(),
+    object_type: z.string().nullish(),
+    result_type: z.string().nullish(),
+    status: z.string().nullish(),
+    score: z.number().nullish(),
+    confidence: z.union([z.number(), z.string()]).nullish(),
+    result_summary: z.string().nullish(),
+    result_payload: z.unknown().nullish(),
+    generated_at: z.string().nullish(),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type AnalyticalResultOut = z.infer<typeof AnalyticalResultOut>;
+
+export const EngineRunOut = z
+  .object({
+    run_id: z.string(),
+    engine_id: z.string().nullish(),
+    engine_version: z.string().nullish(),
+    status: z.string().nullish(),
+    started_at: z.string().nullish(),
+    finished_at: z.string().nullish(),
+    output_result_count: z.number().nullish(),
+    error_message: z.string().nullish(),
+  })
+  .passthrough();
+export type EngineRunOut = z.infer<typeof EngineRunOut>;
+
+/** /chokepoints/{id}/event-signals → raw append-only event stream. */
+export const EventSignalOut = z
+  .object({
+    chokepoint_id: z.string(),
+    domain: z.string().nullish(),
+    weight: z.number().nullish(),
+    observed_on: z.string().nullish(),
+    event_key: z.string().nullish(),
+  })
+  .passthrough();
+export type EventSignalOut = z.infer<typeof EventSignalOut>;
+
+/** /chokepoints/{id}/analysis → full typed engine output + relations + claims. */
+export const ChokepointAnalysis = z
+  .object({
+    chokepoint_id: z.string(),
+    disclaimer: z.string().nullish(),
+    engines: z
+      .array(
+        z
+          .object({
+            key: z.string(),
+            title: z.string().nullish(),
+            description: z.string().nullish(),
+            columns: z.array(z.string()).default([]),
+            rows: z.array(z.unknown()).default([]),
+          })
+          .passthrough(),
+      )
+      .default([]),
+    relations: z.array(z.unknown()).default([]),
+    claims: z.array(z.unknown()).default([]),
+  })
+  .passthrough();
+export type ChokepointAnalysis = z.infer<typeof ChokepointAnalysis>;
+
+/** /chokepoints/{id}/perception-signals → Polymarket P3 perception (read_tainted scope only). */
+export const PerceptionSignalList = z
+  .object({
+    chokepoint_id: z.string(),
+    count: z.number().nullish(),
+    consensus: z.array(z.unknown()).default([]),
+    signals: z.array(z.unknown()).default([]),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type PerceptionSignalList = z.infer<typeof PerceptionSignalList>;
+
+/** /chokepoint-analyses → file-backed ToC + Leverage-Points (candidate, never canonical). */
+export const ChokepointAnalysisSummary = z
+  .object({
+    id: z.string(),
+    canonical_name: z.string().nullish(),
+    priority_class: z.string().nullish(),
+    family: z.string().nullish(),
+    type: z.string().nullish(),
+    macro_region: z.string().nullish(),
+    available_docs: z.array(z.string()).default([]),
+  })
+  .passthrough();
+
+export const ChokepointAnalysisList = z
+  .object({
+    count: z.number().nullish(),
+    disclaimer: z.string().nullish(),
+    items: z.array(ChokepointAnalysisSummary).default([]),
+  })
+  .passthrough();
+export type ChokepointAnalysisList = z.infer<typeof ChokepointAnalysisList>;
+
+export const ChokepointAnalysisDetail = ChokepointAnalysisSummary.extend({
+  synthesis_md: z.string().nullish(),
+  theory_of_constraints_md: z.string().nullish(),
+  leverage_points_md: z.string().nullish(),
+  disclaimer: z.string().nullish(),
+}).passthrough();
+export type ChokepointAnalysisDetail = z.infer<typeof ChokepointAnalysisDetail>;
