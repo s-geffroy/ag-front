@@ -6,7 +6,7 @@ export const fr = {
   },
   auth: {
     login: 'Connexion',
-    email: 'Email',
+    email: 'Identifiant',
     password: 'Mot de passe',
     signIn: 'Se connecter',
     signOut: 'Se déconnecter',

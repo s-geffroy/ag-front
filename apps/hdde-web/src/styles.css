@@ -5,9 +5,12 @@
 :root {
   color-scheme: light;
 }
+html.dark {
+  color-scheme: dark;
+}
 
 body {
-  @apply bg-slate-100 text-ink antialiased;
+  @apply bg-slate-100 text-ink antialiased dark:bg-slate-900 dark:text-slate-100;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -34,4 +37,27 @@ body {
 }
 .verdict-escalate {
   @apply bg-red-100 text-red-800;
+}
+.dark .verdict-monitor {
+  @apply bg-emerald-900/50 text-emerald-200;
+}
+.dark .verdict-prepare {
+  @apply bg-amber-900/50 text-amber-200;
+}
+.dark .verdict-act {
+  @apply bg-orange-900/50 text-orange-200;
+}
+.dark .verdict-escalate {
+  @apply bg-red-900/50 text-red-200;
+}
+
+/* Form controls inherit a dark field surface in dark mode (covers native select/number too). */
+.dark input,
+.dark select,
+.dark textarea {
+  @apply border-slate-700 bg-slate-900 text-slate-100;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  @apply text-slate-500;
 }

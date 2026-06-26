@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { fr } from '../i18n/fr';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export default function Login() {
   const { login } = useAuth();
@@ -24,19 +25,22 @@ export default function Login() {
 
   return (
     <div className="grid min-h-screen place-items-center px-4">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
       <form
         onSubmit={submit}
-        className="w-full max-w-sm rounded-xl border border-slate-300 bg-white p-6 shadow-sm"
+        className="w-full max-w-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm"
       >
         <h1 className="text-lg font-semibold">HDDE — {fr.auth.login}</h1>
-        <p className="mt-1 text-xs text-slatewarn">{fr.app.private}</p>
+        <p className="mt-1 text-xs text-slatewarn dark:text-slate-400">{fr.app.private}</p>
         <label className="mt-4 block text-sm font-medium">{fr.auth.email}</label>
         <input
-          type="email"
+          type="text"
           autoComplete="username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
           required
         />
         <label className="mt-3 block text-sm font-medium">{fr.auth.password}</label>
@@ -45,7 +49,7 @@ export default function Login() {
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
           required
         />
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}

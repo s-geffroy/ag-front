@@ -5,7 +5,11 @@ import { verifyPassword } from '../auth/password';
 import { issueSession, clearSession, SESSION_COOKIE } from '../auth/session';
 import { requireAuth, loginRateLimited, type AuthedRequest } from '../auth/middleware';
 
-const LoginInput = z.object({ email: z.string().email(), password: z.string().min(1).max(200) });
+// Identifier may be a plain username or an email — internal analyst accounts (ADR 0033).
+const LoginInput = z.object({
+  email: z.string().trim().min(1).max(320),
+  password: z.string().min(1).max(200),
+});
 
 export const authRouter = Router();
 

@@ -95,22 +95,22 @@ export default function CaseWorkspace() {
       }>(`/api/cases/${id}/enrichment/chokepoints?flow_type=${encodeURIComponent(flowType!)}`),
   });
 
-  if (!pack || !caseRow) return <div className="text-slatewarn">…</div>;
+  if (!pack || !caseRow) return <div className="text-slatewarn dark:text-slate-400">…</div>;
   const answeredBy = new Map((answers ?? []).map((a) => [a.question_id, a]));
 
   return (
     <div className="grid grid-cols-3 gap-6">
       {/* Left: case + interview */}
       <div className="col-span-2 space-y-6">
-        <section className="rounded-xl border border-slate-300 bg-white p-4">
+        <section className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <h1 className="text-lg font-semibold">{caseRow.title}</h1>
-          <p className="text-sm text-slatewarn">
+          <p className="text-sm text-slatewarn dark:text-slate-400">
             {caseRow.critical_actor_name} · {caseRow.critical_actor_type} · {caseRow.sector}
           </p>
           <p className="mt-2 text-sm">{caseRow.business_function_at_risk}</p>
         </section>
 
-        <section className="rounded-xl border border-slate-300 bg-white p-4">
+        <section className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <h2 className="font-semibold">{fr.interview.title}</h2>
           <div className="mt-3 space-y-5">
             {pack.interview_blocks
@@ -122,7 +122,9 @@ export default function CaseWorkspace() {
                 if (!qs.length) return null;
                 return (
                   <div key={block.id}>
-                    <h3 className="text-sm font-semibold text-slatewarn">{block.label_fr}</h3>
+                    <h3 className="text-sm font-semibold text-slatewarn dark:text-slate-400">
+                      {block.label_fr}
+                    </h3>
                     <div className="mt-2 space-y-3">
                       {qs.map((q) => (
                         <QuestionRow
@@ -140,23 +142,23 @@ export default function CaseWorkspace() {
           </div>
 
           {flowType && chokepoints && (
-            <div className="mt-4 rounded-md border border-sky-200 bg-sky-50 p-3">
-              <h3 className="text-sm font-semibold text-sky-900">
+            <div className="mt-4 rounded-md border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 p-3">
+              <h3 className="text-sm font-semibold text-sky-900 dark:text-sky-200">
                 Contexte chokepoints — flux « {flowType} »
               </h3>
-              <p className="text-xs text-sky-800">{chokepoints.note}</p>
+              <p className="text-xs text-sky-800 dark:text-sky-300">{chokepoints.note}</p>
               {chokepoints.available && chokepoints.candidates.length > 0 ? (
-                <ul className="mt-2 list-disc space-y-0.5 pl-4 text-xs text-sky-900">
+                <ul className="mt-2 list-disc space-y-0.5 pl-4 text-xs text-sky-900 dark:text-sky-200">
                   {chokepoints.candidates.map((k) => (
                     <li key={k.id}>
                       {k.canonical_name}
                       {k.family ? ` · ${k.family}` : ''}{' '}
-                      <span className="text-sky-700">(candidat — à valider)</span>
+                      <span className="text-sky-700 dark:text-sky-400">(candidat — à valider)</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="mt-1 text-xs text-sky-700">
+                <p className="mt-1 text-xs text-sky-700 dark:text-sky-400">
                   Aucun candidat (API non configurée ou aucun résultat).
                 </p>
               )}
@@ -167,7 +169,7 @@ export default function CaseWorkspace() {
 
       {/* Right: diagnostic + red team */}
       <div className="space-y-6">
-        <section className="rounded-xl border border-slate-300 bg-white p-4">
+        <section className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">{fr.diagnostic.title}</h2>
             <button
@@ -177,15 +179,15 @@ export default function CaseWorkspace() {
               {fr.diagnostic.generate}
             </button>
           </div>
-          {!latest && <p className="mt-3 text-sm text-slatewarn">—</p>}
+          {!latest && <p className="mt-3 text-sm text-slatewarn dark:text-slate-400">—</p>}
           {latest && (
             <DiagnosticPanel caseId={id!} packet={latest} dims={pack.dimensions} onChange={inval} />
           )}
         </section>
 
-        <section className="rounded-xl border border-slate-300 bg-white p-4">
+        <section className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <h2 className="font-semibold">{fr.redteam.title}</h2>
-          <div className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <div className="mt-2 rounded-md bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
             {fr.redteam.notEvidence}
           </div>
           <RedTeamRunner caseId={id!} personas={pack.personas} onRun={inval} />
@@ -230,14 +232,14 @@ function QuestionRow({
   });
 
   return (
-    <div className="rounded-md border border-slate-200 p-3">
+    <div className="rounded-md border border-slate-200 dark:border-slate-700 p-3">
       <p className="text-sm">{q.text_fr}</p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {q.type !== 'free_text' && q.answer_options && (
           <select
             value={norm}
             onChange={(e) => setNorm(e.target.value)}
-            className="rounded border border-slate-300 px-2 py-1 text-xs"
+            className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-xs"
           >
             {q.answer_options.map((o) => (
               <option key={o} value={o}>
@@ -249,7 +251,7 @@ function QuestionRow({
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="rounded border border-slate-300 px-2 py-1 text-xs"
+          className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-xs"
         >
           {ANSWER_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -257,7 +259,7 @@ function QuestionRow({
             </option>
           ))}
         </select>
-        <label className="flex items-center gap-1 text-xs text-slatewarn">
+        <label className="flex items-center gap-1 text-xs text-slatewarn dark:text-slate-400">
           {fr.interview.evidenceQuality}
           <input
             type="number"
@@ -265,7 +267,7 @@ function QuestionRow({
             max={5}
             value={ev}
             onChange={(e) => setEv(Number(e.target.value))}
-            className="w-14 rounded border border-slate-300 px-2 py-1"
+            className="w-14 rounded border border-slate-300 dark:border-slate-700 px-2 py-1"
           />
         </label>
       </div>
@@ -273,7 +275,7 @@ function QuestionRow({
         value={raw}
         onChange={(e) => setRaw(e.target.value)}
         placeholder="Réponse client / note expert…"
-        className="mt-2 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+        className="mt-2 w-full rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-sm"
         rows={2}
       />
       <button
@@ -318,7 +320,7 @@ function DiagnosticPanel({
         <span className={`chip verdict-${packet.operational_verdict}`}>
           {packet.operational_verdict}
         </span>
-        <span className="text-xs text-slatewarn">
+        <span className="text-xs text-slatewarn dark:text-slate-400">
           v{packet.version_number} · {fr.diagnostic.confidence}: {packet.confidence}
         </span>
         {packet.status === 'validated' ? (
@@ -326,13 +328,13 @@ function DiagnosticPanel({
         ) : null}
       </div>
       {packet.status !== 'validated' && (
-        <div className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <div className="rounded-md bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
           {fr.diagnostic.notValidated}
         </div>
       )}
       <div>
         <div className="font-medium">{fr.diagnostic.primary}</div>
-        <div className="text-slatewarn">
+        <div className="text-slatewarn dark:text-slate-400">
           {packet.primary_diagnosis}
           {packet.packet_json.cvi ? ` · CVI: ${packet.packet_json.cvi.vulnerability_level}` : ''}
         </div>
@@ -399,7 +401,7 @@ function Block({ title, items }: { title: string; items: string[] }) {
       <summary className="cursor-pointer font-medium">
         {title} ({items.length})
       </summary>
-      <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-slatewarn">
+      <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-slatewarn dark:text-slate-400">
         {items.map((it, i) => (
           <li key={i}>{it}</li>
         ))}
@@ -427,7 +429,7 @@ function RedTeamRunner({
       <select
         value={persona}
         onChange={(e) => setPersona(e.target.value)}
-        className="rounded border border-slate-300 px-2 py-1 text-xs"
+        className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-xs"
       >
         {personas.map((p) => (
           <option key={p.id} value={p.id}>
@@ -453,11 +455,11 @@ function SuggestionCard({ caseId, s, onReview }: { caseId: string; s: any; onRev
     onSuccess: onReview,
   });
   return (
-    <div className="rounded-md border border-slate-200 p-3 text-xs">
+    <div className="rounded-md border border-slate-200 dark:border-slate-700 p-3 text-xs">
       <div className="flex items-center justify-between">
         <span className="font-semibold">{s.persona}</span>
         <span
-          className={`chip ${s.status === 'pending' ? 'bg-amber-100 text-amber-800' : s.status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}
+          className={`chip ${s.status === 'pending' ? 'bg-amber-100 text-amber-800 dark:text-amber-200' : s.status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700 dark:text-slate-200'}`}
         >
           {s.status}
         </span>

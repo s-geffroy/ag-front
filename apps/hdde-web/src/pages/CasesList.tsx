@@ -69,7 +69,7 @@ export default function CasesList() {
       {open && (
         <form
           onSubmit={submit}
-          className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-slate-300 bg-white p-4"
+          className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4"
         >
           <Field name="title" label={fr.cases.title} required />
           <Field name="client_name" label={fr.cases.clientName} />
@@ -79,7 +79,7 @@ export default function CasesList() {
             <span className="font-medium">{fr.cases.actorType}</span>
             <select
               name="critical_actor_type"
-              className="mt-1 w-full rounded-md border border-slate-300 px-2 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 px-2 py-2 text-sm"
             >
               {ACTOR_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -99,21 +99,25 @@ export default function CasesList() {
         </form>
       )}
 
-      <div className="mt-5 divide-y divide-slate-200 rounded-xl border border-slate-300 bg-white">
-        {!cases?.length && <p className="px-4 py-6 text-sm text-slatewarn">{fr.cases.none}</p>}
+      <div className="mt-5 divide-y divide-slate-200 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+        {!cases?.length && (
+          <p className="px-4 py-6 text-sm text-slatewarn dark:text-slate-400">{fr.cases.none}</p>
+        )}
         {cases?.map((c) => (
           <Link
             key={c.id}
             to={`/cases/${c.id}`}
-            className="flex items-center justify-between px-4 py-3 hover:bg-slate-50"
+            className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <div>
               <div className="font-medium">{c.title}</div>
-              <div className="text-xs text-slatewarn">
+              <div className="text-xs text-slatewarn dark:text-slate-400">
                 {c.critical_actor_name} · {c.critical_actor_type} · {c.sector}
               </div>
             </div>
-            <span className="chip bg-slate-100 text-slate-700">{c.status}</span>
+            <span className="chip bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+              {c.status}
+            </span>
           </Link>
         ))}
       </div>
@@ -138,7 +142,7 @@ function Field({
       <input
         name={name}
         required={required}
-        className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+        className="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm"
       />
     </label>
   );
@@ -175,19 +179,22 @@ function LlmCostPanel() {
     { label: fr.usage.allTime, w: data.all_time },
   ];
   return (
-    <section className="mb-5 rounded-xl border border-slate-300 bg-white p-4">
+    <section className="mb-5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold">
-          {fr.usage.title} <span className="font-normal text-slatewarn">· {data.model}</span>
+          {fr.usage.title}{' '}
+          <span className="font-normal text-slatewarn dark:text-slate-400">· {data.model}</span>
         </h2>
-        {!data.llm_enabled && <span className="text-xs text-slatewarn">{fr.usage.disabled}</span>}
+        {!data.llm_enabled && (
+          <span className="text-xs text-slatewarn dark:text-slate-400">{fr.usage.disabled}</span>
+        )}
       </div>
       <div className="mt-3 grid grid-cols-4 gap-3">
         {cells.map((c) => (
-          <div key={c.label} className="rounded-lg bg-slate-50 p-3">
-            <div className="text-xs text-slatewarn">{c.label}</div>
+          <div key={c.label} className="rounded-lg bg-slate-50 dark:bg-slate-800/60 p-3">
+            <div className="text-xs text-slatewarn dark:text-slate-400">{c.label}</div>
             <div className="mt-1 text-lg font-semibold tabular-nums">{usd(c.w.cost_usd)}</div>
-            <div className="text-xs text-slatewarn">
+            <div className="text-xs text-slatewarn dark:text-slate-400">
               {c.w.calls} {fr.usage.calls} · {c.w.total_tokens.toLocaleString('fr-FR')} tok
             </div>
           </div>
