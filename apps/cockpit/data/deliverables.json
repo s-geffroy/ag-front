@@ -10,7 +10,7 @@
     "progress": 45,
     "deadline": "2026-09-15",
     "blocker": "Sources assurance maritime insuffisantes.",
-    "next_action": "Compléter le corpus assurance maritime avec 3 sources spécialisées.",
+    "next_action": "Valider les candidats-sources assurance (docs/evidence/mer-rouge-suez-assurance-candidates.md) : fournir les sites bloqués au bot, recouper ≥2 sources, passer sources_ok ; puis refonte académique du dossier (Méthode/Constructs/Scénarios/CVI/Limites).",
     "impact": "preuve_90_jours",
     "offer": "public",
     "quality_gate_status": "at_risk",

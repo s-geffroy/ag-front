@@ -117,8 +117,30 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
       une rotation reste la bonne hygiène (action manuelle côté admin de l'API Chokepoints). Voir la
       revue complète (commit `7024944`).
 
+## Workflow de publication — état (2026-06-27)
+
+Le site public est **en ligne** ; publier = rebuild (Caddy sert le `dist` monté). Durcissement livré
+(commits `143b09d`/`6d7cbd9`/`bbc1f5a`) :
+
+- **Garde-fou de publication** : flag `published` (atlas/dossiers, défaut `false`) filtré au build —
+  un contenu non revu reste hors du site public. Fiche + dossier **Mer Rouge = hors-ligne (en revue)**.
+- **Lecteur interne cockpit** (Tailscale) : `/lire/:type/:slug` + colonne « Lire » dans Quality Gates
+  pour relire un candidat avant publication.
+- **Conformité Charte de Munich** (ADR 0037) : contrôle machine bloquant au build/CI (`check:munich`)
+  + mécanisme d'erratum + checklist 10 contrôles définissant `compliance_done`.
+- **Fiche Atlas Mer Rouge** : seuils quantifiés + carte schématique livrés ; reste conformité + revue
+  humaine avant `published: true`.
+- **Candidats-sources assurance** collectés : `docs/evidence/mer-rouge-suez-assurance-candidates.md`
+  (*pending validation*).
+
 ## Prochaine action recommandée
 
-Socle (Phases 0–1) **terminé et vérifié**. **Revue** du socle, puis trancher l'ordre des apps
-(cockpit Phase 2 vs public Phase 3) et scaffolder l'app retenue. Le **contrat d'interface API** (back
-cockpit / endpoint lead) et le **remote GitHub** sont fournis par l'utilisateur au moment voulu.
+**Débloquer le dossier Mer Rouge / Suez** (`deliv_red_sea_suez_dossier`, jalon `at_risk` 2026-09-15) :
+
+1. **Valider les sources** (gate `sources_ok`) : fournir le contenu des sites bloqués au bot (S&P,
+   NorthStandard, PDF UNCTAD/IUMI — listés dans le registre), recouper chaque chiffre dans **≥ 2**
+   sources indépendantes, puis promouvoir les sources validées.
+2. **Refonte académique du dossier** : squelette Méthode / Constructs opérationnalisés / Données
+   sourcées / Scénarios formalisés / Analyse contradictoire / **CVI appliqué** / Limites / Références
+   normées — avec marqueurs `[À SOURCER]` partout où une preuve manque (cf. challenge du 2026-06-27).
+3. Une fois conforme (Munich + revue humaine) → `published: true` pour fiche puis dossier.
