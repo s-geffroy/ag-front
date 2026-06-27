@@ -76,7 +76,9 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
 - Seed de contenu = candidates pending validation (3 notes, 3 fiches Atlas, 1 dossier) + sources/confiance.
 - **Déployé via Caddy** (HTTPS auto Let's Encrypt) sur le VPS `72.61.101.1`, ports liés à l'IP publique
   (pas de conflit avec le tailscale serve du cockpit) — ADR 0010, runbook `docs/public-deploy.md`.
-- **En attente du repointage DNS** chez Hostinger (A `@`/`www` → `72.61.101.1`) pour l'émission du certificat.
+- **En ligne** : DNS repointé (A `@`/`www` → `72.61.101.1`), certificat Let's Encrypt émis, Caddy
+  sert `apps/public/dist` en HTTPS. `https://www.applied-geopolitics.com` répond 200. Pour publier du
+  contenu : rebuild (Caddy reprend le `dist` monté, sans redémarrage).
 - Lead capture : **branchée** sur l'endpoint auto-hébergé `POST /api/lead` (service `apps/lead-api`,
   derrière Caddy, same-origin) — zod + honeypot + rate-limit ; les leads alimentent le pipeline
   Acquisition du cockpit ; email SMTP optionnel (ADR 0006/0011). Repli `mailto` si réseau KO.
