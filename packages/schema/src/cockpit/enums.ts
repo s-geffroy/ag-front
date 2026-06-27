@@ -57,6 +57,13 @@ export const qualityGateStatuses = ['ok', 'at_risk', 'blocked', 'not_started'] a
 export const QualityGateStatus = z.enum(qualityGateStatuses);
 export type QualityGateStatus = z.infer<typeof QualityGateStatus>;
 
+// Per-control status for the Munich Charter checklist tracked on each deliverable (ADR 0037).
+// `na` = non applicable to this artifact. Machine-enforced controls are still tracked here for the
+// human view; the build/CI gate enforces them independently.
+export const munichStatuses = ['ok', 'todo', 'na'] as const;
+export const MunichStatus = z.enum(munichStatuses);
+export type MunichStatus = z.infer<typeof MunichStatus>;
+
 export const contactStages = [
   'identified',
   'to_contact',

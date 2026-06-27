@@ -53,7 +53,7 @@ export const munichControls: MunichControl[] = [
     duty: 'Pas de confusion avec pub/propagande',
     control:
       'Séparation éditorial / offres ; pas de sponsorisé déguisé ; le paywall ne déforme pas l’analyse',
-    mode: 'humain',
+    mode: 'mixte',
   },
   {
     n: 8,

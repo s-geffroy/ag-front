@@ -1,5 +1,13 @@
 import { z } from 'zod';
-import { DeliverableType, Offer, Pillar, Priority, QualityGateStatus, StatusId } from './enums';
+import {
+  DeliverableType,
+  MunichStatus,
+  Offer,
+  Pillar,
+  Priority,
+  QualityGateStatus,
+  StatusId,
+} from './enums';
 
 /** Methodological gates a deliverable must clear before it ships. */
 export const DeliverableGates = z.object({
@@ -32,6 +40,9 @@ export const Deliverable = z.object({
   offer: Offer,
   quality_gate_status: QualityGateStatus,
   gates: DeliverableGates,
+  // Per-control Munich Charter status, keyed by control number "1".."10" (ADR 0037). Optional —
+  // present on editorial artifacts (note / atlas_fiche / dossier); omitted elsewhere.
+  munich: z.record(MunichStatus).optional(),
   links: z.array(LinkRef).optional(),
   internal_notes: z.string().optional(),
 });

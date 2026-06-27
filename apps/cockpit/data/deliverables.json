@@ -22,6 +22,18 @@
       "human_review_done": false,
       "cvi_justified": false
     },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
     "links": [
       {
         "label": "Plan dossier",
@@ -56,7 +68,24 @@
       "human_review_done": false,
       "cvi_justified": false
     },
-    "links": [{ "label": "Fiche publiée (Atlas)", "url": "/atlas/mer-rouge-suez" }],
+    "munich": {
+      "1": "ok",
+      "2": "todo",
+      "3": "ok",
+      "4": "ok",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Fiche publiée (Atlas)",
+        "url": "/atlas/mer-rouge-suez"
+      }
+    ],
     "internal_notes": "Fiche 4–8 pages maximum. Production terminée le 2026-06-27 : 5 seuils d’alerte quantifiés (transit Suez, part déroutée vers le Cap, prime war-risk, incidents Bab el-Mandeb, durée de fermeture) + carte schématique du corridor (composant CorridorMap — géométrie schématique, sans valeur navigationnelle/juridique). Satisfait les 3 gates éditoriaux atlas_fiche (verdict / flux / seuils). Gates restants = jugement humain : compliance_done (vérifier disclaimers schématiques + frontière d’offre Basic/CVI 0–5 réservé) puis human_review_done ; ensuite passer status → ready → published."
   },
   {
@@ -81,6 +110,18 @@
       "compliance_done": false,
       "human_review_done": false,
       "cvi_justified": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
     },
     "links": [],
     "internal_notes": "Ne pas dériver vers géopolitique générale Indo-Pacifique."
