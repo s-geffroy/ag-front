@@ -127,11 +127,11 @@ Le site public est **en ligne** ; publier = rebuild (Caddy sert le `dist` monté
 - **Lecteur interne cockpit** (Tailscale) : `/lire/:type/:slug` + colonne « Lire » dans Quality Gates
   pour relire un candidat avant publication.
 - **Conformité Charte de Munich** (ADR 0037) : contrôle machine bloquant au build/CI (`check:munich`)
-  + mécanisme d'erratum + checklist 10 contrôles définissant `compliance_done`.
+  - mécanisme d'erratum + checklist 10 contrôles définissant `compliance_done`.
 - **Fiche Atlas Mer Rouge** : seuils quantifiés + carte schématique livrés ; reste conformité + revue
   humaine avant `published: true`.
 - **Candidats-sources assurance** collectés : `docs/evidence/mer-rouge-suez-assurance-candidates.md`
-  (*pending validation*).
+  (_pending validation_).
 
 ## Prochaine action recommandée
 

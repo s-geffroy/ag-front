@@ -29,7 +29,7 @@ cockpit. Tout artefact publié porte un **mécanisme de rectification** (errata 
 | 4   | Ne pas utiliser de méthodes déloyales                                                    | Collecte = candidats _pending validation_ ; pas de scraping derrière auth ni usurpation                                         | humain (process)                                 |
 | 5   | Rectifier toute information inexacte                                                     | **Bloc errata daté** présent sur chaque artefact publié + affordance « signaler une erreur »                                    | **machine** (champ `corrections` + rendu)        |
 | 6   | Garder le secret professionnel (sources)                                                 | Ne pas exposer de source confidentielle ; données restreintes → scope `tainted` interne (ADR 0013)                              | humain                                           |
-| 7   | Ne pas confondre le métier avec la publicité / la propagande                             | Séparation **éditorial / offres** Basic/Standard/Premium ; pas de sponsorisé déguisé ; le paywall ne déforme pas l'analyse      | humain (+ revue)                                 |
+| 7   | Ne pas confondre le métier avec la publicité / la propagande                             | Séparation **éditorial / offres** Basic/Standard/Premium ; pas de sponsorisé déguisé ; le paywall ne déforme pas l'analyse      | **machine** (lint CTA) + humain                  |
 | 8   | Pas de plagiat, calomnie, diffamation, accusation sans preuve ; respect de la vie privée | Attribution des citations ; aucune accusation non sourcée ; prudence sur acteurs nommés (lien modèle entreprise HDDE, ADR 0036) | humain                                           |
 | 9   | Ne jamais confondre le métier avec la corruption                                         | Déclaration de conflits d'intérêts ; indépendance vis-à-vis des clients / pilotes Premium                                       | humain                                           |
 | 10  | Refuser toute pression ; clause de conscience                                            | Gouvernance éditoriale ; traçabilité des décisions de publication (cockpit)                                                     | humain                                           |
@@ -44,12 +44,18 @@ Sur **chaque artefact publié** (`published: true`, ou note non `draft`) :
   _Limites / angles morts_ (le dossier répond à une question unique avec ses limites explicites).
 - **R3 — Rectificabilité (devoir 5)** : champ `corrections` présent (tableau, éventuellement vide) →
   le bloc errata est rendu sur la page.
+- **R7 — Séparation éditorial/commercial (devoir 7)** : aucune **sollicitation commerciale** dans le
+  corps éditorial (CTA d'achat, abonnement, tarif `€/mois`…). Cible la sollicitation au lecteur ; ne
+  flague **pas** le vocabulaire économique d'analyse (prime, surcoût, coût, valeur) ni la simple
+  divulgation de périmètre d'offre (« réservé à l'offre Standard »). Le paywall/CTA vit dans le chrome
+  (`/offres`, gabarit), pas dans le corps.
 
 Les violations **font échouer le build/CI** : un contenu non conforme ne peut pas être publié.
 
 ### Revue humaine (tracée au cockpit)
 
-Devoirs 2, 4, 6, 7, 8, 9, 10 : checklist affichée dans la page _Quality Gates_. `compliance_done` n'est
+Devoirs 2, 4, 6, 8, 9, 10 (et le volet humain de 1, 3, 7) : suivis **par livrable** dans la page
+_Quality Gates_ (matrice des 10 points). `compliance_done` n'est
 coché **qu'après** la revue de ces points par un humain — conformément aux garde-fous data-integrity
 (promotion = preuve validée par un humain).
 
@@ -59,6 +65,8 @@ coché **qu'après** la revue de ces points par un humain — conformément aux 
   par la revue humaine avant `compliance_done`.
 - Nouveau champ `corrections` sur les trois collections + composant `Corrections.astro`.
 - Nouvelle étape CI `check:munich`. Référence vivante : ce fichier + le panneau cockpit.
-- Limite assumée : R4/R7 (séparation éditorial/commercial) et la distinction fait/analyse restent
-  **humaines** — automatisables plus tard (lint de motifs promotionnels), non bloquantes aujourd'hui
-  pour éviter les faux positifs.
+- Suivi **par livrable** des 10 points dans le cockpit (champ `munich` sur `Deliverable` ; statut
+  `ok`/`todo`/`na` par contrôle, éditable depuis _Quality Gates_).
+- Limite assumée : R4 (méthodes de collecte) et la distinction **fait / analyse / opinion** restent
+  **humaines** — le lint R7 ne couvre que la sollicitation commerciale explicite, pas la frontière
+  sémantique fait/analyse, pour éviter les faux positifs.
