@@ -4,7 +4,9 @@ import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import Pill from '../../components/Pill.astro';
 import CviMeter from '../../components/CviMeter.astro';
+import CorridorMap from '../../components/CorridorMap.astro';
 import Sources from '../../components/Sources.astro';
+import Corrections from '../../components/Corrections.astro';
 import {
   accessLabel,
   accessTone,
@@ -14,7 +16,7 @@ import {
 } from '../../lib/labels';
 
 export async function getStaticPaths() {
-  const fiches = await getCollection('atlas');
+  const fiches = await getCollection('atlas', ({ data }) => data.published);
   return fiches.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
 }
 
@@ -52,7 +54,9 @@ const { Content } = await entry.render();
     <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
       Mis à jour le {formatDate(d.updated)} · {confidenceLabel[d.confidence]}
     </p>
+    {d.map ? <CorridorMap caption={d.map.caption} waypoints={d.map.waypoints} bypass={d.map.bypass} /> : null}
     <article class="prose-ag mt-8"><Content /></article>
     <Sources sources={d.sources} />
+    <Corrections corrections={d.corrections} />
   </Section>
 </Base>

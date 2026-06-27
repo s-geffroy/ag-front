@@ -7,6 +7,7 @@ import { QualityGatesPage } from './pages/QualityGatesPage';
 import { ScorecardPage } from './pages/ScorecardPage';
 import { AcquisitionPage } from './pages/AcquisitionPage';
 import { ExplorationPage } from './pages/ExplorationPage';
+import { ContentReaderPage } from './pages/ContentReaderPage';
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: 'scorecard', element: <ScorecardPage /> },
       { path: 'acquisition', element: <AcquisitionPage /> },
       { path: 'exploration', element: <ExplorationPage /> },
+      { path: 'lire/:type/:slug', element: <ContentReaderPage /> },
     ],
   },
 ]);

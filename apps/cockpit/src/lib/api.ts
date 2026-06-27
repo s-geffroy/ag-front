@@ -2,6 +2,14 @@ import type { Contact, Deliverable, Milestone, Scorecard } from '@ag/schema/cock
 import type { ChokepointDetail, ChokepointList } from '@ag/chokepoints';
 import type { CockpitState } from '../types';
 
+/** A candidate editorial artifact rendered for in-cockpit review (mirrors server/content.ts). */
+export interface RenderedContent {
+  type: 'atlas' | 'dossiers' | 'notes';
+  slug: string;
+  data: Record<string, unknown>;
+  html: string;
+}
+
 async function asJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let detail = '';
@@ -38,4 +46,8 @@ export const api = {
     ),
   getChokepointDetail: (id: string) =>
     fetch(`/api/chokepoints/${encodeURIComponent(id)}`).then(asJson<ChokepointDetail>),
+  getContent: (type: string, slug: string) =>
+    fetch(`/api/content/${encodeURIComponent(type)}/${encodeURIComponent(slug)}`).then(
+      asJson<RenderedContent>,
+    ),
 };

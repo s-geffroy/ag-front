@@ -9,13 +9,13 @@ import ChartFrame from '../components/ChartFrame.astro';
 import { doctrineChain, offers } from '../lib/site';
 import { accessLabel, accessTone, formatDate } from '../lib/labels';
 
-const atlas = (await getCollection('atlas'))
+const atlas = (await getCollection('atlas', ({ data }) => data.published))
   .sort((a, b) => a.data.priority.localeCompare(b.data.priority))
   .slice(0, 3);
 const notes = (await getCollection('notes', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
-const dossiers = (await getCollection('dossiers')).sort(
+const dossiers = (await getCollection('dossiers', ({ data }) => data.published)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 const lead = dossiers[0];

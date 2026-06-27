@@ -11,9 +11,21 @@ regions:
   - Mer Rouge
   - Corne de l’Afrique
 access: public
+published: false
+corrections: []
 updated: 2026-06-13
 confidence: moyen
 cvi_level: eleve
+map:
+  caption: Corridor Méditerranée → Bab el-Mandeb et contournement par le Cap
+  waypoints:
+    - { label: Port-Saïd, x: 20, y: 10, role: gate, align: right }
+    - { label: Canal de Suez, x: 33, y: 24, role: gate, align: right }
+    - { label: Bab el-Mandeb, x: 54, y: 44, role: chokepoint, align: right }
+    - { label: Aden / Djibouti, x: 72, y: 53, role: hub, align: right }
+  bypass:
+    label: Route du Cap (~+2 sem.)
+    path: M 20 10 C 0 26, 6 60, 38 60 S 66 56, 72 53
 sources:
   - label: Suez Canal Authority — statistiques de transit
     type: institutionnel
@@ -57,9 +69,20 @@ par navire. Réelle, mais limitée en capacité à grande échelle.
 
 ## Seuils d’alerte
 
-- Fermeture prolongée → activation systématique de la route du Cap.
-- Prime de risque au-delà d’un seuil → révision des choix d’armateurs.
-- Part de navires déroutés élevée → congestion sur les routes alternatives.
+Seuils de surveillance **proposés** (candidats en attente de validation) : chacun lie un
+indicateur observable à une bascule de régime et à l’action qu’elle implique. Les valeurs sont
+des repères de déclenchement, non des mesures validées.
+
+| Indicateur (source)                                         | Seuil de déclenchement                                                                     | Bascule / action                                                    |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| **Transits quotidiens** Suez (Suez Canal Authority / AIS)   | recul **> 30 %** sur 4 semaines glissantes                                                 | corridor en tension — suivi rapproché                               |
+| **Part déroutée** vers le Cap, conteneurs Asie–Europe (AIS) | **> 50 %** du tonnage                                                                      | la route du Cap devient le régime dominant — congestion attendue    |
+| **Prime de risque de guerre** (war-risk, Lloyd’s List)      | franchissement durable **> 1 %** de la valeur coque sur 2 semaines, ou retrait de capacité | viabilité commerciale dégradée — révision des choix d’armateurs     |
+| **Incidents sécuritaires** Bab el-Mandeb / golfe d’Aden     | **≥ 1 / semaine** sur 3 semaines consécutives                                              | menace persistante (et non ponctuelle)                              |
+| **Durée de fermeture** ou quasi-fermeture continue          | **> 4 semaines**                                                                           | bascule logistique structurelle (scénario « Perturbation durable ») |
+
+> Les seuils croisés (déroutement élevé **et** prime au-delà du repère) signalent un basculement
+> plus probablement durable que conjoncturel.
 
 ## Scénarios
 

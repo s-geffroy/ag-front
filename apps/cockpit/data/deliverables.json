@@ -26,6 +26,10 @@
       {
         "label": "Plan dossier",
         "url": "#"
+      },
+      {
+        "label": "Lire le dossier (revue interne)",
+        "url": "/dossiers/mer-rouge-suez"
       }
     ],
     "internal_notes": "Ne pas dépasser 25 pages. Garder l’angle décisionnel."
@@ -38,9 +42,9 @@
     "pillar": "production",
     "status": "review",
     "priority": "P0",
-    "progress": 70,
+    "progress": 85,
     "deadline": "2026-08-30",
-    "next_action": "Finaliser seuils d’alerte et carte statique.",
+    "next_action": "Production terminée (seuils + carte). Étape suivante : revue conformité puis validation humaine éditoriale avant ready/published.",
     "impact": "atlas",
     "offer": "basic",
     "quality_gate_status": "at_risk",
@@ -52,8 +56,8 @@
       "human_review_done": false,
       "cvi_justified": false
     },
-    "links": [],
-    "internal_notes": "Fiche 4–8 pages maximum."
+    "links": [{ "label": "Fiche publiée (Atlas)", "url": "/atlas/mer-rouge-suez" }],
+    "internal_notes": "Fiche 4–8 pages maximum. Production terminée le 2026-06-27 : 5 seuils d’alerte quantifiés (transit Suez, part déroutée vers le Cap, prime war-risk, incidents Bab el-Mandeb, durée de fermeture) + carte schématique du corridor (composant CorridorMap — géométrie schématique, sans valeur navigationnelle/juridique). Satisfait les 3 gates éditoriaux atlas_fiche (verdict / flux / seuils). Gates restants = jugement humain : compliance_done (vérifier disclaimers schématiques + frontière d’offre Basic/CVI 0–5 réservé) puis human_review_done ; ensuite passer status → ready → published."
   },
   {
     "id": "deliv_atlas_malacca_fiche",

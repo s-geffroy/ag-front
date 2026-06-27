@@ -16,6 +16,7 @@ blind_spot: >-
   La donnée de flux est fragmentée et souvent retardée ; la lecture en temps réel
   reste partielle.
 confidence: moyen
+corrections: []
 sources:
   - label: UNCTAD — Review of Maritime Transport
     type: institutionnel

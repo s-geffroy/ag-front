@@ -4,6 +4,7 @@ import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import Pill from '../../components/Pill.astro';
 import Sources from '../../components/Sources.astro';
+import Corrections from '../../components/Corrections.astro';
 import { accessLabel, accessTone, confidenceLabel, formatDate } from '../../lib/labels';
 
 export async function getStaticPaths() {
@@ -71,5 +72,6 @@ const { Content } = await entry.render();
     }
 
     <Sources sources={d.sources} />
+    <Corrections corrections={d.corrections} />
   </Section>
 </Base>

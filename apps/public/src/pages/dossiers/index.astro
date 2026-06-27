@@ -4,7 +4,7 @@ import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import EntryCard from '../../components/EntryCard.astro';
 
-const dossiers = (await getCollection('dossiers')).sort(
+const dossiers = (await getCollection('dossiers', ({ data }) => data.published)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 ---

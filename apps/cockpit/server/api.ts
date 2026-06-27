@@ -8,6 +8,7 @@ import {
   type ItemCollectionName,
 } from './store';
 import { chokepointsClient } from './chokepoints';
+import { InvalidSlugError, isContentType, readContent } from './content';
 
 /**
  * Read + narrow-write API over the E-light JSON model. No auth: the cockpit is reachable only on
@@ -57,6 +58,30 @@ export function createApiRouter(): Router {
       // Don't echo upstream URLs/messages to the client; log server-side instead.
       console.error('[cockpit] chokepoint detail upstream error', err);
       res.status(502).json({ error: 'upstream' });
+    }
+  });
+
+  // Read a candidate editorial artifact (atlas / dossier / note) so it can be reviewed in the
+  // cockpit before publication. Read-only; type allowlisted and slug format-checked in readContent.
+  r.get('/content/:type/:slug', async (req: Request, res: Response, next: NextFunction) => {
+    const { type, slug } = req.params;
+    if (!isContentType(type)) {
+      res.status(404).json({ error: 'unknown content type' });
+      return;
+    }
+    try {
+      const doc = await readContent(type, slug);
+      if (!doc) {
+        res.status(404).json({ error: 'not found' });
+        return;
+      }
+      res.json(doc);
+    } catch (err) {
+      if (err instanceof InvalidSlugError) {
+        res.status(400).json({ error: 'invalid slug' });
+        return;
+      }
+      next(err);
     }
   });
 

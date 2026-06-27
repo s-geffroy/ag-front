@@ -8,6 +8,8 @@ priority: P0
 regions:
   - Asie du Sud-Est
 access: public
+published: true
+corrections: []
 updated: 2026-06-13
 confidence: moyen
 cvi_level: eleve

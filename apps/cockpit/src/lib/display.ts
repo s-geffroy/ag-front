@@ -89,3 +89,18 @@ export function formatDate(iso?: string): string {
 export function daysUntil(iso: string, now = new Date()): number {
   return Math.round((new Date(iso).getTime() - now.getTime()) / 86_400_000);
 }
+
+/**
+ * Derive a readable content reference ({type, slug}) from a deliverable's links — a public-site URL
+ * like `/atlas/mer-rouge-suez` maps to the content folder `atlas` and slug `mer-rouge-suez`. Returns
+ * null when no link points at an editorial artifact (so the cockpit only shows "Lire" when readable).
+ */
+export function contentRefFromLinks(
+  links?: { url: string }[],
+): { type: 'atlas' | 'dossiers' | 'notes'; slug: string } | null {
+  for (const l of links ?? []) {
+    const m = /^\/(atlas|dossiers|notes)\/([a-z0-9][a-z0-9-]*)\/?$/.exec(l.url);
+    if (m) return { type: m[1] as 'atlas' | 'dossiers' | 'notes', slug: m[2] };
+  }
+  return null;
+}

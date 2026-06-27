@@ -1,0 +1,112 @@
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { api, type RenderedContent } from '@/lib/api';
+import { typeLabel } from '@/lib/display';
+import { Badge, Card, CardContent } from '@/components/ui';
+import { PageHeader } from '@/components/common';
+
+// Maps the content folder to the public-site URL prefix (identical here, but kept explicit).
+const publicPrefix: Record<string, string> = {
+  atlas: 'atlas',
+  dossiers: 'dossiers',
+  notes: 'notes',
+};
+
+export function ContentReaderPage() {
+  const { type = '', slug = '' } = useParams();
+  const [doc, setDoc] = useState<RenderedContent | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDoc(null);
+    setError(null);
+    api
+      .getContent(type, slug)
+      .then(setDoc)
+      .catch((e: unknown) => setError(String(e)));
+  }, [type, slug]);
+
+  if (error) {
+    return (
+      <div>
+        <BackLink />
+        <p className="mt-4 text-sm text-status-blocked">Lecture impossible : {error}</p>
+      </div>
+    );
+  }
+  if (!doc) {
+    return (
+      <div>
+        <BackLink />
+        <p className="mt-4 text-sm text-muted">Chargement…</p>
+      </div>
+    );
+  }
+
+  const data = doc.data;
+  const title = typeof data.title === 'string' ? data.title : slug;
+  // notes use `draft` (published unless draft); atlas/dossiers use `published` (off-public by default).
+  const isPublished = doc.type === 'notes' ? data.draft !== true : data.published === true;
+
+  return (
+    <div>
+      <BackLink />
+      <PageHeader
+        title={title}
+        subtitle={
+          <span className="inline-flex flex-wrap items-center gap-2">
+            <Badge tone="neutral">{typeLabel[typeKindLabel(doc.type)] ?? doc.type}</Badge>
+            {isPublished ? (
+              <Badge tone="on_track">En ligne</Badge>
+            ) : (
+              <Badge tone="at_risk">Hors-ligne · en revue</Badge>
+            )}
+            {isPublished ? (
+              <a
+                className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                href={`https://www.applied-geopolitics.com/${publicPrefix[doc.type]}/${doc.slug}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Voir en ligne <ExternalLink className="h-3 w-3" />
+              </a>
+            ) : null}
+          </span>
+        }
+      />
+
+      {!isPublished ? (
+        <p className="mb-4 rounded-md border border-status-at_risk/30 bg-status-at_risk/10 px-3 py-2 text-xs text-status-at_risk">
+          Aperçu interne — contenu <strong>candidat, non publié</strong>. Le site public ne sert que
+          les fiches/dossiers validés (gate de publication). À lire pour revue avant mise en ligne.
+        </p>
+      ) : null}
+
+      <Card>
+        <CardContent className="py-6">
+          {/* doc.html is sanitized server-side (sanitize-html in server/content.ts): no script,
+              event handlers or javascript: URLs survive — safe to inject here. */}
+          <article className="content-prose" dangerouslySetInnerHTML={{ __html: doc.html }} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function BackLink() {
+  return (
+    <Link
+      to="/quality"
+      className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent"
+    >
+      <ArrowLeft className="h-3 w-3" /> Quality Gates
+    </Link>
+  );
+}
+
+// The content folder ("atlas") differs from the deliverable type key ("atlas_fiche") used in
+// typeLabel; map folder → a key typeLabel knows, falling back to the folder name.
+function typeKindLabel(type: string): string {
+  return { atlas: 'atlas_fiche', dossiers: 'dossier', notes: 'note' }[type] ?? type;
+}

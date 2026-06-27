@@ -7,7 +7,7 @@ import Pill from '../../components/Pill.astro';
 import { familyLabel, humanize, priorityTone } from '../../lib/labels';
 import { loadChokepoints } from '../../lib/atlas-data';
 
-const fiches = (await getCollection('atlas')).sort((a, b) =>
+const fiches = (await getCollection('atlas', ({ data }) => data.published)).sort((a, b) =>
   a.data.priority.localeCompare(b.data.priority),
 );
 

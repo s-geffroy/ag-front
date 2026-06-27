@@ -1,0 +1,154 @@
+---
+/**
+ * Schematic corridor map — an admiralty-chart style diagram, NOT a geographic map.
+ * Waypoints and the bypass arc are plotted in an abstract 0–100 × 0–64 space; the
+ * figure carries no navigational, geodetic or legal precision (data-integrity rule:
+ * geometry is schematic unless explicitly validated). Driven entirely by frontmatter
+ * (`map` on an atlas fiche), so it stays declarative and reusable across corridors.
+ */
+interface Waypoint {
+  label: string;
+  x: number;
+  y: number;
+  role: 'gate' | 'chokepoint' | 'hub';
+  align: 'left' | 'right' | 'top' | 'bottom';
+}
+interface Props {
+  caption?: string;
+  waypoints: Waypoint[];
+  bypass?: { label: string; path: string };
+  class?: string;
+}
+const { caption, waypoints, bypass, class: cls = '' } = Astro.props;
+
+// The plotted route: ordered bearing line through every waypoint.
+const route = waypoints.map((w) => `${w.x},${w.y}`).join(' ');
+
+// Label placement derived from `align` — keeps the frontmatter terse.
+const place = (w: Waypoint) => {
+  switch (w.align) {
+    case 'right':
+      return { dx: 3.2, dy: 1, anchor: 'start' };
+    case 'left':
+      return { dx: -3.2, dy: 1, anchor: 'end' };
+    case 'top':
+      return { dx: 0, dy: -3, anchor: 'middle' };
+    default:
+      return { dx: 0, dy: 5, anchor: 'middle' };
+  }
+};
+const navy = 'rgb(var(--navy))';
+const accent = 'rgb(var(--accent))';
+const muted = 'rgb(var(--muted))';
+const line = 'rgb(var(--line))';
+---
+
+<figure class={`not-prose my-8 ${cls}`}>
+  <div class="relative border border-line bg-surface">
+    <!-- corner crop-marks, admiralty-chart instrument framing -->
+    <span class="pointer-events-none absolute left-0 top-0 h-3 w-3 border-l-2 border-t-2 border-navy/60"></span>
+    <span class="pointer-events-none absolute right-0 top-0 h-3 w-3 border-r-2 border-t-2 border-navy/60"></span>
+    <span class="pointer-events-none absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2 border-navy/60"></span>
+    <span class="pointer-events-none absolute bottom-0 right-0 h-3 w-3 border-b-2 border-r-2 border-navy/60"></span>
+
+    <svg
+      viewBox="0 0 100 64"
+      role="img"
+      aria-label={caption ?? 'Carte schématique du corridor'}
+      class="block h-auto w-full"
+    >
+      <!-- graticule -->
+      {
+        [10, 20, 30, 40, 50, 60, 70, 80, 90].map((gx) => (
+          <line x1={gx} y1="2" x2={gx} y2="62" stroke={line} stroke-width="0.15" />
+        ))
+      }
+      {
+        [10, 20, 30, 40, 50].map((gy) => (
+          <line x1="2" y1={gy} x2="98" y2={gy} stroke={line} stroke-width="0.15" />
+        ))
+      }
+
+      <!-- bypass arc (e.g. Cape route) -->
+      {
+        bypass && (
+          <path
+            d={bypass.path}
+            fill="none"
+            stroke={accent}
+            stroke-width="0.4"
+            stroke-dasharray="1.4 1.4"
+            opacity="0.7"
+          />
+        )
+      }
+
+      <!-- main corridor route -->
+      <polyline
+        points={route}
+        fill="none"
+        stroke={navy}
+        stroke-width="0.6"
+        stroke-dasharray="2 1.4"
+      />
+
+      <!-- waypoints -->
+      {
+        waypoints.map((w) => {
+          const p = place(w);
+          const isCp = w.role === 'chokepoint';
+          const isHub = w.role === 'hub';
+          return (
+            <g>
+              {isHub ? (
+                <circle cx={w.x} cy={w.y} r="1.5" fill="none" stroke={navy} stroke-width="0.5" />
+              ) : (
+                <rect
+                  x={w.x - 1.3}
+                  y={w.y - 1.3}
+                  width="2.6"
+                  height="2.6"
+                  transform={`rotate(45 ${w.x} ${w.y})`}
+                  fill={isCp ? accent : 'rgb(var(--surface))'}
+                  stroke={isCp ? accent : navy}
+                  stroke-width="0.5"
+                />
+              )}
+              <text
+                x={w.x + p.dx}
+                y={w.y + p.dy}
+                text-anchor={p.anchor}
+                font-size="2.4"
+                font-family="IBM Plex Mono, monospace"
+                letter-spacing="0.05"
+                fill={isCp ? accent : navy}
+                font-weight={isCp ? 600 : 400}
+              >
+                {w.label}
+              </text>
+            </g>
+          );
+        })
+      }
+
+      <!-- bypass label -->
+      {
+        bypass && (
+          <text
+            x="6"
+            y="60"
+            font-size="2.2"
+            font-family="IBM Plex Mono, monospace"
+            letter-spacing="0.05"
+            fill={muted}
+          >
+            {bypass.label}
+          </text>
+        )
+      }
+    </svg>
+  </div>
+  <figcaption class="mt-2 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
+    Schématique — sans valeur navigationnelle ni juridique{caption ? ` · ${caption}` : ''}
+  </figcaption>
+</figure>

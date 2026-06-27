@@ -1,10 +1,18 @@
-import { Check, X } from 'lucide-react';
+import { BookOpen, Check, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { Deliverable } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
 import { qualityAlerts } from '@/lib/calculations';
-import { typeLabel } from '@/lib/display';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { contentRefFromLinks, typeLabel } from '@/lib/display';
+import { munichControls, munichModeLabel, type MunichMode } from '@/lib/munich';
+import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { GateBadge, PageHeader } from '@/components/common';
+
+const munichModeTone: Record<MunichMode, 'on_track' | 'accent' | 'neutral'> = {
+  machine: 'on_track',
+  humain: 'neutral',
+  mixte: 'accent',
+};
 
 const GATES: { key: keyof Deliverable['gates']; label: string }[] = [
   { key: 'sources_ok', label: 'Sources' },
@@ -65,6 +73,7 @@ export function QualityGatesPage() {
                   </th>
                 ))}
                 <th className="px-4 py-2 font-medium">Statut</th>
+                <th className="px-2 py-2 font-medium">Lire</th>
               </tr>
             </thead>
             <tbody>
@@ -88,6 +97,21 @@ export function QualityGatesPage() {
                   })}
                   <td className="px-4 py-2">
                     <GateBadge status={d.quality_gate_status} />
+                  </td>
+                  <td className="px-2 py-2">
+                    {(() => {
+                      const ref = contentRefFromLinks(d.links);
+                      return ref ? (
+                        <Link
+                          to={`/lire/${ref.type}/${ref.slug}`}
+                          className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                        >
+                          <BookOpen className="h-3.5 w-3.5" /> Lire
+                        </Link>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}
@@ -114,6 +138,37 @@ export function QualityGatesPage() {
               </ul>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      {/* Munich Charter — operational definition of the `compliance_done` gate (ADR 0037) */}
+      <Card className="mt-5">
+        <CardHeader>
+          <CardTitle>Conformité Charte de Munich — définit « Conformité »</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-3 text-sm text-muted">
+            <span className="font-medium text-ink">compliance_done</span> n’est coché qu’une fois
+            les 10 contrôles satisfaits. Les contrôles « Auto » sont imposés au build/CI (
+            <code className="text-xs">check:munich</code>) — un contenu non conforme ne peut pas
+            être publié ; les autres relèvent de la revue humaine.
+          </p>
+          <ul className="space-y-2 text-sm">
+            {munichControls.map((c) => (
+              <li key={c.n} className="flex items-start gap-2 border-b border-line/60 pb-2">
+                <span className="mt-0.5 font-mono text-xs text-muted">
+                  {String(c.n).padStart(2, '0')}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-ink">{c.duty}</span>
+                    <Badge tone={munichModeTone[c.mode]}>{munichModeLabel[c.mode]}</Badge>
+                  </div>
+                  <p className="text-xs text-muted">{c.control}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
     </div>

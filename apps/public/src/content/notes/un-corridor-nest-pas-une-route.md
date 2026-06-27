@@ -16,6 +16,7 @@ blind_spot: >-
   La géométrie d’un corridor est schématique ; elle n’implique aucune précision
   navigationnelle ni juridique.
 confidence: eleve
+corrections: []
 sources:
   - label: Littérature académique sur les chokepoints maritimes
     type: analyse_secondaire

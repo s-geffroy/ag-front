@@ -54,3 +54,52 @@ body {
 ::selection {
   background: rgb(var(--accent) / 0.25);
 }
+
+/* Rendered editorial markdown in the content reader. Server-sanitized HTML; styled to read like a
+   document without pulling the Tailwind typography plugin. */
+.content-prose {
+  @apply text-[15px] leading-relaxed text-ink;
+}
+.content-prose > * + * {
+  @apply mt-4;
+}
+.content-prose h1 {
+  @apply mt-8 text-xl font-semibold tracking-tight;
+}
+.content-prose h2 {
+  @apply mt-8 border-b border-line pb-1 text-lg font-semibold tracking-tight;
+}
+.content-prose h3 {
+  @apply mt-6 text-base font-semibold;
+}
+.content-prose ul {
+  @apply list-disc space-y-1 pl-5;
+}
+.content-prose ol {
+  @apply list-decimal space-y-1 pl-5;
+}
+.content-prose a {
+  @apply text-accent underline underline-offset-2;
+}
+.content-prose strong {
+  @apply font-semibold text-ink;
+}
+.content-prose blockquote {
+  @apply border-l-2 border-accent/40 pl-4 text-muted;
+}
+.content-prose hr {
+  @apply border-line;
+}
+.content-prose code {
+  @apply rounded bg-subtle px-1 py-0.5 text-[13px];
+}
+.content-prose table {
+  @apply my-4 w-full border-collapse text-sm;
+}
+.content-prose th,
+.content-prose td {
+  @apply border border-line px-3 py-1.5 text-left align-top;
+}
+.content-prose th {
+  @apply bg-subtle font-semibold;
+}

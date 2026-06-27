@@ -17,6 +17,7 @@ blind_spot: >-
   Les primes sont fragmentées par courtier, navire et type de cargaison ; il n’existe
   pas de source publique unique en temps réel.
 confidence: moyen
+corrections: []
 sources:
   - label: Lloyd’s Market Association (bulletins de marché)
     type: presse_specialisee
