@@ -37,5 +37,4 @@ une part du trafic continue d’arbitrer en faveur de la route du Cap.
 - Implications pour les directions risques, supply chain et trésorerie.
 - Limites, angles morts et niveau de confiance.
 
-> Le résumé exécutif est public. Le dossier complet (15–25 pages) est accessible aux
-> offres payantes. Aucune affirmation structurante sans source ou marqueur d’incertitude.
+> Aucune affirmation structurante sans source ou marqueur d’incertitude.
