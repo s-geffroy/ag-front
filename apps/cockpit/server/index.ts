@@ -14,6 +14,9 @@ const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
 app.use('/api', createApiRouter());
+// Any unmatched /api/* request must fail as JSON 404 — never fall through to the SPA HTML below
+// (a stale server returning index.html makes the client's res.json() throw a cryptic SyntaxError).
+app.use('/api', (_req, res) => res.status(404).json({ error: 'unknown api route' }));
 
 // In production, also serve the built SPA. In dev, dist is absent and Vite serves the front end.
 const dist = resolve(here, '../dist');
