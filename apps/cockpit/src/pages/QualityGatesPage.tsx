@@ -1,4 +1,4 @@
-import { BookOpen, Check, Circle, Minus, X } from 'lucide-react';
+import { BookOpen, Check, Circle, Minus, Upload, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Deliverable, MunichStatus } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
@@ -93,7 +93,7 @@ export function QualityGatesPage() {
                   </th>
                 ))}
                 <th className="px-4 py-2 font-medium">Statut</th>
-                <th className="px-2 py-2 font-medium">Lire</th>
+                <th className="px-2 py-2 font-medium">Liens</th>
               </tr>
             </thead>
             <tbody>
@@ -119,19 +119,26 @@ export function QualityGatesPage() {
                     <GateBadge status={d.quality_gate_status} />
                   </td>
                   <td className="px-2 py-2">
-                    {(() => {
-                      const ref = contentRefFromLinks(d.links);
-                      return ref ? (
-                        <Link
-                          to={`/lire/${ref.type}/${ref.slug}`}
-                          className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
-                        >
-                          <BookOpen className="h-3.5 w-3.5" /> Lire
-                        </Link>
-                      ) : (
-                        <span className="text-muted">—</span>
-                      );
-                    })()}
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const ref = contentRefFromLinks(d.links);
+                        return ref ? (
+                          <Link
+                            to={`/lire/${ref.type}/${ref.slug}`}
+                            className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                          >
+                            <BookOpen className="h-3.5 w-3.5" /> Lire
+                          </Link>
+                        ) : null;
+                      })()}
+                      <Link
+                        to={`/depots?deliverable=${encodeURIComponent(d.id)}`}
+                        className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent"
+                        title="Fichiers déposés pour ce livrable"
+                      >
+                        <Upload className="h-3.5 w-3.5" /> Dépôts
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

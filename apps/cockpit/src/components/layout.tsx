@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  ClipboardCheck,
   Download,
   Globe2,
   KanbanSquare,
@@ -8,6 +9,7 @@ import {
   Moon,
   ShieldCheck,
   Sun,
+  Upload,
   Users,
 } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router-dom';
@@ -24,9 +26,11 @@ const NAV = [
   { to: '/kanban', label: 'Kanban', icon: KanbanSquare, end: false },
   { to: '/roadmap', label: 'Roadmap', icon: MapIcon, end: false },
   { to: '/quality', label: 'Quality Gates', icon: ShieldCheck, end: false },
+  { to: '/revue', label: 'Revue', icon: ClipboardCheck, end: false },
   { to: '/scorecard', label: 'Scorecard', icon: BarChart3, end: false },
   { to: '/acquisition', label: 'Acquisition', icon: Users, end: false },
   { to: '/exploration', label: 'Exploration', icon: Globe2, end: false },
+  { to: '/depots', label: 'Dépôts', icon: Upload, end: false },
 ];
 
 function Sidebar() {

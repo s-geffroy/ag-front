@@ -18,6 +18,11 @@ apps/lead-api/data/*.ndjson
 # contacts.seed.json; the live file is git-ignored and materialised from the seed on first run.
 apps/cockpit/data/contacts.json
 
+# Source deposits: uploaded evidence files (binary, possibly paywalled/confidential) + their index.
+# Never tracked; the dir is created at runtime by the cockpit server.
+apps/cockpit/data/uploads/
+apps/cockpit/data/uploads.json
+
 # HDDE runtime: SQLite DB (confidential client cases) + rendered exports. Never tracked.
 apps/hdde-api/data/*.sqlite
 apps/hdde-api/data/*.sqlite-*

@@ -62,6 +62,11 @@ export function ContentReaderPage() {
             ) : (
               <Badge tone="at_risk">Hors-ligne · en revue</Badge>
             )}
+            {doc.full ? (
+              <Badge tone="accent">Version complète (interne)</Badge>
+            ) : (
+              <Badge tone="neutral">Résumé public</Badge>
+            )}
             {isPublished ? (
               <a
                 className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
@@ -83,6 +88,17 @@ export function ContentReaderPage() {
         </p>
       ) : null}
 
+      {!doc.full ? (
+        <p className="mb-4 rounded-md border border-line bg-subtle px-3 py-2 text-xs text-muted">
+          Vous lisez le <strong>résumé public</strong> — la version complète interne n'existe pas
+          encore. Elle se rédige dans{' '}
+          <code>
+            apps/cockpit/content/{doc.type}/{doc.slug}.md
+          </code>{' '}
+          ; dès qu'elle existe, le cockpit l'affiche ici en entier.
+        </p>
+      ) : null}
+
       <Card>
         <CardContent className="py-6">
           {/* doc.html is sanitized server-side (sanitize-html in server/content.ts): no script,
@@ -97,10 +113,10 @@ export function ContentReaderPage() {
 function BackLink() {
   return (
     <Link
-      to="/quality"
+      to="/revue"
       className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent"
     >
-      <ArrowLeft className="h-3 w-3" /> Quality Gates
+      <ArrowLeft className="h-3 w-3" /> Revue
     </Link>
   );
 }

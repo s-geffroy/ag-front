@@ -8,7 +8,16 @@ import {
   type ItemCollectionName,
 } from './store';
 import { chokepointsClient } from './chokepoints';
-import { InvalidSlugError, isContentType, readContent } from './content';
+import { InvalidSlugError, isContentType, listContent, readContent } from './content';
+import {
+  addUploads,
+  getUpload,
+  listUploads,
+  removeUpload,
+  UploadMeta,
+  uploadHandler,
+  uploadPath,
+} from './uploads';
 
 /**
  * Read + narrow-write API over the E-light JSON model. No auth: the cockpit is reachable only on
@@ -61,6 +70,11 @@ export function createApiRouter(): Router {
     }
   });
 
+  // Review index: every editorial artifact (published + candidates) with its validation state.
+  r.get('/content', (_req: Request, res: Response) => {
+    res.json(listContent());
+  });
+
   // Read a candidate editorial artifact (atlas / dossier / note) so it can be reviewed in the
   // cockpit before publication. Read-only; type allowlisted and slug format-checked in readContent.
   r.get('/content/:type/:slug', async (req: Request, res: Response, next: NextFunction) => {
@@ -83,6 +97,60 @@ export function createApiRouter(): Router {
       }
       next(err);
     }
+  });
+
+  // --- Source deposits (uploaded evidence files) --------------------------------------------------
+  r.post('/uploads', (req: Request, res: Response, next: NextFunction) => {
+    uploadHandler.array('files', 10)(req, res, (err: unknown) => {
+      if (err) {
+        res.status(400).json({ error: err instanceof Error ? err.message : 'upload error' });
+        return;
+      }
+      const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+      if (files.length === 0) {
+        res.status(400).json({ error: 'aucun fichier' });
+        return;
+      }
+      const meta = UploadMeta.safeParse({
+        deliverable_id: req.body?.deliverable_id || undefined,
+        note: req.body?.note || undefined,
+      });
+      if (!meta.success) {
+        res.status(400).json({ error: 'métadonnée invalide' });
+        return;
+      }
+      try {
+        res.status(201).json(addUploads(files, meta.data, new Date().toISOString()));
+      } catch (e) {
+        next(e as Error);
+      }
+    });
+  });
+
+  r.get('/uploads', (req: Request, res: Response) => {
+    const did = typeof req.query.deliverable_id === 'string' ? req.query.deliverable_id : undefined;
+    res.json(listUploads(did));
+  });
+
+  r.get('/uploads/:id/raw', (req: Request, res: Response, next: NextFunction) => {
+    const entry = getUpload(req.params.id);
+    if (!entry) {
+      res.status(404).json({ error: 'not found' });
+      return;
+    }
+    // Force download (never inline): a stored HTML file can't run on the cockpit origin.
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.download(uploadPath(entry), entry.original_name, (err) => {
+      if (err && !res.headersSent) next(err as Error);
+    });
+  });
+
+  r.delete('/uploads/:id', (req: Request, res: Response) => {
+    if (!removeUpload(req.params.id)) {
+      res.status(404).json({ error: 'not found' });
+      return;
+    }
+    res.json({ removed: true });
   });
 
   // Whole-scorecard write (metric values are edited together).
