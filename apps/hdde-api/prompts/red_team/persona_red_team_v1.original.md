@@ -71,8 +71,6 @@ Your task is to attack the provisional diagnosis from a specific persona.
     "could_lower_verdict": false,
     "reason": "..."
   },
-  "do_not_conclude": [
-    "..."
-  ]
+  "do_not_conclude": ["..."]
 }
 ```

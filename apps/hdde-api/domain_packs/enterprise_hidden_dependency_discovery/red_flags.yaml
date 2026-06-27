@@ -19,4 +19,4 @@ red_flags:
     message_fr: Aucun seuil d’action défini.
   - id: llm_output_unvalidated
     severity: 5
-    message_fr: "Suggestion LLM non validée : ne pas utiliser comme preuve."
+    message_fr: 'Suggestion LLM non validée : ne pas utiliser comme preuve.'

@@ -42,7 +42,16 @@ questions:
     required: true
     type: categorical
     text_fr: Si cet acteur devient indisponible, qu’est-ce qui casse en premier ?
-    answer_options: [production, delivery, compliance, financing, customer_relationship, technology_access, unknown]
+    answer_options:
+      [
+        production,
+        delivery,
+        compliance,
+        financing,
+        customer_relationship,
+        technology_access,
+        unknown,
+      ]
     targets:
       dimensions:
         - id: flow_criticality_score
@@ -56,7 +65,19 @@ questions:
     required: true
     type: categorical
     text_fr: Quel flux concret cet acteur rend-il possible ?
-    answer_options: [goods, energy, data, finance, service, software, certification, transport, insurance, unknown]
+    answer_options:
+      [
+        goods,
+        energy,
+        data,
+        finance,
+        service,
+        software,
+        certification,
+        transport,
+        insurance,
+        unknown,
+      ]
     targets:
       patterns:
         - id: critical_flow_dependency
