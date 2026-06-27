@@ -60,4 +60,29 @@ describe('checkArtifact', () => {
     const issues = checkArtifact('dossiers', noCorr, okDossier.body);
     expect(issues.some((i) => i.startsWith('R3'))).toBe(true);
   });
+
+  it('R7: flags sales solicitation in the editorial body', () => {
+    for (const body of [
+      '## Résumé\nPour aller plus loin, abonnez-vous à notre offre.\n## Limites\n…',
+      '## Résumé\nDemandez l’accès au dossier complet.\n## Limites\n…',
+      '## Résumé\nDécouvrez notre offre Premium à 99 €/mois.\n## Limites\n…',
+      '## Résumé\nSouscrivez dès maintenant.\n## Limites\n…',
+    ]) {
+      expect(checkArtifact('dossiers', okDossier.data, body).some((i) => i.startsWith('R7'))).toBe(
+        true,
+      );
+    }
+  });
+
+  it('R7: does NOT flag economic analysis nor neutral tier disclosure', () => {
+    for (const body of [
+      '## Résumé\nLa prime de risque atteint 1 % de la valeur coque ; surcoût de 400 000 $ par voyage.\n## Limites\n…',
+      '## Résumé\nLe scoring CVI 0–5 est réservé à l’offre Standard ; version publique Basic.\n## Limites\n…',
+      '## Résumé\nLe tarif de fret spot a doublé sur la route du Cap.\n## Limites\n…',
+    ]) {
+      expect(checkArtifact('dossiers', okDossier.data, body).some((i) => i.startsWith('R7'))).toBe(
+        false,
+      );
+    }
+  });
 });
