@@ -4,8 +4,9 @@ import { AlertTriangle, Swords } from 'lucide-react';
 import type { Deliverable, DeliverableType, StatusId } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
 import { applyFilter, emptyFilter, groupByStatus, type KanbanFilter } from '@/lib/filters';
-import { contentRefFromLinks, formatDate, gateLabel, typeLabel } from '@/lib/display';
+import { contentRefFromLinks, formatDate, gateLabel, pillarLabel, typeLabel } from '@/lib/display';
 import { contradictionForDeliverable, maxSeverity, severityTone } from '@/lib/contradiction';
+import { outputByType } from '@/lib/outputs';
 import {
   Badge,
   Button,
@@ -100,11 +101,15 @@ export function DeliverableBoard({
             }
           >
             <option value="">Tous les types</option>
-            {state.config.types.map((t) => (
-              <option key={t} value={t}>
-                {typeLabel[t] ?? t}
-              </option>
-            ))}
+            {/* Only types that actually have deliverables — avoids listing the 11 declared types when
+                most are unused. */}
+            {state.config.types
+              .filter((t) => state.deliverables.some((d) => d.type === t))
+              .map((t) => (
+                <option key={t} value={t}>
+                  {typeLabel[t] ?? t}
+                </option>
+              ))}
           </select>
         ) : null}
         <Button
@@ -195,17 +200,34 @@ function DeliverableDetail({
 
   const contentRef = contentRefFromLinks(draft.links);
   const report = state ? contradictionForDeliverable(state.contradictions, draft) : undefined;
+  const space = state ? outputByType(state.config, draft.type) : undefined;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-1.5">
         <PriorityBadge priority={draft.priority} />
         <TypeBadge type={draft.type} />
+        <Badge tone="neutral">{pillarLabel[draft.pillar] ?? draft.pillar}</Badge>
         <OfferBadge offer={draft.offer} />
         <GateBadge status={draft.quality_gate_status} />
       </div>
 
       <p className="text-sm text-muted">{draft.description}</p>
+
+      {/* Where this deliverable lives beyond the pipeline. Editorial types have a dedicated workspace;
+          others (site, prospection, …) are tracked only here. */}
+      {space ? (
+        <Link
+          to={`/sorties/${space.slug}`}
+          className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+        >
+          Espace de sortie : {space.label}
+        </Link>
+      ) : (
+        <p className="text-xs text-muted">
+          Pas d'espace dédié — ce type est suivi uniquement dans le pipeline global.
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div>

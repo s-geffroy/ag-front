@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download } from 'lucide-react';
+import { Download, Upload } from 'lucide-react';
 import { api, type UploadEntry } from '@/lib/api';
 import { useCockpit } from '@/store';
 import { Badge, Card, CardContent } from '@/components/ui';
@@ -36,16 +36,26 @@ export function UploadsList({ deliverableIds }: { deliverableIds?: string[] }) {
   const ids = deliverableIds ? new Set(deliverableIds) : null;
   const rows = ids ? uploads.filter((u) => u.deliverable_id && ids.has(u.deliverable_id)) : uploads;
 
+  // Deep-link the deposit tool to this deliverable when the scope is a single one; otherwise open the
+  // general Dépôts tool. Deposits/deletions live there by design — this view is read-only.
+  const depotHref =
+    deliverableIds && deliverableIds.length === 1
+      ? `/outils/depots?deliverable=${encodeURIComponent(deliverableIds[0])}`
+      : '/outils/depots';
+
   return (
     <div>
-      <p className="mb-3 text-sm text-muted">
-        Sources rattachées aux livrables de ce type (lecture seule). Pour déposer ou retirer un
-        fichier, utilisez l’outil{' '}
-        <Link to="/outils/depots" className="text-accent hover:underline">
-          Dépôts
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted">
+          Sources rattachées aux livrables de ce type — <strong>lecture seule</strong>.
+        </p>
+        <Link
+          to={depotHref}
+          className="inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-ink hover:bg-subtle"
+        >
+          <Upload className="h-3.5 w-3.5" /> Déposer / gérer dans Dépôts
         </Link>
-        .
-      </p>
+      </div>
       <Card>
         <CardContent className="px-0">
           {rows.length === 0 ? (

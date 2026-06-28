@@ -6,7 +6,7 @@ export function PipelinePage() {
     <div className="flex h-full flex-col">
       <PageHeader
         title="Pipeline de production"
-        subtitle="Avancement de toutes les sorties — du backlog au publié. Filtrable par type."
+        subtitle="Avancement de tous les livrables — du backlog au publié, filtrable par type. Les types éditoriaux ont aussi un espace dédié (lien dans le détail) ; les autres (site, prospection…) ne sont suivis qu'ici."
       />
       <div className="min-h-0 flex-1">
         <DeliverableBoard showTypeFilter />

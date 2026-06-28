@@ -19,6 +19,12 @@ export function outputBySlug(config: Config, slug: string): OutputTypeDef | unde
   return config.output_types.find((o) => o.slug === slug);
 }
 
+/** Find the output-type definition for a deliverable type (e.g. 'dossier'); undefined when the type
+ *  has no dedicated workspace (it is then tracked only in the global pipeline). */
+export function outputByType(config: Config, type: string): OutputTypeDef | undefined {
+  return config.output_types.find((o) => o.type === type);
+}
+
 /** Find the output-type definition for a content folder (e.g. 'atlas'), used by the reader's back link. */
 export function outputByContentType(
   config: Config,
