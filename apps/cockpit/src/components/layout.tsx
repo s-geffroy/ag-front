@@ -1,12 +1,14 @@
 import {
   BarChart3,
   ClipboardCheck,
+  Compass,
   Download,
   Globe2,
   KanbanSquare,
   LayoutDashboard,
   Map as MapIcon,
   Moon,
+  ShieldCheck,
   Sun,
   TrendingUp,
   Upload,
@@ -70,43 +72,74 @@ function Sidebar() {
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface">
-      <div className="border-b border-line px-4 py-4">
-        <div className="text-sm font-semibold leading-tight">Applied Geopolitics</div>
-        <div className="text-xs text-muted">Cockpit de déploiement</div>
+      {/* Brand lockup — instrument tile + wordmark */}
+      <div className="flex items-center gap-2.5 border-b border-line px-4 py-4">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-accent/30 bg-accent/10 text-accent">
+          <Compass className="h-4 w-4" />
+        </span>
+        <div className="min-w-0">
+          <div className="truncate text-sm font-semibold leading-tight tracking-tight">
+            Applied Geopolitics
+          </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
+            Cockpit de déploiement
+          </div>
+        </div>
       </div>
-      <nav className="flex-1 space-y-3 overflow-y-auto p-2">
+
+      <nav className="flex-1 space-y-5 overflow-y-auto px-2 py-4">
         {sections.map((section, i) => (
           <div key={section.title ?? `section-${i}`} className="space-y-0.5">
             {section.title ? (
-              <div className="px-2.5 pb-0.5 pt-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
-                {section.title}
+              <div className="flex items-center gap-2 px-2.5 pb-1.5">
+                <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+                  {section.title}
+                </span>
+                <span className="h-px flex-1 bg-line" />
               </div>
             ) : null}
             {section.items.map(({ to, label, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium',
-                    isActive
-                      ? 'bg-accent/10 text-accent'
-                      : 'text-muted hover:bg-subtle hover:text-ink',
-                  )
-                }
-              >
-                <Icon className="h-4 w-4" />
-                {label}
+              <NavLink key={to} to={to} end={end} className="group relative block">
+                {({ isActive }) => (
+                  <span
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-accent/10 text-accent'
+                        : 'text-muted hover:bg-subtle hover:text-ink',
+                    )}
+                  >
+                    {/* plotted waypoint — the active bearing marker */}
+                    <span
+                      className={cn(
+                        'absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-accent transition-all',
+                        isActive ? 'h-5 w-[3px] opacity-100' : 'h-3 w-[3px] opacity-0',
+                      )}
+                    />
+                    <Icon
+                      className={cn(
+                        'h-4 w-4 shrink-0 transition-colors',
+                        isActive ? 'text-accent' : 'text-muted group-hover:text-ink',
+                      )}
+                    />
+                    <span className="truncate">{label}</span>
+                  </span>
+                )}
               </NavLink>
             ))}
           </div>
         ))}
       </nav>
-      <div className="border-t border-line px-4 py-3 text-[11px] leading-snug text-muted">
-        Interne · Tailscale uniquement.
-        <br />
-        Jamais exposé publiquement.
+
+      {/* Tailnet status */}
+      <div className="border-t border-line px-4 py-3">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-ink">
+          <ShieldCheck className="h-3.5 w-3.5 text-status-on_track" />
+          Tailnet privé
+        </div>
+        <div className="mt-0.5 text-[10px] leading-snug text-muted">
+          Tailscale uniquement · jamais exposé publiquement
+        </div>
       </div>
     </aside>
   );
