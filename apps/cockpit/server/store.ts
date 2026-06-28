@@ -5,6 +5,7 @@ import { z } from 'zod';
 import {
   Config,
   Contact,
+  Contradictions,
   Deliverable,
   Milestone,
   QualityGates,
@@ -22,6 +23,7 @@ export const collectionSchemas = {
   metrics: Scorecard,
   contacts: z.array(Contact),
   quality_gates: QualityGates,
+  contradictions: Contradictions,
 } as const;
 
 export type CollectionName = keyof typeof collectionSchemas;
@@ -130,13 +132,15 @@ export async function mutateCollection<N extends CollectionName>(
 }
 
 export async function readState() {
-  const [config, deliverables, milestones, metrics, contacts, quality_gates] = await Promise.all([
-    readCollection('config'),
-    readCollection('deliverables'),
-    readCollection('milestones'),
-    readCollection('metrics'),
-    readCollection('contacts'),
-    readCollection('quality_gates'),
-  ]);
-  return { config, deliverables, milestones, metrics, contacts, quality_gates };
+  const [config, deliverables, milestones, metrics, contacts, quality_gates, contradictions] =
+    await Promise.all([
+      readCollection('config'),
+      readCollection('deliverables'),
+      readCollection('milestones'),
+      readCollection('metrics'),
+      readCollection('contacts'),
+      readCollection('quality_gates'),
+      readCollection('contradictions'),
+    ]);
+  return { config, deliverables, milestones, metrics, contacts, quality_gates, contradictions };
 }

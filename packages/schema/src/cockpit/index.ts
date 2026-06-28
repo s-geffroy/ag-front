@@ -5,4 +5,5 @@ export * from './metric';
 export * from './contact';
 export * from './lead';
 export * from './quality-gate';
+export * from './contradiction';
 export * from './config';

@@ -7,6 +7,7 @@ import { outputByContentType } from '@/lib/outputs';
 import { useCockpit } from '@/store';
 import { Badge, Card, CardContent } from '@/components/ui';
 import { PageHeader } from '@/components/common';
+import { ContradictionPanel } from '@/components/quality/ContradictionPanel';
 
 // Maps the content folder to the public-site URL prefix (identical here, but kept explicit).
 const publicPrefix: Record<string, string> = {
@@ -108,6 +109,10 @@ export function ContentReaderPage() {
           <article className="content-prose" dangerouslySetInnerHTML={{ __html: doc.html }} />
         </CardContent>
       </Card>
+
+      <div className="mt-6">
+        <ContradictionPanel contentType={doc.type} slug={doc.slug} />
+      </div>
     </div>
   );
 }

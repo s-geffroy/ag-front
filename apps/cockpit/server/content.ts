@@ -88,18 +88,18 @@ export function listContent(): ContentSummary[] {
   return out;
 }
 
-export async function readContent(
+/** Locate and read a document's raw file, preferring the internal full version. Same path safety as
+ *  the reader: slug format-checked + resolved path asserted inside the type directory. */
+async function readRawDoc(
   type: ContentType,
   slug: string,
-): Promise<RenderedContent | null> {
+): Promise<{ raw: string; full: boolean } | null> {
   if (!SLUG_RE.test(slug)) throw new InvalidSlugError();
   // Prefer the internal full version; fall back to the public abstract.
   const sources = [
     { dir: INTERNAL_DIR, full: true },
     { dir: CONTENT_DIR, full: false },
   ];
-  let raw: string | null = null;
-  let full = false;
   for (const s of sources) {
     const base = resolve(s.dir, type);
     const file = resolve(base, `${slug}.md`);
@@ -107,17 +107,36 @@ export async function readContent(
     const rel = relative(base, file);
     if (rel.startsWith('..') || isAbsolute(rel)) throw new InvalidSlugError();
     try {
-      raw = await readFile(file, 'utf8');
-      full = s.full;
-      break;
+      return { raw: await readFile(file, 'utf8'), full: s.full };
     } catch (err) {
       if ((err as NodeJS.ErrnoException)?.code === 'ENOENT') continue;
       throw err;
     }
   }
-  if (raw === null) return null;
+  return null;
+}
 
-  const { data, content } = matter(raw);
+/** Raw markdown body + title for a document (frontmatter stripped). Used to feed the editorial
+ *  contradiction LLM the actual text — never the sanitized HTML (ADR 0039). */
+export async function readContentSource(
+  type: ContentType,
+  slug: string,
+): Promise<{ title: string; body: string; full: boolean } | null> {
+  const found = await readRawDoc(type, slug);
+  if (!found) return null;
+  const { data, content } = matter(found.raw);
+  return { title: String(data.title ?? slug), body: content, full: found.full };
+}
+
+export async function readContent(
+  type: ContentType,
+  slug: string,
+): Promise<RenderedContent | null> {
+  const found = await readRawDoc(type, slug);
+  if (found === null) return null;
+  const { full } = found;
+
+  const { data, content } = matter(found.raw);
   // GFM (tables, etc.) is on by default in marked. Even though the markdown is repo-authored and the
   // surface is tailnet-only, we sanitize the rendered HTML server-side (defense in depth) so the
   // endpoint can never emit script/handlers/javascript: URLs to the client.

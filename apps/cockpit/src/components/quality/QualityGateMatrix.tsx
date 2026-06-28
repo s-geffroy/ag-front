@@ -1,10 +1,11 @@
-import { BookOpen, Check, Upload, X } from 'lucide-react';
+import { BookOpen, Swords, Upload, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Deliverable, DeliverableType } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
 import { qualityAlerts } from '@/lib/calculations';
 import { contentRefFromLinks, typeLabel } from '@/lib/display';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { contradictionForDeliverable, maxSeverity, severityTone } from '@/lib/contradiction';
+import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { GateBadge } from '@/components/common';
 
 const GATES: { key: keyof Deliverable['gates']; label: string }[] = [
@@ -94,14 +95,25 @@ export function QualityGateMatrix({ typeFilter }: { typeFilter?: DeliverableType
                     <div className="flex items-center gap-3">
                       {(() => {
                         const ref = contentRefFromLinks(d.links);
-                        return ref ? (
+                        if (!ref) return null;
+                        const report = contradictionForDeliverable(state.contradictions, d);
+                        return (
                           <Link
                             to={`/lire/${ref.type}/${ref.slug}`}
                             className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                            title="Lire le document et sa contradiction red-team"
                           >
                             <BookOpen className="h-3.5 w-3.5" /> Lire
+                            {report ? (
+                              <Badge
+                                tone={severityTone(maxSeverity(report))}
+                                title={`Red-team : ${report.findings.length} faille(s), sévérité max ${maxSeverity(report)}, ${report.status === 'reviewed' ? 'examiné' : 'à examiner'}`}
+                              >
+                                <Swords className="h-3 w-3" /> {maxSeverity(report)}
+                              </Badge>
+                            ) : null}
                           </Link>
-                        ) : null;
+                        );
                       })()}
                       <Link
                         to={`/outils/depots?deliverable=${encodeURIComponent(d.id)}`}

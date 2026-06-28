@@ -14,7 +14,8 @@ The repo ships **three UIs**:
   operational deployment cockpit tracking the launch, organised by métier: **Accueil** (cross-domain
   home), **Suivi du projet** (pipeline, roadmap, KPIs projet), **Gestion commerciale** (acquisition,
   KPIs commerciaux), **Espaces de sortie** (one config-driven workspace per editorial output type —
-  Dossiers, Fiches Atlas, Notes, …; each bundles production board, gates + Munich, revue, sources),
+  Dossiers, Fiches Atlas, Notes, …; each bundles production board, gates + Munich + LLM contradiction
+  (ADR 0039), revue, sources),
   and **Outils** (exploration, dépôts). Output workspaces are driven by `config.json#output_types`
   so a new output type is a data change. Never exposed publicly.
 - **HDDE** (Hidden Dependency Discovery Engine) → `hdde.applied-geopolitics.com`: **public-Internet

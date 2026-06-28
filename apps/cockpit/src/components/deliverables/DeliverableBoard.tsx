@@ -1,10 +1,13 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, Swords } from 'lucide-react';
 import type { Deliverable, DeliverableType, StatusId } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
 import { applyFilter, emptyFilter, groupByStatus, type KanbanFilter } from '@/lib/filters';
-import { formatDate, gateLabel, typeLabel } from '@/lib/display';
+import { contentRefFromLinks, formatDate, gateLabel, typeLabel } from '@/lib/display';
+import { contradictionForDeliverable, maxSeverity, severityTone } from '@/lib/contradiction';
 import {
+  Badge,
   Button,
   inputClass,
   Label,
@@ -186,8 +189,12 @@ function DeliverableDetail({
   statuses: { id: string; label: string }[];
   onSave: (d: Deliverable) => Promise<void>;
 }) {
+  const { state } = useCockpit();
   const [draft, setDraft] = useState<Deliverable>(deliverable);
   const set = (patch: Partial<Deliverable>) => setDraft((d) => ({ ...d, ...patch }));
+
+  const contentRef = contentRefFromLinks(draft.links);
+  const report = state ? contradictionForDeliverable(state.contradictions, draft) : undefined;
 
   return (
     <div className="space-y-4">
@@ -284,6 +291,42 @@ function DeliverableDetail({
           méthodologiquement.
         </p>
       </div>
+
+      {/* Red-team state for the linked document, so the `contradiction_done` gate above isn't ticked
+          blind. Running/reading happens in the reader (ADR 0039). */}
+      {contentRef ? (
+        <div className="rounded-md border border-line px-3 py-2.5">
+          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted">
+            <Swords className="h-3.5 w-3.5" /> Contradiction red-team
+          </div>
+          {report ? (
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <Badge tone={report.status === 'reviewed' ? 'on_track' : 'at_risk'}>
+                {report.status === 'reviewed' ? 'examiné' : 'à examiner'}
+              </Badge>
+              <Badge tone={severityTone(maxSeverity(report))}>
+                {report.findings.length} faille(s) · max {maxSeverity(report)}
+              </Badge>
+              <Link
+                to={`/lire/${contentRef.type}/${contentRef.slug}`}
+                className="text-xs text-accent hover:underline"
+              >
+                Ouvrir le rapport
+              </Link>
+            </div>
+          ) : (
+            <p className="text-xs text-muted">
+              Aucune passe lancée.{' '}
+              <Link
+                to={`/lire/${contentRef.type}/${contentRef.slug}`}
+                className="text-accent hover:underline"
+              >
+                Lancer dans le lecteur
+              </Link>
+            </p>
+          )}
+        </div>
+      ) : null}
 
       <div className="flex justify-end gap-2 pt-2">
         <Button onClick={() => void onSave(draft)}>Enregistrer</Button>

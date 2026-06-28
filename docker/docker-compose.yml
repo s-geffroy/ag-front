@@ -49,6 +49,11 @@ services:
       CHOKEPOINTS_API_URL: ${CHOKEPOINTS_API_URL:-https://srv1305127.tail880531.ts.net/api}
       CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN_TAINTED:-}
       CHOKEPOINTS_INCLUDE_TAINTED: 'true'
+      # Editorial contradiction / red team (ADR 0039). Server-side only; the key never reaches the
+      # browser. Opt-in: with COCKPIT_LLM_ENABLED unset (or no key) the tool returns an offline facade.
+      LLM_ENABLED: ${COCKPIT_LLM_ENABLED:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
     ports:
       - '127.0.0.1:8787:8787'
     restart: unless-stopped

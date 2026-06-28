@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Deliverable } from './cockpit/index';
+import { ContradictionReport, Deliverable } from './cockpit/index';
 import { Corridor, Provenance } from './content/index';
 
 describe('cockpit/Deliverable', () => {
@@ -53,6 +53,47 @@ describe('cockpit/Deliverable', () => {
           compliance_done: false,
           human_review_done: false,
         },
+      }),
+    ).toThrow();
+  });
+});
+
+describe('cockpit/ContradictionReport', () => {
+  it('defaults arrays and pending status, keeping LLM output a candidate', () => {
+    const r = ContradictionReport.parse({
+      doc_id: 'dossiers/mer-rouge-suez',
+      content_type: 'dossiers',
+      slug: 'mer-rouge-suez',
+      summary: 'La substituabilité du contournement par le Cap est surévaluée.',
+      model: 'gpt-4o',
+      generated_at: '2026-06-28T10:00:00.000Z',
+    });
+    expect(r.status).toBe('pending');
+    expect(r.findings).toEqual([]);
+    expect(r.open_questions).toEqual([]);
+    expect(r.do_not_conclude).toEqual([]);
+    expect(r.title).toBe('');
+    expect(r.reviewed_at).toBeUndefined();
+  });
+
+  it('rejects a finding severity out of the 0–5 range', () => {
+    expect(() =>
+      ContradictionReport.parse({
+        doc_id: 'dossiers/x',
+        content_type: 'dossiers',
+        slug: 'x',
+        summary: 'x',
+        model: 'facade',
+        generated_at: '2026-06-28T10:00:00.000Z',
+        findings: [
+          {
+            claim: 'x',
+            objection: 'x',
+            basis: 'unsupported_claim',
+            severity: 9,
+            suggested_test: 'x',
+          },
+        ],
       }),
     ).toThrow();
   });

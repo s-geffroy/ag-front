@@ -18,6 +18,10 @@ apps/lead-api/data/*.ndjson
 # contacts.seed.json; the live file is git-ignored and materialised from the seed on first run.
 apps/cockpit/data/contacts.json
 
+# Editorial contradiction reports (ADR 0039): LLM-derived candidates, regenerated on demand. Tracked
+# seed is contradictions.seed.json; the live file is git-ignored and materialised from it on first run.
+apps/cockpit/data/contradictions.json
+
 # Source deposits: uploaded evidence files (binary, possibly paywalled/confidential) + their index.
 # Never tracked; the dir is created at runtime by the cockpit server.
 apps/cockpit/data/uploads/

@@ -1,4 +1,10 @@
-import type { Contact, Deliverable, Milestone, Scorecard } from '@ag/schema/cockpit';
+import type {
+  Contact,
+  ContradictionReport,
+  Deliverable,
+  Milestone,
+  Scorecard,
+} from '@ag/schema/cockpit';
 import type { ChokepointDetail, ChokepointList } from '@ag/chokepoints';
 import type { CockpitState } from '../types';
 
@@ -95,4 +101,14 @@ export const api = {
       asJson<{ removed: boolean }>,
     ),
   uploadRawUrl: (id: string) => `/api/uploads/${encodeURIComponent(id)}/raw`,
+  // Editorial contradiction (ADR 0039). The report is a candidate pending human validation.
+  runContradiction: (type: string, slug: string) =>
+    fetch(`/api/contradictions/${encodeURIComponent(type)}/${encodeURIComponent(slug)}/run`, {
+      method: 'POST',
+    }).then(asJson<ContradictionReport>),
+  reviewContradiction: (type: string, slug: string, status: 'pending' | 'reviewed') =>
+    fetch(
+      `/api/contradictions/${encodeURIComponent(type)}/${encodeURIComponent(slug)}/review`,
+      put({ status }),
+    ).then(asJson<ContradictionReport>),
 };

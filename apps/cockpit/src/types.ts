@@ -1,6 +1,7 @@
 import type {
   Config,
   Contact,
+  ContradictionReport,
   Deliverable,
   Milestone,
   QualityGates,
@@ -15,4 +16,5 @@ export type CockpitState = {
   metrics: Scorecard;
   contacts: Contact[];
   quality_gates: QualityGates;
+  contradictions: ContradictionReport[];
 };

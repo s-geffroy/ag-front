@@ -34,3 +34,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 |                  [0036](0036-hdde-enterprise-model.md) | HDDE: enterprise model (first-class entities + per-actor scoring)          | Accepted           |
 |              [0037](0037-munich-charter-compliance.md) | Munich Charter compliance for all published content (machine + human gate) | Accepted           |
 |        [0038](0038-cockpit-metier-architecture.md) | Cockpit métier architecture + config-driven output workspaces             | Accepted           |
+| [0039](0039-cockpit-editorial-contradiction.md) | Cockpit: editorial contradiction (LLM red team), suggestion ≠ evidence ≠ gate | Accepted       |

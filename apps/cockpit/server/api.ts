@@ -1,5 +1,6 @@
 import express, { type NextFunction, type Request, type Response, type Router } from 'express';
 import { z } from 'zod';
+import { ContradictionReport } from '@ag/schema/cockpit';
 import {
   itemSchemas,
   mutateCollection,
@@ -8,7 +9,14 @@ import {
   type ItemCollectionName,
 } from './store';
 import { chokepointsClient } from './chokepoints';
-import { InvalidSlugError, isContentType, listContent, readContent } from './content';
+import {
+  InvalidSlugError,
+  isContentType,
+  listContent,
+  readContent,
+  readContentSource,
+} from './content';
+import { ContradictionError, runContradiction } from './llm/contradiction';
 import {
   addUploads,
   getUpload,
@@ -98,6 +106,97 @@ export function createApiRouter(): Router {
       next(err);
     }
   });
+
+  // --- Editorial contradiction / red team (ADR 0039) ---------------------------------------------
+  // Run an adversarial LLM pass over a document. The result is a CANDIDATE pending human validation:
+  // it never mutates the canonical content and never auto-clears the `contradiction_done` gate. One
+  // report per document (keyed by `${type}/${slug}`); a new run replaces the previous report.
+  r.post(
+    '/contradictions/:type/:slug/run',
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { type, slug } = req.params;
+      if (!isContentType(type)) {
+        res.status(404).json({ error: 'unknown content type' });
+        return;
+      }
+      try {
+        const src = await readContentSource(type, slug);
+        if (!src) {
+          res.status(404).json({ error: 'not found' });
+          return;
+        }
+        const { analysis, model } = await runContradiction({
+          contentType: type,
+          title: src.title,
+          body: src.body,
+        });
+        const report = ContradictionReport.parse({
+          ...analysis,
+          doc_id: `${type}/${slug}`,
+          content_type: type,
+          slug,
+          title: src.title,
+          model,
+          status: 'pending',
+          generated_at: new Date().toISOString(),
+        });
+        await mutateCollection('contradictions', (list) => {
+          const arr = list as z.infer<typeof ContradictionReport>[];
+          return [...arr.filter((r) => r.doc_id !== report.doc_id), report];
+        });
+        res.status(201).json(report);
+      } catch (err) {
+        if (err instanceof InvalidSlugError) {
+          res.status(400).json({ error: 'invalid slug' });
+          return;
+        }
+        if (err instanceof ContradictionError) {
+          // Don't echo upstream/LLM messages to the client; log server-side instead.
+          console.error('[cockpit] contradiction run failed', err);
+          res.status(502).json({ error: 'contradiction_failed' });
+          return;
+        }
+        next(err);
+      }
+    },
+  );
+
+  // Mark a document's contradiction report as reviewed (or back to pending). Human acknowledgement
+  // only — this is NOT the `contradiction_done` quality gate, which stays a separate manual decision.
+  r.put(
+    '/contradictions/:type/:slug/review',
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { type, slug } = req.params;
+      const docId = `${type}/${slug}`;
+      const body = z.object({ status: z.enum(['pending', 'reviewed']) }).safeParse(req.body);
+      if (!body.success) {
+        res.status(400).json({ error: 'validation', issues: body.error.issues });
+        return;
+      }
+      try {
+        let updated: z.infer<typeof ContradictionReport> | undefined;
+        await mutateCollection('contradictions', (list) => {
+          const arr = list as z.infer<typeof ContradictionReport>[];
+          return arr.map((r) => {
+            if (r.doc_id !== docId) return r;
+            updated = {
+              ...r,
+              status: body.data.status,
+              reviewed_at: body.data.status === 'reviewed' ? new Date().toISOString() : undefined,
+            };
+            return updated;
+          });
+        });
+        if (!updated) {
+          res.status(404).json({ error: 'not found' });
+          return;
+        }
+        res.json(updated);
+      } catch (err) {
+        respond(err, res, next);
+      }
+    },
+  );
 
   // --- Source deposits (uploaded evidence files) --------------------------------------------------
   r.post('/uploads', (req: Request, res: Response, next: NextFunction) => {

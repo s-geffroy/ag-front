@@ -8,6 +8,7 @@ import { DeliverableBoard } from '@/components/deliverables/DeliverableBoard';
 import { QualityGateMatrix } from '@/components/quality/QualityGateMatrix';
 import { MunichMatrix } from '@/components/quality/MunichMatrix';
 import { RequiredGatesReference } from '@/components/quality/RequiredGatesReference';
+import { ContradictionRollup } from '@/components/quality/ContradictionPanel';
 import { ReviewList } from '@/components/review/ReviewList';
 import { UploadsList } from '@/components/uploads/UploadsList';
 
@@ -75,11 +76,12 @@ export function OutputWorkspacePage() {
       <div className={cn('min-h-0 flex-1', isBoard ? 'flex flex-col' : 'overflow-y-auto')}>
         {tab === 'suivi' ? <DeliverableBoard forcedType={output.type} /> : null}
         {tab === 'gates' ? (
-          <>
+          <div className="space-y-5">
             <QualityGateMatrix typeFilter={output.type} />
+            <ContradictionRollup contentType={output.content_type} />
             <RequiredGatesReference typeFilter={output.type} />
             <MunichMatrix typeFilter={output.type} />
-          </>
+          </div>
         ) : null}
         {tab === 'revue' ? <ReviewList contentTypes={[output.content_type]} /> : null}
         {tab === 'sources' ? <UploadsList deliverableIds={idsOfType} /> : null}
