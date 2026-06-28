@@ -12,6 +12,7 @@ import {
   Separator,
 } from '@/components/ui';
 import { PageHeader, PriorityBadge } from '@/components/common';
+import { ScorecardTiers } from '@/components/scorecard/ScorecardTiers';
 
 export function CockpitPage() {
   const { state } = useCockpit();
@@ -23,7 +24,6 @@ export function CockpitPage() {
   const blockers = criticalBlockers(state.deliverables);
   const alerts = qualityAlerts(state.deliverables);
   const ms90 = state.milestones.filter((m) => m.horizon === '90d');
-  const production = [...state.metrics].sort((a, b) => a.rank - b.rank)[0];
 
   return (
     <div>
@@ -121,25 +121,15 @@ export function CockpitPage() {
           </CardContent>
         </Card>
 
-        {/* Short scorecard (production) */}
-        {production ? (
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Scorecard — {production.label}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-3 gap-4">
-              {production.metrics.map((m) => (
-                <div key={m.id}>
-                  <div className="text-2xl font-semibold tabular-nums">{m.value}</div>
-                  <div className="text-xs text-muted">{m.label}</div>
-                  {m.target_90d != null ? (
-                    <div className="mt-0.5 text-[11px] text-muted">cible 90j : {m.target_90d}</div>
-                  ) : null}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        ) : null}
+        {/* Cross-domain KPI synthesis (projet + commercial) */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Synthèse des indicateurs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScorecardTiers compact />
+          </CardContent>
+        </Card>
 
         {/* Quality alerts */}
         <Card className="lg:col-span-1">

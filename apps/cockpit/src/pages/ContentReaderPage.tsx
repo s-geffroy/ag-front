@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { api, type RenderedContent } from '@/lib/api';
 import { typeLabel } from '@/lib/display';
+import { outputByContentType } from '@/lib/outputs';
+import { useCockpit } from '@/store';
 import { Badge, Card, CardContent } from '@/components/ui';
 import { PageHeader } from '@/components/common';
 
@@ -110,13 +112,16 @@ export function ContentReaderPage() {
   );
 }
 
+// Back to the originating output workspace's Revue tab (derived from the content folder in the URL),
+// falling back to the dossiers workspace when config isn't loaded or the folder is unknown.
 function BackLink() {
+  const { type = '' } = useParams();
+  const { state } = useCockpit();
+  const output = state ? outputByContentType(state.config, type) : undefined;
+  const to = output ? `/sorties/${output.slug}?tab=revue` : '/sorties/dossiers?tab=revue';
   return (
-    <Link
-      to="/revue"
-      className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent"
-    >
-      <ArrowLeft className="h-3 w-3" /> Revue
+    <Link to={to} className="inline-flex items-center gap-1 text-xs text-muted hover:text-accent">
+      <ArrowLeft className="h-3 w-3" /> Revue{output ? ` · ${output.label}` : ''}
     </Link>
   );
 }

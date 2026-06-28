@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { BookOpen, FileWarning } from 'lucide-react';
 import { api, type ContentSummary } from '@/lib/api';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
-import { PageHeader } from '@/components/common';
 
 const GROUPS: { key: ContentSummary['type']; label: string }[] = [
   { key: 'dossiers', label: 'Dossiers' },
@@ -17,29 +16,30 @@ const confidenceLabel: Record<string, string> = {
   eleve: 'Confiance élevée',
 };
 
-export function ReviewPage() {
-  const [items, setItems] = useState<ContentSummary[] | null>(null);
+/**
+ * Editorial review index. With `contentTypes` it is scoped to one or more content folders (used by
+ * the output workspaces); without it, all editorial outputs are listed.
+ */
+export function ReviewList({ contentTypes }: { contentTypes?: ContentSummary['type'][] }) {
+  const [all, setAll] = useState<ContentSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api
       .listContent()
-      .then(setItems)
+      .then(setAll)
       .catch((e: unknown) => setError(String(e)));
   }, []);
 
   if (error) return <p className="text-sm text-status-blocked">Chargement impossible : {error}</p>;
-  if (!items) return <p className="text-sm text-muted">Chargement…</p>;
+  if (!all) return <p className="text-sm text-muted">Chargement…</p>;
 
+  const items = contentTypes ? all.filter((i) => contentTypes.includes(i.type)) : all;
+  const groups = contentTypes ? GROUPS.filter((g) => contentTypes.includes(g.key)) : GROUPS;
   const candidates = items.filter((i) => !i.published).length;
 
   return (
     <div>
-      <PageHeader
-        title="Revue des sorties"
-        subtitle="Consultez chaque sortie éditoriale (dossiers, fiches, notes) à des fins de validation. Les candidats hors-ligne ne sont pas publiés tant qu'ils ne sont pas validés."
-      />
-
       <Card className="mb-5 border-status-at_risk/30">
         <CardContent className="flex items-center gap-2 py-3 text-sm">
           <FileWarning className="h-4 w-4 text-status-at_risk" />
@@ -50,7 +50,7 @@ export function ReviewPage() {
         </CardContent>
       </Card>
 
-      {GROUPS.map(({ key, label }) => {
+      {groups.map(({ key, label }) => {
         const group = items.filter((i) => i.type === key);
         if (group.length === 0) return null;
         return (

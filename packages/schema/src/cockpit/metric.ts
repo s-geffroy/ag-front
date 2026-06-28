@@ -17,6 +17,8 @@ export const MetricGroup = z.object({
   id: z.string(),
   label: z.string(),
   rank: z.number().int(),
+  // Which métier domain owns this tier (drives the ventilated scorecards). Absent ⇒ 'project'.
+  domain: z.enum(['project', 'commercial']).optional(),
   metrics: z.array(Metric),
 });
 export type MetricGroup = z.infer<typeof MetricGroup>;

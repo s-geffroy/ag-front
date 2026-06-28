@@ -33,3 +33,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 |          [0035](0035-hdde-chokepoints-cvi-coupling.md) | HDDE: chokepoints (read scope) + CVI coupling, anti-tainted guard          | Accepted           |
 |                  [0036](0036-hdde-enterprise-model.md) | HDDE: enterprise model (first-class entities + per-actor scoring)          | Accepted           |
 |              [0037](0037-munich-charter-compliance.md) | Munich Charter compliance for all published content (machine + human gate) | Accepted           |
+|        [0038](0038-cockpit-metier-architecture.md) | Cockpit métier architecture + config-driven output workspaces             | Accepted           |

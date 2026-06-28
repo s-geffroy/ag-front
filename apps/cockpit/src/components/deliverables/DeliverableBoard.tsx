@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import type { Deliverable, StatusId } from '@ag/schema/cockpit';
+import type { Deliverable, DeliverableType, StatusId } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
 import { applyFilter, emptyFilter, groupByStatus, type KanbanFilter } from '@/lib/filters';
 import { formatDate, gateLabel, typeLabel } from '@/lib/display';
@@ -13,7 +13,7 @@ import {
   Separator,
   Sheet,
 } from '@/components/ui';
-import { GateBadge, OfferBadge, PageHeader, PriorityBadge, TypeBadge } from '@/components/common';
+import { GateBadge, OfferBadge, PriorityBadge, TypeBadge } from '@/components/common';
 
 const GATE_FIELDS: { key: keyof Deliverable['gates']; label: string }[] = [
   { key: 'sources_ok', label: 'Sources OK' },
@@ -24,14 +24,32 @@ const GATE_FIELDS: { key: keyof Deliverable['gates']; label: string }[] = [
   { key: 'cvi_justified', label: 'CVI justifié' },
 ];
 
-export function KanbanPage() {
+/**
+ * The shared production board (backlog → publié) with its filter bar and per-item edit sheet.
+ * - `forcedType` locks the board to a single output type and hides the type selector (per-type
+ *   advancement inside an output workspace).
+ * - `showTypeFilter` exposes the "all types" dropdown (global pipeline in Suivi projet).
+ * Tracking status/gates is allowed here — this is project tracking, not content authoring.
+ */
+export function DeliverableBoard({
+  forcedType,
+  showTypeFilter = false,
+}: {
+  forcedType?: DeliverableType;
+  showTypeFilter?: boolean;
+}) {
   const { state, saveDeliverable } = useCockpit();
   const [filter, setFilter] = useState<KanbanFilter>(emptyFilter);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // forcedType always wins over the dropdown so an output workspace stays scoped to its type.
+  const effectiveFilter = useMemo<KanbanFilter>(
+    () => (forcedType ? { ...filter, type: [forcedType] } : filter),
+    [filter, forcedType],
+  );
   const filtered = useMemo(
-    () => (state ? applyFilter(state.deliverables, filter) : []),
-    [state, filter],
+    () => (state ? applyFilter(state.deliverables, effectiveFilter) : []),
+    [state, effectiveFilter],
   );
   if (!state) return <p className="text-sm text-muted">Chargement…</p>;
 
@@ -46,9 +64,7 @@ export function KanbanPage() {
     }));
 
   return (
-    <div className="flex h-full flex-col">
-      <PageHeader title="Kanban" subtitle="Workflow éditorial — du backlog au publié." />
-
+    <div className="flex h-full min-h-0 flex-col">
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
@@ -69,23 +85,25 @@ export function KanbanPage() {
             </Button>
           ))}
         </div>
-        <select
-          className={selectClass('h-8 w-40')}
-          value={filter.type[0] ?? ''}
-          onChange={(e) =>
-            setFilter((f) => ({
-              ...f,
-              type: e.target.value ? [e.target.value as Deliverable['type']] : [],
-            }))
-          }
-        >
-          <option value="">Tous les types</option>
-          {state.config.types.map((t) => (
-            <option key={t} value={t}>
-              {typeLabel[t] ?? t}
-            </option>
-          ))}
-        </select>
+        {showTypeFilter ? (
+          <select
+            className={selectClass('h-8 w-40')}
+            value={filter.type[0] ?? ''}
+            onChange={(e) =>
+              setFilter((f) => ({
+                ...f,
+                type: e.target.value ? [e.target.value as Deliverable['type']] : [],
+              }))
+            }
+          >
+            <option value="">Tous les types</option>
+            {state.config.types.map((t) => (
+              <option key={t} value={t}>
+                {typeLabel[t] ?? t}
+              </option>
+            ))}
+          </select>
+        ) : null}
         <Button
           size="sm"
           variant={filter.withBlockerOnly ? 'default' : 'outline'}

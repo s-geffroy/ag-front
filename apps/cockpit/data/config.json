@@ -33,5 +33,28 @@
     { "id": "meeting_obtained", "label": "Échange obtenu" },
     { "id": "pilot_potential", "label": "Pilote potentiel" },
     { "id": "pilot_started", "label": "Pilote lancé" }
+  ],
+  "output_types": [
+    {
+      "type": "dossier",
+      "slug": "dossiers",
+      "label": "Dossiers",
+      "icon": "FileText",
+      "content_type": "dossiers"
+    },
+    {
+      "type": "atlas_fiche",
+      "slug": "fiches-atlas",
+      "label": "Fiches Atlas",
+      "icon": "Map",
+      "content_type": "atlas"
+    },
+    {
+      "type": "note",
+      "slug": "notes",
+      "label": "Notes",
+      "icon": "StickyNote",
+      "content_type": "notes"
+    }
   ]
 }

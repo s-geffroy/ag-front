@@ -1,61 +1,104 @@
 import {
   BarChart3,
-  ClipboardCheck,
   Download,
   Globe2,
   KanbanSquare,
   LayoutDashboard,
   Map as MapIcon,
   Moon,
-  ShieldCheck,
   Sun,
+  TrendingUp,
   Upload,
   Users,
+  type LucideIcon,
 } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { CockpitProvider, useCockpit } from '@/store';
 import { globalHealth } from '@/lib/calculations';
 import { buildMarkdownSummary, downloadMarkdown } from '@/lib/export';
+import { outputIcon } from '@/lib/outputs';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/cn';
 import { Button } from './ui';
 import { HealthBadge } from './common';
 
-const NAV = [
-  { to: '/', label: 'Cockpit', icon: LayoutDashboard, end: true },
-  { to: '/kanban', label: 'Kanban', icon: KanbanSquare, end: false },
-  { to: '/roadmap', label: 'Roadmap', icon: MapIcon, end: false },
-  { to: '/quality', label: 'Quality Gates', icon: ShieldCheck, end: false },
-  { to: '/revue', label: 'Revue', icon: ClipboardCheck, end: false },
-  { to: '/scorecard', label: 'Scorecard', icon: BarChart3, end: false },
-  { to: '/acquisition', label: 'Acquisition', icon: Users, end: false },
-  { to: '/exploration', label: 'Exploration', icon: Globe2, end: false },
-  { to: '/depots', label: 'Dépôts', icon: Upload, end: false },
+type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean };
+type NavSection = { title?: string; items: NavItem[] };
+
+// Static sections. The "Espaces de sortie" section is built from config at render time so adding an
+// output type is a data change (config.json) — no edits here.
+const STATIC_SECTIONS: NavSection[] = [
+  { items: [{ to: '/', label: 'Accueil', icon: LayoutDashboard, end: true }] },
+  {
+    title: 'Suivi du projet',
+    items: [
+      { to: '/suivi/pipeline', label: 'Pipeline', icon: KanbanSquare },
+      { to: '/suivi/roadmap', label: 'Roadmap', icon: MapIcon },
+      { to: '/suivi/kpis', label: 'KPIs projet', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'Gestion commerciale',
+    items: [
+      { to: '/commercial/acquisition', label: 'Acquisition', icon: Users },
+      { to: '/commercial/kpis', label: 'KPIs commerciaux', icon: TrendingUp },
+    ],
+  },
 ];
 
+const TOOLS_SECTION: NavSection = {
+  title: 'Outils',
+  items: [
+    { to: '/outils/exploration', label: 'Exploration', icon: Globe2 },
+    { to: '/outils/depots', label: 'Dépôts', icon: Upload },
+  ],
+};
+
 function Sidebar() {
+  const { state } = useCockpit();
+  const outputSection: NavSection = {
+    title: 'Espaces de sortie',
+    items: (state?.config.output_types ?? []).map((o) => ({
+      to: `/sorties/${o.slug}`,
+      label: o.label,
+      icon: outputIcon(o.icon),
+    })),
+  };
+  const sections: NavSection[] = [...STATIC_SECTIONS, outputSection, TOOLS_SECTION];
+
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface">
       <div className="border-b border-line px-4 py-4">
         <div className="text-sm font-semibold leading-tight">Applied Geopolitics</div>
         <div className="text-xs text-muted">Cockpit de déploiement</div>
       </div>
-      <nav className="flex-1 space-y-0.5 p-2">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium',
-                isActive ? 'bg-accent/10 text-accent' : 'text-muted hover:bg-subtle hover:text-ink',
-              )
-            }
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </NavLink>
+      <nav className="flex-1 space-y-3 overflow-y-auto p-2">
+        {sections.map((section, i) => (
+          <div key={section.title ?? `section-${i}`} className="space-y-0.5">
+            {section.title ? (
+              <div className="px-2.5 pb-0.5 pt-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                {section.title}
+              </div>
+            ) : null}
+            {section.items.map(({ to, label, icon: Icon, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium',
+                    isActive
+                      ? 'bg-accent/10 text-accent'
+                      : 'text-muted hover:bg-subtle hover:text-ink',
+                  )
+                }
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
       <div className="border-t border-line px-4 py-3 text-[11px] leading-snug text-muted">

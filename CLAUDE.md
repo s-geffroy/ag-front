@@ -11,8 +11,12 @@ The repo ships **three UIs**:
   notes, CVI method, tiered offers, lead capture / newsletter). French primary; SEO is a slow-built
   asset, secondary to prospection.
 - **Internal cockpit** → served **only** over Tailscale at `https://srv1100990.tail880531.ts.net`:
-  operational deployment cockpit tracking the launch (six views: Cockpit, Kanban, Roadmap, Quality
-  Gates, Scorecard, Acquisition). Never exposed publicly.
+  operational deployment cockpit tracking the launch, organised by métier: **Accueil** (cross-domain
+  home), **Suivi du projet** (pipeline, roadmap, KPIs projet), **Gestion commerciale** (acquisition,
+  KPIs commerciaux), **Espaces de sortie** (one config-driven workspace per editorial output type —
+  Dossiers, Fiches Atlas, Notes, …; each bundles production board, gates + Munich, revue, sources),
+  and **Outils** (exploration, dépôts). Output workspaces are driven by `config.json#output_types`
+  so a new output type is a data change. Never exposed publicly.
 - **HDDE** (Hidden Dependency Discovery Engine) → `hdde.applied-geopolitics.com`: **public-Internet
   behind app auth** (individual analyst accounts) — an expert-guided interview cockpit that reveals an
   enterprise's hidden geopolitical dependencies (cases → guided interview → evidence → OpenAI red team

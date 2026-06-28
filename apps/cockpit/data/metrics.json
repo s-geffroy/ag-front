@@ -3,6 +3,7 @@
     "id": "production",
     "label": "Production tenue",
     "rank": 1,
+    "domain": "project",
     "metrics": [
       {
         "id": "notes_published",
@@ -37,6 +38,7 @@
     "id": "credibility",
     "label": "Signaux de crédibilité",
     "rank": 2,
+    "domain": "project",
     "metrics": [
       {
         "id": "pdf_requests",
@@ -62,6 +64,7 @@
     "id": "contacts",
     "label": "Contacts qualifiés",
     "rank": 3,
+    "domain": "commercial",
     "metrics": [
       {
         "id": "contacts_identified",
@@ -87,6 +90,7 @@
     "id": "premium_pilots",
     "label": "Pilotes Premium",
     "rank": 4,
+    "domain": "commercial",
     "metrics": [
       {
         "id": "pilot_discussions",
@@ -111,6 +115,7 @@
     "id": "audience",
     "label": "Audience secondaire",
     "rank": 5,
+    "domain": "commercial",
     "metrics": [
       {
         "id": "linkedin_followers",
