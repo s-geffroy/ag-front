@@ -12,6 +12,26 @@ function humanSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
+// Horodatage compact pour nommer les éléments collés sans nom (ex. 2026-06-28-14-30).
+function timestamp(): string {
+  return new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+}
+
+const MIME_EXT: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+};
+
+// Les captures du presse-papier arrivent souvent sans nom exploitable : on garantit
+// une extension allowlistée à partir du MIME. Un fichier copié (avec nom) est gardé tel quel.
+function normalizePasted(file: File): File {
+  const hasExt = /\.[a-z0-9]+$/i.test(file.name);
+  if (file.name && hasExt) return file;
+  const ext = MIME_EXT[file.type] ?? 'png';
+  return new File([file], `colle-${timestamp()}.${ext}`, { type: file.type });
+}
+
 export function UploadsPage() {
   const { state } = useCockpit();
   const [params, setParams] = useSearchParams();
@@ -23,6 +43,10 @@ export function UploadsPage() {
   // Attachment + note applied to the next upload.
   const [attachTo, setAttachTo] = useState('');
   const [note, setNote] = useState('');
+  // Paste zone state.
+  const [pasteText, setPasteText] = useState('');
+  const [pasteFormat, setPasteFormat] = useState<'md' | 'txt'>('md');
+  const [pasteName, setPasteName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const deliverables = state?.deliverables ?? [];
@@ -63,6 +87,30 @@ export function UploadsPage() {
     },
     [attachTo, filter, note, reload],
   );
+
+  // Coller une image / un fichier : on intercepte et on envoie via le même flux.
+  const onPaste = useCallback(
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const files = Array.from(e.clipboardData.files);
+      if (files.length === 0) return; // texte brut : laisse remplir le textarea
+      e.preventDefault();
+      void send(files.map(normalizePasted));
+    },
+    [send],
+  );
+
+  // Déposer le contenu du textarea comme fichier .md/.txt.
+  const sendText = useCallback(async () => {
+    const body = pasteText.trim();
+    if (!body) return;
+    const ext = pasteFormat;
+    const base = (pasteName.trim() || `colle-${timestamp()}`).replace(/[^\w.-]+/g, '-');
+    const name = base.endsWith(`.${ext}`) ? base : `${base}.${ext}`;
+    const type = ext === 'md' ? 'text/markdown' : 'text/plain';
+    await send([new File([body], name, { type })]);
+    setPasteText('');
+    setPasteName('');
+  }, [pasteText, pasteFormat, pasteName, send]);
 
   const remove = async (id: string) => {
     setError(null);
@@ -110,39 +158,80 @@ export function UploadsPage() {
               />
             </label>
           </div>
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDrag(true);
-            }}
-            onDragLeave={() => setDrag(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDrag(false);
-              void send(e.dataTransfer.files);
-            }}
-            onClick={() => inputRef.current?.click()}
-            className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed py-8 text-sm transition-colors ${
-              drag ? 'border-accent bg-accent/5' : 'border-line hover:bg-subtle'
-            }`}
-          >
-            <Upload className="h-6 w-6 text-muted" />
-            <span className="text-muted">
-              {busy ? 'Envoi…' : 'Glissez des fichiers ici, ou cliquez pour choisir'}
-            </span>
-            <span className="text-xs text-muted">
-              PDF, HTML, TXT, MD, CSV, PNG/JPG/WebP, DOCX/XLSX · 25 Mo max
-            </span>
-            <input
-              ref={inputRef}
-              type="file"
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files) void send(e.target.files);
-                e.target.value = '';
+          <div className="grid gap-3 sm:grid-cols-2">
+            {/* Glisser / cliquer */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDrag(true);
               }}
-            />
+              onDragLeave={() => setDrag(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDrag(false);
+                void send(e.dataTransfer.files);
+              }}
+              onClick={() => inputRef.current?.click()}
+              className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed py-8 text-sm transition-colors ${
+                drag ? 'border-accent bg-accent/5' : 'border-line hover:bg-subtle'
+              }`}
+            >
+              <Upload className="h-6 w-6 text-muted" />
+              <span className="text-muted">
+                {busy ? 'Envoi…' : 'Glissez des fichiers ici, ou cliquez pour choisir'}
+              </span>
+              <span className="text-xs text-muted">
+                PDF, HTML, TXT, MD, CSV, PNG/JPG/WebP, DOCX/XLSX · 25 Mo max
+              </span>
+              <input
+                ref={inputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) void send(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+            </div>
+
+            {/* Copier / coller */}
+            <div className="flex flex-col gap-2">
+              <textarea
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                onPaste={onPaste}
+                placeholder="Collez ici (Ctrl+V) : une capture, un fichier copié, ou du texte / markdown…"
+                rows={5}
+                className="flex-1 resize-none rounded-md border border-dashed border-line bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none"
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  value={pasteName}
+                  onChange={(e) => setPasteName(e.target.value)}
+                  placeholder="nom (optionnel)"
+                  className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1.5 text-sm"
+                />
+                <select
+                  value={pasteFormat}
+                  onChange={(e) => setPasteFormat(e.target.value as 'md' | 'txt')}
+                  className="rounded-md border border-line bg-surface px-2 py-1.5 text-sm"
+                >
+                  <option value="md">.md</option>
+                  <option value="txt">.txt</option>
+                </select>
+                <Button
+                  type="button"
+                  onClick={() => void sendText()}
+                  disabled={busy || !pasteText.trim()}
+                >
+                  Déposer le texte
+                </Button>
+              </div>
+              <span className="text-xs text-muted">
+                Image ou fichier collé → déposé directement. Texte → enregistré en fichier.
+              </span>
+            </div>
           </div>
           {error ? <p className="mt-2 text-sm text-status-blocked">{error}</p> : null}
         </CardContent>
