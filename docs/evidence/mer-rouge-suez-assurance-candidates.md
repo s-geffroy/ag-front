@@ -81,6 +81,60 @@
 
 ---
 
+## Candidats ouverts récupérés via agent-browser (2026-06-28) — recoupement indépendant
+
+> Collectés le 2026-06-28 pour fournir des **secondes sources indépendantes** là où les axes ne
+> reposaient que sur une source (axe 4 = UNCTAD seul ; axe 2 = JWC seul ; axe 5 = NorthStandard, bloquée).
+> Mêmes réserves : **candidats, chiffres rapportés, non confirmés**, à recouper avant toute promotion.
+
+### C10 — IMF, _Red Sea Attacks Disrupt Global Trade_ / plateforme **PortWatch** (institutionnel) ✅ vérifié
+
+- **URL (blog)** : https://www.imf.org/en/blogs/articles/2024/03/07/red-sea-attacks-disrupt-global-trade · **Date : 7 mars 2024**
+- **URL (plateforme)** : https://portwatch.imf.org · **Type** : `institutionnel` / `donnees_ouvertes` · **Accès** : libre (blog OK ; dashboard = JS/ArcGIS, données via API)
+- **Étaye (axe 4)** : transit Suez **−50 %** en glissement annuel sur les 2 premiers mois 2024 ; trafic au Cap de Bonne-Espérance **+74 %** ; ~**15 %** du commerce maritime mondial passe normalement par Suez ; délais +**10 jours** ou plus.
+- **Note** : **2ᵉ source indépendante d'UNCTAD** sur la chute de transit (méthode high-frequency transit estimates, distincte d'UNCTAD). Débloque le recoupement de l'axe 4.
+
+### C11 — Kiel Institute, _Kiel Trade Indicator 12/23 — Cargo volume in the Red Sea collapses_ (institutionnel) ✅ vérifié
+
+- **URL** : https://www.kielinstitut.de/publications/news/cargo-volume-in-the-red-sea-collapses/ · **Date : décembre 2023**
+- **Type** : `institutionnel` (institut de recherche) · **Accès** : libre
+- **Étaye (axe 4)** : volume de conteneurs en Mer Rouge **~66 % sous** le volume attendu (réf. 2017-2019) ; **~200 000** conteneurs/jour (déc. 2023) contre **~500 000** en novembre ; détour par le Cap **+7 à 20 jours** ; fret 40′ Chine→Europe du Nord **~1 500 $ → >4 000 $**.
+- **Note** : 3ᵉ angle indépendant (méthode propre Kiel, distincte d'UNCTAD et d'IMF) — conforte l'axe 4.
+
+### C12 — gCaptain, _IMF PortWatch: Suez Canal Trade Cut in Half_ (presse spécialisée) ✅ vérifié
+
+- **URL** : https://gcaptain.com/imf-portwatch-suez-canal-trade-cut-in-half/
+- **Type** : `presse_specialisee` (relaie IMF PortWatch) · **Accès** : libre
+- **Étaye (axe 4)** : reprend **−50 %** Suez / **+74 %** Cap / **−32 %** Panama (premier trimestre 2024). Recoupement presse libre des chiffres IMF.
+
+### C13 — EEAS, _About Operation EUNAVFOR ASPIDES_ + Conseil de l'UE (institutionnel / réglementaire) ✅ vérifié
+
+- **URL (EEAS)** : https://www.eeas.europa.eu/eunavfor-aspides/about-operation-eunavfor-aspides_en
+- **URL (Conseil — extension mandat)** : https://www.consilium.europa.eu/en/press/press-releases/2026/02/23/red-sea-council-extends-the-mandate-of-operation-aspides-to-safeguard-freedom-of-navigation/
+- **Type** : `institutionnel` / `reglementaire` · **Accès** : libre
+- **Étaye (axe 2 + seuils)** : attaques Houthis sur navires marchands en **Mer Rouge, Golfe d'Aden et Mer d'Arabie** depuis oct. 2023 ; **UNSC Rés. 2722** (10 janv. 2024) ; opération lancée le **19 fév. 2024**, mandat prolongé jusqu'au **28 fév. 2026**. Recoupe la désignation de zone du JWC (C3) par une autorité distincte.
+- **Note** : les chiffres de protection (≈700 navires accompagnés, ≈410 escortes rapprochées, missiles/drones interceptés) sont **rapportés par l'EU Naval Force / la presse** → candidat à confirmer sur communiqué Aspides daté.
+
+### C14 — BIMCO, _War Risks Clause for Time Chartering 2013 (CONWARTIME 2013)_ (réglementaire / marché) ✅ vérifié
+
+- **URL** : https://www.bimco.org/contractual-affairs/bimco-clauses/earlier-clauses-list/war_risks_clause_for_time_charters_2013/ · **Note** : la page signale une édition plus récente **CONWARTIME 2025**.
+- **Type** : `institutionnel` / `reglementaire` (clause-type de marché) · **Accès** : libre
+- **Étaye (axe 5)** : l'armateur n'est **pas tenu** de transiter une « Area » où le navire/cargaison/équipage **peut être exposé** à des _war risks_, selon le **jugement raisonnable** du Master/Owners, que le risque ait existé ou non à la signature ; l'affréteur **rembourse les surprimes** war-risk. Base contractuelle de l'angle force majeure / refus d'ordre.
+
+### C15 — Skuld (club P&I), _Houthi attacks on Red Sea shipping: Charterparty implications_ (praticien) ✅ vérifié
+
+- **URL** : https://www.skuld.com/topics/legal/pi-and-defence/houthi-attacks-on-red-sea-shipping-charterparty-implications/
+- **Type** : `rapport_entreprise` (club P&I, source praticienne) · **Accès** : libre
+- **Étaye (axe 5)** : motifs **contractuels et de common law** pour refuser un ordre de transit / dérouter ; une déviation non justifiée = **breach** + possible mise **off-hire**. **2ᵉ source praticienne** indépendante de NorthStandard (C6, bloquée).
+
+### C16 — Suez Canal Authority, _Navigation Statistics_ (source primaire institutionnelle) ⚠️ accès partiel
+
+- **URL** : https://www.suezcanal.gov.eg/English/Navigation/Pages/NavigationStatistics.aspx
+- **Type** : `institutionnel` (autorité gestionnaire) · **Accès** : page vivante, mais les séries (nombre/tonnage par type, statistiques annuelles) sont derrière un **sélecteur de rapport / téléchargements** → pas de chiffre extractible en l'état.
+- **Étaye (axe 4)** : **source primaire** du transit Suez — à extraire à la main depuis les rapports téléchargeables pour un recoupement officiel des baselines.
+
+---
+
 ## Sites bloqués au bot (à fournir manuellement)
 
 | Source                                      | URL                                                                                                                                                                       | Blocage                      |
@@ -93,9 +147,17 @@
 | IUMI — Stats Report 2024 (PDF)              | https://iumi.com/wp-content/uploads/2024/12/IUMI-Stats-Report-2024.pdf                                                                                                    | À vérifier                   |
 | Argus Media                                 | https://www.argusmedia.com/en/news-and-insights/latest-market-news/2521129-red-sea-war-risk-premiums-soar                                                                 | Paywall probable             |
 
+## État du recoupement par axe (au 2026-06-28)
+
+- **Axe 4** (baselines Suez / déroutage) : désormais **3 sources indépendantes** d'UNCTAD — IMF/PortWatch (C10), Kiel (C11), gCaptain/IMF (C12) ; SCA (C16) = source primaire à extraire. → **condition « ≥ 2 sources » satisfaite**, reste la validation humaine des chiffres exacts.
+- **Axe 2** (désignation de zone) : JWC (C3) **+** EEAS/Aspides + Conseil UE (C13). → recoupé.
+- **Axe 5** (charte-partie / force majeure) : BIMCO CONWARTIME (C14) **+** Skuld (C15), indépendamment de NorthStandard (C6, bloquée). → recoupé.
+- **Axe 1** (niveau **et trajectoire** des primes) : encore dépendant de C2/C8 (niveau) et de C5/C7 **bloquées** (trajectoire « retour durable »). → **gap restant**, voir sites bloqués.
+
 ## Prochaines actions (humain)
 
-1. Fournir manuellement le contenu des sites bloqués (S&P, NorthStandard, PDF UNCTAD/IUMI).
-2. Recouper chaque chiffre dans **≥ 2** sources indépendantes avant promotion.
-3. Récupérer la **circulaire JWLA datée** (périmètre/coordonnées) pour la désignation de zone.
-4. Une fois validé : intégrer au dossier avec citation normée + incertitude par affirmation, et passer `sources_ok = true`.
+1. Fournir manuellement le contenu des sites bloqués pour l'**axe 1** en priorité (S&P C5, Argus C7) et l'angle praticien d'origine (NorthStandard C6) ; PDF UNCTAD/IUMI pour chiffres exacts.
+2. Recouper/valider chaque chiffre des candidats ouverts (C10–C16) — rappel : valeurs **rapportées**, non confirmées.
+3. Récupérer la **circulaire JWLA datée** (périmètre/coordonnées) et un **communiqué Aspides daté** (chiffres de protection) pour la désignation/intensité de zone.
+4. Extraire les séries de transit depuis les **rapports SCA** (C16) pour un recoupement officiel de l'axe 4.
+5. Une fois validé : intégrer au dossier avec citation normée + incertitude par affirmation, et passer `sources_ok = true`.
