@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  ClipboardCheck,
   Download,
   Globe2,
   KanbanSquare,
@@ -49,6 +50,7 @@ const STATIC_SECTIONS: NavSection[] = [
 const TOOLS_SECTION: NavSection = {
   title: 'Outils',
   items: [
+    { to: '/outils/revue', label: 'Revue', icon: ClipboardCheck },
     { to: '/outils/exploration', label: 'Exploration', icon: Globe2 },
     { to: '/outils/depots', label: 'Dépôts', icon: Upload },
   ],

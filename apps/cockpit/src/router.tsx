@@ -9,6 +9,7 @@ import { AcquisitionPage } from './pages/AcquisitionPage';
 import { ExplorationPage } from './pages/ExplorationPage';
 import { ContentReaderPage } from './pages/ContentReaderPage';
 import { UploadsPage } from './pages/UploadsPage';
+import { ReviewPage } from './pages/ReviewPage';
 import { OutputWorkspacePage } from './pages/OutputWorkspacePage';
 import { DepotsRedirect } from './components/redirects';
 
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       { path: 'sorties/:slug', element: <OutputWorkspacePage /> },
 
       // Outils
+      { path: 'outils/revue', element: <ReviewPage /> },
       { path: 'outils/exploration', element: <ExplorationPage /> },
       { path: 'outils/depots', element: <UploadsPage /> },
 
@@ -43,7 +45,7 @@ export const router = createBrowserRouter([
       { path: 'roadmap', element: <Navigate to="/suivi/roadmap" replace /> },
       { path: 'quality', element: <Navigate to="/suivi/pipeline" replace /> },
       { path: 'scorecard', element: <Navigate to="/suivi/kpis" replace /> },
-      { path: 'revue', element: <Navigate to="/sorties/dossiers" replace /> },
+      { path: 'revue', element: <Navigate to="/outils/revue" replace /> },
       { path: 'acquisition', element: <Navigate to="/commercial/acquisition" replace /> },
       { path: 'exploration', element: <Navigate to="/outils/exploration" replace /> },
       // Preserve the ?deliverable=… query when redirecting the old Dépôts path.
