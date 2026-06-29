@@ -15,6 +15,7 @@
   "dependencies": {
     "@ag/chokepoints": "*",
     "@ag/cvi": "*",
+    "@ag/verdict": "*",
     "@astrojs/rss": "^4.0.7",
     "@astrojs/sitemap": "3.2.1",
     "@astrojs/tailwind": "^5.1.2",

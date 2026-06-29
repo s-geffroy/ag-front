@@ -1,0 +1,22 @@
+{
+  "name": "@ag/verdict",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "VERDICT engine — 7-criteria scoring, hard-veto audit, geopolitical pre-fill (HDDE/CVI/chokepoints). Port of verdict_v1_poc_ui_pack (ADR 0041–0043).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ag/cvi": "*",
+    "@ag/schema": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

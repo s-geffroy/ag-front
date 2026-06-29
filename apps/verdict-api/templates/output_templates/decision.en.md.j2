@@ -1,0 +1,72 @@
+# Decision note — {{ decision.title }}
+
+{% if decision.client_name %}**Client:** {{ decision.client_name }}  {% endif %}
+{% if decision.sector %}**Sector:** {{ decision.sector }}  {% endif %}
+**Status:** {{ decision.status }}{% if decision.source_pack_hash %} · ingested from HDDE case `{{ decision.hdde_case_ref }}` (`{{ decision.source_pack_hash }}`){% endif %}
+**Generated:** {{ generated_at }}
+
+> Candidate document pending human validation. VERDICT does not predict and does not replace the
+> decision-maker's judgement. No irreversible action without a stop threshold and human validation.
+
+## Verdict
+
+**{{ decision.final_verdict or "(undecided)" }}**{% if decision.confidence %} · confidence: {{ decision.confidence }}{% endif %}
+{% if decision.selected_option_id %}**Selected option:** {{ decision.selected_option_id }}  {% endif %}
+{% if decision.stop_threshold %}**Stop threshold:** {{ decision.stop_threshold }}  {% endif %}
+{% if decision.review_date %}**Review date:** {{ decision.review_date }}  {% endif %}
+**Human validation:** {{ "yes" if decision.human_validation else "no" }}
+{% if audit %}
+**Audit:** {{ audit.audit_status }}{% if audit.blocking_errors %} — vetoes: {% for e in audit.blocking_errors %}`{{ e }}`{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}
+{% endif %}
+
+## V — Situation
+
+{{ decision.situation or "_(to be completed)_" }}
+
+## E — Decisional PESTEL
+{% for cat in ["political","economic","social","technological","environmental","legal"] %}
+### {{ cat | capitalize }}
+{% for f in pestel if f.category == cat and f.status != "rejected" %}
+- {{ f.statement }}{% if f.decisional_impact %} → _{{ f.decisional_impact }}_{% endif %}{% if f.source_kind != "manual" %} ({{ f.source_kind }}){% endif %}
+{% else %}
+- _(none)_
+{% endfor %}
+{% endfor %}
+
+## R — Decisional SWOT
+{% for q in ["strength","weakness","opportunity","threat"] %}
+### {{ {"strength":"Strengths","weakness":"Weaknesses","opportunity":"Opportunities","threat":"Threats"}[q] }}
+{% for s in swot if s.quadrant == q and s.status != "rejected" %}
+- {{ s.statement }}{% if s.is_hypothesis %} _(hypothesis)_{% endif %}{% if s.source_kind != "manual" %} ({{ s.source_kind }}){% endif %}
+{% else %}
+- _(none)_
+{% endfor %}
+{% endfor %}
+
+## D — Options & systemic viability canvas
+{% for o in options %}
+### {{ o.title }} — _{{ o.type }}_
+- **Critical hypothesis:** {{ o.critical_hypothesis or "—" }}
+- **Main evidence:** {{ o.main_evidence or "—" }} · **Contradiction:** {{ o.main_contradiction or "—" }}
+- **Proof level:** {{ o.proof_level }}/5
+- **Canvas:** value: {{ o.canvas.value or "—" }} · beneficiaries: {{ o.canvas.beneficiaries or "—" }} · adoption: {{ o.canvas.adoption_validation or "—" }} · resources/costs: {{ o.canvas.critical_resources_costs or "—" }} · sustainability: {{ o.canvas.sustainability_systemic_risk or "—" }}
+{% endfor %}
+
+## C — Comparison
+| Option | Raw score | Adjusted score | Adjustment reasons |
+| --- | --- | --- | --- |
+{% for s in scores %}| {{ s.option_id }} | {{ s.raw_score if s.raw_score is not none else "—" }} | {{ s.adjusted_score if s.adjusted_score is not none else "—" }} | {{ s.adjustment_reasons | join("; ") }} |
+{% endfor %}
+
+## T — Decision
+{% if decision.final_verdict == "TESTER" and decision.truth_test %}
+**Truth test**
+- Hypothesis: {{ decision.truth_test.critical_hypothesis }}
+- Protocol: {{ decision.truth_test.minimal_protocol }} · Max duration: {{ decision.truth_test.max_duration }} · Max cost: {{ decision.truth_test.max_cost }}
+- Success signal: {{ decision.truth_test.success_signal }} · Failure signal: {{ decision.truth_test.failure_signal }}
+- Decision if success: {{ decision.truth_test.decision_if_success }} · if failure: {{ decision.truth_test.decision_if_failure }}
+- Can kill the option: {{ "yes" if decision.truth_test.can_kill_option else "no" }}
+{% endif %}
+{% if decision.final_verdict == "FAIRE" and decision.why_faire_not_tester %}**Why FAIRE over TESTER:** {{ decision.why_faire_not_tester }}{% endif %}
+{% if decision.final_verdict == "DIFFÉRER" %}**Defer reason:** {{ decision.defer_reason or "—" }} · **Reopening signal:** {{ decision.reopening_signal or "—" }}{% endif %}
+{% if decision.final_verdict == "ABANDONNER" %}**Disposition:** {{ decision.abandonment_disposition or "—" }}{% endif %}

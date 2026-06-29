@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-slate-100 text-ink antialiased dark:bg-slate-900 dark:text-slate-100;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+.chip {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
+
+/* Audit status chips */
+.audit-VALIDE {
+  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200;
+}
+.audit-CORRIGER {
+  @apply bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200;
+}
+.audit-BLOQUE {
+  @apply bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200;
+}
+
+/* Verdict chips */
+.v-FAIRE {
+  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200;
+}
+.v-TESTER {
+  @apply bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200;
+}
+.v-DIFFERER {
+  @apply bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200;
+}
+.v-ABANDONNER {
+  @apply bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200;
+}
+
+/* Provenance badge for pre-filled candidates */
+.badge-candidate {
+  @apply inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  @apply border-slate-700 bg-slate-900 text-slate-100;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  @apply text-slate-500;
+}
+
+.card {
+  @apply rounded-xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-800;
+}
+.field {
+  @apply mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700;
+}
+.btn {
+  @apply rounded-md bg-ink px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50;
+}
+.btn-ghost {
+  @apply rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800;
+}

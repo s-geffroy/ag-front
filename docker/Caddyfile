@@ -46,9 +46,41 @@ hdde.applied-geopolitics.com {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 	}
 
+	# Internal ingestion API (ADR 0042) is for the VERDICT service ONLY, over the Docker network.
+	# Never reachable from the public internet — 404 here (defense in depth on top of the service
+	# token). Must precede the broader /api/* matcher.
+	handle /api/internal/* {
+		respond 404
+	}
+
 	# Authenticated API → hdde service (session enforced in-app).
 	handle /api/* {
 		reverse_proxy hdde:8090
+	}
+
+	# SPA: long-cache hashed assets, fall back to index.html for client routes.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# VERDICT — Premium strategic decision-arbitrage cockpit, private behind app auth (ADR 0041). Public
+# DNS + HTTPS, but every /api route requires a session cookie; the SPA carries no secrets. Not for SEO.
+verdict.applied-geopolitics.com {
+	encode zstd gzip
+	root * /srv-verdict
+
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	}
+
+	# Authenticated API → verdict service (session enforced in-app).
+	handle /api/* {
+		reverse_proxy verdict:8095
 	}
 
 	# SPA: long-cache hashed assets, fall back to index.html for client routes.

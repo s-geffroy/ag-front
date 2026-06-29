@@ -12,6 +12,7 @@ export const nav = [
   { href: '/dossiers', label: 'Dossiers' },
   { href: '/notes', label: 'Notes' },
   { href: '/methode-cvi', label: 'Méthode CVI' },
+  { href: '/methode-verdict', label: 'Méthode VERDICT' },
   { href: '/offres', label: 'Offres' },
   { href: '/a-propos', label: 'À propos' },
 ] as const;

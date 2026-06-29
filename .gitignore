@@ -34,6 +34,13 @@ apps/hdde-api/data/exports/*
 !apps/hdde-api/data/.gitkeep
 !apps/hdde-api/data/exports/.gitkeep
 
+# VERDICT runtime: SQLite DB (confidential client decisions) + rendered exports. Never tracked.
+apps/verdict-api/data/*.sqlite
+apps/verdict-api/data/*.sqlite-*
+apps/verdict-api/data/exports/*
+!apps/verdict-api/data/.gitkeep
+!apps/verdict-api/data/exports/.gitkeep
+
 # Env (keep examples + templates; real .env stays out)
 .env
 .env.*

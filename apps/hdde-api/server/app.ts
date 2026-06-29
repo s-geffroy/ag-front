@@ -10,6 +10,7 @@ import { authRouter } from './routers/auth';
 import { packRouter } from './routers/pack';
 import { casesRouter } from './routers/cases';
 import { usageRouter } from './routers/usage';
+import { internalRouter } from './routers/internal';
 
 export function createApp(): express.Express {
   // Fail fast if the domain pack or DB can't initialise.
@@ -46,6 +47,9 @@ export function createApp(): express.Express {
   app.use('/api/pack', packRouter);
   app.use('/api/cases', casesRouter);
   app.use('/api/usage', usageRouter);
+  // Internal read-only ingestion API for VERDICT (ADR 0042). Service-token guarded; Caddy 404s it
+  // publicly. Mounted before the SPA fallback so it isn't shadowed.
+  app.use('/api/internal', internalRouter);
 
   // Serve the built SPA when present (production). In dev the Vite server runs separately.
   const spaDir = join(PACKAGE_ROOT, '..', 'hdde-web', 'dist');

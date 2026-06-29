@@ -69,6 +69,7 @@ services:
     depends_on:
       - lead # Caddy reverse_proxies /api/* to the lead service; start it first
       - hdde # Caddy fronts hdde.applied-geopolitics.com → hdde service (ADR 0033)
+      - verdict # Caddy fronts verdict.applied-geopolitics.com → verdict service (ADR 0041)
     ports:
       - '${PUBLIC_IP:-72.61.101.1}:80:80'
       - '${PUBLIC_IP:-72.61.101.1}:443:443'
@@ -76,6 +77,7 @@ services:
     volumes:
       - ../apps/public/dist:/srv:ro
       - ../apps/hdde-web/dist:/srv-hdde:ro # built HDDE SPA (build first: npm --workspace @ag/hdde-web run build)
+      - ../apps/verdict-web/dist:/srv-verdict:ro # built VERDICT SPA (build first: npm --workspace @ag/verdict-web run build)
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
@@ -133,10 +135,52 @@ services:
       # Chokepoints Read API — READ SCOPE ONLY, never read_tainted (ADR 0035). Feeds interview + red team.
       CHOKEPOINTS_API_URL: ${CHOKEPOINTS_API_URL:-https://srv1305127.tail880531.ts.net/api}
       CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN:-}
+      # Internal read-only ingestion API for VERDICT (ADR 0042). Shared service token; empty disables
+      # the surface entirely. Caddy also 404s /api/internal/* publicly. Must match the verdict service.
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
     ports:
       - '127.0.0.1:8090:8090'
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/hdde-api', 'start']
+
+  # VERDICT — Premium strategic decision-arbitrage cockpit (ADR 0041–0043). SEPARATE container, own
+  # SQLite + exports. Public ONLY via Caddy at verdict.applied-geopolitics.com, behind auth. Binds the
+  # host loopback; Caddy reverse_proxies /api/*. Reads HDDE diagnostics over the compose network via the
+  # internal API (ADR 0042) — never via Caddy. Seed the first account once running:
+  #   docker compose -f docker/docker-compose.yml run --rm tools \
+  #     npm --workspace @ag/verdict-api run seed:user -- you@example.com "a-long-password" owner_admin
+  verdict:
+    build:
+      context: ..
+      dockerfile: docker/tools.Dockerfile
+    image: app-geo-tools:local
+    user: '${UID:-1000}:${GID:-1000}'
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace # SQLite + exports persist under apps/verdict-api/data (git-ignored)
+    environment:
+      HOST: '0.0.0.0' # inside the isolated container; Caddy reaches it by service name
+      PORT: '8095'
+      APP_ENV: production
+      VERDICT_DB_PATH: /workspace/apps/verdict-api/data/verdict.sqlite
+      VERDICT_EXPORTS_DIR: /workspace/apps/verdict-api/data/exports
+      ALLOW_SIGNUP: 'false'
+      COOKIE_SECURE: 'true' # served over HTTPS by Caddy
+      # HDDE ingestion (ADR 0042): reach HDDE by service name on the compose network, with the shared
+      # service token. Both must carry the SAME INTERNAL_API_TOKEN.
+      HDDE_INTERNAL_URL: http://hdde:8090
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
+      # OpenAI arbitrage red team (ADR 0034). VERDICT_LLM_ENABLED gates it; empty key → offline facade.
+      LLM_ENABLED: ${VERDICT_LLM_ENABLED:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      # Chokepoints Read API — READ SCOPE ONLY, never read_tainted (ADR 0035).
+      CHOKEPOINTS_API_URL: ${CHOKEPOINTS_API_URL:-https://srv1305127.tail880531.ts.net/api}
+      CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN:-}
+    ports:
+      - '127.0.0.1:8095:8095'
+    restart: unless-stopped
+    command: ['npm', '--workspace', '@ag/verdict-api', 'start']
 
 volumes:
   caddy_data:

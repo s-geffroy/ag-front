@@ -5,7 +5,7 @@ flows, critical dependencies and geopolitical vulnerabilities (offerings: Basic 
 proprietary **CVI** — Corridor Vulnerability Index — methodology). Connexe to the `chokepoints`
 strategic database. This is a **clean-room rebuild** — the directory starts empty.
 
-The repo ships **three UIs**:
+The repo ships **four UIs**:
 
 - **Public site** → `www.applied-geopolitics.com`: B2B content platform (landing, Atlas, dossiers,
   notes, CVI method, tiered offers, lead capture / newsletter). French primary; SEO is a slow-built
@@ -23,6 +23,14 @@ The repo ships **three UIs**:
   enterprise's hidden geopolitical dependencies (cases → guided interview → evidence → OpenAI red team
   → diagnostic packet → diff/validate → FR/EN exports). Pack-driven (`apps/hdde-api/domain_packs/`),
   SQLite, OpenAI `gpt-4o` red team, chokepoints (read scope) + CVI enrichment. ADRs 0032–0035.
+- **VERDICT** (Strategic decision-arbitrage) → `verdict.applied-geopolitics.com`: **public-Internet
+  behind app auth**, the **Premium** « Arbitrer » tier. A **separate Docker container** (own SQLite,
+  port 8095) porting the `verdict_v1_poc_ui_pack` method: the **V·E·R·D·I·C·T** protocol (7 temps,
+  7 weighted criteria, proof scale 0–5, verdicts FAIRE/TESTER/DIFFÉRER/ABANDONNER, hard-veto audit).
+  PESTEL/SWOT/Business-Model-Canvas are *transformed* for decision and **pre-filled** from the HDDE
+  diagnostic packet + CVI + chokepoints (read-only internal API, candidate ≠ fact). OpenAI red team,
+  FR/EN decision-note exports. Engine `packages/verdict` (`@ag/verdict`), schema `@ag/schema/verdict`,
+  apps `apps/verdict-api` + `apps/verdict-web`. Method doc `docs/methode-verdict.md`; ADRs 0041–0043.
 
 This file is a living document; refine it as real structure lands.
 

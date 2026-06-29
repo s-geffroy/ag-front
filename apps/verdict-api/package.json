@@ -1,0 +1,39 @@
+{
+  "name": "@ag/verdict-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "VERDICT — backend (Express + SQLite). Public behind auth via Caddy at verdict.applied-geopolitics.com. Strategic decision-arbitrage cockpit; ingests HDDE diagnostics; OpenAI red team; FR/EN exports. ADR 0041–0043.",
+  "scripts": {
+    "dev": "tsx watch server/index.ts",
+    "start": "tsx server/index.ts",
+    "seed:user": "tsx server/auth/seed-user.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ag/chokepoints": "*",
+    "@ag/cvi": "*",
+    "@ag/schema": "*",
+    "@ag/verdict": "*",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.3.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.1",
+    "nunjucks": "^3.2.4",
+    "openai": "^4.67.0",
+    "yaml": "^2.6.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.9.0",
+    "@types/nunjucks": "^3.2.6",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

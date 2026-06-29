@@ -1,0 +1,173 @@
+---
+import {
+  verdictStages,
+  criterionLabels,
+  proofLevels,
+  verdictLabels,
+} from '@ag/verdict';
+import type { CriterionKey, DecisionVerdict } from '@ag/schema/verdict';
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import Pill from '../components/Pill.astro';
+
+const criteriaKeys = Object.keys(criterionLabels) as CriterionKey[];
+const verdictKeys = Object.keys(verdictLabels) as DecisionVerdict[];
+
+// The three frameworks, transformed for decision (not juxtaposed).
+const frameworks = [
+  {
+    origin: 'PESTEL',
+    name: 'PESTEL décisionnel',
+    change: 'On ne retient que les facteurs qui changent le coût, le risque, le timing ou une hypothèse d’une option.',
+  },
+  {
+    origin: 'SWOT',
+    name: 'SWOT décisionnelle',
+    change: 'Capacités réelles, contraintes dures, leviers, asymétries. Une force sans preuve devient une hypothèse.',
+  },
+  {
+    origin: 'Business Model Canvas',
+    name: 'Canvas de viabilité systémique',
+    change: '5 dimensions évaluées par option : valeur, bénéficiaires, adoption, ressources/coûts, soutenabilité.',
+  },
+];
+
+const references = [
+  'PESTEL — analyse des macro-environnements ; origine « ETPS » attribuée à F. Aguilar, Scanning the Business Environment (1967).',
+  'SWOT / TOWS — A. Humphrey (SRI, années 1960), tradition de Harvard (K. Andrews, 1971), matrice TOWS de H. Weihrich (1982).',
+  'Business Model Canvas — A. Osterwalder & Y. Pigneur, Business Model Generation (2010).',
+  'Décision sous incertitude — tests falsifiables (héritage popperien) ; biais cognitifs (Kahneman, 2011).',
+  'Cadres internes — Méthode CVI, HDDE (ADR 0032–0040), candidats ≠ faits (ADR 0027), charte de Munich (ADR 0037).',
+];
+---
+
+<Base
+  title="Méthode VERDICT"
+  description="VERDICT : décider lucidement sous incertitude. Sept temps, sept critères, des vetos contre la tyrannie du score — PESTEL, SWOT et Business Model Canvas transformés pour la décision."
+>
+  <Section width="prose" class="py-14">
+    <p class="eyebrow">Méthode</p>
+    <h1 class="mt-4 font-serif text-title font-bold">VERDICT — arbitrer sous incertitude</h1>
+    <p class="prose-ag mt-4">
+      <strong>VERDICT</strong> est la méthode d’arbitrage de l’offre <strong>Premium</strong>. Elle
+      prolonge le diagnostic <em>HDDE</em> jusqu’à la décision : transformer une situation complexe en
+      <strong>options comparables, testables et arbitrables</strong>, puis produire un verdict
+      opérationnel assorti d’une <strong>condition d’arrêt</strong> et d’une date de revue.
+    </p>
+    <p class="prose-ag mt-4 text-sm text-muted">
+      Principe directeur : <strong>le score ouvre une possibilité, il ne décide jamais seul</strong>.
+      Toute sortie est un candidat en attente de validation humaine — jamais une prédiction.
+    </p>
+  </Section>
+
+  <!-- Three frameworks, transformed for decision. -->
+  <Section class="py-8">
+    <div class="section-rule"><span class="label">Trois cadres, transformés pour la décision</span></div>
+    <div class="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-3">
+      {
+        frameworks.map((f) => (
+          <div class="bg-surface p-5">
+            <div class="text-xs font-mono uppercase tracking-wide text-muted">{f.origin}</div>
+            <h3 class="mt-1 font-serif text-lg">{f.name}</h3>
+            <p class="mt-2 text-sm text-muted">{f.change}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- The 7 stages V·E·R·D·I·C·T. -->
+  <Section class="py-10">
+    <div class="section-rule"><span class="label">Le protocole en sept temps</span></div>
+    <div class="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
+      {
+        verdictStages.map((s) => (
+          <div class="bg-surface p-5">
+            <div class="flex items-baseline gap-3">
+              <span class="font-mono text-xl font-bold text-accent">{s.letter}</span>
+              <h3 class="font-serif text-lg">{s.title}</h3>
+            </div>
+            <p class="mt-1.5 text-sm text-muted">{s.summary}</p>
+            <p class="mt-2 text-xs text-muted"><span class="font-medium text-ink">Garde-fou :</span> {s.guardrail}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- The 7 scoring criteria. -->
+  <Section class="py-8">
+    <div class="section-rule"><span class="label">Sept critères pondérés (somme = 100)</span></div>
+    <div class="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+      {
+        criteriaKeys.map((k) => (
+          <div class="bg-surface p-5">
+            <div class="flex items-baseline justify-between gap-2">
+              <h3 class="font-serif text-base">{criterionLabels[k].label}</h3>
+              <span class="font-mono text-sm font-semibold text-accent">{criterionLabels[k].weight}</span>
+            </div>
+            <p class="mt-1.5 text-sm text-muted">{criterionLabels[k].question}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- Proof scale + verdicts. -->
+  <Section width="prose" class="py-8">
+    <div class="section-rule"><span class="label">Le niveau de preuve gouverne le verdict</span></div>
+    <p class="prose-ag">
+      Le niveau de preuve (0–5) conditionne ce qu’on s’autorise à décider. Règle dure :
+      <strong>FAIRE est interdit sous le niveau 4</strong>, et <strong>TESTER exige un test de vérité
+      falsifiable, capable de tuer l’option</strong>.
+    </p>
+    <div class="mt-5 grid gap-2 sm:grid-cols-2">
+      {
+        proofLevels.map((p) => (
+          <div class="flex items-baseline gap-3 border border-line bg-surface p-3">
+            <span class="font-mono text-sm font-semibold text-accent">{p.level}</span>
+            <span class="text-sm text-muted">{p.label}</span>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-8 space-y-3">
+      {
+        verdictKeys.map((v) => (
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border border-line bg-surface p-4">
+            <div>
+              <div class="font-medium text-ink">{verdictLabels[v].label}</div>
+              <div class="text-sm text-muted">{verdictLabels[v].description}</div>
+            </div>
+            <Pill tone="accent">{verdictLabels[v].scoreBand}</Pill>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- Geopolitical pre-fill. -->
+  <Section width="prose" class="py-8">
+    <div class="section-rule"><span class="label">Le prisme géopolitique</span></div>
+    <p class="prose-ag">
+      VERDICT s’alimente des actifs Applied Geopolitics : le diagnostic <strong>HDDE</strong>, les
+      scores <strong>CVI</strong> du corridor et le contexte <strong>chokepoints</strong>
+      <strong> pré-remplissent</strong> les temps PESTEL et SWOT et <strong>amorcent</strong> les
+      options. Chaque élément pré-rempli affiche sa provenance et reste un <em>candidat</em> que
+      l’analyste valide ou écarte — aucune donnée canonique n’est modifiée.
+    </p>
+  </Section>
+
+  <!-- References. -->
+  <Section width="prose" class="py-8">
+    <div class="section-rule"><span class="label">Références</span></div>
+    <ul class="prose-ag mt-4 space-y-2 text-sm text-muted">
+      {references.map((r) => <li>{r}</li>)}
+    </ul>
+    <p class="prose-ag mt-6 text-sm text-muted">
+      VERDICT ne prédit pas et ne remplace pas le jugement du dirigeant. Aucune action irréversible
+      sans seuil d’arrêt ni validation humaine.
+    </p>
+  </Section>
+</Base>

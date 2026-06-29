@@ -39,4 +39,8 @@ export const config = {
   // Chokepoints Read API: READ SCOPE ONLY, never read_tainted (ADR 0035).
   chokepointsApiUrl: process.env.CHOKEPOINTS_API_URL ?? '',
   chokepointsApiToken: process.env.CHOKEPOINTS_API_TOKEN ?? '',
+
+  // Internal read-only API for VERDICT ingestion (ADR 0042). Shared service token, NOT a user session.
+  // Empty → the internal API is disabled (every request 404s). Caddy also 404s /api/internal/* publicly.
+  internalApiToken: process.env.INTERNAL_API_TOKEN ?? '',
 } as const;
