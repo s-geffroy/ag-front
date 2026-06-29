@@ -54,6 +54,12 @@ export function createApp(): express.Express {
     app.get(/^(?!\/api\/).*/, (_req, res) => {
       res.sendFile(join(spaDir, 'index.html'));
     });
+  } else if (process.env.APP_ENV === 'production') {
+    // Fail loudly rather than silently serving API-only: a missing dist means the SPA wasn't built.
+    console.warn(
+      `[hdde-api] SPA bundle not found at ${spaDir} — serving API only. ` +
+        'Build it first: npm --workspace @ag/hdde-web run build',
+    );
   }
 
   const onError: ErrorRequestHandler = (err, _req, res, _next) => {

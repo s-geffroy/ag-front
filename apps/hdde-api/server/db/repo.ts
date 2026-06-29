@@ -13,6 +13,25 @@ import type { DiagnosticCore } from '../engine';
 type Row = Record<string, unknown>;
 const db = () => getDb();
 
+/** Run a set of statements atomically (better-sqlite3 is synchronous, so this can't interleave). */
+function tx<T>(fn: () => T): T {
+  return db().transaction(fn)();
+}
+
+/**
+ * Tolerant JSON parse for TEXT columns read back from SQLite. A corrupt/legacy row degrades to a
+ * fallback (and is logged) instead of throwing deep inside a request handler — the failure surfaces
+ * as a recognisable shape at the boundary rather than an opaque 500 mid-flight.
+ */
+function safeJson<T>(text: unknown, fallback: T, ctx: string): T {
+  try {
+    return JSON.parse(String(text)) as T;
+  } catch {
+    console.error(`[hdde-api] corrupt JSON in ${ctx}; using fallback`);
+    return fallback;
+  }
+}
+
 // ---------------------------------------------------------------- users + sessions
 export interface UserRow {
   id: string;
@@ -161,7 +180,8 @@ const ENTITY_COLUMNS = [
 
 export function createEntity(caseId: string, input: CaseEntityInput): Row {
   const id = newId();
-  db()
+  tx(() => {
+    db()
     .prepare(
       `INSERT INTO case_entities
          (id, case_id, entity_type, name, country, role, what_it_enables, tier, criticality,
@@ -189,7 +209,8 @@ export function createEntity(caseId: string, input: CaseEntityInput): Row {
       share_pct: input.share_pct ?? null,
       notes: input.notes ?? '',
     });
-  touchCase(caseId);
+    touchCase(caseId);
+  });
   return getEntity(id)!;
 }
 
@@ -237,7 +258,8 @@ export function upsertAnswer(caseId: string, input: InterviewAnswerInput): Row {
     .prepare('SELECT id FROM interview_answers WHERE case_id = ? AND question_id = ?')
     .get(caseId, input.question_id) as { id: string } | undefined;
   const id = existing?.id ?? newId();
-  db()
+  tx(() => {
+    db()
     .prepare(
       `INSERT INTO interview_answers
          (id, case_id, question_id, block_id, raw_answer, normalized_answer, answer_type,
@@ -260,7 +282,8 @@ export function upsertAnswer(caseId: string, input: InterviewAnswerInput): Row {
       evidence_quality: input.evidence_quality,
       interviewer_note: input.interviewer_note ?? null,
     });
-  touchCase(caseId);
+    touchCase(caseId);
+  });
   return db().prepare('SELECT * FROM interview_answers WHERE id = ?').get(id) as Row;
 }
 
@@ -273,15 +296,17 @@ export function listAnswers(caseId: string): Row[] {
 // ---------------------------------------------------------------- evidence
 export function createEvidence(caseId: string, input: EvidenceInput): Row {
   const id = newId();
-  db()
-    .prepare(
-      `INSERT INTO evidence_items (id, case_id, title, evidence_type, source_type, summary,
+  tx(() => {
+    db()
+      .prepare(
+        `INSERT INTO evidence_items (id, case_id, title, evidence_type, source_type, summary,
          reliability, relevance, confidence)
        VALUES (@id, @case_id, @title, @evidence_type, @source_type, @summary,
          @reliability, @relevance, @confidence)`,
-    )
-    .run({ id, case_id: caseId, ...input });
-  touchCase(caseId);
+      )
+      .run({ id, case_id: caseId, ...input });
+    touchCase(caseId);
+  });
   return db().prepare('SELECT * FROM evidence_items WHERE id = ?').get(id) as Row;
 }
 
@@ -334,27 +359,31 @@ export function createPacket(
   snapshot: unknown,
 ): Row {
   const id = newId();
-  const version = nextVersionNumber(caseId);
   const packetJson = { case_id: caseId, pack_hash: packHash, ...core };
-  db()
-    .prepare(
-      `INSERT INTO diagnostic_packets (id, case_id, version_number, status, operational_verdict,
-         confidence, primary_diagnosis, pack_hash, packet_json, generated_from_snapshot_json)
-       VALUES (@id, @case_id, @version_number, 'draft', @operational_verdict, @confidence,
-         @primary_diagnosis, @pack_hash, @packet_json, @snapshot)`,
-    )
-    .run({
-      id,
-      case_id: caseId,
-      version_number: version,
-      operational_verdict: core.operational_verdict,
-      confidence: core.confidence,
-      primary_diagnosis: core.primary_diagnosis,
-      pack_hash: packHash,
-      packet_json: JSON.stringify(packetJson),
-      snapshot: JSON.stringify(snapshot),
-    });
-  touchCase(caseId);
+  // Atomic: version allocation + insert + touch must not interleave (also guarded by the UNIQUE
+  // index on (case_id, version_number)).
+  tx(() => {
+    const version = nextVersionNumber(caseId);
+    db()
+      .prepare(
+        `INSERT INTO diagnostic_packets (id, case_id, version_number, status, operational_verdict,
+           confidence, primary_diagnosis, pack_hash, packet_json, generated_from_snapshot_json)
+         VALUES (@id, @case_id, @version_number, 'draft', @operational_verdict, @confidence,
+           @primary_diagnosis, @pack_hash, @packet_json, @snapshot)`,
+      )
+      .run({
+        id,
+        case_id: caseId,
+        version_number: version,
+        operational_verdict: core.operational_verdict,
+        confidence: core.confidence,
+        primary_diagnosis: core.primary_diagnosis,
+        pack_hash: packHash,
+        packet_json: JSON.stringify(packetJson),
+        snapshot: JSON.stringify(snapshot),
+      });
+    touchCase(caseId);
+  });
   return getPacket(id)!;
 }
 
@@ -362,8 +391,12 @@ function parsePacketRow(row: Row | undefined): Row | undefined {
   if (!row) return undefined;
   return {
     ...row,
-    packet_json: JSON.parse(String(row.packet_json)),
-    generated_from_snapshot_json: JSON.parse(String(row.generated_from_snapshot_json)),
+    packet_json: safeJson<Row>(row.packet_json, {}, `packet ${String(row.id)}`),
+    generated_from_snapshot_json: safeJson<Row>(
+      row.generated_from_snapshot_json,
+      {},
+      `packet snapshot ${String(row.id)}`,
+    ),
   };
 }
 
@@ -382,10 +415,16 @@ export function listPackets(caseId: string): Row[] {
 }
 
 export function validatePacket(id: string, userId: string): Row | undefined {
+  const existing = db()
+    .prepare('SELECT status FROM diagnostic_packets WHERE id=?')
+    .get(id) as { status: string } | undefined;
+  if (!existing) return undefined;
+  // Idempotent: a packet is validated once. Re-POSTing must not overwrite validated_by/validated_at.
+  if (existing.status === 'validated') return getPacket(id);
   db()
     .prepare(
       `UPDATE diagnostic_packets SET status='validated', validated_by=?, validated_at=datetime('now')
-       WHERE id=?`,
+       WHERE id=? AND status<>'validated'`,
     )
     .run(userId, id);
   return getPacket(id);
@@ -405,7 +444,10 @@ export function createSuggestion(caseId: string, persona: string, suggestion: un
 
 function parseSuggestionRow(row: Row | undefined): Row | undefined {
   if (!row) return undefined;
-  return { ...row, suggestion_json: JSON.parse(String(row.suggestion_json)) };
+  return {
+    ...row,
+    suggestion_json: safeJson<Row>(row.suggestion_json, {}, `suggestion ${String(row.id)}`),
+  };
 }
 
 export function getSuggestion(id: string): Row | undefined {

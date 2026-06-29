@@ -118,7 +118,16 @@ describe('HDDE API e2e', () => {
     // Validate
     const val = await api('POST', `/api/cases/${caseId}/diagnostic-packets/${packet1.id}/validate`);
     expect(val.status).toBe(200);
-    expect((await jsonOf(val)).status).toBe('validated');
+    const valBody = await jsonOf(val);
+    expect(valBody.status).toBe('validated');
+
+    // Idempotent: re-validating must not overwrite validated_at/validated_by.
+    const reval = await api(
+      'POST',
+      `/api/cases/${caseId}/diagnostic-packets/${packet1.id}/validate`,
+    );
+    expect(reval.status).toBe(200);
+    expect((await jsonOf(reval)).validated_at).toBe(valBody.validated_at);
 
     // Export
     const exp = await api('POST', `/api/cases/${caseId}/diagnostic-packets/${packet1.id}/exports`);
