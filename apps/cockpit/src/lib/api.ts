@@ -31,6 +31,22 @@ export interface ContentSummary {
   full: boolean;
 }
 
+/** One-line summary of an internal reference doc (mirrors server/reference.ts). */
+export interface ReferenceSummary {
+  slug: string;
+  title: string;
+  summary?: string;
+  updated?: string;
+  order: number;
+}
+
+/** A rendered internal reference doc (mirrors server/reference.ts). */
+export interface RenderedReference {
+  slug: string;
+  data: Record<string, unknown>;
+  html: string;
+}
+
 /** A deposited source file (mirrors server/uploads.ts). */
 export interface UploadEntry {
   id: string;
@@ -90,6 +106,9 @@ export const api = {
     fetch(`/api/content/${encodeURIComponent(type)}/${encodeURIComponent(slug)}`).then(
       asJson<RenderedContent>,
     ),
+  listReferences: () => fetch('/api/reference').then(asJson<ReferenceSummary[]>),
+  getReference: (slug: string) =>
+    fetch(`/api/reference/${encodeURIComponent(slug)}`).then(asJson<RenderedReference>),
   listUploads: (deliverableId?: string) =>
     fetch(
       `/api/uploads${deliverableId ? `?deliverable_id=${encodeURIComponent(deliverableId)}` : ''}`,

@@ -16,6 +16,7 @@ import {
   readContent,
   readContentSource,
 } from './content';
+import { listReferences, readReference } from './reference';
 import { ContradictionError, runContradiction } from './llm/contradiction';
 import {
   addUploads,
@@ -93,6 +94,30 @@ export function createApiRouter(): Router {
     }
     try {
       const doc = await readContent(type, slug);
+      if (!doc) {
+        res.status(404).json({ error: 'not found' });
+        return;
+      }
+      res.json(doc);
+    } catch (err) {
+      if (err instanceof InvalidSlugError) {
+        res.status(400).json({ error: 'invalid slug' });
+        return;
+      }
+      next(err);
+    }
+  });
+
+  // --- Internal reference library (Outils → Référence) -------------------------------------------
+  // Read-only methodology docs (tailnet-only, never built by the public site). Distinct from the
+  // editorial pipeline above: no publication gate, no public link, no contradiction pass.
+  r.get('/reference', (_req: Request, res: Response) => {
+    res.json(listReferences());
+  });
+
+  r.get('/reference/:slug', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const doc = await readReference(req.params.slug);
       if (!doc) {
         res.status(404).json({ error: 'not found' });
         return;

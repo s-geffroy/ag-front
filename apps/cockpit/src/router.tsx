@@ -8,6 +8,8 @@ import { CommercialScorecardPage } from './pages/CommercialScorecardPage';
 import { AcquisitionPage } from './pages/AcquisitionPage';
 import { ExplorationPage } from './pages/ExplorationPage';
 import { ContentReaderPage } from './pages/ContentReaderPage';
+import { ReferenceIndexPage } from './pages/ReferenceIndexPage';
+import { ReferenceReaderPage } from './pages/ReferenceReaderPage';
 import { UploadsPage } from './pages/UploadsPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { OutputWorkspacePage } from './pages/OutputWorkspacePage';
@@ -36,9 +38,11 @@ export const router = createBrowserRouter([
       { path: 'outils/revue', element: <ReviewPage /> },
       { path: 'outils/exploration', element: <ExplorationPage /> },
       { path: 'outils/depots', element: <UploadsPage /> },
+      { path: 'outils/reference', element: <ReferenceIndexPage /> },
 
-      // Lecteur (inchangé)
+      // Lecteurs
       { path: 'lire/:type/:slug', element: <ContentReaderPage /> },
+      { path: 'reference/:slug', element: <ReferenceReaderPage /> },
 
       // Back-compat redirects (anciens favoris / liens internes)
       { path: 'kanban', element: <Navigate to="/suivi/pipeline" replace /> },

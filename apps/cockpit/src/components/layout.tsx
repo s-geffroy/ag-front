@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  BookOpen,
   ClipboardCheck,
   Compass,
   Download,
@@ -55,6 +56,7 @@ const TOOLS_SECTION: NavSection = {
     { to: '/outils/revue', label: 'Revue', icon: ClipboardCheck },
     { to: '/outils/exploration', label: 'Exploration', icon: Globe2 },
     { to: '/outils/depots', label: 'Dépôts', icon: Upload },
+    { to: '/outils/reference', label: 'Référence', icon: BookOpen },
   ],
 };
 
