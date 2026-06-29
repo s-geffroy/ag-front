@@ -97,6 +97,19 @@ published to the public internet. `apps/hdde-api` + `apps/hdde-web` → `hdde.ap
 (public-Internet **behind app auth**, fronted by Caddy; `hdde` service on host loopback). Seed the
 first account via `npm --workspace @ag/hdde-api run seed:user -- <email> <password> owner_admin`.
 
+**Redeploying the cockpit after a change — YOU MUST run `scripts/redeploy-cockpit.sh`.** The cockpit
+runs as the `app-geo-cockpit-1` compose service via `tsx server/index.ts` (**no watch**), serving the
+built `apps/cockpit/dist` statically. So a code change is **not** live until you redeploy, and the two
+halves redeploy differently — forgetting this gives the classic "front updated but `/api/*` route
+returns `unknown api route`" trap (stale Express process):
+
+- **Front change** (`apps/cockpit/src/**`) → `scripts/redeploy-cockpit.sh --build-only` (rebuilds `dist/`).
+- **Server change** (`apps/cockpit/server/**`) → `scripts/redeploy-cockpit.sh --restart-only` (restarts Express).
+- **Both / unsure** → `scripts/redeploy-cockpit.sh` (build + restart; always safe).
+
+The script builds inside the `tools` container (Docker-only rule), restarts the service, and
+health-checks `http://127.0.0.1:8787/api/health`.
+
 ## Skills — when to use what
 
 Project skills live in `.claude/skills/` (versioned). They are agent tooling, not project tooling, so they
