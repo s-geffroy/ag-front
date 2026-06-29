@@ -227,8 +227,9 @@ export function buildEnterpriseDiagnostic(
   answers: Parameters<typeof buildDiagnostic>[1],
   entities: EntityLike[],
   ctx: Parameters<typeof buildDiagnostic>[2] = {},
+  dimensionEvidence: Parameters<typeof buildDiagnostic>[3] = {},
 ): EnterpriseDiagnostic {
-  const core = buildDiagnostic(pack, answers, ctx);
+  const core = buildDiagnostic(pack, answers, ctx, dimensionEvidence);
   const entityResults = entities.map((e) => scoreEntity(pack, e));
   const { concentration, redFlags: concFlags } = analyseConcentration(entities);
 

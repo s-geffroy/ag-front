@@ -114,6 +114,13 @@ export interface EngineAnswer {
   evidence_quality: number; // 0..5
 }
 
+/** A piece of evidence linked to a dimension, resolved from evidence_items + evidence_links. */
+export interface DimensionEvidence {
+  id: string;
+  reliability: number; // 0..5
+  status: string; // 'accepted' | 'pending' | 'rejected'
+}
+
 export interface DimensionScore {
   dimension_id: string;
   value: number; // 0..5

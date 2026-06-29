@@ -3,7 +3,14 @@
 // and versions the result. All derived outputs are CANDIDATES pending analyst validation, never facts
 // (data-integrity doctrine, ADR 0027).
 
-import type { DomainPack, EngineAnswer, DimensionScore, Verdict, Confidence } from './types';
+import type {
+  DomainPack,
+  EngineAnswer,
+  DimensionScore,
+  DimensionEvidence,
+  Verdict,
+  Confidence,
+} from './types';
 import { scoreAnswers, divergenceSignals } from './scoring';
 import { deriveVerdict } from './verdict';
 
@@ -180,8 +187,9 @@ export function buildDiagnostic(
   pack: DomainPack,
   answers: EngineAnswer[],
   ctx: DiagnosticContext = {},
+  dimensionEvidence: Record<string, DimensionEvidence[]> = {},
 ): DiagnosticCore {
-  const { scores, activatedPatterns, redFlags } = scoreAnswers(pack, answers);
+  const { scores, activatedPatterns, redFlags } = scoreAnswers(pack, answers, dimensionEvidence);
   const { verdict, confidence, matchedRuleIds } = deriveVerdict(pack, scores);
 
   const patternById = new Map(pack.patterns.map((p) => [p.id, p]));

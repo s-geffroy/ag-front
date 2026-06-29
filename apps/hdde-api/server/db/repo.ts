@@ -295,6 +295,12 @@ export function getEvidence(id: string): Row | undefined {
   return db().prepare('SELECT * FROM evidence_items WHERE id = ?').get(id) as Row | undefined;
 }
 
+export function listEvidenceLinks(caseId: string): Row[] {
+  return db()
+    .prepare('SELECT * FROM evidence_links WHERE case_id = ?')
+    .all(caseId) as Row[];
+}
+
 export function createEvidenceLink(
   caseId: string,
   evidenceId: string,

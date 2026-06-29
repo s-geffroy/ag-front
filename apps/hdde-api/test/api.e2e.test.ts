@@ -146,6 +146,43 @@ describe('HDDE API e2e', () => {
     expect(diffBody.verdict.changed).toBe(false);
   });
 
+  it('lets an accepted red-team suggestion raise the verdict (feedback loop)', async () => {
+    const c = await api('POST', '/api/cases', {
+      title: 'Feedback red team',
+      sector: 'x',
+      business_function_at_risk: 'y',
+    });
+    const caseId = (await jsonOf(c)).id as string;
+    for (const a of [
+      { question_id: 'critical_actor_replaceability_30d', block_id: 'critical_actor', normalized_answer: 'no' },
+      { question_id: 'hidden_tier2_visibility', block_id: 'hidden_dependencies', normalized_answer: 'no' },
+    ]) {
+      await api('POST', `/api/cases/${caseId}/interview/answers`, {
+        ...a,
+        raw_answer: 'Non.',
+        answer_type: 'estimate',
+        evidence_quality: 2,
+      });
+    }
+    const p1 = await jsonOf(await api('POST', `/api/cases/${caseId}/diagnostic-packets`));
+    const order = ['monitor', 'prepare', 'act', 'escalate'];
+    const v1 = order.indexOf(p1.operational_verdict);
+
+    // Run red team (facade → could_raise_verdict:true) and ACCEPT the suggestion.
+    const sug = await jsonOf(
+      await api('POST', `/api/cases/${caseId}/red-team/run`, { persona: 'disruptive_actor' }),
+    );
+    const patch = await api('PATCH', `/api/cases/${caseId}/red-team/suggestions/${sug.id}`, {
+      status: 'accepted',
+    });
+    expect(patch.status).toBe(200);
+
+    // The next packet reflects the accepted pressure: verdict bumped by one (capped at escalate).
+    const p2 = await jsonOf(await api('POST', `/api/cases/${caseId}/diagnostic-packets`));
+    expect(p2.packet_json.redteam_adjustment.applied).toBe(true);
+    expect(order.indexOf(p2.operational_verdict)).toBe(Math.min(v1 + 1, 3));
+  });
+
   it('creates a case without critical_actor_type (no NOT NULL crash)', async () => {
     // Regression: the column is NOT NULL but the schema field is optional — must not 500.
     const r = await api('POST', '/api/cases', {

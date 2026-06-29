@@ -7,6 +7,16 @@ import { overallConfidence } from './scoring';
 
 const PRECEDENCE: Record<Verdict, number> = { monitor: 0, prepare: 1, act: 2, escalate: 3 };
 
+/** Ordered postures, weakest → strongest. */
+export const VERDICT_ORDER: Verdict[] = ['monitor', 'prepare', 'act', 'escalate'];
+
+/** Move a verdict up/down the posture ladder, clamped. Used to apply accepted red-team pressure. */
+export function bumpVerdict(v: Verdict, delta: number): Verdict {
+  const i = VERDICT_ORDER.indexOf(v);
+  const j = Math.max(0, Math.min(VERDICT_ORDER.length - 1, i + delta));
+  return VERDICT_ORDER[j];
+}
+
 /** Evaluate a single verdict-rule `if` block (suffix-encoded thresholds) against the scores. */
 function ruleMatches(
   conditions: Record<string, number>,

@@ -104,6 +104,26 @@ describe('scoring engine (pack-driven)', () => {
     expect(hidden.value).toBeLessThanOrEqual(1); // but NOT hidden: proven + visible ⇒ low divergence
   });
 
+  it('wires linked evidence into scores: raises confidence and reduces the divergence', () => {
+    const overconfident: EngineAnswer[] = [
+      { question_id: 'critical_actor_replaceability_30d', raw_answer: 'Oui', normalized_answer: 'yes', evidence_quality: 1 },
+      { question_id: 'dependency_breaks_first', raw_answer: 'production', normalized_answer: 'production', evidence_quality: 1 },
+      { question_id: 'hidden_tier2_visibility', raw_answer: 'Aucune', normalized_answer: 'no', evidence_quality: 1 },
+    ];
+    const baseline = buildDiagnostic(pack, overconfident);
+    const withEvidence = buildDiagnostic(pack, overconfident, {}, {
+      substitution_weakness_score: [{ id: 'ev1', reliability: 5, status: 'accepted' }],
+    });
+
+    const sEv = withEvidence.scores.find((s) => s.dimension_id === 'substitution_weakness_score')!;
+    expect(sEv.evidence_refs).toContain('ev1'); // linking proof now populates evidence_refs
+    expect(sEv.confidence).toBe('high'); // ...and lifts dimension confidence
+
+    const hBase = baseline.scores.find((s) => s.dimension_id === 'hidden_dependency_score')!.value;
+    const hEv = withEvidence.scores.find((s) => s.dimension_id === 'hidden_dependency_score')!.value;
+    expect(hEv).toBeLessThan(hBase); // documented dependency is LESS hidden (blind spot shrinks)
+  });
+
   it('returns conservative defaults with no answers', () => {
     const { scores } = scoreAnswers(pack, []);
     const { verdict } = deriveVerdict(pack, scores);

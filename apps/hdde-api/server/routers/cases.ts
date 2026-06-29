@@ -13,8 +13,8 @@ import {
 import { z } from 'zod';
 import { requireAuth, isAdmin, type AuthedRequest } from '../auth/middleware';
 import { getPack } from '../pack';
-import { buildEnterpriseDiagnostic } from '../engine';
-import type { EngineAnswer, EntityLike } from '../engine';
+import { buildEnterpriseDiagnostic, bumpVerdict } from '../engine';
+import type { EngineAnswer, EntityLike, DimensionEvidence, Verdict } from '../engine';
 import { deriveFlowVulnerability } from '../integrations/cvi';
 import { suggestChokepoints } from '../integrations/chokepoints';
 import { runPersona, RedTeamError } from '../llm/openai';
@@ -197,17 +197,73 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, (req: CaseRequest, res) =>
   const answerRows = repo.listAnswers(req.params.id);
   const answers = toEngineAnswers(answerRows);
   const entityRows = repo.listEntities(req.params.id);
+
+  // Resolve the evidence registry into per-dimension evidence so linking proof actually moves the
+  // scores/confidence (ADR 0040 follow-up): dimension-targeted links joined to their evidence items.
+  const evById = new Map(repo.listEvidence(req.params.id).map((e) => [String(e.id), e]));
+  const dimensionEvidence: Record<string, DimensionEvidence[]> = {};
+  for (const l of repo.listEvidenceLinks(req.params.id)) {
+    if (l.target_kind !== 'dimension') continue;
+    const e = evById.get(String(l.evidence_id));
+    if (!e) continue;
+    (dimensionEvidence[String(l.target_ref)] ??= []).push({
+      id: String(e.id),
+      reliability: Number(e.reliability) || 0,
+      status: String(e.status),
+    });
+  }
+
   // Enterprise diagnostic: interview core + per-actor scoring + concentration synthesis (ADR 0036).
-  // Pass the visible actor so the divergence narrative names it (ADR 0040).
-  const core = buildEnterpriseDiagnostic(pack, answers, entityRows as unknown as EntityLike[], {
-    visible_actor_name: (req.caseRow!.critical_actor_name as string | null) ?? null,
-    visible_actor_type: (req.caseRow!.critical_actor_type as string | null) ?? null,
-  });
+  // Pass the visible actor so the divergence narrative names it, and the evidence map (ADR 0040).
+  const core = buildEnterpriseDiagnostic(
+    pack,
+    answers,
+    entityRows as unknown as EntityLike[],
+    {
+      visible_actor_name: (req.caseRow!.critical_actor_name as string | null) ?? null,
+      visible_actor_type: (req.caseRow!.critical_actor_type as string | null) ?? null,
+    },
+    dimensionEvidence,
+  );
+
+  // Red-team feedback (ADR 0040 follow-up): an ACCEPTED suggestion can move the verdict — the analyst's
+  // acceptance IS the human validation (ADR 0034). Raising takes precedence over lowering (conservative).
+  const accepted = repo.listSuggestions(req.params.id).filter((s) => s.status === 'accepted');
+  let raise = false;
+  let lower = false;
+  const redteamReasons: string[] = [];
+  for (const s of accepted) {
+    const json =
+      typeof s.suggestion_json === 'string'
+        ? (JSON.parse(s.suggestion_json) as Record<string, unknown>)
+        : (s.suggestion_json as Record<string, unknown>);
+    const vp = json?.verdict_pressure as
+      | { could_raise_verdict?: boolean; could_lower_verdict?: boolean; reason?: string }
+      | undefined;
+    if (vp?.could_raise_verdict) {
+      raise = true;
+      redteamReasons.push(vp.reason || 'Pression à la hausse acceptée par l’analyste.');
+    } else if (vp?.could_lower_verdict) {
+      lower = true;
+    }
+  }
+  const delta = raise ? 1 : lower ? -1 : 0;
+  const adjustedVerdict = bumpVerdict(core.operational_verdict as Verdict, delta);
 
   // CVI enrichment (local, derived candidate — ADR 0035).
   const flowScore =
     core.scores.find((s) => s.dimension_id === 'flow_criticality_score')?.value ?? 0;
-  const packetPayload = { ...core, cvi: deriveFlowVulnerability(flowScore) };
+  const packetPayload = {
+    ...core,
+    operational_verdict: adjustedVerdict,
+    redteam_adjustment: {
+      applied: delta !== 0,
+      from: core.operational_verdict,
+      to: adjustedVerdict,
+      reasons: redteamReasons,
+    },
+    cvi: deriveFlowVulnerability(flowScore),
+  };
 
   const snapshot = {
     answers: answerRows,
@@ -326,8 +382,15 @@ casesRouter.post(
       provisionalDiagnosis: latest
         ? `${(latest.packet_json as Record<string, unknown>).primary_diagnosis} / posture ${latest.operational_verdict}`
         : 'Aucun packet généré.',
-      acceptedEvidence: repo.listEvidence(req.params.id).map((e) => `${e.title}: ${e.summary}`),
-      weakEvidence: [],
+      acceptedEvidence: repo
+        .listEvidence(req.params.id)
+        .filter((e) => e.status === 'accepted' && Number(e.reliability) >= 3)
+        .map((e) => `${e.title}: ${e.summary}`),
+      // Weak/unverified evidence is a prime attack surface for the red team (was a dead channel).
+      weakEvidence: repo
+        .listEvidence(req.params.id)
+        .filter((e) => e.status !== 'accepted' || Number(e.reliability) <= 2)
+        .map((e) => `${e.title}: ${e.summary} (fiabilité ${e.reliability}/5, ${e.status})`),
       openUncertainties: latest
         ? (
             (latest.packet_json as Record<string, unknown>).open_uncertainties as {

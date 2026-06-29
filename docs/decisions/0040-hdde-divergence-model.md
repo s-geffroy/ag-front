@@ -52,8 +52,19 @@ dépendance également critique mais prouvée et visible ⇒ caché ≤ 1/5.
 
 - Toutes les sorties restent des **candidats à valider** (ADR 0027) ; rien ne mute le canonique.
 - Le `pack_hash` change (modification de `questions.yaml`) — traçabilité préservée par le recalcul.
-- **Reste à faire (chantiers méthode distincts, non couverts ici) :** brancher le registre de preuves
-  sur le score (les liens de preuve n'influencent pas encore la confiance), et réinjecter le
-  `verdict_pressure` de la red team dans le diagnostic (aujourd'hui purement consultatif).
+
+## Suite — deux chantiers méthode livrés (2026-06-29)
+
+- **Registre de preuves branché sur le score.** `scoreAnswers` accepte une carte `dimensionEvidence`
+  (liens `evidence_links` de type `dimension` joints à `evidence_items`). Une preuve **acceptée**
+  liée à une dimension : garnit `evidence_refs`, **monte la confiance** (high si fiabilité ≥ 3), et
+  **relève la qualité de preuve globale** — ce qui **réduit la cécité** du modèle de divergence (une
+  dépendance documentée est moins « cachée »). Lier une preuve a désormais un effet mesurable
+  (test `scoring.test.ts`).
+- **Feedback red team réinjecté.** Une suggestion **acceptée** par l'analyste (= la validation humaine,
+  ADR 0034) dont `verdict_pressure.could_raise_verdict` est vrai **relève le verdict d'un cran**
+  (`bumpVerdict`) au prochain packet ; la hausse prime sur la baisse (prudence). L'ajustement est tracé
+  dans `packet.redteam_adjustment`. Le canal `weakEvidence` (mort) est branché sur les preuves
+  faibles/non acceptées (test e2e `api.e2e.test.ts`).
 </content>
 </invoke>

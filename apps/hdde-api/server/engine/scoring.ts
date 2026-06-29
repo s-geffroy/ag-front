@@ -6,6 +6,7 @@ import type {
   DomainPack,
   EngineAnswer,
   DimensionScore,
+  DimensionEvidence,
   ScoringResult,
   Confidence,
   Question,
@@ -87,7 +88,11 @@ export function initialScores(pack: DomainPack): Record<string, DimensionScore> 
 }
 
 /** Compute dimension scores, activated patterns and red flags from interview answers. */
-export function scoreAnswers(pack: DomainPack, answers: EngineAnswer[]): ScoringResult {
+export function scoreAnswers(
+  pack: DomainPack,
+  answers: EngineAnswer[],
+  dimensionEvidence: Record<string, DimensionEvidence[]> = {},
+): ScoringResult {
   const questionById = new Map(pack.questions.map((q) => [q.id, q]));
 
   // 1. Weighted aggregation of direct numeric contributions per dimension.
@@ -177,6 +182,11 @@ export function scoreAnswers(pack: DomainPack, answers: EngineAnswer[]): Scoring
     for (const p of q?.targets?.patterns ?? []) activatedPatterns.add(p.id);
   }
 
+  // 4b. Wire the EVIDENCE REGISTRY into the scores (ADR 0040 follow-up): linking accepted evidence to
+  //     a dimension populates its evidence_refs, raises its confidence, and lifts the global evidence
+  //     quality — which in turn REDUCES the divergence blindness below. Linking real proof now matters.
+  applyLinkedEvidence(scores, dimensionEvidence);
+
   // 5. Hidden dependency = DIVERGENCE between declared resilience and proven resilience (ADR 0040).
   //    It is NOT a relabel of "do you see tier-2?" — it is "how much exposure can you NOT see/prove".
   //    hidden = exposure (how much it matters) × blindness (how unproven/invisible it is).
@@ -188,6 +198,37 @@ export function scoreAnswers(pack: DomainPack, answers: EngineAnswer[]): Scoring
   });
 
   return { scores, activatedPatterns: [...activatedPatterns], redFlags };
+}
+
+/** Fold linked evidence into the scores: evidence_refs, per-dimension confidence, evidence quality. */
+function applyLinkedEvidence(
+  scores: Record<string, DimensionScore>,
+  dimensionEvidence: Record<string, DimensionEvidence[]>,
+): void {
+  const acceptedReliabilities: number[] = [];
+  for (const [dimId, evs] of Object.entries(dimensionEvidence)) {
+    const s = scores[dimId];
+    if (!s || !evs.length) continue;
+    s.evidence_refs = evs.map((e) => e.id);
+    const accepted = evs.filter((e) => e.status === 'accepted');
+    if (accepted.length) {
+      const maxRel = Math.max(...accepted.map((e) => clamp05(e.reliability)));
+      s.confidence = maxRel >= 3 ? 'high' : 'medium';
+      s.rationale += ` Étayé par ${accepted.length} preuve(s) liée(s) (fiabilité max ${maxRel}/5).`;
+      for (const e of accepted) acceptedReliabilities.push(clamp05(e.reliability));
+    }
+  }
+  // Accepted linked evidence raises the global evidence-quality reading (it reduces the blind spot,
+  // so the divergence model treats a documented dependency as less "hidden").
+  if (acceptedReliabilities.length) {
+    const linked = round05(mean(acceptedReliabilities));
+    const ev = scores[EVIDENCE_DIMENSION];
+    if (ev && linked > ev.value) {
+      ev.value = linked;
+      ev.confidence = 'high';
+      ev.rationale += ` Relevé via preuves liées acceptées (${linked}/5).`;
+    }
+  }
 }
 
 /** Components of the declared-vs-proven divergence, reused by the diagnostic narrative. */
