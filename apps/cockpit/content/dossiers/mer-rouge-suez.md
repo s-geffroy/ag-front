@@ -31,19 +31,44 @@ trafic continue d'arbitrer en faveur de la route du Cap. `[À COMPLÉTER une foi
 
 ## 3. Constructs opérationnalisés
 
-- **Crédibilité commerciale durable** = retour des transits Suez à **≥ X %** d'une baseline de
-  référence, soutenu **≥ Y semaines**, avec prime _war-risk_ normalisée **sous Z %** de la valeur coque.
-  `[À COMPLÉTER : fixer X / Y / Z avec sources]`
+- **Crédibilité commerciale durable** `[valeurs candidates — à valider]` = retour des **transits
+  totaux Suez** à **≥ 90 % (X)** de la **moyenne mensuelle des 12 mois pré-octobre 2023** (baseline de
+  référence), soutenu **≥ 13 semaines (Y)** (1 trimestre), avec **surprime _war-risk_ zone JWC
+  normalisée sous 0,10 % (Z)** de la valeur coque sur un transit de référence.
 
-## 4. Données & baselines `[À SOURCER]`
+  - **Baseline & X = 90 %** : métrique = **transits totaux** (source primaire SCA `[C16]`, recoupée
+    IMF/PortWatch `[C10]`), **pas** le conteneur seul, qui a chuté plus fort (−66 % Kiel `[C11]` /
+    −82 % tonnage UNCTAD `[C1]`). Fenêtre baseline = 12 mois avant oct. 2023. Le creux observé ≈ −50 %
+    des transits ; viser 90 % récupère ~80 % du volume perdu et reste nettement au-dessus de la bande
+    de dégradation à 70 % (§5 : −30 %). Sensibilité : 85 % (permissif) – 95 % (quasi-normalisation).
+    _Métrique identique à celle des seuils §5 — lève l'incohérence de définition._
+  - **Y = 13 semaines** : exclut un répit saisonnier et dépasse les fenêtres de dégradation de 3-4 sem.
+    (§5) ; calé sur la cadence trimestrielle des indicateurs (IMF/PortWatch, Kiel, UNCTAD). 26 sem.
+    (2 trimestres) = bar « durable » pour une affirmation forte.
+  - **Z < 0,10 %** : un ordre de grandeur sous le pic de crise (~1,0 % `[C2/C8]`) et ~2-10× le plancher
+    pré-crise (0,01-0,05 % `[C2/C8]`). À mesurer sur un **benchmark de référence** (surprime zone JWC,
+    coque standard, transit 7 j), la prime étant fragmentée par courtier/navire (cf. §7).
+    ⚠ **Z non confirmé** : la **trajectoire récente** des primes dépend des sources bloquées
+    (S&P `[C5]`, Argus `[C7]`) — axe 1 du registre. `[à confirmer avant promotion]`
 
-| Indicateur                                            | Valeur (candidat — à valider)                        | Source candidate                                              |
-| ----------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
-| Part du commerce conteneurisé mondial via Suez (2023) | ~22 %                                                | UNCTAD _Navigating troubled waters_ (fév. 2024) `[à valider]` |
-| Recul du tonnage conteneur transitant Suez            | −82 % (1ʳᵉ quinzaine fév. 2024)                      | UNCTAD `[à valider]`                                          |
-| Navires conteneurs déroutés                           | 586 (1ʳᵉ quinzaine fév. 2024)                        | UNCTAD `[à valider]`                                          |
-| Prime _war-risk_ Red Sea                              | 0,01 % → jusqu'à 1,0 % de la valeur coque            | IUMI / Maritime Executive `[à valider]`                       |
-| Surcoût/surdélai route du Cap                         | ~+2 semaines ; distance +42 % (Ras Tanura–Rotterdam) | UNCTAD `[à valider]`                                          |
+## 4. Données & baselines `[À SOURCER — valeurs rapportées, non confirmées]`
+
+> Chiffres **candidats** issus du registre de preuves ; chaque ligne note son **recoupement**
+> (nombre de sources indépendantes). Métriques hétérogènes (transits totaux vs conteneur vs tonnage) :
+> ne pas additionner — voir §3 pour la métrique retenue (transits totaux) pour le construct.
+
+| Indicateur                                          | Valeur (candidat — à valider)                       | Source(s) candidate(s)                       | Recoupement                       |
+| --------------------------------------------------- | --------------------------------------------------- | -------------------------------------------- | --------------------------------- |
+| Recul des **transits totaux** Suez (creux)          | −50 % (glissement annuel, déb. 2024)                | IMF/PortWatch `[C10]` ; gCaptain/IMF `[C12]` | 2 sources indép. d'UNCTAD         |
+| Recul du **volume conteneurs** Mer Rouge            | −66 % vs moy. 2017-2019 (déc. 2023)                 | Kiel Institute `[C11]`                       | méthode propre (3ᵉ angle)         |
+| Recul du **tonnage conteneur** Suez                 | −82 % (1ʳᵉ quinzaine fév. 2024)                     | UNCTAD `[C1]`                                | source primaire à confirmer       |
+| Report de trafic vers le **Cap de Bonne-Espérance** | +74 %                                               | IMF/PortWatch `[C10]` ; gCaptain `[C12]`     | 2 sources indép.                  |
+| Navires conteneurs déroutés                         | 586 (1ʳᵉ quinzaine fév. 2024)                       | UNCTAD `[C1]`                                | 1 source                          |
+| Part du trafic mondial via Suez                     | ~15 % (maritime total) ; ~22 % (conteneurisé, 2023) | IMF `[C10]` ; UNCTAD `[C1]`                  | périmètres ≠ — à harmoniser       |
+| Surdélai route du Cap                               | +7 à 20 j (Kiel) ; +10 j (IMF) ; ~+2 sem. (UNCTAD)  | `[C11]` / `[C10]` / `[C1]`                   | 3 sources, fourchette large       |
+| Surcoût fret 40′ Chine → Europe du Nord             | ~1 500 $ → > 4 000 $ (déc. 2023)                    | Kiel Institute `[C11]`                       | 1 source                          |
+| Prime _war-risk_ Red Sea (niveau)                   | 0,01 % → jusqu'à 1,0 % de la valeur coque           | IUMI/Maritime Executive `[C2]`               | + trajectoire 0,05→0,7→1 % `[C8]` |
+| Prime _war-risk_ Red Sea (**trajectoire récente**)  | baisse rapportée (fin 2025) — **non vérifiée**      | S&P `[C5]` ⛔ ; Argus `[C7]` ⛔              | **gap — sources bloquées**        |
 
 ## 5. Seuils de bascule
 
