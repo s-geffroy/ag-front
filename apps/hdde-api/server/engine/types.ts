@@ -33,6 +33,12 @@ export interface Question {
   type: 'categorical' | 'free_text' | 'ordinal_scale';
   text_fr: string;
   answer_options?: string[];
+  /**
+   * Optional per-option risk (0..5) for categorical questions whose options are NOT in the generic
+   * yes/no polarity table (RISK_MAP) — e.g. an enumeration of failure modes. Without this, such
+   * answers carry no numeric signal and silently leave their targeted dimensions at 0.
+   */
+  answer_risk?: Record<string, number>;
   targets?: {
     dimensions?: QuestionTargetDimension[];
     patterns?: { id: string; weight: number }[];

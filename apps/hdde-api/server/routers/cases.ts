@@ -21,10 +21,19 @@ import { runPersona, RedTeamError } from '../llm/openai';
 import { computeCost } from '../llm/pricing';
 import { renderExports } from '../exports/render';
 import { diffPackets } from '../lib/diff';
+import { config } from '../config';
 import * as repo from '../db/repo';
 
 export const casesRouter = Router();
 casesRouter.use(requireAuth);
+
+// Express 4 does NOT forward rejected promises from async handlers to the error middleware, so an
+// unexpected throw would hang the request instead of returning a 500. Wrap async handlers to route
+// their rejections to next() → onError (owasp-security / A10).
+type AsyncHandler = (req: CaseRequest, res: Response, next: NextFunction) => Promise<unknown>;
+const wrap =
+  (fn: AsyncHandler) => (req: CaseRequest, res: Response, next: NextFunction) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
 
 interface CaseRequest extends AuthedRequest {
   caseRow?: Record<string, unknown>;
@@ -164,6 +173,12 @@ casesRouter.post('/:id/evidence/:eid/links', loadCase, (req, res) => {
     res.status(400).json({ error: 'invalid' });
     return;
   }
+  // The evidence must belong to this case — never link evidence across cases (ownership integrity).
+  const ev = repo.getEvidence(req.params.eid);
+  if (!ev || ev.case_id !== req.params.id) {
+    res.status(404).json({ error: 'evidence_not_found' });
+    return;
+  }
   res
     .status(201)
     .json(
@@ -183,7 +198,11 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, (req: CaseRequest, res) =>
   const answers = toEngineAnswers(answerRows);
   const entityRows = repo.listEntities(req.params.id);
   // Enterprise diagnostic: interview core + per-actor scoring + concentration synthesis (ADR 0036).
-  const core = buildEnterpriseDiagnostic(pack, answers, entityRows as unknown as EntityLike[]);
+  // Pass the visible actor so the divergence narrative names it (ADR 0040).
+  const core = buildEnterpriseDiagnostic(pack, answers, entityRows as unknown as EntityLike[], {
+    visible_actor_name: (req.caseRow!.critical_actor_name as string | null) ?? null,
+    visible_actor_type: (req.caseRow!.critical_actor_type as string | null) ?? null,
+  });
 
   // CVI enrichment (local, derived candidate — ADR 0035).
   const flowScore =
@@ -252,7 +271,10 @@ casesRouter.post('/:id/diagnostic-packets/:pid/exports', loadCase, (req: CaseReq
 });
 
 // ----------------------------------------------------------------- red team
-casesRouter.post('/:id/red-team/run', loadCase, async (req: CaseRequest, res) => {
+casesRouter.post(
+  '/:id/red-team/run',
+  loadCase,
+  wrap(async (req: CaseRequest, res) => {
   const parsed = RedTeamRunInput.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: 'invalid' });
@@ -262,6 +284,17 @@ casesRouter.post('/:id/red-team/run', loadCase, async (req: CaseRequest, res) =>
   const persona = pack.personas.find((p) => p.id === parsed.data.persona);
   if (!persona) {
     res.status(400).json({ error: 'unknown_persona' });
+    return;
+  }
+  // Per-analyst daily LLM budget — refuse BEFORE spending so one account can't run unbounded paid
+  // calls (financial DoS — ADR 0034). UTC day boundary.
+  const dayStart = new Date().toISOString().slice(0, 10) + ' 00:00:00';
+  const used = repo.usageSinceForUser(req.user!.id, dayStart);
+  if (
+    (config.llmMaxCallsPerUserPerDay > 0 && used.calls >= config.llmMaxCallsPerUserPerDay) ||
+    (config.llmMaxCostPerUserPerDayUsd > 0 && used.cost_usd >= config.llmMaxCostPerUserPerDayUsd)
+  ) {
+    res.status(429).json({ error: 'llm_budget_exceeded', detail: 'Plafond LLM quotidien atteint.' });
     return;
   }
   // Latest packet (if any) provides the provisional diagnosis to attack.
@@ -323,9 +356,10 @@ casesRouter.post('/:id/red-team/run', loadCase, async (req: CaseRequest, res) =>
       res.status(502).json({ error: 'red_team_failed', detail: e.message });
       return;
     }
-    throw e;
+    throw e; // routed to onError by wrap()
   }
-});
+  }),
+);
 
 casesRouter.get('/:id/red-team/suggestions', loadCase, (req, res) => {
   res.json(repo.listSuggestions(req.params.id));
@@ -347,8 +381,12 @@ casesRouter.patch('/:id/red-team/suggestions/:sid', loadCase, (req: CaseRequest,
 });
 
 // ----------------------------------------------------------------- enrichment (chokepoints)
-casesRouter.get('/:id/enrichment/chokepoints', loadCase, async (req, res) => {
-  const flowType = typeof req.query.flow_type === 'string' ? req.query.flow_type : undefined;
-  const region = typeof req.query.region === 'string' ? req.query.region : undefined;
-  res.json(await suggestChokepoints(flowType, region));
-});
+casesRouter.get(
+  '/:id/enrichment/chokepoints',
+  loadCase,
+  wrap(async (req, res) => {
+    const flowType = typeof req.query.flow_type === 'string' ? req.query.flow_type : undefined;
+    const region = typeof req.query.region === 'string' ? req.query.region : undefined;
+    res.json(await suggestChokepoints(flowType, region));
+  }),
+);

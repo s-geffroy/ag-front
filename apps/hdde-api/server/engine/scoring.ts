@@ -2,9 +2,33 @@
 // every dimension from questions.yaml `targets` weights, then applies scoring_rules.yaml if/then
 // adjustments, pattern activations and red flags. Deterministic and conservative by design (ADR 0032).
 
-import type { DomainPack, EngineAnswer, DimensionScore, ScoringResult, Confidence } from './types';
+import type {
+  DomainPack,
+  EngineAnswer,
+  DimensionScore,
+  ScoringResult,
+  Confidence,
+  Question,
+} from './types';
 
 const clamp05 = (n: number): number => Math.max(0, Math.min(5, n));
+const round05 = (n: number): number => clamp05(Math.round(n));
+const mean = (xs: number[]): number => (xs.length ? xs.reduce((s, v) => s + v, 0) / xs.length : 0);
+
+// Question ids the divergence model reads directly (the "declared vs. proven" gap, ADR 0040).
+const Q_REPLACEABILITY = 'critical_actor_replaceability_30d';
+const Q_SUBSTITUTION_PROOF = 'substitution_real_test_proof';
+const Q_TIER2 = 'hidden_tier2_visibility';
+const HIDDEN_DIMENSION = 'hidden_dependency_score';
+
+// Tier-2 invisibility, on a 0..5 blindness scale (yes = fully visible = 0).
+const TIER2_BLINDNESS: Record<string, number> = {
+  yes: 0,
+  partial: 2,
+  unknown: 4,
+  no: 5,
+  not_applicable: 0,
+};
 
 // Generic risk polarity for categorical answers where "no" = high exposure.
 const RISK_MAP: Record<string, number> = {
@@ -34,10 +58,14 @@ function answerToken(a: EngineAnswer): string {
  * when the answer carries no direct numeric signal (free-text, enumerations) — those dimensions are
  * still moved by scoring rules and the evidence aggregate.
  */
-function answerRisk(token: string, questionType: string): number | null {
-  if (questionType === 'ordinal_scale') {
+function answerRisk(token: string, question: Question): number | null {
+  if (question.type === 'ordinal_scale') {
     const n = Number(token);
     return Number.isFinite(n) ? clamp05(n) : null;
+  }
+  // Per-question option→risk map takes precedence (enumerations not covered by the generic polarity).
+  if (question.answer_risk && token in question.answer_risk) {
+    return clamp05(question.answer_risk[token]);
   }
   if (token in RISK_MAP) return RISK_MAP[token];
   return null;
@@ -71,11 +99,12 @@ export function scoreAnswers(pack: DomainPack, answers: EngineAnswer[]): Scoring
     const q = questionById.get(answer.question_id);
     if (!q?.targets?.dimensions) continue;
     const token = answerToken(answer);
-    const risk = answerRisk(token, q.type);
+    const risk = answerRisk(token, q);
     if (risk === null) continue;
 
     for (const target of q.targets.dimensions) {
       if (target.id === EVIDENCE_DIMENSION) continue; // evidence handled separately below
+      if (target.id === HIDDEN_DIMENSION) continue; // hidden dependency = divergence model (below)
       const value = POSITIVE_DIMENSIONS.has(target.id) ? 5 - risk : risk;
       const slot = (acc[target.id] ??= { weighted: 0, weight: 0, count: 0 });
       slot.weighted += value * target.weight;
@@ -148,12 +177,104 @@ export function scoreAnswers(pack: DomainPack, answers: EngineAnswer[]): Scoring
     for (const p of q?.targets?.patterns ?? []) activatedPatterns.add(p.id);
   }
 
+  // 5. Hidden dependency = DIVERGENCE between declared resilience and proven resilience (ADR 0040).
+  //    It is NOT a relabel of "do you see tier-2?" — it is "how much exposure can you NOT see/prove".
+  //    hidden = exposure (how much it matters) × blindness (how unproven/invisible it is).
+  scores[HIDDEN_DIMENSION] = deriveHiddenDependency(answers, questionById, scores);
+
   const redFlags = [...redFlagIds].map((id) => {
     const def = redFlagById.get(id);
     return { id, severity: def?.severity ?? 0, message_fr: def?.message_fr ?? id };
   });
 
   return { scores, activatedPatterns: [...activatedPatterns], redFlags };
+}
+
+/** Components of the declared-vs-proven divergence, reused by the diagnostic narrative. */
+export interface DivergenceSignals {
+  exposure: number; // how much this dependency matters (0..5)
+  blindness: number; // how invisible/unproven it is (0..5)
+  tier2_blindness: number;
+  substitution_unproven: number;
+  low_evidence: number;
+  replaceability_claimed: boolean;
+}
+
+function tokenFor(
+  answers: EngineAnswer[],
+  questionId: string,
+): { token: string; evidence: number } | null {
+  const a = answers.find((x) => x.question_id === questionId);
+  if (!a) return null;
+  return { token: answerToken(a), evidence: clamp05(Number(a.evidence_quality) || 0) };
+}
+
+/**
+ * Quantify the gap between what the client *believes* (replaceable, in control) and what they can
+ * *prove* (tested alternative, documented tier-2). High exposure that is fully proven/visible is a
+ * KNOWN dependency (low divergence); high exposure that is unproven/invisible is a HIDDEN one.
+ */
+export function divergenceSignals(
+  answers: EngineAnswer[],
+  scores: Record<string, DimensionScore>,
+): DivergenceSignals {
+  const replace = tokenFor(answers, Q_REPLACEABILITY);
+  const proof = tokenFor(answers, Q_SUBSTITUTION_PROOF);
+  const tier2 = tokenFor(answers, Q_TIER2);
+
+  // The client claims the actor is replaceable (overconfidence candidate).
+  const replaceabilityClaimed = ['yes', 'probably_yes', 'uncertain'].includes(replace?.token ?? '');
+  // Substitution is "unproven" when replaceability is claimed but no real-condition test is evidenced.
+  const proofWeak = (proof?.evidence ?? 0) <= 2 || (proof?.token ?? '').length === 0;
+  const substitution_unproven = replaceabilityClaimed
+    ? proofWeak
+      ? 5
+      : 2 // claims replaceable AND has proof → low blindness
+    : replace?.token === 'no' || replace?.token === 'probably_no'
+      ? 1 // declares NOT replaceable → a known dependency, not a hidden one
+      : 3;
+
+  const tier2_blindness = tier2 ? (TIER2_BLINDNESS[tier2.token] ?? 4) : 4;
+  const low_evidence = 5 - (scores[EVIDENCE_DIMENSION]?.value ?? 0);
+
+  const exposure = Math.max(
+    scores['supplier_dependency_score']?.value ?? 0,
+    scores['flow_criticality_score']?.value ?? 0,
+  );
+  const blindness = round05(mean([tier2_blindness, substitution_unproven, low_evidence]));
+
+  return {
+    exposure,
+    blindness,
+    tier2_blindness,
+    substitution_unproven,
+    low_evidence,
+    replaceability_claimed: replaceabilityClaimed,
+  };
+}
+
+function deriveHiddenDependency(
+  answers: EngineAnswer[],
+  questionById: Map<string, Question>,
+  scores: Record<string, DimensionScore>,
+): DimensionScore {
+  const s = divergenceSignals(answers, scores);
+  const value = round05((s.exposure * s.blindness) / 5);
+  const answered = [Q_REPLACEABILITY, Q_TIER2].filter((q) => answers.some((a) => a.question_id === q))
+    .length;
+  void questionById;
+  return {
+    dimension_id: HIDDEN_DIMENSION,
+    value,
+    confidence: answered >= 2 ? 'high' : answered === 1 ? 'medium' : 'low',
+    rationale:
+      `Divergence déclaré/prouvé : exposition ${s.exposure}/5 × cécité ${s.blindness}/5 ` +
+      `(visibilité rang-2 ${s.tier2_blindness}/5, substitution non prouvée ${s.substitution_unproven}/5, ` +
+      `preuve faible ${s.low_evidence}/5). Une dépendance n'est « cachée » que là où l'exposition est réelle ` +
+      `mais non vue/prouvée.`,
+    evidence_refs: [],
+    open_uncertainties: [],
+  };
 }
 
 /** Overall confidence heuristic from average evidence quality. */

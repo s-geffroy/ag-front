@@ -28,10 +28,16 @@ export function isAdmin(req: AuthedRequest): boolean {
 // --- login rate limit: max attempts per IP per window ---
 const WINDOW_MS = 60_000;
 const MAX_ATTEMPTS = 8;
+const MAX_TRACKED_IPS = 50_000; // hard cap so the map can't grow without bound (DoS guard)
 const hits = new Map<string, number[]>();
 
 export function loginRateLimited(ip: string): boolean {
   const now = Date.now();
+  // Opportunistic sweep of fully-expired entries before we risk hitting the cap.
+  if (hits.size >= MAX_TRACKED_IPS) {
+    for (const [k, ts] of hits) if (ts.every((t) => now - t >= WINDOW_MS)) hits.delete(k);
+    if (hits.size >= MAX_TRACKED_IPS) hits.clear(); // last resort: bounded memory over perfect state
+  }
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
   recent.push(now);
   hits.set(ip, recent);

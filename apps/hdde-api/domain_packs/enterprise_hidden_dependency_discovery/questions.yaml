@@ -52,6 +52,16 @@ questions:
         technology_access,
         unknown,
       ]
+    # Naming any concrete failure mode means a critical function DOES break → high flow criticality.
+    # "unknown" is worst: the client cannot even say what breaks first (blind spot).
+    answer_risk:
+      production: 5
+      delivery: 5
+      technology_access: 5
+      compliance: 4
+      financing: 4
+      customer_relationship: 4
+      unknown: 5
     targets:
       dimensions:
         - id: flow_criticality_score

@@ -21,8 +21,8 @@ describe('chokepoints enrichment (anti-tainted guard, ADR 0035)', () => {
       const u = String(url);
       // Assert the request did NOT ask for tainted records.
       expect(u).not.toContain('include_tainted');
-      // 'transport' → by-flow/container_ship (V2), which returns a bare array of summaries.
-      expect(u).toContain('/chokepoints/by-flow/container_ship');
+      // 'transport' → by-flow/container_shipping (V2), which returns a bare array of summaries.
+      expect(u).toContain('/chokepoints/by-flow/container_shipping');
       return new Response(
         JSON.stringify([
           {

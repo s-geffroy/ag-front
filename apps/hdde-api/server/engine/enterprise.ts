@@ -36,7 +36,11 @@ export interface EntityResult {
 }
 
 const SUBST_RISK: Record<string, number> = { no: 5, partial: 3, unknown: 4, yes: 1 };
+// Tier-2 invisibility on a 0..5 blindness scale (yes = fully visible = 0).
 const VIS_RISK: Record<string, number> = { no: 5, unknown: 4, partial: 2, yes: 0 };
+// "Unproven substitution" blindness: claiming an actor is replaceable (yes) without proof is the
+// strongest overconfidence signal; declaring it NOT replaceable is a KNOWN dependency, not a hidden one.
+const SUBST_UNPROVEN: Record<string, number> = { yes: 4, partial: 3, unknown: 4, no: 1 };
 const PARTNER_TYPES = new Set(['logistics_provider', 'bank', 'insurer', 'regulator', 'partner']);
 const clamp05 = (n: number): number => Math.max(0, Math.min(5, Math.round(n)));
 
@@ -76,10 +80,16 @@ export function scoreEntity(pack: DomainPack, e: EntityLike): EntityResult {
     SUBST_RISK[e.substitutability ?? 'unknown'] ?? 4,
     'Substituabilité déclarée.',
   );
+  // Hidden dependency = DIVERGENCE: exposure × blindness, not a relabel of tier-2 visibility (ADR 0040).
+  // A critical actor that is fully visible AND proven-replaceable is a KNOWN dependency (low hidden score);
+  // a critical actor that is invisible/overconfidently-replaceable is where the real risk hides.
+  const tier2Blind = VIS_RISK[e.tier2_visibility ?? 'unknown'] ?? 4;
+  const substUnproven = SUBST_UNPROVEN[e.substitutability ?? 'unknown'] ?? 4;
+  const blindnessFactor = (tier2Blind + substUnproven) / 10; // 0..1
   set(
     'hidden_dependency_score',
-    VIS_RISK[e.tier2_visibility ?? 'unknown'] ?? 4,
-    'Visibilité rang 2.',
+    depBase * blindnessFactor,
+    `Divergence : exposition ${clamp05(depBase)}/5 × cécité (rang-2 ${tier2Blind}/5, substitution non prouvée ${substUnproven}/5).`,
   );
   set(
     'jurisdictional_exposure_score',
@@ -216,8 +226,9 @@ export function buildEnterpriseDiagnostic(
   pack: DomainPack,
   answers: Parameters<typeof buildDiagnostic>[1],
   entities: EntityLike[],
+  ctx: Parameters<typeof buildDiagnostic>[2] = {},
 ): EnterpriseDiagnostic {
-  const core = buildDiagnostic(pack, answers);
+  const core = buildDiagnostic(pack, answers, ctx);
   const entityResults = entities.map((e) => scoreEntity(pack, e));
   const { concentration, redFlags: concFlags } = analyseConcentration(entities);
 

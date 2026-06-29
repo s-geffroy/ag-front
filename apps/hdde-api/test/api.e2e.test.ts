@@ -146,10 +146,57 @@ describe('HDDE API e2e', () => {
     expect(diffBody.verdict.changed).toBe(false);
   });
 
-  it('isolates cases between owners', async () => {
-    // A fresh analyst cannot see the admin's cases via list (admin sees all; analyst only own).
-    const list = await api('GET', '/api/cases');
-    expect(list.status).toBe(200);
-    expect(Array.isArray(await jsonOf(list))).toBe(true);
+  it('creates a case without critical_actor_type (no NOT NULL crash)', async () => {
+    // Regression: the column is NOT NULL but the schema field is optional — must not 500.
+    const r = await api('POST', '/api/cases', {
+      title: 'Sans type acteur',
+      sector: 'x',
+      business_function_at_risk: 'y',
+    });
+    expect(r.status).toBe(201);
+  });
+
+  it('enforces case isolation between non-admin analysts (no IDOR)', async () => {
+    const { createUser } = await import('../server/db/repo');
+    const { hashPassword } = await import('../server/auth/password');
+    createUser('alice@example.com', hashPassword('alice-password-1234'), 'analyst');
+    createUser('bob@example.com', hashPassword('bob-password-1234'), 'analyst');
+
+    const loginAs = async (email: string, password: string): Promise<string> => {
+      const r = await api('POST', '/api/auth/login', { email, password });
+      expect(r.status).toBe(200);
+      return (r.headers.getSetCookie?.() ?? []).map((c) => c.split(';')[0]).join('; ');
+    };
+    const aliceCookie = await loginAs('alice@example.com', 'alice-password-1234');
+    const bobCookie = await loginAs('bob@example.com', 'bob-password-1234');
+
+    const withCookie = (method: string, path: string, c: string, body?: unknown): Promise<Response> =>
+      fetch(`${base}${path}`, {
+        method,
+        headers: { 'content-type': 'application/json', cookie: c },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+
+    // Alice creates a confidential case.
+    const created = await withCookie('POST', '/api/cases', aliceCookie, {
+      title: 'Alice — dossier confidentiel',
+      sector: 'défense',
+      business_function_at_risk: 'secret',
+    });
+    expect(created.status).toBe(201);
+    const aliceCaseId = (await jsonOf(created)).id as string;
+
+    // Bob (a different non-admin analyst) must NOT be able to read it — 403, the security-critical path.
+    expect((await withCookie('GET', `/api/cases/${aliceCaseId}`, bobCookie)).status).toBe(403);
+    // ...nor generate a packet on it.
+    expect(
+      (await withCookie('POST', `/api/cases/${aliceCaseId}/diagnostic-packets`, bobCookie)).status,
+    ).toBe(403);
+    // ...nor see it in his own list.
+    const bobList = await jsonOf(await withCookie('GET', '/api/cases', bobCookie));
+    expect((bobList as { id: string }[]).find((c) => c.id === aliceCaseId)).toBeUndefined();
+
+    // Alice herself still can (sanity: the case exists and is hers).
+    expect((await withCookie('GET', `/api/cases/${aliceCaseId}`, aliceCookie)).status).toBe(200);
   });
 });

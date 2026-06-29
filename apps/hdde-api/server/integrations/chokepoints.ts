@@ -24,9 +24,9 @@ export interface ChokepointEnrichment {
 // miss (404) we fall back to the most strategic (P0) chokepoints so enrichment never comes back empty.
 const FLOW_TO_CP_FLOW: Record<string, string> = {
   energy: 'crude_oil',
-  goods: 'container_ship',
-  transport: 'container_ship',
-  data: 'submarine_cable',
+  goods: 'containers',
+  transport: 'container_shipping',
+  data: 'submarine_data',
 };
 
 interface RawSummary {

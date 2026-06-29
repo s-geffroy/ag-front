@@ -81,7 +81,7 @@ export function createCase(ownerId: string, input: CaseInput): Row {
       client_name: input.client_name ?? '',
       sector: input.sector,
       critical_actor_name: input.critical_actor_name ?? '',
-      critical_actor_type: input.critical_actor_type ?? null,
+      critical_actor_type: input.critical_actor_type ?? '', // column is NOT NULL; schema field is optional
       suspected_dependency: input.suspected_dependency ?? '',
       business_function_at_risk: input.business_function_at_risk,
       initial_concern: input.initial_concern ?? '',
@@ -291,6 +291,10 @@ export function listEvidence(caseId: string): Row[] {
     .all(caseId) as Row[];
 }
 
+export function getEvidence(id: string): Row | undefined {
+  return db().prepare('SELECT * FROM evidence_items WHERE id = ?').get(id) as Row | undefined;
+}
+
 export function createEvidenceLink(
   caseId: string,
   evidenceId: string,
@@ -468,6 +472,18 @@ export function usageSince(boundary: string | null): UsageWindow {
           )
           .get()
   ) as UsageWindow;
+  return { calls: row.calls, total_tokens: row.total_tokens, cost_usd: row.cost_usd };
+}
+
+/** Per-user usage since a SQLite datetime boundary — drives the per-analyst LLM budget (ADR 0034). */
+export function usageSinceForUser(userId: string, boundary: string): UsageWindow {
+  const row = db()
+    .prepare(
+      `SELECT COUNT(*) AS calls, COALESCE(SUM(total_tokens),0) AS total_tokens,
+              COALESCE(SUM(cost_usd),0) AS cost_usd
+         FROM llm_usage WHERE user_id = ? AND created_at >= ?`,
+    )
+    .get(userId, boundary) as UsageWindow;
   return { calls: row.calls, total_tokens: row.total_tokens, cost_usd: row.cost_usd };
 }
 

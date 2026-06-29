@@ -50,6 +50,7 @@ const questionSchema = z.object({
   type: z.enum(['categorical', 'free_text', 'ordinal_scale']),
   text_fr: z.string(),
   answer_options: z.array(z.string()).optional(),
+  answer_risk: z.record(z.string(), z.number()).optional(),
   targets: z
     .object({
       dimensions: z.array(z.object({ id: z.string(), weight: z.number() })).optional(),

@@ -140,18 +140,22 @@ export async function runPersona(persona: Persona, ctx: RedTeamContext): Promise
   let content: string;
   let usage: TokenUsage | null = null;
   try {
-    const completion = await client.chat.completions.create({
-      model: config.openaiModel,
-      temperature: 0.4,
-      response_format: {
-        type: 'json_schema',
-        json_schema: { name: 'red_team_persona', strict: true, schema: REDTEAM_JSON_SCHEMA },
+    const completion = await client.chat.completions.create(
+      {
+        model: config.openaiModel,
+        temperature: 0.4,
+        max_tokens: config.llmMaxOutputTokens, // bound output cost per call
+        response_format: {
+          type: 'json_schema',
+          json_schema: { name: 'red_team_persona', strict: true, schema: REDTEAM_JSON_SCHEMA },
+        },
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: buildUserPrompt(persona, ctx) },
+        ],
       },
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildUserPrompt(persona, ctx) },
-      ],
-    });
+      { signal: AbortSignal.timeout(config.llmTimeoutMs) }, // hard wall-clock cap
+    );
     content = completion.choices[0]?.message?.content ?? '';
     if (completion.usage) {
       usage = {

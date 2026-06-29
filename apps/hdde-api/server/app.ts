@@ -18,12 +18,20 @@ export function createApp(): express.Express {
 
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', true); // behind Caddy
+  // Trust EXACTLY one proxy hop (Caddy). `true` trusts every hop, letting a client spoof its source
+  // IP via X-Forwarded-For and defeat the login rate limiter (ADR 0033 / owasp-security).
+  app.set('trust proxy', 1);
 
   app.use((_req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'no-referrer');
+    // SPA serves no inline scripts; lock the origin down (defense-in-depth against XSS).
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; " +
+        "object-src 'none'; frame-ancestors 'none'; base-uri 'self'",
+    );
     next();
   });
 

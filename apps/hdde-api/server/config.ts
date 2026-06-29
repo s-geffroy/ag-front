@@ -21,13 +21,20 @@ export const config = {
     process.env.DOMAIN_PACK_PATH ?? 'domain_packs/enterprise_hidden_dependency_discovery',
   ),
 
-  sessionSecret: process.env.SESSION_SECRET ?? 'change-me-to-a-long-random-string',
+  // NB: no SESSION_SECRET — sessions are opaque random ids stored server-side (session.ts); nothing is
+  // signed, so a secret would be misleading. Removed to avoid the audit trap (was dead config).
   allowSignup: process.env.ALLOW_SIGNUP === 'true',
   cookieSecure: process.env.COOKIE_SECURE === 'true',
 
   llmEnabled: process.env.LLM_ENABLED === 'true',
   openaiApiKey: process.env.OPENAI_API_KEY ?? '',
   openaiModel: process.env.OPENAI_MODEL ?? 'gpt-4o',
+  // Per-analyst daily LLM budget — enforced BEFORE each call so a single account cannot run unbounded
+  // paid red-team runs (financial DoS — ADR 0034). 0 disables that specific cap.
+  llmMaxCallsPerUserPerDay: Number(process.env.LLM_MAX_CALLS_PER_USER_PER_DAY ?? 50),
+  llmMaxCostPerUserPerDayUsd: Number(process.env.LLM_MAX_COST_PER_USER_PER_DAY_USD ?? 5),
+  llmMaxOutputTokens: Number(process.env.LLM_MAX_OUTPUT_TOKENS ?? 1500),
+  llmTimeoutMs: Number(process.env.LLM_TIMEOUT_MS ?? 30_000),
 
   // Chokepoints Read API: READ SCOPE ONLY, never read_tainted (ADR 0035).
   chokepointsApiUrl: process.env.CHOKEPOINTS_API_URL ?? '',
