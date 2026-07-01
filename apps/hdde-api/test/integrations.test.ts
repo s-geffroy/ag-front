@@ -7,10 +7,11 @@ process.env.CHOKEPOINTS_API_TOKEN = 'read-scope-token';
 
 let suggestChokepoints: (typeof import('../server/integrations/chokepoints'))['suggestChokepoints'];
 let deriveFlowVulnerability: (typeof import('../server/integrations/cvi'))['deriveFlowVulnerability'];
+let fetchCorridorCvi: (typeof import('../server/integrations/cvi'))['fetchCorridorCvi'];
 
 beforeAll(async () => {
   ({ suggestChokepoints } = await import('../server/integrations/chokepoints'));
-  ({ deriveFlowVulnerability } = await import('../server/integrations/cvi'));
+  ({ deriveFlowVulnerability, fetchCorridorCvi } = await import('../server/integrations/cvi'));
 });
 
 afterEach(() => vi.restoreAllMocks());
@@ -62,5 +63,47 @@ describe('CVI enrichment (local, candidate only)', () => {
   it('maps a high flow-criticality score to a critical vulnerability level', () => {
     expect(deriveFlowVulnerability(5).vulnerability_level).toBe('critique');
     expect(deriveFlowVulnerability(0).vulnerability_level).toBe('bas');
+  });
+});
+
+describe('fetchCorridorCvi — remote CVI prefill guard (ADR 0035)', () => {
+  it('returns null when the endpoint 404s (not yet shipped) — graceful degradation', async () => {
+    // /chokepoints/{id}/cvi-assessment is not in the v0.2.0 contract yet; a 404 must NOT throw.
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('not found', { status: 404 }),
+    );
+    expect(await fetchCorridorCvi('p0_ormuz')).toBeNull();
+  });
+
+  it('returns null on a network error', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network down'));
+    expect(await fetchCorridorCvi('p0_ormuz')).toBeNull();
+  });
+
+  it('drops a payload that fails @ag/cvi validation (0-5 without dimensions → candidate gate)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ scale: '0-5', dimensions: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+    expect(await fetchCorridorCvi('p0_ormuz')).toBeNull();
+  });
+
+  it('returns a validated assessment on a well-formed 0-5 payload', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          scale: '0-5',
+          methodology_documented: false,
+          sources: ['chokepoints:run:cvi-1'],
+          dimensions: { menace: { score: 4, rationale: 'Acteurs hostiles' } },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    );
+    const cvi = await fetchCorridorCvi('p0_ormuz');
+    expect(cvi?.scale).toBe('0-5');
+    expect(cvi?.dimensions?.menace?.score).toBe(4);
   });
 });

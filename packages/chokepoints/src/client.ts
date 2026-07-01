@@ -23,6 +23,8 @@ import {
   PerceptionSignalList,
   ChokepointAnalysisList,
   ChokepointAnalysisDetail,
+  HealthOut,
+  FicheOut,
 } from './schema';
 import type {
   FlowChokepointOut as FlowChokepointOutT,
@@ -44,6 +46,8 @@ import type {
   PerceptionSignalList as PerceptionSignalListT,
   ChokepointAnalysisList as ChokepointAnalysisListT,
   ChokepointAnalysisDetail as ChokepointAnalysisDetailT,
+  HealthOut as HealthOutT,
+  FicheOut as FicheOutT,
 } from './schema';
 
 export type ChokepointsClientOptions = {
@@ -79,8 +83,10 @@ export type AnalysisDoc = 'synthesis' | 'theory-of-constraints' | 'leverage-poin
 
 export type ChokepointsClient = {
   // --- 0.1.0 ---
+  getHealth(): Promise<HealthOutT>;
   listChokepoints(params?: ListParams): Promise<ChokepointList>;
   getChokepoint(id: string): Promise<ChokepointDetail>;
+  getChokepointFiche(id: string): Promise<FicheOutT>;
   exportGeoJson(): Promise<GeoJsonFeatureCollection>;
   // --- 0.2.0 (additive, docs/api-interface-contract_V2.md) ---
   searchChokepoints(params: SearchParams): Promise<ChokepointList>;
@@ -174,11 +180,18 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
   const enc = encodeURIComponent;
 
   return {
+    async getHealth() {
+      // Liveness probe. Auth header is sent (harmless) but the endpoint is public; never tainted.
+      return HealthOut.parse(await get('/health', undefined, { allowTainted: false }));
+    },
     async listChokepoints(params) {
       return ChokepointList.parse(await get('/chokepoints', params));
     },
     async getChokepoint(id) {
       return ChokepointDetail.parse(await get(`/chokepoints/${encodeURIComponent(id)}`));
+    },
+    async getChokepointFiche(id) {
+      return FicheOut.parse(await get(`/chokepoints/${enc(id)}/fiche`));
     },
     async exportGeoJson() {
       // Public redistribution surface. Two structural guarantees, independent of how the client

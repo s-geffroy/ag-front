@@ -171,6 +171,40 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     expect(md).toContain('# Synthèse');
   });
 
+  it('getHealth returns the liveness status and never sends include_tainted', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      includeTainted: true, // even a tainted client…
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse({ status: 'ok' });
+      },
+    });
+    const h = await client.getHealth();
+    expect(h.status).toBe('ok');
+    expect(calledUrl).toContain('/health');
+    expect(calledUrl).not.toContain('include_tainted'); // …liveness is structurally clear-only
+  });
+
+  it('getChokepointFiche reads a corridor fiche and honors the taint gate when opted in', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      includeTainted: true,
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse({ chokepoint_id: 'p0_x', canonical_name: 'Détroit X', summary: '…' });
+      },
+    });
+    const fiche = await client.getChokepointFiche('p0_x');
+    expect(fiche.canonical_name).toBe('Détroit X');
+    expect(calledUrl).toContain('/chokepoints/p0_x/fiche');
+    expect(calledUrl).toContain('include_tainted=true');
+  });
+
   it('fetches a per-corridor CVI assessment (read scope, 8 dimensions)', async () => {
     let calledUrl = '';
     const client = createChokepointsClient({

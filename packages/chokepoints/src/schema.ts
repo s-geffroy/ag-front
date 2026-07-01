@@ -351,6 +351,18 @@ export const CviAssessmentOut = z
   .passthrough();
 export type CviAssessmentOut = z.infer<typeof CviAssessmentOut>;
 
+/** GET /health → liveness probe. Kept permissive; `{ "status": "ok" }` in practice. */
+export const HealthOut = z.object({ status: z.string().nullish() }).passthrough();
+export type HealthOut = z.infer<typeof HealthOut>;
+
+/**
+ * GET /chokepoints/{id}/fiche → structured public fiche for a corridor. The producer schema is
+ * open (`application/json`, no fixed shape at v0.2.0), so this stays a permissive object; callers
+ * read the fields they need. Taint-gated like the sibling `/chokepoints/{id}/*` routes.
+ */
+export const FicheOut = z.record(z.unknown());
+export type FicheOut = z.infer<typeof FicheOut>;
+
 /** /chokepoints/{id}/event-signals → raw append-only event stream. */
 export const EventSignalOut = z
   .object({
