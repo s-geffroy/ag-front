@@ -15,6 +15,7 @@ export function ExplorationPage() {
   const [priority, setPriority] = useState<string>('P0');
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [explorerOpen, setExplorerOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -68,6 +69,14 @@ export function ExplorationPage() {
           {items ? `${filtered.length} nœuds` : '…'}
           {taintedCount > 0 ? ` · ${taintedCount} restreints` : ''}
         </span>
+        <Button
+          size="sm"
+          variant="outline"
+          className="ml-auto"
+          onClick={() => setExplorerOpen(true)}
+        >
+          Explorateur API
+        </Button>
       </div>
 
       {error ? (
@@ -122,6 +131,134 @@ export function ExplorationPage() {
       >
         {selectedId ? <DetailPanel key={selectedId} id={selectedId} /> : null}
       </Sheet>
+
+      <Sheet open={explorerOpen} onOpenChange={setExplorerOpen} title="Explorateur API (read)">
+        <ResourceExplorer />
+      </Sheet>
+    </div>
+  );
+}
+
+// Every non-corridor-scoped Read API endpoint, surfaced as a one-click resource. `text: true` marks
+// the raw NDJSON export. Search/nearby take params and are handled inline below.
+const API_RESOURCES: { label: string; path: string; text?: boolean }[] = [
+  { label: 'health (liveness API)', path: 'health' },
+  { label: 'actors', path: 'actors' },
+  { label: 'relations', path: 'relations' },
+  { label: 'sources', path: 'sources' },
+  { label: 'vocabularies', path: 'vocabularies' },
+  { label: 'strategic-systems', path: 'strategic-systems' },
+  { label: 'episodes', path: 'episodes' },
+  { label: 'alerts', path: 'alerts' },
+  { label: 'analytics / results', path: 'analytics/results' },
+  { label: 'analytics / engine-runs', path: 'analytics/engine-runs' },
+  { label: 'chokepoint-analyses', path: 'chokepoint-analyses' },
+  { label: 'exports / jsonl', path: 'exports/jsonl', text: true },
+];
+
+function ResourceExplorer() {
+  const [title, setTitle] = useState<string | null>(null);
+  const [result, setResult] = useState<unknown>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [q, setQ] = useState('');
+
+  async function run(label: string, path: string, text = false) {
+    setTitle(label);
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      setResult(text ? await api.exploreText(path) : await api.exploreResource(path));
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-[11px] text-muted">
+        Proxy interne (token côté serveur) sur toute la surface lecture de l'API chokepoints. Données
+        dérivées = candidats à valider ; peut inclure des enregistrements restreints — usage interne.
+      </p>
+
+      <form
+        className="flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (q.trim()) run(`search « ${q.trim()} »`, `chokepoints/search?q=${encodeURIComponent(q.trim())}`);
+        }}
+      >
+        <input
+          className={inputClass('h-8 flex-1')}
+          placeholder="Recherche plein-texte (search)…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <Button size="sm" type="submit" disabled={!q.trim()}>
+          Chercher
+        </Button>
+      </form>
+
+      <div className="flex flex-wrap gap-1.5">
+        {API_RESOURCES.map((r) => (
+          <Button
+            key={r.path}
+            size="sm"
+            variant={title === r.label ? 'default' : 'outline'}
+            onClick={() => run(r.label, r.path, r.text)}
+          >
+            {r.label}
+          </Button>
+        ))}
+      </div>
+
+      {title ? (
+        <>
+          <Separator />
+          <ResultView title={title} busy={busy} error={error} result={result} />
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function ResultView({
+  title,
+  busy,
+  error,
+  result,
+}: {
+  title: string;
+  busy: boolean;
+  error: string | null;
+  result: unknown;
+}) {
+  const count = Array.isArray(result) ? result.length : null;
+  const isCvi = title.includes('cvi-assessment');
+  return (
+    <div>
+      <div className="mb-1 flex items-center gap-2">
+        <span className="label text-[11px] uppercase tracking-wider text-muted">{title}</span>
+        {count !== null ? <Badge tone="neutral">{count}</Badge> : null}
+      </div>
+      {busy ? <p className="text-sm text-muted">Chargement…</p> : null}
+      {error ? (
+        <p className="text-sm text-status-blocked">
+          {error.includes('502') && isCvi
+            ? 'cvi-assessment : endpoint pas encore livré côté producteur (voir le brief). Se câblera au bump 0.3.0.'
+            : error.includes('503')
+              ? 'API chokepoints non configurée (token absent).'
+              : `Erreur : ${error}`}
+        </p>
+      ) : null}
+      {!busy && !error && result !== null ? (
+        <pre className="max-h-80 overflow-auto rounded-md border border-line bg-subtle p-2 text-[11px] leading-relaxed">
+          {typeof result === 'string' ? result : JSON.stringify(result, null, 2)}
+        </pre>
+      ) : null}
     </div>
   );
 }
@@ -183,10 +320,69 @@ function DetailPanel({ id }: { id: string }) {
       <Section title="Épisodes" rows={detail.episodes.map((e) => e.name)} />
 
       <Separator />
+      <CorridorApiPanel id={id} />
+
+      <Separator />
       <p className="text-[11px] text-muted">
         Données canoniques (lecture seule). Géométrie schématique ; analytique dérivée = candidats
         en attente de validation. Vue interne — ne pas republier les données restreintes.
       </p>
+    </div>
+  );
+}
+
+// Per-corridor Read API endpoints, scoped to the selected chokepoint id.
+const CORRIDOR_ENDPOINTS: { label: string; sub: string }[] = [
+  { label: 'fiche', sub: 'fiche' },
+  { label: 'actors', sub: 'actors' },
+  { label: 'analysis', sub: 'analysis' },
+  { label: 'event-signals', sub: 'event-signals' },
+  { label: 'perception-signals', sub: 'perception-signals' },
+  { label: 'cvi-assessment', sub: 'cvi-assessment' },
+];
+
+function CorridorApiPanel({ id }: { id: string }) {
+  const [title, setTitle] = useState<string | null>(null);
+  const [result, setResult] = useState<unknown>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run(label: string, sub: string) {
+    setTitle(`${label} · ${id}`);
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      setResult(await api.exploreResource(`chokepoints/${encodeURIComponent(id)}/${sub}`));
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <div className="label mb-1 text-[11px] uppercase tracking-wider text-muted">
+        Signaux & analyses (API)
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {CORRIDOR_ENDPOINTS.map((e) => (
+          <Button
+            key={e.sub}
+            size="sm"
+            variant={title?.startsWith(e.label) ? 'default' : 'outline'}
+            onClick={() => run(e.label, e.sub)}
+          >
+            {e.label}
+          </Button>
+        ))}
+      </div>
+      {title ? (
+        <div className="mt-2">
+          <ResultView title={title} busy={busy} error={error} result={result} />
+        </div>
+      ) : null}
     </div>
   );
 }

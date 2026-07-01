@@ -171,6 +171,39 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     expect(md).toContain('# Synthèse');
   });
 
+  it('chokepointsBySystem parses a bare array of summaries (not a ChokepointList envelope)', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse([{ id: 'p0_x', canonical_name: 'Détroit X' }]);
+      },
+    });
+    const rows = await client.chokepointsBySystem('sys_adriatic');
+    expect(calledUrl).toContain('/chokepoints/by-system/sys_adriatic');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.canonical_name).toBe('Détroit X');
+  });
+
+  it('listSources coerces string booleans ("true"/"false") from the live API', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse([
+          { source_id: 's1', redistribution_allowed: 'true', attribution_required: 'false' },
+          { source_id: 's2', redistribution_allowed: 'false', attribution_required: 'true' },
+        ]),
+    });
+    const rows = await client.listSources();
+    expect(rows[0]!.redistribution_allowed).toBe(true);
+    expect(rows[0]!.attribution_required).toBe(false);
+    expect(rows[1]!.redistribution_allowed).toBe(false);
+    expect(rows[1]!.attribution_required).toBe(true);
+  });
+
   it('getHealth returns the liveness status and never sends include_tainted', async () => {
     let calledUrl = '';
     const client = createChokepointsClient({

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   ChokepointDetail,
   ChokepointList,
+  ChokepointSummary,
   GeoJsonFeatureCollection,
   toPublicFeatureCollection,
   FlowChokepointOut,
@@ -219,7 +220,8 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       return z.array(RiskChokepointOut).parse(await get(`/chokepoints/by-risk/${enc(riskType)}`));
     },
     async chokepointsBySystem(systemId) {
-      return ChokepointList.parse(await get(`/chokepoints/by-system/${enc(systemId)}`)).items;
+      // The live endpoint returns a BARE array of summaries (not a ChokepointList envelope).
+      return z.array(ChokepointSummary).parse(await get(`/chokepoints/by-system/${enc(systemId)}`));
     },
     async getChokepointAnalysis(id) {
       return ChokepointAnalysis.parse(await get(`/chokepoints/${enc(id)}/analysis`));

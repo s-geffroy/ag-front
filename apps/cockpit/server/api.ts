@@ -9,6 +9,7 @@ import {
   type ItemCollectionName,
 } from './store';
 import { chokepointsClient } from './chokepoints';
+import type { ChokepointsClient } from '@ag/chokepoints';
 import {
   InvalidSlugError,
   isContentType,
@@ -78,6 +79,82 @@ export function createApiRouter(): Router {
       res.status(502).json({ error: 'upstream' });
     }
   });
+
+  // --- Read-API "Explorateur" (internal, Tailscale-only) -----------------------------------------
+  // Server-side proxy over EVERY Chokepoints Read API endpoint so the cockpit console can consult the
+  // full read surface. Namespaced under /explore to avoid the /chokepoints/:id route above. Uses the
+  // read_tainted token from env (restricted records never reach a public surface — ADR 0013). Text
+  // endpoints (JSONL export) are handled separately; the rest return JSON.
+  const explore = express.Router();
+  const str = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
+  const num = (v: unknown): number | undefined => {
+    const n = typeof v === 'string' ? Number(v) : NaN;
+    return Number.isFinite(n) ? n : undefined;
+  };
+  const proxy =
+    (handler: (c: ChokepointsClient, req: Request) => Promise<unknown>) =>
+    async (req: Request, res: Response) => {
+      const client = chokepointsClient();
+      if (!client) {
+        res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+        return;
+      }
+      try {
+        res.json(await handler(client, req));
+      } catch (err) {
+        // Never echo upstream URLs/messages (may embed the tailnet host); log server-side.
+        console.error('[cockpit] explore upstream error', req.path, err);
+        res.status(502).json({ error: 'upstream' });
+      }
+    };
+
+  // Collection + reference endpoints (no path param).
+  explore.get('/health', proxy((c) => c.getHealth()));
+  explore.get('/actors', proxy((c) => c.listActors()));
+  explore.get('/relations', proxy((c) => c.listRelations()));
+  explore.get('/sources', proxy((c) => c.listSources()));
+  explore.get('/vocabularies', proxy((c) => c.getVocabularies()));
+  explore.get('/strategic-systems', proxy((c) => c.listStrategicSystems()));
+  explore.get('/strategic-systems/:id', proxy((c, req) => c.getStrategicSystem(req.params.id)));
+  explore.get('/episodes', proxy((c) => c.listEpisodes()));
+  explore.get('/episodes/:key', proxy((c, req) => c.getEpisode(req.params.key)));
+  explore.get('/alerts', proxy((c, req) => c.listAlerts({ review_status: str(req.query.status), limit: 200 })));
+  explore.get('/analytics/results', proxy((c, req) => c.listAnalyticsResults({ engine_id: str(req.query.engine_id), limit: 200 })));
+  explore.get('/analytics/engine-runs', proxy((c, req) => c.listEngineRuns(str(req.query.engine_id))));
+  explore.get('/chokepoint-analyses', proxy((c) => c.listChokepointAnalyses()));
+  explore.get('/chokepoint-analyses/:id', proxy((c, req) => c.getChokepointAnalysisDetail(req.params.id)));
+
+  // /chokepoints/* — literal-second-segment routes MUST precede the :id ones.
+  explore.get('/chokepoints/search', proxy((c, req) => c.searchChokepoints({ q: str(req.query.q) ?? '', limit: 50 })));
+  explore.get('/chokepoints/nearby', proxy((c, req) => c.nearbyChokepoints({ lat: num(req.query.lat) ?? 0, lon: num(req.query.lon) ?? 0, radius_km: num(req.query.radius_km), limit: 50 })));
+  explore.get('/chokepoints/by-flow/:flow', proxy((c, req) => c.chokepointsByFlow(req.params.flow)));
+  explore.get('/chokepoints/by-risk/:risk', proxy((c, req) => c.chokepointsByRisk(req.params.risk)));
+  explore.get('/chokepoints/by-system/:system', proxy((c, req) => c.chokepointsBySystem(req.params.system)));
+  explore.get('/chokepoints/:id/fiche', proxy((c, req) => c.getChokepointFiche(req.params.id)));
+  explore.get('/chokepoints/:id/actors', proxy((c, req) => c.getChokepointActors(req.params.id)));
+  explore.get('/chokepoints/:id/analysis', proxy((c, req) => c.getChokepointAnalysis(req.params.id)));
+  explore.get('/chokepoints/:id/event-signals', proxy((c, req) => c.getChokepointEventSignals(req.params.id, 100)));
+  explore.get('/chokepoints/:id/perception-signals', proxy((c, req) => c.getChokepointPerceptionSignals(req.params.id, 100)));
+  // CVI assessment: endpoint not yet in v0.2.0 → client throws → proxy returns 502; the UI treats it
+  // as "not shipped yet" (see producer brief). Kept so it lights up the moment the producer ships it.
+  explore.get('/chokepoints/:id/cvi-assessment', proxy((c, req) => c.getChokepointCviAssessment(req.params.id)));
+
+  // JSONL export — raw text stream (not JSON).
+  explore.get('/exports/jsonl', async (_req: Request, res: Response) => {
+    const client = chokepointsClient();
+    if (!client) {
+      res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+      return;
+    }
+    try {
+      res.type('application/x-ndjson').send(await client.exportJsonl());
+    } catch (err) {
+      console.error('[cockpit] explore jsonl upstream error', err);
+      res.status(502).json({ error: 'upstream' });
+    }
+  });
+
+  r.use('/explore', explore);
 
   // Review index: every editorial artifact (published + candidates) with its validation state.
   r.get('/content', (_req: Request, res: Response) => {

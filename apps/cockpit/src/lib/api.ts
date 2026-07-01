@@ -130,4 +130,12 @@ export const api = {
       `/api/contradictions/${encodeURIComponent(type)}/${encodeURIComponent(slug)}/review`,
       put({ status }),
     ).then(asJson<ContradictionReport>),
+  // --- Read-API Explorateur (server-side proxy over the full Chokepoints read surface) ---
+  // `path` is a pre-built relative path (e.g. "actors", "chokepoints/p0_x/fiche"); callers assemble
+  // it from the resource registry. Returns parsed JSON, or raw text for the JSONL export.
+  exploreResource: (path: string) => fetch(`/api/explore/${path}`).then(asJson<unknown>),
+  exploreText: (path: string) =>
+    fetch(`/api/explore/${path}`).then((r) =>
+      r.ok ? r.text() : Promise.reject(new Error(`${r.status} ${r.statusText}`)),
+    ),
 };

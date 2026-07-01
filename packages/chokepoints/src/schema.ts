@@ -249,14 +249,25 @@ export const EpisodeDetail = EpisodeOut.extend({
 export type EpisodeDetail = z.infer<typeof EpisodeDetail>;
 
 /** /sources → registry (now incl. watch coverage in 0.2.0). */
+/**
+ * The live /sources endpoint returns these flags as STRINGS ("true"/"false"), not JSON booleans.
+ * Coerce defensively so a bare `z.boolean()` doesn't reject the whole list. Falsy strings
+ * ("false"/"0"/"no"/"non"/"") → false; any other non-empty string → true; real booleans pass through.
+ */
+const boolish = z.preprocess(
+  (v) =>
+    typeof v === 'string' ? !['false', '0', 'no', 'non', ''].includes(v.trim().toLowerCase()) : v,
+  z.boolean().nullish(),
+);
+
 export const SourceOut = z
   .object({
     source_id: z.string(),
     source_name: z.string().nullish(),
     source_level: z.string().nullish(),
     url: z.string().nullish(),
-    redistribution_allowed: z.boolean().nullish(),
-    attribution_required: z.boolean().nullish(),
+    redistribution_allowed: boolish,
+    attribution_required: boolish,
     license_risk: z.string().nullish(),
     domain_relevance: z.unknown().nullish(),
     evidence_types: z.array(z.string()).default([]),
