@@ -17,6 +17,7 @@ import {
   AlertOut,
   AnalyticalResultOut,
   EngineRunOut,
+  CviAssessmentOut,
   EventSignalOut,
   ChokepointAnalysis,
   PerceptionSignalList,
@@ -37,6 +38,7 @@ import type {
   AlertOut as AlertOutT,
   AnalyticalResultOut as AnalyticalResultOutT,
   EngineRunOut as EngineRunOutT,
+  CviAssessmentOut as CviAssessmentOutT,
   EventSignalOut as EventSignalOutT,
   ChokepointAnalysis as ChokepointAnalysisT,
   PerceptionSignalList as PerceptionSignalListT,
@@ -101,6 +103,7 @@ export type ChokepointsClient = {
   listAlerts(params?: AlertParams): Promise<AlertOutT[]>;
   listAnalyticsResults(params?: AnalyticsParams): Promise<AnalyticalResultOutT[]>;
   listEngineRuns(engineId?: string): Promise<EngineRunOutT[]>;
+  getChokepointCviAssessment(id: string): Promise<CviAssessmentOutT>;
   listChokepointAnalyses(params?: {
     priority_class?: string;
     family?: string;
@@ -261,6 +264,9 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       return z
         .array(EngineRunOut)
         .parse(await get('/analytics/engine-runs', { engine_id: engineId }));
+    },
+    async getChokepointCviAssessment(id) {
+      return CviAssessmentOut.parse(await get(`/chokepoints/${enc(id)}/cvi-assessment`));
     },
     async listChokepointAnalyses(params) {
       return ChokepointAnalysisList.parse(await get('/chokepoint-analyses', params));

@@ -42,6 +42,18 @@ principales (détail dans `docs/methode-verdict.md`) :
 - **Red team = preuve niveau 0** (ADR 0034) : elle attaque les hypothèses, ne conclut pas.
 - **Munich** (ADR 0037) : incertitudes ouvertes explicites ; aucune garantie de prédiction.
 
+## Amendement (2026-07-01) — source du CVI multi-dimensions
+
+Le branchement ci-dessus est **effectif**, avec une précision de source : l'assessment CVI
+multi-dimensions (`menace`/`capacite_perturbation`/`concentration`/`gouvernance`) provient de l'**API
+Chokepoints** (`GET /chokepoints/{id}/cvi-assessment`, scope `read`, validé par `@ag/cvi`), récupéré
+par HDDE et porté dans le packet (champ `corridor_cvi`) — **VERDICT ne parle pas directement à l'API
+Chokepoints** (contrat HDDE unique, ADR 0042). Le CVI **de flux** embarqué reste la source de PESTEL
+Économique. Aucun score n'est fabriqué : si l'API n'en sert pas, la branche CVI est simplement inactive
+(candidat ≠ fait). Contrat & spec : `docs/cvi-corridor-assessment-spec.md`. Câblage :
+`@ag/chokepoints#getChokepointCviAssessment` → `hdde-api/integrations/cvi.ts#fetchCorridorCvi` →
+packet → `verdict-api/routers/decisions.ts`.
+
 ## Conséquences
 
 - Tier Premium uniquement (la méthode produit l'arbitrage promis par l'offre Premium).

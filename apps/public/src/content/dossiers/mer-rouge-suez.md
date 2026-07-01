@@ -13,12 +13,18 @@ published: false
 confidence: moyen
 corrections: []
 sources:
-  - label: Suez Canal Authority
+  - label: Suez Canal Authority — Navigation Statistics
     type: institutionnel
-  - label: UNCTAD, OMI
+    url: https://www.suezcanal.gov.eg/English/Navigation/Pages/NavigationStatistics.aspx
+  - label: UNCTAD — Navigating troubled waters (fév. 2024)
     type: institutionnel
-  - label: Lloyd’s List, Alphaliner
-    type: presse_specialisee
+    url: https://unctad.org/publication/navigating-troubled-waters-impact-global-trade-disruption-shipping-routes-red-sea-black
+  - label: FMI — Red Sea Attacks Disrupt Global Trade / PortWatch (mars 2024)
+    type: institutionnel
+    url: https://www.imf.org/en/blogs/articles/2024/03/07/red-sea-attacks-disrupt-global-trade
+  - label: Joint War Committee (LMA/IUA) — désignation de zone
+    type: reglementaire
+    url: https://lmalloyds.com/committee/joint-war-committee/
 ---
 
 ## Résumé exécutif
@@ -27,6 +33,10 @@ Le retour à une route de Suez « par défaut » ne dépend pas d’un seul fact
 mais d’une **combinaison** : niveau de menace perçu, disponibilité et coût de l’assurance,
 et capacité résiduelle des routes alternatives. Tant que la prime de risque reste élevée,
 une part du trafic continue d’arbitrer en faveur de la route du Cap.
+
+L’ampleur du choc (transits Suez ≈ −50 %, report vers le Cap ≈ +74 %) est **recoupée par plusieurs
+sources indépendantes** ; la **trajectoire des primes** d’assurance, cœur de la thèse, reste en
+revanche **à valider**. Le corridor porte normalement ≈ 15 % du commerce maritime mondial.
 
 ## Ce que contient le dossier complet
 

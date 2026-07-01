@@ -266,7 +266,14 @@ decisionsRouter.post('/:id/ingest', loadDecision, wrap(async (req, res) => {
     return;
   }
 
-  const candidates = buildCandidates({ packet: fetched.packet });
+  // Prefill from the single HDDE contract (ADR 0042): the packet carries its own flow-CVI, the
+  // chokepoint candidates (→ PESTEL Political/Threats), and the per-corridor multi-dimension CVI
+  // assessment (→ SWOT Threats + PESTEL Legal). All arrive as candidates (candidate ≠ fact, ADR 0027).
+  const candidates = buildCandidates({
+    packet: fetched.packet,
+    cvi: fetched.packet.corridor_cvi,
+    chokepoints: fetched.packet.chokepoints ?? [],
+  });
   const counts = ingestCandidates(req.params.id, {
     pestel: candidates.pestel.map((p) => ({
       category: p.category,

@@ -18,8 +18,10 @@ internalRouter.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// GET /api/internal/cases/:caseId/packet/latest — the latest diagnostic packet for a case, as the
-// validated PacketPayload (the prefill engine's input). 404 if the case or any packet is missing.
+// GET /api/internal/cases/:caseId/packet/latest — the latest HUMAN-VALIDATED diagnostic packet for a
+// case, as a validated PacketPayload (the prefill engine's input). The doctrine guard "validation
+// humaine obligatoire" (methode-verdict, ADR 0042) lives HERE: a draft packet is NEVER ingestible by
+// VERDICT. 404 if the case is missing, or if no packet has been validated yet.
 internalRouter.get('/cases/:caseId/packet/latest', (req: Request, res: Response) => {
   const c = getCase(req.params.caseId);
   if (!c) {
@@ -27,9 +29,9 @@ internalRouter.get('/cases/:caseId/packet/latest', (req: Request, res: Response)
     return;
   }
   const packets = listPackets(req.params.caseId); // ordered version DESC
-  const latest = packets[0];
+  const latest = packets.find((p) => p.status === 'validated'); // latest validated, never a draft
   if (!latest) {
-    res.status(404).json({ error: 'no_packet' });
+    res.status(404).json({ error: 'no_validated_packet' });
     return;
   }
   res.json({

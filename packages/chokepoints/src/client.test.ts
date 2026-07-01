@@ -170,4 +170,30 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     const md = await client.getChokepointAnalysisDoc('p0_x', 'synthesis');
     expect(md).toContain('# Synthèse');
   });
+
+  it('fetches a per-corridor CVI assessment (read scope, 8 dimensions)', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse({
+          scale: '0-5',
+          methodology_documented: false,
+          sources: ['chokepoints:run:cvi-1'],
+          uncertainties: ['Coût de contournement non chiffré'],
+          dimensions: {
+            menace: { score: 4, rationale: 'Acteurs hostiles', confidence: 'moyen' },
+            gouvernance: { score: 3, rationale: 'Gouvernance fragmentée', confidence: 'bas' },
+          },
+        });
+      },
+    });
+    const cvi = await client.getChokepointCviAssessment('p0_ormuz');
+    expect(calledUrl).toContain('/chokepoints/p0_ormuz/cvi-assessment');
+    expect(calledUrl).not.toContain('include_tainted');
+    expect(cvi.scale).toBe('0-5');
+    expect(cvi.dimensions?.menace?.score).toBe(4);
+  });
 });

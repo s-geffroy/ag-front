@@ -43,3 +43,42 @@ describe('HDDE internal API — token guard', () => {
     expect(body.error).toBe('case_not_found');
   });
 });
+
+describe('HDDE internal API — only human-validated packets are ingestible (ADR 0042)', () => {
+  const auth = { 'X-Internal-Token': 'test-internal-token' };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let repo: any;
+  let caseId = '';
+  let packetId = '';
+  let userId = '';
+
+  beforeAll(async () => {
+    repo = await import('../server/db/repo');
+    userId = repo.createUser('an@x.io', 'hash', 'analyst').id;
+    caseId = repo.createCase(userId, { title: 'C', sector: 's', business_function_at_risk: 'f' }).id;
+    // A freshly generated packet is status='draft' (createPacket hard-codes it).
+    packetId = repo.createPacket(
+      caseId,
+      { operational_verdict: 'act', confidence: 'medium', primary_diagnosis: 'd', scores: [], activated_patterns: [], red_flags: [], open_uncertainties: [], light_actions: [], matrix_rows: [] },
+      'sha256:test',
+      {},
+    ).id;
+  });
+
+  const url = (): string => `${base}/api/internal/cases/${caseId}/packet/latest`;
+
+  it('404s no_validated_packet while only a draft exists', async () => {
+    const res = await fetch(url(), { headers: auth });
+    expect(res.status).toBe(404);
+    expect(((await res.json()) as { error?: string }).error).toBe('no_validated_packet');
+  });
+
+  it('serves the packet once a human validates it', async () => {
+    repo.validatePacket(packetId, userId);
+    const res = await fetch(url(), { headers: auth });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { status?: string; packet?: unknown };
+    expect(body.status).toBe('validated');
+    expect(body.packet).toBeTruthy();
+  });
+});

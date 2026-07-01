@@ -56,7 +56,7 @@
     "priority": "P0",
     "progress": 85,
     "deadline": "2026-08-30",
-    "next_action": "Production terminée (seuils + carte). Étape suivante : revue conformité puis validation humaine éditoriale avant ready/published.",
+    "next_action": "Passe de rigueur faite (sources précises C1–C16 + urls, seuils marqués sourcé/hypothèse, distinction fait/analyse). Bloquant amont : collecte humaine (trajectoire primes S&P/Argus, séries incidents/fermeture) — voir docs/evidence. Puis revue conformité + validation humaine avant ready/published.",
     "impact": "atlas",
     "offer": "basic",
     "quality_gate_status": "at_risk",

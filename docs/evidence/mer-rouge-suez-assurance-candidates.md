@@ -10,6 +10,37 @@
 > Docker `tools`). Plusieurs sources renvoient un blocage anti-bot (403 / Access Denied / Cloudflare) —
 > elles sont marquées `accès manuel requis` et restent à récupérer à la main.
 
+## À obtenir — validation humaine (liste de collecte priorisée)
+
+> Ce qu'il faut trouver/fournir pour hisser la fiche **et** le dossier au niveau universitaire. Priorité
+> décroissante. Tant que le point 1 n'est pas levé, le construct **Z** (§3 du dossier) et la thèse
+> « assurance-dominé » restent hypothétiques.
+
+1. **CRUCIAL — Trajectoire des primes _war-risk_ (axe 1 / construct Z).** Récupérer manuellement les
+   articles bloqués au bot : **S&P Global** (`[C5]`, « Access Denied ») **et Argus Media** (`[C7]`,
+   paywall probable). C'est le verrou n°1 : sans trajectoire vérifiée, « retour durable » n'est pas
+   démontrable.
+2. **Série primaire SCA (`[C16]`).** Télécharger les rapports *Navigation Statistics* de la Suez Canal
+   Authority (derrière sélecteur) et extraire la série de transits → recoupement officiel de l'axe 4.
+3. **Circulaire JWLA datée (`[C3]`).** Obtenir le périmètre/coordonnées exacts de la zone « High Risk »
+   (complète la désignation Joint War Committee).
+4. **Communiqué Aspides daté (`[C13]`).** Confirmer les chiffres de protection (≈700 navires, ≈410
+   escortes) aujourd'hui seulement « rapportés ».
+5. **Série de fréquence d'incidents** Bab el-Mandeb / golfe d'Aden → fonde le seuil « ≥ 1/sem. »
+   (actuellement **zéro source**).
+6. **Données de durée de fermeture / quasi-fermeture** → fonde le seuil « > 4 sem. » (**zéro source**).
+7. **Valider les chiffres exacts** des candidats recoupés : −50 % transit, +74 % Cap, −82 % tonnage,
+   586 navires déroutés, surcoût fret ~1 500 → > 4 000 $, conteneurs −66 %, parts 15 % / 22 %.
+8. **PDF à lire à la main (403)** : UNCTAD *Navigating troubled waters* (`[C1]`), UNCTAD *RMT 2024* ch.2
+   (`[C4]`), IUMI *Stats Report 2024* (`[C9]`) — pour les chiffres exacts.
+9. **Benchmark de prime primaire.** Le marché est fragmenté (courtier/navire/cargaison) : arbitrer un
+   référentiel unique (surprime zone JWC, coque standard, transit 7 j) pour rendre Z mesurable.
+
+Détails, URLs et blocages : voir la table « Sites bloqués au bot » et « Prochaines actions (humain) » en
+bas de ce registre.
+
+---
+
 ## Axes de preuve visés (ce que le dossier doit étayer)
 
 1. Niveau **et trajectoire** de la prime _war-risk_ (en % de la valeur coque).

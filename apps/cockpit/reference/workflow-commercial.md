@@ -162,12 +162,19 @@ l'option**. Statuts : `VALIDE / À CORRIGER / BLOQUÉ`.
 
 C'est ici que la chaîne se referme. `@ag/verdict#buildCandidates` (ADR 0042/0043) ingère **en lecture
 seule** le packet HDDE (via une API interne Docker token-protégée, `http://hdde:8090`, jamais via
-Caddy) + CVI + chokepoints, et **pré-remplit** les temps E et R :
+Caddy) et **pré-remplit** les temps E et R. **Garde-fou dur : seul un packet _validé par un analyste_
+est ingérable** — l'API interne refuse un brouillon (`no_validated_packet`), et VERDICT revérifie le
+statut avant de s'en servir. Le packet porte, sous le **contrat HDDE unique** (pas de seconde source,
+ADR 0042), trois signaux géopolitiques :
 
 - Red flags HDDE → **Faiblesses** SWOT ; patterns activés → **Menaces** SWOT.
 - Concentration (single-source, top-client ≥30 %, clustering géographique) → Faiblesses/Menaces + PESTEL.
-- Scores CVI (menace, capacité de perturbation, gouvernance) → Menaces SWOT + PESTEL.
-- Contrôle/dépendance de corridor (chokepoints) → PESTEL Politique.
+- **Évaluation CVI du corridor** (assessment multi-dimensions servi par l'API Chokepoints —
+  `GET /chokepoints/{id}/cvi-assessment`, scope `read`, validé par `@ag/cvi`) : `menace`, `capacité de
+  perturbation`, `concentration` → **Menaces** SWOT ; `gouvernance` → **PESTEL Légal**. Le CVI de flux
+  embarqué alimente en plus **PESTEL Économique**.
+- Contrôle/dépendance de corridor (candidats chokepoints portés par le packet) → **PESTEL Politique** +
+  **Menaces** SWOT.
 - `light_actions` HDDE → **Opportunités** + amorces d'options (type « alternative minimale »).
 
 Tout arrive en `status: 'candidate'` avec `source_ref` ; l'analyste valide/rejette ; **aucune donnée
@@ -225,11 +232,108 @@ VERDICT ne part jamais d'une page blanche : il part du packet HDDE, lui-même no
 et le registre Chokepoints. Et à chaque transition, le garde-fou doctrinal tient : **candidat ≠ fait**,
 validation humaine obligatoire, pas de prédiction garantie.
 
+## 7. Maillons à blinder — manques opérationnels
+
+Cette section est le **fil rouge d'optimisation pour les attentes du client** : chaque maillon est une
+**promesse** faite au client, et la question est « la chaîne la tient-elle de bout en bout ? ». On lit
+d'abord le **parcours** et ses **moments de vérité**, puis les manques par axe (service / validation /
+plus-value), chacun avec l'**attente client**, la **garde requise** et le **statut**.
+
+**Parcours & moments de vérité.** Basic « informer » → Standard « surveiller » → Premium « arbitrer ».
+La valeur doit **atterrir** à quatre moments : (1) **souscription** (le client paie et obtient un
+accès), (2) **premier diagnostic** (HDDE révèle une exposition réelle), (3) **restitution** (la note de
+décision VERDICT est remise et comprise), (4) **suivi de seuil** (le client sait quand re-décider).
+Aujourd'hui les moments 1 et 4 ne sont pas tenus par la chaîne (voir ci-dessous).
+
+### 7.1 Service au client
+
+- **Rail de paiement / abonnement.** *Attente client :* « je paie mon offre `€/mois` et j'ai accès. »
+  *Réel :* aucun paiement — les trois CTA pointent vers `/contact`. *Garde requise :* rail d'abonnement
+  (décision Stripe/Paddle vs facturation manuelle) → **ADR 0045**. *Statut : cible.*
+- **Provisioning `paiement → compte`.** *Attente :* « après paiement, je reçois mes identifiants. »
+  *Réel :* création de compte **manuelle** (`seed:user` lancé à la main) ; rôles `owner_admin|analyst`
+  seulement, **aucun tier codé**, aucune identité client/tenant. *Garde :* déclenchement depuis
+  l'encaissement + invitation e-mail + identité client + tier → **ADR 0045**. *Statut : cible.*
+- **Cycle de vie commercial.** *Attente (côté AG) :* piloter revenus et rétention. *Réel :* le pipeline
+  s'arrête à `pilot_started` (pas de `won/active/churn`) ; KPIs sans MRR/ARR/conversion/rétention.
+  *Garde :* stades post-vente + KPIs revenus → **ADR 0045**. *Statut : cible.*
+- **Pilote fermé 6–8 sem.** *Attente :* un pilote cadré, borné, livrant une restitution. *Réel :* prose
+  (1 stade pipeline + 1 KPI), aucune checklist/timeline/livrables. *Garde :* cycle de vie de pilote
+  outillé (caps : 1 corridor, 2–3 flux, 3–5 signaux, 1 restitution). *Statut : cible.*
+- **Newsletter + consentement.** *Attente :* « je m'abonne à la newsletter » (vendue en Basic). *Réel :*
+  inexistante (pas de formulaire, pas de sujet `newsletter`, pas de consentement). *Garde :* formulaire
+  + opt-in RGPD stocké → **ADR 0045**. *Statut : cible.*
+
+### 7.2 Validation & rédaction interne
+
+- **Validation humaine au passage HDDE→VERDICT.** *Attente :* aucune décision ne part d'un diagnostic
+  non validé. *Réel :* **fait** — l'API interne ne sert que les packets `validated`, VERDICT revérifie.
+  *Garde :* codifiée → **ADR 0046** + amendement **ADR 0042**. *Statut : **fait**.*
+- **Cycle de vie & confidentialité des données clients.** *Attente :* « mes données d'entreprise
+  sensibles sont protégées, conservées puis supprimées. » *Réel :* non traité — le `taint` couvre la
+  **licence de source**, pas la **confidentialité client** ; roster tiers sensible stocké dans HDDE puis
+  copié dans VERDICT, sans rétention/purge/suppression/résidence. *Garde :* classification donnée-client
+  ≠ taint, rétention = durée contrat + prescription, purge/DSAR, chiffrement-au-repos, résidence UE, DPA
+  client → **ADR 0044**. *Statut : cible.* (RGPD art. 28 ; CNIL très active sur la rétention.)
+- **Sous-traitant OpenAI (red team).** *Attente :* mes données ne fuitent pas / n'entraînent pas un
+  modèle tiers. *Réel :* un résumé du roster (acteurs + pays) part vers `gpt-4o` sans note DPA/résidence.
+  *Garde :* DPA signé + exclusion d'entraînement + **Zero Data Retention** **ou** minimisation du roster
+  envoyé (abstraction, pas les noms) → **ADR 0044**. *Statut : cible.* (OpenAI : API non utilisée pour
+  l'entraînement, rétention 30 j puis suppression, ZDR sur accord entreprise.)
+- **Traçabilité du validateur.** *Attente (interne/audit) :* savoir **qui** a validé **quoi**, **quand**.
+  *Réel :* « validation humaine » exigée partout mais l'**identité du signataire** et un **journal
+  immuable** ne sont pas spécifiés (`compliance_done` = booléen sans signataire). *Garde :* capter
+  validateur + horodatage + journal append-only à chaque saut candidat→fait → **ADR 0046**. *Statut :
+  cible.*
+- **Fraîcheur (staleness) chokepoints/CVI.** *Attente :* une note reste rejouable / signale sa péremption.
+  *Réel :* seul le `pack_hash` HDDE est figé ; un changement de `priority_class` chokepoint ou de score
+  CVI après la note n'est pas détecté. *Garde :* figer un `context_hash` (assessment CVI `last_updated` +
+  priorités chokepoints) et proposer une **ré-ingestion** à divergence → amendement **ADR 0042**.
+  *Statut : cible.*
+
+### 7.3 Plus-value client opérationnalisée
+
+- **Boucle post-verdict (le maillon décisif).** *Attente Premium :* « je sais **à quel seuil basculer**
+  et on me prévient. » *Réel :* la note pose un seuil d'arrêt + une date de revue, mais **rien** ne
+  surveille le seuil ni ne déclenche la revue — la promesse meurt à la livraison du PDF. *Garde :*
+  opérationnaliser le seuil (quel signal Atlas/CVI, qui surveille) et la date de revue (rappel,
+  re-arbitrage). *Statut : cible.*
+- **Restitution 45–60 min.** *Attente :* repartir avec un actionnable clair. *Réel :* format non
+  spécifié (qui anime, quel support, quel livrable remis). *Garde :* format de restitution + livrable
+  cadré. *Statut : cible.*
+- **Articulation éditorial ↔ outillé.** *Attente :* une cohérence entre ce que le client lit (Notes,
+  Fiches Atlas) et ce que l'outil diagnostique. *Réel :* le pipeline éditorial (backlog→…→published,
+  gates Munich) est **déconnecté** de la chaîne HDDE/VERDICT dans la doctrine. *Garde :* expliciter comment
+  une sortie éditoriale nourrit (ou non) un diagnostic client. *Statut : cible.*
+
+## 8. État réel vs cible (registre de blindage)
+
+Chaque ligne = une **promesse**, son **écart**, sa **garde**. À lire du point de vue du client.
+
+| Maillon | Axe | Attente client | Réel aujourd'hui | Garde / ADR | Statut |
+| --- | --- | --- | --- | --- | --- |
+| Packet validé → VERDICT | Validation | Pas de décision sur diagnostic non validé | Filtre `validated` + garde VERDICT | ADR 0046 / amend. 0042 | **fait** |
+| CVI + chokepoints → VERDICT | Plus-value | Arbitrage pré-rempli du contexte géopolitique | Câblé via contrat HDDE unique | ADR 0043 (amendé) | **fait** |
+| Rail de paiement | Service | Payer l'offre `€/mois` | CTA → `/contact`, aucun paiement | ADR 0045 | cible |
+| Provisioning paiement→compte | Service | Recevoir mes accès après paiement | `seed:user` manuel, pas de tier | ADR 0045 | cible |
+| Cycle commercial (won/churn, MRR) | Service | (interne) piloter revenus | Pipeline s'arrête au pilote | ADR 0045 | cible |
+| Pilote 6–8 sem. outillé | Service | Pilote cadré et borné | Prose, pas de cycle de vie | ADR 0045 | cible |
+| Newsletter + consentement | Service | M'abonner (offre Basic) | Inexistante | ADR 0045 | cible |
+| Données clients (rétention/purge/DSAR) | Validation | Données protégées puis supprimées | Non traité (taint ≠ confidentialité) | ADR 0044 | cible |
+| Sous-traitant OpenAI (DPA/ZDR) | Validation | Pas de fuite / pas d'entraînement tiers | Roster envoyé sans DPA/minimisation | ADR 0044 | cible |
+| Traçabilité du validateur | Validation | (audit) qui a validé quoi/quand | Booléen sans signataire ni journal | ADR 0046 | cible |
+| Fraîcheur chokepoints/CVI | Validation | Note rejouable / péremption signalée | Seul `pack_hash` HDDE figé | amend. 0042 | cible |
+| Boucle post-verdict (seuil/revue) | Plus-value | Savoir quand re-décider, être prévenu | S'arrête au PDF | ADR 0045/0046 | cible |
+| Restitution 45–60 min | Plus-value | Repartir avec un actionnable | Format non spécifié | — | cible |
+| Éditorial ↔ outillé | Plus-value | Cohérence lecture ↔ diagnostic | Déconnecté dans la doctrine | — | cible |
+
 ---
 
 ### Pour aller plus loin
 
 - Méthode VERDICT (référence canonique FR) : `docs/methode-verdict.md`.
 - Méthode CVI : page publique `methode-cvi` du site.
+- Évaluation CVI par corridor (contrat + spec API) : `docs/cvi-corridor-assessment-spec.md`.
 - ADR clés : 0012/0035 (Chokepoints), 0027 (candidat ≠ fait), 0032–0036 + 0040 (HDDE),
-  0041–0043 (VERDICT).
+  0041–0043 (VERDICT), **0044** (données clients/RGPD), **0045** (provisioning & rail commercial),
+  **0046** (traçabilité de la validation humaine).

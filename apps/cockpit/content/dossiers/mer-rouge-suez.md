@@ -18,7 +18,22 @@ confidence: moyen
 Le retour à une route de Suez « par défaut » ne dépend pas d'un seul facteur militaire, mais d'une
 **combinaison** : niveau de menace perçu, disponibilité et coût de l'assurance (prime _war-risk_), et
 capacité résiduelle des routes alternatives. Tant que la prime de risque reste élevée, une part du
-trafic continue d'arbitrer en faveur de la route du Cap. `[À COMPLÉTER une fois les sections validées]`
+trafic continue d'arbitrer en faveur de la route du Cap.
+
+**Ce qui est établi (recoupé ≥ 2 sources).** L'ampleur du choc 2023-2024 est documentée par trois
+angles indépendants : transits Suez ≈ **−50 %** en glissement annuel et report vers le Cap ≈ **+74 %**
+(FMI/PortWatch `[C10]`, gCaptain `[C12]`, Kiel `[C11]`). La zone (Sud Mer Rouge, golfe d'Aden) est
+classée **« High Risk »** par le Joint War Committee `[C3]` et couverte par un mandat sécuritaire
+international (UNSC 2722 ; EUNAVFOR Aspides `[C13]`). Le refus de transit et la répercussion des
+surprimes ont une base contractuelle explicite (CONWARTIME/BIMCO `[C14]`, Skuld `[C15]`).
+
+**Ce qui reste hypothétique (à valider).** Le cœur de la thèse « assurance-dominé » — la _trajectoire_
+récente des primes _war-risk_ et la condition d'un « retour durable » (construct Z, §3) — dépend de
+sources encore **bloquées** (S&P `[C5]`, Argus `[C7]`, axe 1). Deux seuils de bascule (fréquence
+d'incidents, durée de fermeture) n'ont à ce jour **aucune série de données publique** et restent des
+repères. Le verdict opérationnel est donc **conditionnel** : _crédibilité commerciale durable_ =
+transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y), surprime normalisée
+< 0,10 % (Z) — la validation de **Z** étant le verrou.
 
 ## 2. Question stratégique & méthode
 
@@ -72,35 +87,84 @@ trafic continue d'arbitrer en faveur de la route du Cap. `[À COMPLÉTER une foi
 
 ## 5. Seuils de bascule
 
-Repris de la fiche Atlas (cohérence dossier ↔ fiche) — seuils **proposés**, candidats :
-transits Suez −30 %/4 sem. · part déroutée Cap > 50 % · prime war-risk > 1 % durable · incidents
-≥ 1/sem. sur 3 sem. · fermeture continue > 4 sem. `[lier aux scénarios ci-dessous]`
+Repris de la fiche Atlas (cohérence dossier ↔ fiche), avec le **statut de fondement** par seuil :
 
-## 6. Scénarios formalisés `[À COMPLÉTER]`
+| Seuil                                          | Statut                                                                                    |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Transits totaux Suez −30 % / 4 sem. glissantes | **Adossé** — creux ≈ −50 % recoupé (`[C10]` `[C11]` `[C12]`) ; seuil = repère de vigilance |
+| Part déroutée vers le Cap > 50 % du tonnage    | **Partiel** — report +74 % documenté (`[C10]` `[C12]`) ; valeur de bascule = repère        |
+| Prime _war-risk_ > 1 % durable (2 sem.)        | **Niveau adossé** (0,01→1 %, `[C2]` `[C8]`) ; **trajectoire bloquée** (`[C5]` `[C7]`)      |
+| Incidents ≥ 1/sem. sur 3 sem.                  | **Hypothèse — non sourcé** (pas de série d'incidents recoupée)                             |
+| Fermeture continue > 4 sem.                    | **Hypothèse — non sourcé** (aucune donnée de durée)                                        |
 
-Pour chaque scénario : déclencheur · indicateurs (seuils §5) · horizon · fourchette de probabilité ·
-implications différenciées (risques / supply chain / trésorerie).
+Les seuils alimentent les scénarios §6 (déclencheur + indicateurs).
 
-1. **Stabilisation** — `[déclencheur / indicateurs / horizon / prob. / implications]`
-2. **Perturbation durable** — `[…]`
-3. **Rupture** — `[…]`
+## 6. Scénarios formalisés
 
-## 7. Analyse contradictoire `[À COMPLÉTER]`
+Pour chaque scénario : déclencheur · indicateurs (seuils §5) · horizon · fourchette de probabilité
+`[candidate — à valider]` · implications différenciées.
 
-Peser les hypothèses concurrentes du déroutement : (a) assurance/prime ; (b) aversion au risque des
-affréteurs ; (c) pression client/ESG ; (d) _force majeure_ contractuelle ; (e) disponibilité d'escorte.
-`[arbitrer les poids avec sources — voir candidat NorthStandard pour charte-partie/force majeure]`
+1. **Stabilisation** — _Déclencheur_ : reflux durable de la menace **et** des primes (Z < 0,10 %).
+   _Indicateurs_ : transits ≥ 90 % baseline (X) sur ≥ 13 sem. (Y) ; part Cap repassant sous 50 % ;
+   surprime revenue vers le plancher pré-crise. _Horizon_ : 2-4 trimestres après apaisement.
+   _Probabilité_ : conditionnée à la validation de Z `[à valider]`. _Implications_ : normalisation des
+   coûts logistiques ; l'assurance redevient secondaire dans l'arbitrage.
+2. **Perturbation durable** — _Déclencheur_ : menace résiduelle entretenant une prime élevée sans
+   fermeture. _Indicateurs_ : transits stabilisés à ≈ −30 à −50 % ; part Cap > 50 % persistante ;
+   prime oscillant sous 1 % sans revenir au plancher. _Horizon_ : plusieurs trimestres. _Probabilité_ :
+   régime observé en 2024 `[à valider]`. _Implications_ : surcoût structurel fret + délais (+7 à 20 j) ;
+   arbitrage Cap/Suez au cas par cas ; trésorerie et contrats (surprimes répercutées, CONWARTIME).
+3. **Rupture** — _Déclencheur_ : fermeture / quasi-fermeture continue > 4 sem. (seuil hypothétique) ou
+   retrait de capacité d'assurance. _Indicateurs_ : effondrement des transits ; bascule quasi totale
+   vers le Cap. _Horizon_ : choc court à moyen. _Probabilité_ : faible mais à fort impact `[à valider]`.
+   _Implications_ : réorganisation logistique coûteuse, congestion portuaire, révision des chaînes
+   Asie-Europe.
 
-## 8. CVI appliqué `[À COMPLÉTER]`
+## 7. Analyse contradictoire
 
-Les 8 dimensions CVI, chacune notée et **justifiée** (aucune note sans justification). `[à scorer]`
+Hypothèses concurrentes expliquant le déroutement, pondérées `[poids candidats — à valider]` :
+
+- **(a) Assurance / prime _war-risk_** — la prime rend le transit non rentable. _Pour_ : corrélation
+  temporelle prime ↑ / déroutement ↑. _Contre_ : l'IUMI indique une couverture « affordable » et
+  disponible pour Suez **et** le Cap (`[C2]`, source contradictoire) → l'indisponibilité n'est pas
+  établie. _Poids_ : moyen, **suspendu à la trajectoire des primes** (`[C5]`/`[C7]` bloquées).
+- **(b) Aversion au risque des affréteurs** — décision commerciale au-delà du strict calcul de prime.
+  _Poids_ : moyen ; difficile à isoler de (a).
+- **(c) Pression client / ESG / réputation** — refus d'exposer équipages et cargaisons. _Poids_ :
+  faible à moyen, qualitatif.
+- **(d) _Force majeure_ contractuelle** — base juridique du refus d'ordre de transit (CONWARTIME
+  `[C14]` ; Skuld `[C15]` : déviation justifiée, remboursement des surprimes). _Poids_ : structurant —
+  explique la **capacité** de dérouter indépendamment du niveau exact de prime.
+- **(e) Disponibilité d'escorte** (EUNAVFOR Aspides `[C13]`) — réduit le risque perçu mais ne couvre pas
+  tout le trafic. _Poids_ : modulateur.
+
+**Critère de réfutation (rappel §2)** : si le déroutement persiste alors que prime **et** menace
+refluent, l'hypothèse (a) « assurance-dominé » est fausse → le poids bascule vers (b)/(d). Ce test
+n'est **pas tranchable** tant que la trajectoire des primes reste non vérifiée.
+
+## 8. CVI appliqué `[raisonnement qualitatif candidat — scores en attente du moteur]`
+
+Les 8 dimensions CVI, en **appréciation qualitative** seulement. **Aucun score 0-5 n'est produit ici** :
+l'échelle chiffrée dépend du moteur d'évaluation par corridor (non construit) et reste réservée aux
+offres Standard/Premium (ADR 0043). Chaque appréciation est **candidate**, à confirmer.
+
+- **Exposition** — élevée : ≈ 15 % du commerce maritime mondial, ≈ 22 % du conteneurisé (`[C10]`/`[C1]`).
+- **Concentration** — élevée : pas d'alternative physique hors route du Cap (+7 à 20 j, `[C11]`).
+- **Menace** — élevée : zone « High Risk » JWC (`[C3]`), attaques depuis oct. 2023 (`[C13]`).
+- **Capacité de perturbation** — démontrée : déroutement massif observé (−50 % transits, `[C10]`).
+- **Résilience** — moyenne : le Cap absorbe le report mais au prix de délais/coûts (`[C11]`).
+- **Coût de contournement** — élevé : surcoût fret ~1 500 → > 4 000 $/40′ (`[C11]`, source unique).
+- **Gouvernance** — mixte : réponse internationale (UNSC 2722, Aspides `[C13]`) vs sensibilité régionale.
+- **Incertitude** — élevée sur la trajectoire des primes (axe 1 bloqué) et la durée de stabilisation.
 
 ## 9. Limites et angles morts
 
 - Fragmentation des primes (par courtier/navire/cargaison) : pas de source publique unique temps réel.
-- Trajectoire des primes et durée d'une stabilisation : faible visibilité prospective.
+- **Trajectoire des primes** (construct Z) et durée d'une stabilisation : faible visibilité, sources
+  spécialisées bloquées (S&P `[C5]`, Argus `[C7]`) — verrou principal de la validation.
+- Deux seuils (fréquence d'incidents, durée de fermeture) sans série de données : repères non fondés.
+- Chiffres à source unique (−82 % tonnage, 586 navires, surcoût fret) : à recouper avant promotion.
 - Géométrie schématique, sans valeur navigationnelle ni juridique.
-- `[compléter au fil de la rédaction]`
 
 ## 10. Références `[à valider]`
 

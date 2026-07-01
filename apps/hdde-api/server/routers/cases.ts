@@ -15,7 +15,7 @@ import { requireAuth, isAdmin, type AuthedRequest } from '../auth/middleware';
 import { getPack } from '../pack';
 import { buildEnterpriseDiagnostic, bumpVerdict } from '../engine';
 import type { EngineAnswer, EntityLike, DimensionEvidence, Verdict } from '../engine';
-import { deriveFlowVulnerability } from '../integrations/cvi';
+import { deriveFlowVulnerability, fetchCorridorCvi } from '../integrations/cvi';
 import { suggestChokepoints } from '../integrations/chokepoints';
 import { runPersona, RedTeamError } from '../llm/openai';
 import { computeCost } from '../llm/pricing';
@@ -192,7 +192,7 @@ casesRouter.post('/:id/evidence/:eid/links', loadCase, (req, res) => {
 });
 
 // ----------------------------------------------------------------- diagnostic packets
-casesRouter.post('/:id/diagnostic-packets', loadCase, (req: CaseRequest, res) => {
+casesRouter.post('/:id/diagnostic-packets', loadCase, wrap(async (req: CaseRequest, res) => {
   const pack = getPack();
   const answerRows = repo.listAnswers(req.params.id);
   const answers = toEngineAnswers(answerRows);
@@ -253,6 +253,21 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, (req: CaseRequest, res) =>
   // CVI enrichment (local, derived candidate — ADR 0035).
   const flowScore =
     core.scores.find((s) => s.dimension_id === 'flow_criticality_score')?.value ?? 0;
+
+  // Chokepoint candidates for the critical flow (read scope, ADR 0035) — persisted in the packet so
+  // VERDICT prefills from the single HDDE contract (ADR 0042). Graceful: empty when the API is off.
+  const flowType = flowTypeFromAnswers(answerRows);
+  const chk = await suggestChokepoints(flowType);
+  const chokepoints = chk.candidates.map((k) => ({
+    id: k.id,
+    name: k.canonical_name,
+    note: [k.family, k.priority_class].filter(Boolean).join(' · ') || undefined,
+  }));
+
+  // Per-corridor multi-dimension CVI for the most relevant chokepoint (read scope, ADR 0035). Candidate
+  // pending validation; null when the API doesn't serve one — VERDICT then just skips the CVI branch.
+  const corridorCvi = chk.candidates[0] ? await fetchCorridorCvi(chk.candidates[0].id) : null;
+
   const packetPayload = {
     ...core,
     operational_verdict: adjustedVerdict,
@@ -263,6 +278,8 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, (req: CaseRequest, res) =>
       reasons: redteamReasons,
     },
     cvi: deriveFlowVulnerability(flowScore),
+    chokepoints,
+    ...(corridorCvi ? { corridor_cvi: corridorCvi } : {}),
   };
 
   const snapshot = {
@@ -272,7 +289,7 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, (req: CaseRequest, res) =>
   };
   const packet = repo.createPacket(req.params.id, packetPayload, pack.packHash, snapshot);
   res.status(201).json(packet);
-});
+}));
 
 casesRouter.get('/:id/diagnostic-packets', loadCase, (req, res) => {
   res.json(repo.listPackets(req.params.id));

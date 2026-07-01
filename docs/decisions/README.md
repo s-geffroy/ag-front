@@ -35,3 +35,11 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 |              [0037](0037-munich-charter-compliance.md) | Munich Charter compliance for all published content (machine + human gate) | Accepted           |
 |        [0038](0038-cockpit-metier-architecture.md) | Cockpit métier architecture + config-driven output workspaces             | Accepted           |
 | [0039](0039-cockpit-editorial-contradiction.md) | Cockpit: editorial contradiction (LLM red team), suggestion ≠ evidence ≠ gate | Accepted       |
+| [0040](0040-hdde-divergence-model.md) | HDDE: divergence model (hidden = exposure × blindness), anti-tautology | Accepted |
+| [0041](0041-verdict-dedicated-surface.md) | VERDICT: dedicated surface (separate container, port 8095) | Accepted |
+| [0042](0042-verdict-hdde-ingestion-contract.md) | VERDICT ↔ HDDE ingestion contract (read-only, validated packet) | Accepted |
+| [0043](0043-verdict-method-and-geopolitical-prefill.md) | VERDICT method & geopolitical prefill (HDDE + CVI + chokepoints) | Accepted |
+| [0044](0044-client-data-lifecycle-confidentiality.md) | Client data lifecycle & confidentiality (retention/purge/DSAR, OpenAI DPA) | Proposed |
+| [0045](0045-access-provisioning-commercial-rail.md) | Access provisioning & commercial rail (payment → account, tiers, KPIs) | Proposed |
+| [0046](0046-human-validation-traceability.md) | Human validation traceability (validated-packet guard + validator log) | Accepted |
+| [0062](0062-consumer-pinned-contract-client.md) | Consumer pinned-contract client for the Chokepoints Read API (pin + drift cron) | Accepted |

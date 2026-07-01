@@ -31,6 +31,12 @@ export async function fetchLatestPacket(caseRef: string): Promise<FetchedPacket 
   if (!res.ok) return null;
 
   const body = (await res.json()) as Record<string, unknown>;
+  // Defence in depth: only a human-validated packet may seed a decision (doctrine: candidate ≠ fact,
+  // human validation mandatory). HDDE already filters to validated, but VERDICT must not trust upstream.
+  if (body.status !== 'validated') {
+    console.error('[verdict-api] HDDE packet not validated, refusing ingestion', body.status);
+    return null;
+  }
   const parsed = PacketPayload.safeParse(body.packet);
   if (!parsed.success) {
     console.error('[verdict-api] HDDE packet failed validation', parsed.error.issues.length, 'issues');

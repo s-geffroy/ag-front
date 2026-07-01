@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CviAssessment } from '@ag/cvi';
 import { Verdict, Confidence, PacketStatus } from './enums';
 
 /** A single scored dimension carried by a diagnostic packet. */
@@ -45,6 +46,16 @@ export const PacketPayload = z.object({
       note: z.string(),
     })
     .optional(),
+  // Chokepoint candidates relevant to the critical flow (read scope, ADR 0035). Candidates pending
+  // validation, never facts. Persisted here so VERDICT can prefill PESTEL-Political/Threats from the
+  // single HDDE ingestion contract (ADR 0042) without a second data source. Optional for back-compat.
+  chokepoints: z
+    .array(z.object({ id: z.string(), name: z.string(), note: z.string().optional() }))
+    .optional(),
+  // Per-corridor multi-dimension CVI assessment (candidate, read scope — ADR 0035/0043), sourced from
+  // the Chokepoints Read API and validated by @ag/cvi. Feeds VERDICT's CVI→SWOT/PESTEL prefill via the
+  // single HDDE contract (ADR 0042). Optional: absent when the API serves none, or on older packets.
+  corridor_cvi: CviAssessment.optional(),
   // Enterprise layer (ADR 0036): per-actor verdicts + concentration synthesis. Optional for back-compat.
   entities: z
     .array(

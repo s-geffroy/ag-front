@@ -35,6 +35,20 @@ patron que l'intégration chokepoints de HDDE (ADR 0035). **Pas de base de donn�
   HDDE/CVI/chokepoints n'est mutée (ADR 0027).
 - **Chokepoints** : VERDICT réutilise le **read scope** (jamais `read_tainted`) comme HDDE (ADR 0035).
 
+## Amendement (2026-07-01) — packet validé + fraîcheur du contexte
+
+- **Garde « packet validé » (faite).** L'API interne ne sert que le **dernier packet `status='validated'`**
+  (sinon `404 no_validated_packet`) ; `verdict-api` **revérifie** le statut avant ingestion. Un brouillon
+  n'est **jamais** ingérable — la « validation humaine obligatoire » est tenue **au contrat** (voir
+  ADR 0046). Couvert par tests des deux côtés.
+- **Signaux portés par le packet.** Outre le packet, le contrat unique porte les **candidats chokepoints**
+  et l'**évaluation CVI du corridor** (`corridor_cvi`, source : API Chokepoints, ADR 0043) — VERDICT
+  n'ouvre **pas** de seconde source.
+- **Fraîcheur / staleness (cible).** Aujourd'hui seul `source_pack_hash` est figé. Étendre à un
+  **`context_hash`** couvrant l'assessment CVI (`last_updated`) et les priorités chokepoints, pour
+  proposer une **ré-ingestion** quand la couche géopolitique change après la note (aujourd'hui non
+  détecté). Registre : `apps/cockpit/reference/workflow-commercial.md` §7.2.
+
 ## Conséquences
 
 - Un secret partagé `INTERNAL_API_TOKEN` à provisionner pour les deux services (docker/.env).

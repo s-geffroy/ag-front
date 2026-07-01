@@ -37,8 +37,6 @@ export const config = {
   llmMaxCostPerUserPerDayUsd: Number(process.env.LLM_MAX_COST_PER_USER_PER_DAY_USD ?? 5),
   llmMaxOutputTokens: Number(process.env.LLM_MAX_OUTPUT_TOKENS ?? 1500),
   llmTimeoutMs: Number(process.env.LLM_TIMEOUT_MS ?? 30_000),
-
-  // Chokepoints Read API: READ SCOPE ONLY, never read_tainted (ADR 0035).
-  chokepointsApiUrl: process.env.CHOKEPOINTS_API_URL ?? '',
-  chokepointsApiToken: process.env.CHOKEPOINTS_API_TOKEN ?? '',
+  // NB: VERDICT does NOT call the Chokepoints API directly — chokepoint candidates (and, later, the
+  // per-corridor CVI assessment) arrive only via the single HDDE ingestion contract (ADR 0042).
 } as const;

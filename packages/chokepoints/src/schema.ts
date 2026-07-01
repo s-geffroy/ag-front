@@ -321,6 +321,36 @@ export const EngineRunOut = z
   .passthrough();
 export type EngineRunOut = z.infer<typeof EngineRunOut>;
 
+/**
+ * /chokepoints/{id}/cvi-assessment → per-corridor CVI assessment (derived candidate, read scope).
+ * Structurally mirrors `@ag/cvi`'s CviAssessment; kept permissive (.passthrough) here so the client
+ * stays dependency-free — the consumer (HDDE) re-validates it with `@ag/cvi` before use. The hard
+ * rule "no 0–100 aggregate without documented methodology" (ADR 0043) is enforced at that validation,
+ * not here. Candidate ≠ fact: an analyst validates before it becomes canonical.
+ */
+export const CviDimensionScoreOut = z
+  .object({
+    score: z.number(),
+    rationale: z.string().nullish(),
+    confidence: z.string().nullish(),
+  })
+  .passthrough();
+export type CviDimensionScoreOut = z.infer<typeof CviDimensionScoreOut>;
+
+export const CviAssessmentOut = z
+  .object({
+    scale: z.string(),
+    global_level: z.string().nullish(),
+    dimensions: z.record(z.string(), CviDimensionScoreOut).nullish(),
+    aggregate_score: z.number().nullish(),
+    methodology_documented: z.boolean().nullish(),
+    sources: z.array(z.string()).nullish(),
+    uncertainties: z.array(z.string()).nullish(),
+    last_updated: z.string().nullish(),
+  })
+  .passthrough();
+export type CviAssessmentOut = z.infer<typeof CviAssessmentOut>;
+
 /** /chokepoints/{id}/event-signals → raw append-only event stream. */
 export const EventSignalOut = z
   .object({
