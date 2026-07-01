@@ -1,0 +1,8 @@
+# Runtime secrets — real token stays out of git (root .gitignore also matches; explicit here).
+.env
+# Drift snapshot written by sync_contract.sh on drift — never committed (pin openapi.json IS).
+contract/openapi.live.json
+# Cron drift log.
+drift.log
+# Generated client: commit it OR regenerate at build (your call). Uncomment to keep it out:
+# client/

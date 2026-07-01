@@ -1,0 +1,8 @@
+# openapi-python-client config shared by the producer smoke test (tools/gen_client.py) and the
+# consumer recipe (scripts/consumer/gen_client.sh). ADR 0062.
+#
+# Skip the default post-generation hooks (autoflake + ruff check --fix + ruff format). `ruff check
+# --fix` exits non-zero when it finds unfixable lint in the GENERATED code, which would fail the
+# run even though generation succeeded — and lint-cleanliness of throwaway generated code is
+# irrelevant to a consumer that only imports it. Empty list = generate, don't post-process.
+post_hooks: []
