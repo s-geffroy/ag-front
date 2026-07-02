@@ -50,3 +50,6 @@ apps/verdict-api/data/exports/*
 # Editor / OS
 .DS_Store
 *.log
+
+# Red-team injection regression cron log (ADR 0063)
+scripts/redteam-injection.log
