@@ -15,6 +15,11 @@ OUT_DIR="${OUT_DIR:-$SCRIPT_DIR/client}"
 SPEC="$PIN_DIR/openapi.json"
 STAMP="$OUT_DIR/.spec.sha256"
 
+# --heartbeat: also POST to Slack on SUCCESS (a weekly "alive + up to date" dead-man's switch —
+# if this stops arriving, the cron/host itself is dead). Default (daily run): Slack only on drift.
+HEARTBEAT=0
+[ "${1:-}" = "--heartbeat" ] && HEARTBEAT=1
+
 # Load consumer env (SLACK_WEBHOOK_URL, API_BASE, …) if present — keeps secrets out of git.
 ENV_FILE="${ENV_FILE:-$SCRIPT_DIR/.env}"
 if [ -f "$ENV_FILE" ]; then set -a; . "$ENV_FILE"; set +a; fi
@@ -68,3 +73,6 @@ if [ "$want" != "$have" ]; then
 fi
 
 echo "up to date: pin matches live AND client matches pin"
+if [ "$HEARTBEAT" = 1 ]; then
+  _notify_slack ":white_check_mark: Chokepoints read-API consumer — alive & fully up to date ($(date -u +%FT%TZ))"
+fi
