@@ -2,6 +2,7 @@
 // The response is forced to JSON and validated with a strict zod schema — a non-conforming response
 // is REJECTED, never persisted. When LLM is disabled (no key), a clearly-labelled deterministic
 // facade is returned so dev/test work offline.
+import { randomBytes } from 'node:crypto';
 import OpenAI from 'openai';
 import { RedTeamOutput } from '@ag/schema/hdde';
 import type { RedTeamOutput as RedTeamOutputT } from '@ag/schema/hdde';
@@ -17,16 +18,19 @@ export class RedTeamError extends Error {}
 const REDTEAM_JSON_SCHEMA = {
   type: 'object',
   additionalProperties: false,
+  // Order matters: `analysis` first so the model reasons before it concludes (CoT), summaries
+  // (main_objection, verdict_pressure) last so they follow from the detail (ADR 0063).
   required: [
-    'main_objection',
+    'analysis',
     'attacked_assumptions',
     'possible_contradictions',
     'questions_to_ask',
+    'main_objection',
     'verdict_pressure',
     'do_not_conclude',
   ],
   properties: {
-    main_objection: { type: 'string' },
+    analysis: { type: 'string' },
     attacked_assumptions: {
       type: 'array',
       items: {
@@ -66,6 +70,7 @@ const REDTEAM_JSON_SCHEMA = {
         properties: { question: { type: 'string' }, purpose: { type: 'string' } },
       },
     },
+    main_objection: { type: 'string' },
     verdict_pressure: {
       type: 'object',
       additionalProperties: false,
@@ -83,6 +88,8 @@ const REDTEAM_JSON_SCHEMA = {
 function facade(persona: Persona): RedTeamOutputT {
   return RedTeamOutput.parse({
     persona: persona.id,
+    analysis:
+      'Façade hors-ligne (LLM désactivé) : aucun raisonnement adversarial réel. Activez LLM_ENABLED + OPENAI_API_KEY pour une vraie passe.',
     main_objection:
       'Façade hors-ligne (LLM désactivé) : valider si le fournisseur visible masque une dépendance de rang 2 non testée.',
     attacked_assumptions: [
@@ -151,7 +158,8 @@ export async function runPersona(persona: Persona, ctx: RedTeamContext): Promise
         },
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildUserPrompt(persona, ctx) },
+          // Per-request random marker fences untrusted case data (spotlighting, ADR 0063).
+          { role: 'user', content: buildUserPrompt(persona, ctx, randomBytes(6).toString('hex')) },
         ],
       },
       { signal: AbortSignal.timeout(config.llmTimeoutMs) }, // hard wall-clock cap

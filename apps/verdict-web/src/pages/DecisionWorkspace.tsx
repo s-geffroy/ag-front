@@ -459,6 +459,14 @@ function InterrogateStage({ id, options, redTeam, onDone }: { id: string; option
                 {sug && (
                   <div className="mt-1 text-slatewarn dark:text-slate-300">
                     <div className="font-medium text-ink dark:text-slate-100">{sug.main_objection}</div>
+                    {sug.analysis && (
+                      <details className="mt-1 text-xs">
+                        <summary className="cursor-pointer font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          Raisonnement du modèle
+                        </summary>
+                        <p className="mt-1 whitespace-pre-wrap">{sug.analysis}</p>
+                      </details>
+                    )}
                     {Array.isArray(sug.missing_proofs) && sug.missing_proofs.length > 0 && (
                       <div className="mt-1 text-xs">Preuves manquantes : {sug.missing_proofs.join(' · ')}</div>
                     )}

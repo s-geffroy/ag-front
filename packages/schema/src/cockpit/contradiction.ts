@@ -34,6 +34,10 @@ export type ContradictionFinding = z.infer<typeof ContradictionFinding>;
 
 /** The raw analysis the LLM returns (validated; persisted inside a report below). */
 export const ContradictionAnalysis = z.object({
+  /** Adversarial reasoning scratchpad, emitted BEFORE the conclusions so the model thinks first
+   * (CoT under Structured Outputs). Persisted for human-validation traceability (ADR 0046).
+   * `.default('')` keeps reports persisted before this field was added parseable. */
+  analysis: z.string().default(''),
   /** One-paragraph overall objection — the single biggest weakness. */
   summary: z.string(),
   findings: z.array(ContradictionFinding).default([]),

@@ -119,6 +119,17 @@ export function ContradictionPanel({ contentType, slug }: { contentType: string;
               <p className="text-sm text-ink">{report.summary}</p>
             </div>
 
+            {/* The model's adversarial reasoning (ADR 0063) — a candidate, not a proof. Collapsed by
+                default so it aids human validation without competing with the findings. */}
+            {report.analysis ? (
+              <details className="rounded-md border border-line bg-subtle px-3 py-2">
+                <summary className="cursor-pointer text-[11px] font-medium uppercase tracking-wide text-muted">
+                  Raisonnement du modèle
+                </summary>
+                <p className="mt-2 whitespace-pre-wrap text-xs text-muted">{report.analysis}</p>
+              </details>
+            ) : null}
+
             {report.findings.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm">

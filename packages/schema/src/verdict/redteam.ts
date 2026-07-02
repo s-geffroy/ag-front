@@ -8,6 +8,10 @@ export const RedTeamOutput = z.object({
   // Which assistant role produced this (drives the prompt).
   role: z.enum(['red_team_option', 'minimal_alternative', 'truth_test']),
   target_option_id: z.string().nullable().default(null),
+  /** Adversarial reasoning scratchpad, emitted BEFORE the conclusions so the model thinks first
+   * (CoT under Structured Outputs). Persisted for human-validation traceability (ADR 0046).
+   * `.default('')` keeps suggestions persisted before this field was added parseable. */
+  analysis: z.string().default(''),
   main_objection: z.string().default(''),
   attacked_assumptions: z
     .array(

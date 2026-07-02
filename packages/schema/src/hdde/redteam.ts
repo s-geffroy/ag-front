@@ -5,6 +5,10 @@ import { SuggestionStatus } from './enums';
  * never persisted (ADR 0034). LLM output is an adversarial suggestion — never evidence. */
 export const RedTeamOutput = z.object({
   persona: z.string(),
+  /** Adversarial reasoning scratchpad, emitted BEFORE the conclusions so the model thinks first
+   * (CoT under Structured Outputs). Persisted for human-validation traceability (ADR 0046).
+   * `.default('')` keeps suggestions persisted before this field was added parseable. */
+  analysis: z.string().default(''),
   main_objection: z.string(),
   attacked_assumptions: z
     .array(

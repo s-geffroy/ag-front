@@ -581,6 +581,16 @@ function SuggestionCard({ caseId, s, onReview }: { caseId: string; s: any; onRev
         </span>
       </div>
       <p className="mt-1">{s.suggestion_json.main_objection}</p>
+      {s.suggestion_json.analysis && (
+        <details className="mt-1">
+          <summary className="cursor-pointer text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Raisonnement du modèle
+          </summary>
+          <p className="mt-1 whitespace-pre-wrap text-slate-600 dark:text-slate-300">
+            {s.suggestion_json.analysis}
+          </p>
+        </details>
+      )}
       {s.status === 'pending' && (
         <div className="mt-2 flex gap-2">
           <button

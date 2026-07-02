@@ -2,6 +2,7 @@
 // reaches the browser. Response forced to strict JSON and validated with zod — non-conforming output
 // is REJECTED, never persisted. With no key, a clearly-labelled offline facade is returned so
 // dev/test work without paid calls. Mirrors hdde-api/llm/openai.
+import { randomBytes } from 'node:crypto';
 import OpenAI from 'openai';
 import { RedTeamOutput } from '@ag/schema/verdict';
 import type { RedTeamOutput as RedTeamOutputT } from '@ag/schema/verdict';
@@ -14,18 +15,21 @@ export class RedTeamError extends Error {}
 const REDTEAM_JSON_SCHEMA = {
   type: 'object',
   additionalProperties: false,
+  // Order matters: `analysis` first so the model reasons before it concludes (CoT), the summary
+  // (main_objection) last so it follows from the detail (ADR 0063).
   required: [
-    'main_objection',
+    'analysis',
     'attacked_assumptions',
     'overestimations',
     'missing_proofs',
     'undervalued_alternatives',
     'could_change_recommendation',
     'reason',
+    'main_objection',
     'do_not_conclude',
   ],
   properties: {
-    main_objection: { type: 'string' },
+    analysis: { type: 'string' },
     attacked_assumptions: {
       type: 'array',
       items: {
@@ -45,6 +49,7 @@ const REDTEAM_JSON_SCHEMA = {
     undervalued_alternatives: { type: 'array', items: { type: 'string' } },
     could_change_recommendation: { type: 'boolean' },
     reason: { type: 'string' },
+    main_objection: { type: 'string' },
     do_not_conclude: { type: 'array', items: { type: 'string' } },
   },
 } as const;
@@ -53,6 +58,8 @@ function facade(role: RedTeamRole, targetOptionId: string | null): RedTeamOutput
   return RedTeamOutput.parse({
     role,
     target_option_id: targetOptionId,
+    analysis:
+      'Façade hors-ligne (LLM désactivé) : aucun raisonnement adversarial réel. Activez LLM_ENABLED + OPENAI_API_KEY pour une vraie passe.',
     main_objection:
       'Façade hors-ligne (LLM désactivé) : vérifier que l’option retenue ne repose pas sur une hypothèse critique non prouvée.',
     attacked_assumptions: [
@@ -116,7 +123,8 @@ export async function runRedTeam(
         },
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildUserPrompt(role, ctx) },
+          // Per-request random marker fences untrusted case data (spotlighting, ADR 0063).
+          { role: 'user', content: buildUserPrompt(role, ctx, randomBytes(6).toString('hex')) },
         ],
       },
       { signal: AbortSignal.timeout(config.llmTimeoutMs) },

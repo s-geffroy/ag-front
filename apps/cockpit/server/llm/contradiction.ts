@@ -2,6 +2,7 @@
 // browser (ADR 0039). The response is forced to JSON and validated with a strict zod schema — a
 // non-conforming response is REJECTED, never persisted. When LLM is disabled (no key), a clearly
 // -labelled deterministic facade is returned so dev/test work offline without burning tokens.
+import { randomBytes } from 'node:crypto';
 import OpenAI from 'openai';
 import { ContradictionAnalysis } from '@ag/schema/cockpit';
 import type { ContradictionAnalysis as ContradictionAnalysisT } from '@ag/schema/cockpit';
@@ -16,9 +17,11 @@ export class ContradictionError extends Error {}
 const CONTRADICTION_JSON_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['summary', 'findings', 'open_questions', 'do_not_conclude'],
+  // Order matters: `analysis` first so the model reasons before it concludes (CoT), the `summary`
+  // last so it follows from the detailed findings (ADR 0063).
+  required: ['analysis', 'findings', 'open_questions', 'summary', 'do_not_conclude'],
   properties: {
-    summary: { type: 'string' },
+    analysis: { type: 'string' },
     findings: {
       type: 'array',
       items: {
@@ -44,6 +47,7 @@ const CONTRADICTION_JSON_SCHEMA = {
       },
     },
     open_questions: { type: 'array', items: { type: 'string' } },
+    summary: { type: 'string' },
     do_not_conclude: { type: 'array', items: { type: 'string' } },
   },
 } as const;
@@ -51,6 +55,8 @@ const CONTRADICTION_JSON_SCHEMA = {
 /** Deterministic offline stand-in (LLM disabled). Clearly labelled so it's never mistaken for a run. */
 export function facade(): ContradictionAnalysisT {
   return ContradictionAnalysis.parse({
+    analysis:
+      'Façade hors-ligne (LLM désactivé) : aucun raisonnement adverse réel. Activez LLM_ENABLED + OPENAI_API_KEY pour une vraie passe.',
     summary:
       'Façade hors-ligne (LLM désactivé) : la contradiction automatique n’a pas été exécutée. Activez LLM_ENABLED + OPENAI_API_KEY pour lancer une vraie passe.',
     findings: [
@@ -112,7 +118,8 @@ export async function runContradiction(ctx: EditorialContext): Promise<Contradic
       },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildUserPrompt(ctx) },
+        // Per-request random marker fences the untrusted document (spotlighting, ADR 0063).
+        { role: 'user', content: buildUserPrompt(ctx, randomBytes(6).toString('hex')) },
       ],
     });
     content = completion.choices[0]?.message?.content ?? '';

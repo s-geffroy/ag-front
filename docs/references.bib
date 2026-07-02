@@ -1,0 +1,61 @@
+% Bibliographie — état de l'art justifiant le durcissement transverse des prompts red-team (ADR 0063).
+% Chaque entrée porte, en commentaire, le pan de la refonte qu'elle justifie.
+
+% Spotlighting, defense-in-depth 6 couches, instruction hierarchy, output filtering → fencing + marker
+@misc{vectra_prompt_injection,
+  author       = {{Vectra AI}},
+  title        = {Prompt Injection: Types, Real-World CVEs, and Enterprise Defenses},
+  year         = {2025},
+  howpublished = {\url{https://www.vectra.ai/topics/prompt-injection}},
+  note         = {Consulté le 2026-07-02}
+}
+
+% Les délimiteurs statiques seuls ne suffisent pas → justifie le sentinel aléatoire par requête
+@misc{liu2025critical,
+  author       = {Liu, Yupei and others},
+  title        = {A Critical Evaluation of Defenses against Prompt Injection Attacks},
+  year         = {2025},
+  eprint       = {2505.18333},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.CR},
+  howpublished = {\url{https://arxiv.org/abs/2505.18333}}
+}
+
+% Strict mode garantit la forme → instructions « un seul JSON / pas de markdown » redondantes (élaguées)
+@misc{openai_structured_outputs,
+  author       = {{OpenAI}},
+  title        = {Structured Model Outputs --- API Guide},
+  year         = {2025},
+  howpublished = {\url{https://developers.openai.com/api/docs/guides/structured-outputs}},
+  note         = {Consulté le 2026-07-02}
+}
+
+% Doctrine red-team / prompts adversariaux → structure des rôles et de la critique
+@misc{kili_red_teaming,
+  author       = {{Kili Technology}},
+  title        = {The Ultimate Guide to Red Teaming LLMs and Adversarial Prompts},
+  year         = {2025},
+  howpublished = {\url{https://kili-technology.com/large-language-models-llms/red-teaming-llms-and-adversarial-prompts}},
+  note         = {Consulté le 2026-07-02}
+}
+
+% CoT-avant-conclusion améliore la qualité de la critique → champ `analysis` en tête de schéma
+@article{lin2024criticbench,
+  author       = {Lin, Zicheng and others},
+  title        = {CriticBench: Benchmarking LLMs for Critique-Correct Reasoning},
+  year         = {2024},
+  journal      = {arXiv preprint},
+  eprint       = {2402.14809},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.CL},
+  howpublished = {\url{https://arxiv.org/abs/2402.14809}}
+}
+
+% Cadre de risques LLM01 (injection) / LLM05 (output handling) ; Agentic ASI01 (goal hijacking)
+@misc{owasp_llm_top10,
+  author       = {{OWASP Foundation}},
+  title        = {OWASP Top 10 for LLM Applications (2025) and Agentic AI Security (2026)},
+  year         = {2025},
+  howpublished = {\url{https://genai.owasp.org/llm-top-10/}},
+  note         = {Vendorisé dans la skill owasp-security ; consulté le 2026-07-02}
+}
