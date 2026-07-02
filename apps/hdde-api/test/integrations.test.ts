@@ -6,13 +6,32 @@ process.env.CHOKEPOINTS_API_URL = 'http://chokepoints.test/api';
 process.env.CHOKEPOINTS_API_TOKEN = 'read-scope-token';
 
 let suggestChokepoints: (typeof import('../server/integrations/chokepoints'))['suggestChokepoints'];
+let fetchCorridorEvidence: (typeof import('../server/integrations/chokepoints'))['fetchCorridorEvidence'];
 let deriveFlowVulnerability: (typeof import('../server/integrations/cvi'))['deriveFlowVulnerability'];
 let fetchCorridorCvi: (typeof import('../server/integrations/cvi'))['fetchCorridorCvi'];
 
 beforeAll(async () => {
-  ({ suggestChokepoints } = await import('../server/integrations/chokepoints'));
+  ({ suggestChokepoints, fetchCorridorEvidence } = await import(
+    '../server/integrations/chokepoints'
+  ));
   ({ deriveFlowVulnerability, fetchCorridorCvi } = await import('../server/integrations/cvi'));
 });
+
+// Route a mocked fetch by URL path so per-endpoint behaviour can be asserted independently.
+function routeFetch(handlers: Record<string, () => Response>) {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+    const u = String(url);
+    for (const [needle, make] of Object.entries(handlers)) {
+      if (u.includes(needle)) {
+        expect(u).not.toContain('include_tainted'); // read scope only (ADR 0035)
+        return make();
+      }
+    }
+    return new Response('not found', { status: 404 });
+  });
+}
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -56,6 +75,34 @@ describe('chokepoints enrichment (anti-tainted guard, ADR 0035)', () => {
     const result = await suggestChokepoints('energy');
     expect(result.available).toBe(false);
     expect(result.candidates).toEqual([]);
+  });
+});
+
+describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', () => {
+  it('returns actors + event signals, drops tainted records, never opts into include_tainted', async () => {
+    routeFetch({
+      '/actors': () =>
+        json([
+          { actor_id: 'a1', chokepoint_id: 'p0_x', actor_name: 'Marine X', control_type: 'physical', license_taint: false },
+          { actor_id: 'a2', chokepoint_id: 'p0_x', actor_name: 'Restricted', control_type: 'legal', license_taint: true },
+        ]),
+      '/event-signals': () =>
+        json([{ chokepoint_id: 'p0_x', domain: 'security', weight: 0.8, event_key: 'e1' }]),
+      '/perception-signals': () => json({ chokepoint_id: 'p0_x', count: 0, signals: [] }),
+    });
+    const ev = await fetchCorridorEvidence('p0_x');
+    expect(ev.available).toBe(true);
+    expect(ev.actors.map((a) => a.name)).toEqual(['Marine X']); // tainted actor dropped
+    expect(ev.event_signals[0]!.domain).toBe('security');
+  });
+
+  it('degrades gracefully — every endpoint failing yields available:false, empty', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network down'));
+    const ev = await fetchCorridorEvidence('p0_x');
+    expect(ev.available).toBe(false);
+    expect(ev.actors).toEqual([]);
+    expect(ev.event_signals).toEqual([]);
+    expect(ev.perception).toBeNull();
   });
 });
 

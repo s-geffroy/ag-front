@@ -100,3 +100,84 @@ export async function suggestChokepoints(
     };
   }
 }
+
+// --- Per-corridor evidence (actors + signals) for the interview -----------------------------------
+
+export interface CorridorEvidence {
+  available: boolean;
+  note: string;
+  actors: { name: string; actor_type?: string; control_type?: string; basis?: string }[];
+  event_signals: { domain?: string; weight?: number; observed_on?: string; event_key?: string }[];
+  perception: { count: number; disclaimer?: string } | null;
+}
+
+// Defence-in-depth taint drop (records may carry license_taint via passthrough).
+const isTainted = (it: unknown): boolean =>
+  (it as { license_taint?: boolean }).license_taint === true;
+
+/**
+ * Fetch actors + event/perception signals for ONE corridor as EVIDENCE CANDIDATES (ADR 0035:
+ * read scope, never read_tainted; candidate ≠ fact). Each endpoint degrades independently — a
+ * failure/404 on one yields an empty slice, never throws. NOTE: /perception-signals is a
+ * read_tainted-scope surface producer-side, so on HDDE's read token it is best-effort (usually
+ * empty). Returns available:false when the API is unconfigured or nothing came back.
+ */
+export async function fetchCorridorEvidence(chokepointId: string): Promise<CorridorEvidence> {
+  const empty: CorridorEvidence = {
+    available: false,
+    note: 'Chokepoints API non configurée.',
+    actors: [],
+    event_signals: [],
+    perception: null,
+  };
+  if (!config.chokepointsApiUrl || !config.chokepointsApiToken) return empty;
+  const client = createChokepointsClient({
+    baseUrl: config.chokepointsApiUrl,
+    token: config.chokepointsApiToken,
+  });
+
+  const actors = await client
+    .getChokepointActors(chokepointId)
+    .then((rows) =>
+      rows
+        .filter((r) => !isTainted(r))
+        .map((r) => ({
+          name: r.actor_name ?? r.actor_id,
+          actor_type: r.actor_type ?? undefined,
+          control_type: r.control_type ?? undefined,
+          basis: r.basis ?? undefined,
+        })),
+    )
+    .catch(() => [] as CorridorEvidence['actors']);
+
+  const event_signals = await client
+    .getChokepointEventSignals(chokepointId, 20)
+    .then((rows) =>
+      rows
+        .filter((r) => !isTainted(r))
+        .map((r) => ({
+          domain: r.domain ?? undefined,
+          weight: typeof r.weight === 'number' ? r.weight : undefined,
+          observed_on: r.observed_on ?? undefined,
+          event_key: r.event_key ?? undefined,
+        })),
+    )
+    .catch(() => [] as CorridorEvidence['event_signals']);
+
+  const perception = await client
+    .getChokepointPerceptionSignals(chokepointId, 20)
+    .then((p) => ({ count: p.count ?? p.signals.length, disclaimer: p.disclaimer ?? undefined }))
+    .catch(() => null);
+
+  const available =
+    actors.length > 0 || event_signals.length > 0 || (perception?.count ?? 0) > 0;
+  return {
+    available,
+    note: available
+      ? 'Signaux & acteurs du corridor (candidats à valider) — Read API, scope read.'
+      : 'Aucun signal/acteur disponible pour ce corridor (scope read).',
+    actors,
+    event_signals,
+    perception,
+  };
+}

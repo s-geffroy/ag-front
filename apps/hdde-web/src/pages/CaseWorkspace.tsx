@@ -220,13 +220,9 @@ export default function CaseWorkspace() {
               </h3>
               <p className="text-xs text-sky-800 dark:text-sky-300">{chokepoints.note}</p>
               {chokepoints.available && chokepoints.candidates.length > 0 ? (
-                <ul className="mt-2 list-disc space-y-0.5 pl-4 text-xs text-sky-900 dark:text-sky-200">
+                <ul className="mt-2 space-y-1 text-xs text-sky-900 dark:text-sky-200">
                   {chokepoints.candidates.map((k) => (
-                    <li key={k.id}>
-                      {k.canonical_name}
-                      {k.family ? ` · ${k.family}` : ''}{' '}
-                      <span className="text-sky-700 dark:text-sky-400">(candidat — à valider)</span>
-                    </li>
+                    <CandidateRow key={k.id} caseId={id!} k={k} />
                   ))}
                 </ul>
               ) : (
@@ -790,5 +786,80 @@ function RosterSection({
         ))}
       </div>
     </section>
+  );
+}
+
+// A chokepoint candidate that expands to reveal its corridor evidence (actors + signals) from the
+// Chokepoints Read API. Evidence is fetched lazily on expand and framed as candidates to validate.
+function CandidateRow({
+  caseId,
+  k,
+}: {
+  caseId: string;
+  k: { id: string; canonical_name: string; family?: string };
+}) {
+  const [open, setOpen] = useState(false);
+  const { data: evidence, isFetching } = useQuery({
+    queryKey: ['corridor-evidence', caseId, k.id],
+    enabled: open,
+    queryFn: () =>
+      api.get<{
+        available: boolean;
+        note: string;
+        actors: { name: string; actor_type?: string; control_type?: string; basis?: string }[];
+        event_signals: { domain?: string; weight?: number; observed_on?: string; event_key?: string }[];
+        perception: { count: number; disclaimer?: string } | null;
+      }>(`/api/cases/${caseId}/enrichment/chokepoints/${encodeURIComponent(k.id)}/evidence`),
+  });
+
+  return (
+    <li className="border-b border-sky-200/60 dark:border-sky-800/60 pb-1 last:border-0">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="text-left hover:underline"
+      >
+        <span aria-hidden>{open ? '▾' : '▸'}</span> {k.canonical_name}
+        {k.family ? ` · ${k.family}` : ''}{' '}
+        <span className="text-sky-700 dark:text-sky-400">(candidat — à valider)</span>
+      </button>
+      {open && (
+        <div className="mt-1 pl-4">
+          {isFetching && <p className="text-sky-700 dark:text-sky-400">Chargement…</p>}
+          {evidence && !isFetching && (
+            <>
+              {evidence.actors.length > 0 && (
+                <div className="mt-1">
+                  <span className="font-semibold">Acteurs :</span>{' '}
+                  {evidence.actors
+                    .map((a) => a.name + (a.control_type ? ` (${a.control_type})` : ''))
+                    .join(', ')}
+                </div>
+              )}
+              {evidence.event_signals.length > 0 && (
+                <div className="mt-1">
+                  <span className="font-semibold">Signaux d’événements :</span>{' '}
+                  {evidence.event_signals.length} · domaines{' '}
+                  {[...new Set(evidence.event_signals.map((s) => s.domain).filter(Boolean))].join(
+                    ', ',
+                  ) || '—'}
+                </div>
+              )}
+              {evidence.perception && evidence.perception.count > 0 && (
+                <div className="mt-1">
+                  <span className="font-semibold">Perception :</span> {evidence.perception.count}{' '}
+                  signal(aux)
+                </div>
+              )}
+              {!evidence.available && (
+                <p className="text-sky-700 dark:text-sky-400">
+                  Aucun acteur/signal pour ce corridor (scope read).
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </li>
   );
 }

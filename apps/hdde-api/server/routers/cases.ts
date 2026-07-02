@@ -16,7 +16,7 @@ import { getPack } from '../pack';
 import { buildEnterpriseDiagnostic, bumpVerdict } from '../engine';
 import type { EngineAnswer, EntityLike, DimensionEvidence, Verdict } from '../engine';
 import { deriveFlowVulnerability, fetchCorridorCvi } from '../integrations/cvi';
-import { suggestChokepoints } from '../integrations/chokepoints';
+import { suggestChokepoints, fetchCorridorEvidence } from '../integrations/chokepoints';
 import { runPersona, RedTeamError } from '../llm/openai';
 import { computeCost } from '../llm/pricing';
 import { renderExports } from '../exports/render';
@@ -468,5 +468,14 @@ casesRouter.get(
     const flowType = typeof req.query.flow_type === 'string' ? req.query.flow_type : undefined;
     const region = typeof req.query.region === 'string' ? req.query.region : undefined;
     res.json(await suggestChokepoints(flowType, region));
+  }),
+);
+
+// Per-corridor evidence (actors + event/perception signals) — candidates to validate (ADR 0035).
+casesRouter.get(
+  '/:id/enrichment/chokepoints/:cid/evidence',
+  loadCase,
+  wrap(async (req, res) => {
+    res.json(await fetchCorridorEvidence(req.params.cid));
   }),
 );
