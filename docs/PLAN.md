@@ -10,10 +10,14 @@ vérifiée** :
 - `CLAUDE.md` adapté à app-geo (2 UI, monorepo, Docker-only) ;
 - plugins `commit-commands` + `security-guidance` installés (`/reload-plugins` pour appliquer).
 
-Le projet est aujourd'hui un **squelette** (`.claude/` + `CLAUDE.md` + `app-geo.code-workspace`).
-Tout le code applicatif reste à construire : **monorepo deux-UI** (`apps/public` +
-`apps/cockpit`), sous la règle **Docker-only**, en _clean-room rebuild_ depuis le pack de référence
-`/home/deploy/sources` (à LIRE, pas à copier).
+**État au 2026-07-02** : le socle applicatif est **construit et déployé**. Les **4 UIs** sont en
+service — site public en ligne (`www.applied-geopolitics.com`), cockpit interne via Tailscale, **HDDE**
+et **VERDICT** publiés derrière authentification — plus le **consumer pinné** de la Read API
+Chokepoints (ADR 0062, vert ce jour). Le monorepo compte 7 apps (`public, cockpit, hdde-api, hdde-web,
+lead-api, verdict-api, verdict-web`) + 5 packages, sous la règle **Docker-only**, en _clean-room
+rebuild_ depuis le pack de référence `/home/deploy/sources` (à LIRE, pas à copier). Le reste-à-faire
+est désormais surtout **gouvernance** (ADR 0044/0045, _Proposed_) et **production éditoriale**
+(cf. « Prochaine action recommandée » en bas).
 
 > Méthode (cf. `CLAUDE.md`) : avant tout code non trivial → `brainstorming` → `writing-plans` →
 > `test-driven-development`. Chaque décision matérielle ci-dessous = un ADR sous `docs/decisions/`.
@@ -99,6 +103,40 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
   `https://srv1100990.tail880531.ts.net` (tailnet `tail880531.ts.net`). **Jamais public.**
 - Build de prod via le service `tools` Docker ; smoke test avec `agent-browser` (dans le conteneur).
 
+### Phase 5 — `apps/hdde-*` (HDDE, hdde.applied-geopolitics.com) — ✅ FAIT
+
+- **API** (`apps/hdde-api`, Express + SQLite + nunjucks + OpenAI) : cases → interview guidée →
+  entités/preuves → packet diagnostic scoré (pack-driven, modèle entreprise per-actor + HHI) →
+  diff/validate → exports FR/EN + JSON → **red team OpenAI gpt-4o** (suggestion ≠ preuve).
+- **Web** (`apps/hdde-web`, React + Vite) : cockpit d'interview (`CaseWorkspace`).
+- Auth applicative (bcrypt + sessions, seed CLI, pas d'auto-inscription) ; **Internet public derrière
+  auth**, fronté par Caddy ; API interne d'ingestion pour VERDICT. Packs sous `domain_packs/`.
+- ADR 0032–0036 (+ 0040 modèle de divergence, 0046 traçabilité de validation).
+
+### Phase 6 — `apps/verdict-*` + `packages/verdict` (VERDICT premium) — ✅ FAIT
+
+- **Engine** (`packages/verdict`, `@ag/verdict`) : port du PoC — scoring (7 critères pondérés), audit
+  (veto dur, verdicts FAIRE/TESTER/DIFFÉRER/ABANDONNER), pré-remplissage géopolitique.
+- **API** (`apps/verdict-api`, conteneur dédié, port 8095, SQLite propre) : pipeline V·E·R·D·I·C·T
+  complet, ingestion **read-only** du packet HDDE **validé** (candidate ≠ fact) + CVI + chokepoints,
+  red team OpenAI, exports note de décision FR/EN. **Web** (`apps/verdict-web`) : cockpit d'arbitrage.
+- Service `verdict` + vhost Caddy `verdict.applied-geopolitics.com` en place. ADR 0041–0043.
+
+### Phase 7 — Consumer Read API Chokepoints (pin + drift) — ✅ FAIT
+
+- `scripts/consumer/` (hors règle Docker-only : tourne sur un pair tailnet quelconque) : client Python
+  **pinné** généré depuis le contrat épinglé, `sync_contract.sh` (drift pin↔live), `check_client.sh`
+  (« à jour ? » = pin↔live **et** client↔pin) avec **alerte Slack** + `--heartbeat` hebdo.
+- Contrat épinglé `contract/openapi.json` (v0.2.0) ; `drift.log` **vert au 2026-07-02**. ADR 0062.
+  Coexiste avec le client TS build-time `@ag/chokepoints` du site (partagent le contrat, pas le code).
+
+## Reste à faire (gouvernance — ADR _Proposed_)
+
+- **ADR 0044 (Proposed)** — cycle de vie & confidentialité des données client : rétention, purge, DSAR,
+  DPA OpenAI. Politique à concevoir puis implémenter (surface HDDE + VERDICT).
+- **ADR 0045 (Proposed)** — rail commercial : paiement → provisioning de compte, tiers de prix
+  (Basic/Standard/Premium), KPIs commerciaux. Plomberie go-to-market encore au stade design.
+
 ## Vérification (par phase, Docker-only)
 
 1. `docker compose … build tools` réussit ; aucune commande projet lancée sur l'hôte.
@@ -116,6 +154,9 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
       avec des permissions `644` ; le fichier est désormais en `600` et n'a jamais été versionné, mais
       une rotation reste la bonne hygiène (action manuelle côté admin de l'API Chokepoints). Voir la
       revue complète (commit `7024944`).
+- [ ] **Garder les docs synchronisées** — ce `PLAN.md` et `apps/README.md` ont pris du retard sur le
+      code (rafraîchis le 2026-07-02) ; les remettre à jour à chaque nouvelle phase/app. La source de
+      vérité opérationnelle reste `CLAUDE.md` + les READMEs d'app + `docs/decisions/README.md`.
 
 ## Workflow de publication — état (2026-06-27)
 
@@ -144,3 +185,7 @@ Le site public est **en ligne** ; publier = rebuild (Caddy sert le `dist` monté
    sourcées / Scénarios formalisés / Analyse contradictoire / **CVI appliqué** / Limites / Références
    normées — avec marqueurs `[À SOURCER]` partout où une preuve manque (cf. challenge du 2026-06-27).
 3. Une fois conforme (Munich + revue humaine) → `published: true` pour fiche puis dossier.
+
+> Côté **code**, les chantiers structurants restants sont les deux ADR _Proposed_ ci-dessus —
+> **0044** (cycle de vie / confidentialité des données) et **0045** (rail commercial paiement →
+> provisioning). À prioriser après (ou en parallèle de) le déblocage éditorial du dossier Mer Rouge.
