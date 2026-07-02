@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import Pill from '../../components/Pill.astro';
+import { humanize } from '../../lib/labels';
+import { loadCorridorsByRisk } from '../../lib/atlas-data';
+
+const byRisk = await loadCorridorsByRisk();
+---
+
+<Base
+  title="Corridors par risque"
+  description="Parcourir les corridors stratégiques par type de risque (blocage, sanctions, piraterie…)."
+>
+  <Section class="py-14">
+    <a
+      href="/atlas"
+      class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent"
+    >
+      ← Atlas
+    </a>
+    <p class="eyebrow mt-5">Atlas stratégique</p>
+    <h1 class="mt-4 max-w-3xl font-serif text-title font-bold">Corridors par risque</h1>
+    <p class="prose-ag mt-4 max-w-prose">
+      Entrée par type de risque : quels corridors portent une exposition à un blocage, à des sanctions,
+      à la piraterie ou à un débordement de conflit. Association canonique issue de la base chokepoints
+      (lecture seule) — ni prédiction, ni conseil engageant.
+    </p>
+
+    {
+      byRisk.length ? (
+        <div class="mt-12 space-y-10">
+          {byRisk.map((group) => (
+            <section>
+              <div class="section-rule">
+                <span class="label">{humanize(group.risk)}</span>
+                <span class="ml-auto font-mono text-[11px] text-muted">
+                  {group.corridors.length}
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                {group.corridors.map((c) => (
+                  <a href={`/atlas/chokepoints/${c.id}`}>
+                    <Pill tone="neutral" class="hover:border-accent hover:text-accent">
+                      {c.name}
+                    </Pill>
+                  </a>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <p class="mt-10 text-sm text-muted">Base des risques indisponible pour le moment.</p>
+      )
+    }
+  </Section>
+</Base>

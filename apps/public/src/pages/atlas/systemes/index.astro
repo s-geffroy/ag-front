@@ -1,0 +1,58 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Section from '../../../components/Section.astro';
+import EntryCard from '../../../components/EntryCard.astro';
+import Pill from '../../../components/Pill.astro';
+import { humanize, priorityTone } from '../../../lib/labels';
+import { loadStrategicSystems } from '../../../lib/atlas-data';
+
+const systems = await loadStrategicSystems();
+---
+
+<Base
+  title="Systèmes stratégiques"
+  description="Les systèmes stratégiques regroupent des corridors interdépendants de la base chokepoints."
+>
+  <Section class="py-14">
+    <a
+      href="/atlas"
+      class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent"
+    >
+      ← Atlas
+    </a>
+    <p class="eyebrow mt-5">Atlas stratégique</p>
+    <h1 class="mt-4 max-w-3xl font-serif text-title font-bold">Systèmes stratégiques</h1>
+    <p class="prose-ag mt-4 max-w-prose">
+      Un système stratégique regroupe des corridors interdépendants (une même route, un même flux, une
+      même zone) que l’on lit ensemble. Structure canonique issue de la base chokepoints (lecture
+      seule) ; les regroupements dérivés sont des candidats en attente de validation.
+    </p>
+
+    {
+      systems.length ? (
+        <div class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {systems.map((s) => (
+            <EntryCard
+              href={`/atlas/systemes/${s.id}`}
+              kicker={humanize(s.type) || 'Système'}
+              title={s.name}
+              summary={
+                s.memberCount != null
+                  ? `${s.memberCount} corridor${s.memberCount > 1 ? 's' : ''} rattaché${s.memberCount > 1 ? 's' : ''}`
+                  : 'Système stratégique.'
+              }
+            >
+              {s.priority ? (
+                <Pill tone={priorityTone[s.priority] ?? 'neutral'}>{s.priority}</Pill>
+              ) : null}
+            </EntryCard>
+          ))}
+        </div>
+      ) : (
+        <p class="mt-10 text-sm text-muted">
+          Base des systèmes stratégiques indisponible pour le moment.
+        </p>
+      )
+    }
+  </Section>
+</Base>

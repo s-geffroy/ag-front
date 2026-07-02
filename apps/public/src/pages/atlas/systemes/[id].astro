@@ -1,0 +1,70 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Section from '../../../components/Section.astro';
+import EntryCard from '../../../components/EntryCard.astro';
+import Pill from '../../../components/Pill.astro';
+import { humanize, priorityTone } from '../../../lib/labels';
+import { loadStrategicSystems, loadStrategicSystem, type AtlasSystem } from '../../../lib/atlas-data';
+
+export async function getStaticPaths() {
+  const systems = await loadStrategicSystems();
+  return systems.map((system) => ({ params: { id: system.id }, props: { system } }));
+}
+
+interface Props {
+  system: AtlasSystem;
+}
+const { system } = Astro.props;
+const loaded = await loadStrategicSystem(system.id);
+const members = loaded?.members ?? [];
+---
+
+<Base title={system.name} description={`Système stratégique — ${humanize(system.type)}`} type="article">
+  <Section width="prose" class="py-12">
+    <a
+      href="/atlas/systemes"
+      class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted hover:text-accent"
+    >
+      ← Systèmes stratégiques
+    </a>
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <Pill tone="navy">{humanize(system.type) || 'Système'}</Pill>
+      {system.priority ? (
+        <Pill tone={priorityTone[system.priority] ?? 'neutral'}>{system.priority}</Pill>
+      ) : null}
+      <Pill tone="neutral">
+        {members.length} corridor{members.length > 1 ? 's' : ''}
+      </Pill>
+    </div>
+    <h1 class="mt-5 font-serif text-title font-bold">{system.name}</h1>
+
+    {
+      members.length ? (
+        <div class="mt-10">
+          <div class="section-rule"><span class="label">Corridors rattachés</span></div>
+          <div class="grid gap-4 md:grid-cols-2">
+            {members.map((c) => (
+              <EntryCard
+                href={`/atlas/chokepoints/${c.id}`}
+                kicker={humanize(c.family) || 'Chokepoint'}
+                title={c.name}
+                summary={c.region ? `Région : ${c.region}` : 'Nœud canonique de la base chokepoints.'}
+              >
+                {c.priority ? (
+                  <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill>
+                ) : null}
+              </EntryCard>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <p class="mt-8 text-sm text-muted">Aucun corridor rattaché disponible pour ce système.</p>
+      )
+    }
+
+    <div class="mt-12 border border-line bg-subtle p-4 text-xs leading-relaxed text-muted">
+      Structure canonique issue de la base <strong>chokepoints</strong> (lecture seule). Les
+      regroupements dérivés sont des candidats en attente de validation humaine.
+    </div>
+  </Section>
+</Base>
