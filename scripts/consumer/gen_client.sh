@@ -42,17 +42,14 @@ if command -v uvx >/dev/null 2>&1; then
 elif command -v pipx >/dev/null 2>&1; then
   gen pipx run "$GEN_VERSION"
 elif command -v docker >/dev/null 2>&1; then
-  # Docker fallback via a Docker Hub base image (docker.io) — NOT ghcr.io, which is blocked on some
-  # hosts (403 anon pull). pip-install the generator in an ephemeral python container, then chown the
-  # output back to the invoking uid so the generated tree isn't root-owned.
-  docker run --rm \
+  # No official openapi-python-client image exists; run it via uvx inside the astral uv image
+  # (Python + uv). --user + HOME/cache in /tmp so the generated files are owned by the host user,
+  # not root. $GEN_VERSION keeps the pin identical to the uvx/pipx branches. Needs network on the
+  # first run to fetch the generator into the ephemeral env.
+  docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e UV_CACHE_DIR=/tmp/uv-cache \
     -v "$PIN_DIR":/spec:ro -v "$OUT_DIR":/out -v "$CONFIG":/config.yaml:ro \
-    python:3.12-slim bash -c "
-      set -e
-      pip install -q --root-user-action=ignore '$GEN_VERSION'
-      openapi-python-client generate --path /spec/openapi.json --output-path /out --meta none --overwrite --config /config.yaml
-      chown -R $(id -u):$(id -g) /out
-    "
+    ghcr.io/astral-sh/uv:python3.12-bookworm-slim \
+    uvx "$GEN_VERSION" generate --path /spec/openapi.json --output-path /out --meta none --overwrite --config /config.yaml
 else
   echo "need one of: uvx, pipx, or docker to run openapi-python-client" >&2
   exit 3
