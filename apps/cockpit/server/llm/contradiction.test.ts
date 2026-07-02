@@ -26,6 +26,8 @@ describe('contradiction prompt', () => {
   it('forbids inventing facts, forces French output, and defends against prompt injection', () => {
     expect(SYSTEM_PROMPT).toMatch(/N'invente aucun fait/);
     expect(SYSTEM_PROMPT).toMatch(/DÉFENSE ANTI-INJECTION/);
+    // A detected injection must be surfaced with a deterministic, reviewer-visible marker.
+    expect(SYSTEM_PROMPT).toMatch(/INJECTION DÉTECTÉE:/);
     expect(SYSTEM_PROMPT).toMatch(/en français/);
     expect(SYSTEM_PROMPT).toMatch(/BARRE DE QUALITÉ/);
   });
