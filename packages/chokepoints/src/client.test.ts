@@ -204,6 +204,24 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     expect(rows[1]!.attribution_required).toBe(true);
   });
 
+  it('listSources fails CLOSED on an unrecognized redistribution token (never coerces to true)', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse([
+          // Unknown wording must NOT become `true` (it would wrongly mark the source redistributable).
+          { source_id: 's1', redistribution_allowed: 'restricted', attribution_required: 'prohibited' },
+          { source_id: 's2', redistribution_allowed: true, attribution_required: null },
+        ]),
+    });
+    const rows = await client.listSources();
+    expect(rows[0]!.redistribution_allowed).toBeNull(); // "restricted" → null, not true
+    expect(rows[0]!.attribution_required).toBeNull();
+    expect(rows[1]!.redistribution_allowed).toBe(true); // real boolean passes through
+    expect(rows[1]!.attribution_required).toBeNull();
+  });
+
   it('getHealth returns the liveness status and never sends include_tainted', async () => {
     let calledUrl = '';
     const client = createChokepointsClient({

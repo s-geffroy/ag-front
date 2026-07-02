@@ -799,7 +799,7 @@ function CandidateRow({
   k: { id: string; canonical_name: string; family?: string };
 }) {
   const [open, setOpen] = useState(false);
-  const { data: evidence, isFetching } = useQuery({
+  const { data: evidence, isFetching, isError } = useQuery({
     queryKey: ['corridor-evidence', caseId, k.id],
     enabled: open,
     queryFn: () =>
@@ -826,6 +826,9 @@ function CandidateRow({
       {open && (
         <div className="mt-1 pl-4">
           {isFetching && <p className="text-sky-700 dark:text-sky-400">Chargement…</p>}
+          {isError && !isFetching && (
+            <p className="text-red-600 dark:text-red-400">Évidence indisponible (erreur réseau).</p>
+          )}
           {evidence && !isFetching && (
             <>
               {evidence.actors.length > 0 && (

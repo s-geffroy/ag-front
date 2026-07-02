@@ -28,14 +28,26 @@ mkdir -p "$OUT_DIR"
 # --config: skip the ruff post-hook that would otherwise fail on generated-code lint noise.
 gen() { "$@" generate --path "$SPEC" --output-path "$OUT_DIR" --meta none --overwrite --config "$CONFIG"; }
 
+# Pin the generator to the last 0.24.x line (compatible with pydantic 2.9.2 / httpx 0.27.2). The
+# generated client's own runtime only needs httpx + attrs + python-dateutil.
+GEN_VERSION="openapi-python-client==0.24.2"
+
 if command -v uvx >/dev/null 2>&1; then
-  gen uvx openapi-python-client
+  gen uvx "$GEN_VERSION"
 elif command -v pipx >/dev/null 2>&1; then
-  gen pipx run openapi-python-client
+  gen pipx run "$GEN_VERSION"
 elif command -v docker >/dev/null 2>&1; then
-  docker run --rm -v "$PIN_DIR":/spec -v "$OUT_DIR":/out -v "$CONFIG":/config.yaml:ro \
-    ghcr.io/openapi-generators/openapi-python-client:latest \
-    generate --path /spec/openapi.json --output-path /out --meta none --overwrite --config /config.yaml
+  # Docker fallback via a Docker Hub base image (docker.io) — NOT ghcr.io, which is blocked on some
+  # hosts (403 anon pull). pip-install the generator in an ephemeral python container, then chown the
+  # output back to the invoking uid so the generated tree isn't root-owned.
+  docker run --rm \
+    -v "$PIN_DIR":/spec:ro -v "$OUT_DIR":/out -v "$CONFIG":/config.yaml:ro \
+    python:3.12-slim bash -c "
+      set -e
+      pip install -q --root-user-action=ignore '$GEN_VERSION'
+      openapi-python-client generate --path /spec/openapi.json --output-path /out --meta none --overwrite --config /config.yaml
+      chown -R $(id -u):$(id -g) /out
+    "
 else
   echo "need one of: uvx, pipx, or docker to run openapi-python-client" >&2
   exit 3

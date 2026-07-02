@@ -218,11 +218,21 @@ export async function fetchCorridorContext(chokepointId: string): Promise<Corrid
     )
     .catch(() => [] as CorridorContext['analytics']);
 
+  // Bound the per-episode detail fan-out: /episodes has no corridor filter, so we must getEpisode()
+  // each to read membership. Cap the lookups and LOG if we truncate, so a silently-dropped precedent
+  // is at least visible in the logs rather than vanishing.
+  const MAX_EPISODE_LOOKUPS = 100;
   const episodes = await client
     .listEpisodes()
     .then(async (all) => {
+      if (all.length > MAX_EPISODE_LOOKUPS) {
+        console.warn(
+          `[hdde] fetchCorridorContext: ${all.length} episodes > cap ${MAX_EPISODE_LOOKUPS}; ` +
+            `truncating membership scan for ${chokepointId} (some precedents may be omitted).`,
+        );
+      }
       const details = await Promise.all(
-        all.slice(0, 20).map((e) => client.getEpisode(e.episode_key).catch(() => null)),
+        all.slice(0, MAX_EPISODE_LOOKUPS).map((e) => client.getEpisode(e.episode_key).catch(() => null)),
       );
       return details
         .filter((d): d is NonNullable<typeof d> => d !== null)

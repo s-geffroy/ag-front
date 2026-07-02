@@ -104,7 +104,12 @@ export function createApiRouter(): Router {
       } catch (err) {
         // Never echo upstream URLs/messages (may embed the tailnet host); log server-side.
         console.error('[cockpit] explore upstream error', req.path, err);
-        res.status(502).json({ error: 'upstream' });
+        // Propagate an upstream 4xx (e.g. 404 = record absent / endpoint not yet shipped) distinctly
+        // so the UI doesn't mask a genuine outage as "not found". Everything else → 502.
+        const m = err instanceof Error ? err.message : '';
+        const up = /→ HTTP (\d{3})/.exec(m);
+        const code = up ? Number(up[1]) : 0;
+        res.status(code >= 400 && code < 500 ? code : 502).json({ error: 'upstream' });
       }
     };
 

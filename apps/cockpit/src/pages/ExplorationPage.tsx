@@ -247,7 +247,7 @@ function ResultView({
       {busy ? <p className="text-sm text-muted">Chargement…</p> : null}
       {error ? (
         <p className="text-sm text-status-blocked">
-          {error.includes('502') && isCvi
+          {error.includes('404') && isCvi
             ? 'cvi-assessment : endpoint pas encore livré côté producteur (voir le brief). Se câblera au bump 0.3.0.'
             : error.includes('503')
               ? 'API chokepoints non configurée (token absent).'

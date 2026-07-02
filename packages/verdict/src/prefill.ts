@@ -268,14 +268,17 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
         ),
       );
     }
-    for (const a of ctx.analytics) {
+    ctx.analytics.forEach((a, i) => {
       const label = [a.result_type, a.score != null ? `score ${a.score}` : null, a.summary]
         .filter(Boolean)
         .join(' · ');
       if (label) {
-        swot.push(swotItem('threat', `Analytique corridor : ${label}`, 'analytics', `analytics:${a.result_type ?? 'result'}`));
+        // Index-suffix the ref so multiple analytics of the same result_type don't collide.
+        swot.push(
+          swotItem('threat', `Analytique corridor : ${label}`, 'analytics', `analytics:${a.result_type ?? 'result'}:${i}`),
+        );
       }
-    }
+    });
   }
 
   return { pestel, swot, options };

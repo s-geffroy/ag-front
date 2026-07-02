@@ -251,14 +251,24 @@ export type EpisodeDetail = z.infer<typeof EpisodeDetail>;
 /** /sources → registry (now incl. watch coverage in 0.2.0). */
 /**
  * The live /sources endpoint returns these flags as STRINGS ("true"/"false"), not JSON booleans.
- * Coerce defensively so a bare `z.boolean()` doesn't reject the whole list. Falsy strings
- * ("false"/"0"/"no"/"non"/"") → false; any other non-empty string → true; real booleans pass through.
+ * Coerce defensively so a bare `z.boolean()` doesn't reject the whole list. These are
+ * redistribution/licensing flags, so coercion FAILS CLOSED: only an explicit truthy token yields
+ * `true`; explicit falsy tokens yield `false`; anything unrecognized ("restricted", "conditional",
+ * …) → `null` (unknown), never silently `true`. Real booleans and numbers pass through sensibly.
  */
-const boolish = z.preprocess(
-  (v) =>
-    typeof v === 'string' ? !['false', '0', 'no', 'non', ''].includes(v.trim().toLowerCase()) : v,
-  z.boolean().nullish(),
-);
+const TRUE_TOKENS = ['true', '1', 'yes', 'oui'];
+const FALSE_TOKENS = ['false', '0', 'no', 'non', ''];
+const boolish = z.preprocess((v) => {
+  if (typeof v === 'boolean') return v;
+  if (typeof v === 'number') return v !== 0;
+  if (typeof v === 'string') {
+    const t = v.trim().toLowerCase();
+    if (TRUE_TOKENS.includes(t)) return true;
+    if (FALSE_TOKENS.includes(t)) return false;
+    return null; // unknown token → fail closed (never coerce an unknown to "allowed")
+  }
+  return v; // null / undefined → accepted by .nullish()
+}, z.boolean().nullish());
 
 export const SourceOut = z
   .object({

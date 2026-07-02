@@ -108,13 +108,25 @@ export type AtlasSystem = {
   memberCount?: number;
 };
 
-/** Build-time list of strategic systems (grouped corridors). Graceful: empty on failure. */
+/**
+ * The set of chokepoint ids that actually have a generated detail page (`/atlas/chokepoints/[id]`).
+ * Only P0 corridors get editorial pages (see `loadChokepoints`), so system/risk browse pages must
+ * link ONLY these ids and render the rest as plain text — otherwise P1–P3 corridors would 404.
+ */
+export async function loadChokepointPageIds(): Promise<Set<string>> {
+  return new Set((await loadChokepoints()).items.map((c) => c.id));
+}
+
+let systemsCache: AtlasSystem[] | null = null;
+
+/** Build-time list of strategic systems (grouped corridors). Graceful: empty on failure. Memoized. */
 export async function loadStrategicSystems(): Promise<AtlasSystem[]> {
+  if (systemsCache) return systemsCache;
   const cfg = config();
   if (!cfg) return [];
   try {
     const systems = await createChokepointsClient(cfg).listStrategicSystems();
-    return systems
+    systemsCache = systems
       .map((s) => ({
         id: s.id,
         name: s.name,
@@ -123,6 +135,7 @@ export async function loadStrategicSystems(): Promise<AtlasSystem[]> {
         memberCount: s.member_count ?? undefined,
       }))
       .sort((a, b) => (b.memberCount ?? 0) - (a.memberCount ?? 0) || a.name.localeCompare(b.name));
+    return systemsCache;
   } catch (e) {
     console.warn('[atlas] systèmes stratégiques injoignables :', String(e));
     return [];
@@ -141,15 +154,17 @@ export async function loadStrategicSystem(
       client.getStrategicSystem(id),
       client.chokepointsBySystem(id).catch(() => [] as ChokepointSummary[]),
     ]);
+    // Defence-in-depth: drop any restricted record even though the read-scope client is clear-only.
+    const clear = members.filter((m) => !m.license_taint);
     return {
       system: {
         id: detail.id,
         name: detail.name,
         type: detail.system_type ?? undefined,
         priority: detail.priority_class ?? undefined,
-        memberCount: members.length,
+        memberCount: clear.length,
       },
-      members: members.map(toAtlas),
+      members: clear.map(toAtlas),
     };
   } catch (e) {
     console.warn(`[atlas] système ${id} injoignable :`, String(e));
@@ -178,16 +193,21 @@ export async function loadCorridorsByRisk(): Promise<RiskBrowse[]> {
   const cfg = config();
   if (!cfg) return [];
   const client = createChokepointsClient(cfg);
-  const out: RiskBrowse[] = [];
-  for (const risk of PUBLIC_RISK_TYPES) {
-    try {
-      const rows = await client.chokepointsByRisk(risk);
-      if (rows.length) {
-        out.push({ risk, corridors: rows.map((r) => ({ id: r.id, name: r.canonical_name })) });
+  // Fan out the per-risk lookups concurrently (bounded by PUBLIC_RISK_TYPES), so a slow API adds one
+  // round-trip to the build, not N sequential ones. Each risk fails independently → [].
+  const groups = await Promise.all(
+    PUBLIC_RISK_TYPES.map(async (risk) => {
+      try {
+        const rows = await client.chokepointsByRisk(risk);
+        // Defence-in-depth taint drop (read-scope client is clear-only, but never trust the wire).
+        const corridors = rows
+          .filter((r) => !r.license_taint)
+          .map((r) => ({ id: r.id, name: r.canonical_name }));
+        return corridors.length ? { risk, corridors } : null;
+      } catch {
+        return null; // a risk type the API doesn't know → skip
       }
-    } catch {
-      /* a risk type the API doesn't know → skip */
-    }
-  }
-  return out;
+    }),
+  );
+  return groups.filter((g): g is RiskBrowse => g !== null);
 }

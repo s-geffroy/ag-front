@@ -4,7 +4,12 @@ import Section from '../../../components/Section.astro';
 import EntryCard from '../../../components/EntryCard.astro';
 import Pill from '../../../components/Pill.astro';
 import { humanize, priorityTone } from '../../../lib/labels';
-import { loadStrategicSystems, loadStrategicSystem, type AtlasSystem } from '../../../lib/atlas-data';
+import {
+  loadStrategicSystems,
+  loadStrategicSystem,
+  loadChokepointPageIds,
+  type AtlasSystem,
+} from '../../../lib/atlas-data';
 
 export async function getStaticPaths() {
   const systems = await loadStrategicSystems();
@@ -17,6 +22,8 @@ interface Props {
 const { system } = Astro.props;
 const loaded = await loadStrategicSystem(system.id);
 const members = loaded?.members ?? [];
+// Only P0 corridors have a detail page; link those, render the rest as plain cards (no dead 404s).
+const pageIds = await loadChokepointPageIds();
 ---
 
 <Base title={system.name} description={`Système stratégique — ${humanize(system.type)}`} type="article">
@@ -43,18 +50,35 @@ const members = loaded?.members ?? [];
         <div class="mt-10">
           <div class="section-rule"><span class="label">Corridors rattachés</span></div>
           <div class="grid gap-4 md:grid-cols-2">
-            {members.map((c) => (
-              <EntryCard
-                href={`/atlas/chokepoints/${c.id}`}
-                kicker={humanize(c.family) || 'Chokepoint'}
-                title={c.name}
-                summary={c.region ? `Région : ${c.region}` : 'Nœud canonique de la base chokepoints.'}
-              >
-                {c.priority ? (
-                  <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill>
-                ) : null}
-              </EntryCard>
-            ))}
+            {members.map((c) =>
+              pageIds.has(c.id) ? (
+                <EntryCard
+                  href={`/atlas/chokepoints/${c.id}`}
+                  kicker={humanize(c.family) || 'Chokepoint'}
+                  title={c.name}
+                  summary={c.region ? `Région : ${c.region}` : 'Nœud canonique de la base chokepoints.'}
+                >
+                  {c.priority ? (
+                    <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill>
+                  ) : null}
+                </EntryCard>
+              ) : (
+                <div class="rounded-[2px] border border-line bg-surface p-5">
+                  <div class="mb-3 flex items-center justify-between gap-2">
+                    <span class="label">{humanize(c.family) || 'Chokepoint'}</span>
+                    {c.priority ? (
+                      <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill>
+                    ) : null}
+                  </div>
+                  <h3 class="font-serif text-[1.2rem] font-semibold leading-snug text-ink">
+                    {c.name}
+                  </h3>
+                  <p class="mt-2 text-sm leading-relaxed text-muted">
+                    {c.region ? `Région : ${c.region}` : 'Nœud canonique de la base chokepoints.'}
+                  </p>
+                </div>
+              ),
+            )}
           </div>
         </div>
       ) : (
