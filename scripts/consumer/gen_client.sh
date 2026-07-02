@@ -18,6 +18,11 @@ OUT_DIR="${OUT_DIR:-$SCRIPT_DIR/client}"
 SPEC="$PIN_DIR/openapi.json"
 CONFIG="$SCRIPT_DIR/openapi-python-client.yaml"   # post_hooks: [] (skip generated-code lint)
 
+_sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
+  else shasum -a 256 "$1" | awk '{print $1}'; fi
+}
+
 if [ ! -f "$SPEC" ]; then
   echo "pinned spec missing: $SPEC — run sync_contract.sh first" >&2
   exit 1
@@ -54,3 +59,6 @@ else
 fi
 
 echo "generated typed client from $SPEC into $OUT_DIR"
+
+# Stamp the spec hash the client was generated from, so check_client.sh can detect a stale client.
+_sha256 "$SPEC" > "$OUT_DIR/.spec.sha256"
