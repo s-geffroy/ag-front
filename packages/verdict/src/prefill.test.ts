@@ -93,6 +93,24 @@ describe('buildCandidates — geopolitical pre-fill', () => {
     expect(threats.some((t) => t.source_ref === 'cvi:concentration')).toBe(false);
   });
 
+  it('maps corridor_context episodes + analytics to SWOT threats with provenance', () => {
+    const r = buildCandidates({
+      packet: packet({
+        corridor_context: {
+          episodes: [{ key: 'red_sea_2024', name: 'Crise mer Rouge', started_on: '2024-01-01' }],
+          analytics: [{ result_type: 'criticality_score', score: 0.9, summary: 'flux critique' }],
+        },
+      }),
+    });
+    const ep = r.swot.find((s) => s.source_ref === 'episode:red_sea_2024');
+    expect(ep?.quadrant).toBe('threat');
+    expect(ep?.source_kind).toBe('episode');
+    expect(ep?.statement).toContain('Crise mer Rouge');
+    const an = r.swot.find((s) => s.source_kind === 'analytics');
+    expect(an?.quadrant).toBe('threat');
+    expect(an?.statement).toContain('criticality_score');
+  });
+
   it('every emitted candidate is a non-validated candidate with provenance', () => {
     const r = buildCandidates({ packet: packet() });
     const all = [...r.pestel, ...r.swot, ...r.options];

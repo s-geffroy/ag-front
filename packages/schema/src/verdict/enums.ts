@@ -72,7 +72,15 @@ export const SwotQuadrant = z.enum(swotQuadrants);
 export type SwotQuadrant = z.infer<typeof SwotQuadrant>;
 
 // Provenance of a pre-filled candidate (doctrine: candidate ≠ fact, ADR 0027).
-export const sourceKinds = ['hdde_packet', 'cvi', 'chokepoint', 'atlas', 'manual'] as const;
+export const sourceKinds = [
+  'hdde_packet',
+  'cvi',
+  'chokepoint',
+  'episode',
+  'analytics',
+  'atlas',
+  'manual',
+] as const;
 export const SourceKind = z.enum(sourceKinds);
 export type SourceKind = z.infer<typeof SourceKind>;
 

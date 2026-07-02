@@ -56,6 +56,34 @@ export const PacketPayload = z.object({
   // the Chokepoints Read API and validated by @ag/cvi. Feeds VERDICT's CVI→SWOT/PESTEL prefill via the
   // single HDDE contract (ADR 0042). Optional: absent when the API serves none, or on older packets.
   corridor_cvi: CviAssessment.optional(),
+  // Per-corridor decision context (candidate, read scope — ADR 0035/0042): disruption-precedent
+  // episodes (from /episodes + /episodes/{key}) and derived analytics (from /analytics/results),
+  // sourced by HDDE and carried in the packet so VERDICT prefills context without a second data
+  // source. Candidates pending validation, never facts. Optional for back-compat.
+  corridor_context: z
+    .object({
+      episodes: z
+        .array(
+          z.object({
+            key: z.string(),
+            name: z.string(),
+            started_on: z.string().optional(),
+            ended_on: z.string().optional(),
+          }),
+        )
+        .default([]),
+      analytics: z
+        .array(
+          z.object({
+            result_type: z.string().optional(),
+            score: z.number().optional(),
+            confidence: z.string().optional(),
+            summary: z.string().optional(),
+          }),
+        )
+        .default([]),
+    })
+    .optional(),
   // Enterprise layer (ADR 0036): per-actor verdicts + concentration synthesis. Optional for back-compat.
   entities: z
     .array(

@@ -7,11 +7,12 @@ process.env.CHOKEPOINTS_API_TOKEN = 'read-scope-token';
 
 let suggestChokepoints: (typeof import('../server/integrations/chokepoints'))['suggestChokepoints'];
 let fetchCorridorEvidence: (typeof import('../server/integrations/chokepoints'))['fetchCorridorEvidence'];
+let fetchCorridorContext: (typeof import('../server/integrations/chokepoints'))['fetchCorridorContext'];
 let deriveFlowVulnerability: (typeof import('../server/integrations/cvi'))['deriveFlowVulnerability'];
 let fetchCorridorCvi: (typeof import('../server/integrations/cvi'))['fetchCorridorCvi'];
 
 beforeAll(async () => {
-  ({ suggestChokepoints, fetchCorridorEvidence } = await import(
+  ({ suggestChokepoints, fetchCorridorEvidence, fetchCorridorContext } = await import(
     '../server/integrations/chokepoints'
   ));
   ({ deriveFlowVulnerability, fetchCorridorCvi } = await import('../server/integrations/cvi'));
@@ -103,6 +104,33 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
     expect(ev.actors).toEqual([]);
     expect(ev.event_signals).toEqual([]);
     expect(ev.perception).toBeNull();
+  });
+});
+
+describe('fetchCorridorContext — episodes + analytics for the VERDICT packet (ADR 0042)', () => {
+  it('keeps only episodes whose (non-tainted) members include the corridor + maps analytics', async () => {
+    routeFetch({
+      '/analytics/results': () =>
+        json([{ id: 'r1', object_id: 'p0_x', result_type: 'criticality_score', score: 0.9, result_summary: 'flux critique' }]),
+      // getEpisode(:key) — matched before the list route by longer path; return per-key details.
+      '/episodes/ep_match': () =>
+        json({ episode_key: 'ep_match', name: 'Crise', members: [{ chokepoint_id: 'p0_x' }] }),
+      '/episodes/ep_other': () =>
+        json({ episode_key: 'ep_other', name: 'Autre', members: [{ chokepoint_id: 'p0_y' }] }),
+      '/episodes': () =>
+        json([{ episode_key: 'ep_match', name: 'Crise' }, { episode_key: 'ep_other', name: 'Autre' }]),
+    });
+    const ctx = await fetchCorridorContext('p0_x');
+    expect(ctx.available).toBe(true);
+    expect(ctx.episodes.map((e) => e.key)).toEqual(['ep_match']); // ep_other excluded (different corridor)
+    expect(ctx.analytics[0]!.result_type).toBe('criticality_score');
+    expect(ctx.analytics[0]!.summary).toBe('flux critique');
+  });
+
+  it('degrades gracefully — API failing yields available:false, empty', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('down'));
+    const ctx = await fetchCorridorContext('p0_x');
+    expect(ctx).toEqual({ available: false, episodes: [], analytics: [] });
   });
 });
 

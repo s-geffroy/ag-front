@@ -252,5 +252,31 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
     swot.push(swotItem('threat', `Dépendance au corridor ${cp.name}`, 'chokepoint', `chokepoint:${cp.id}`));
   }
 
+  // --- Corridor context (episodes + analytics, read scope) → Threats -------------------------
+  // Disruption precedents and derived analytics carried in the packet (ADR 0042). Candidates: a
+  // documented precedent of disruption is a threat signal; analytics are framed as candidate context.
+  const ctx = packet.corridor_context;
+  if (ctx) {
+    for (const ep of ctx.episodes) {
+      const period = ep.started_on ? ` (${ep.started_on.slice(0, 10)}${ep.ended_on ? `→${ep.ended_on.slice(0, 10)}` : ''})` : '';
+      swot.push(
+        swotItem(
+          'threat',
+          `Précédent de perturbation : ${ep.name}${period}`,
+          'episode',
+          `episode:${ep.key}`,
+        ),
+      );
+    }
+    for (const a of ctx.analytics) {
+      const label = [a.result_type, a.score != null ? `score ${a.score}` : null, a.summary]
+        .filter(Boolean)
+        .join(' · ');
+      if (label) {
+        swot.push(swotItem('threat', `Analytique corridor : ${label}`, 'analytics', `analytics:${a.result_type ?? 'result'}`));
+      }
+    }
+  }
+
   return { pestel, swot, options };
 }

@@ -16,7 +16,11 @@ import { getPack } from '../pack';
 import { buildEnterpriseDiagnostic, bumpVerdict } from '../engine';
 import type { EngineAnswer, EntityLike, DimensionEvidence, Verdict } from '../engine';
 import { deriveFlowVulnerability, fetchCorridorCvi } from '../integrations/cvi';
-import { suggestChokepoints, fetchCorridorEvidence } from '../integrations/chokepoints';
+import {
+  suggestChokepoints,
+  fetchCorridorEvidence,
+  fetchCorridorContext,
+} from '../integrations/chokepoints';
 import { runPersona, RedTeamError } from '../llm/openai';
 import { computeCost } from '../llm/pricing';
 import { renderExports } from '../exports/render';
@@ -268,6 +272,12 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, wrap(async (req: CaseReque
   // pending validation; null when the API doesn't serve one — VERDICT then just skips the CVI branch.
   const corridorCvi = chk.candidates[0] ? await fetchCorridorCvi(chk.candidates[0].id) : null;
 
+  // Disruption-precedent episodes + derived analytics for that corridor (read scope, ADR 0035/0042),
+  // carried in the packet as decision context. Omitted when the API serves none.
+  const corridorContext = chk.candidates[0]
+    ? await fetchCorridorContext(chk.candidates[0].id)
+    : null;
+
   const packetPayload = {
     ...core,
     operational_verdict: adjustedVerdict,
@@ -280,6 +290,14 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, wrap(async (req: CaseReque
     cvi: deriveFlowVulnerability(flowScore),
     chokepoints,
     ...(corridorCvi ? { corridor_cvi: corridorCvi } : {}),
+    ...(corridorContext?.available
+      ? {
+          corridor_context: {
+            episodes: corridorContext.episodes,
+            analytics: corridorContext.analytics,
+          },
+        }
+      : {}),
   };
 
   const snapshot = {

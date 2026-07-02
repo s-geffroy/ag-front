@@ -181,3 +181,62 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
     perception,
   };
 }
+
+// --- Per-corridor decision context (episodes + analytics) for the VERDICT packet ------------------
+
+export interface CorridorContext {
+  available: boolean;
+  episodes: { key: string; name: string; started_on?: string; ended_on?: string }[];
+  analytics: { result_type?: string; score?: number; confidence?: string; summary?: string }[];
+}
+
+/**
+ * Fetch disruption-precedent episodes and derived analytics for ONE corridor, to carry in the HDDE
+ * diagnostic packet (ADR 0042: VERDICT never calls the Read API directly). Read scope, candidate ≠
+ * fact (ADR 0027/0035). Episodes are matched via /episodes + /episodes/{key} membership; analytics
+ * via /analytics/results?object_id=. Tainted members/records dropped; every branch degrades to empty.
+ */
+export async function fetchCorridorContext(chokepointId: string): Promise<CorridorContext> {
+  const empty: CorridorContext = { available: false, episodes: [], analytics: [] };
+  if (!config.chokepointsApiUrl || !config.chokepointsApiToken) return empty;
+  const client = createChokepointsClient({
+    baseUrl: config.chokepointsApiUrl,
+    token: config.chokepointsApiToken,
+  });
+
+  const analytics = await client
+    .listAnalyticsResults({ object_id: chokepointId, limit: 20 })
+    .then((rows) =>
+      rows
+        .filter((r) => !isTainted(r))
+        .map((r) => ({
+          result_type: r.result_type ?? undefined,
+          score: typeof r.score === 'number' ? r.score : undefined,
+          confidence: typeof r.confidence === 'string' ? r.confidence : undefined,
+          summary: (r as { result_summary?: string }).result_summary ?? undefined,
+        })),
+    )
+    .catch(() => [] as CorridorContext['analytics']);
+
+  const episodes = await client
+    .listEpisodes()
+    .then(async (all) => {
+      const details = await Promise.all(
+        all.slice(0, 20).map((e) => client.getEpisode(e.episode_key).catch(() => null)),
+      );
+      return details
+        .filter((d): d is NonNullable<typeof d> => d !== null)
+        .filter((d) =>
+          d.members.some((m) => m.chokepoint_id === chokepointId && m.license_taint !== true),
+        )
+        .map((d) => ({
+          key: d.episode_key,
+          name: d.name,
+          started_on: d.started_on ?? undefined,
+          ended_on: d.ended_on ?? undefined,
+        }));
+    })
+    .catch(() => [] as CorridorContext['episodes']);
+
+  return { available: episodes.length > 0 || analytics.length > 0, episodes, analytics };
+}
