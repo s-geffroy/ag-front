@@ -13,7 +13,8 @@ d'enquête **HDDE** (`apps/hdde-api`), la red team d'arbitrage **VERDICT** (`app
 contradiction éditoriale du **cockpit** (`apps/cockpit`). Un audit de leurs prompts, confronté à
 l'état de l'art 2025-2026 (OWASP LLM01/LLM05, Agentic ASI01 ; spotlighting/datamarking ;
 Structured Outputs strict ; CoT-avant-conclusion — voir `docs/references.bib`), a révélé des écarts
-de **sécurité** et de **qualité**, et des **incohérences** entre les trois :
+de **sécurité** et de **qualité**, et des **incohérences** entre les trois (panorama red-teaming :
+`{raheja2024redteaming}`) :
 
 - **Injection (LLM01/ASI01)** : le cockpit injectait le corps du document **brut** (aucune clôture,
   aucune règle anti-injection). HDDE et VERDICT ne clôturaient que quelques champs ; leurs listes
