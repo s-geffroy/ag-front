@@ -21,6 +21,8 @@ const emptyCtx = {
 describe('hdde red-team system prompt', () => {
   it('is hardened: injection defence, French output, quality bar, severity rubric', () => {
     expect(SYSTEM_PROMPT).toMatch(/PROMPT-INJECTION DEFENCE/);
+    // A detected injection must be surfaced with a deterministic, reviewer-visible marker.
+    expect(SYSTEM_PROMPT).toMatch(/INJECTION DÉTECTÉE:/);
     expect(SYSTEM_PROMPT).toMatch(/Write ALL text fields in French/);
     expect(SYSTEM_PROMPT).toMatch(/QUALITY BAR/);
     expect(SYSTEM_PROMPT).toMatch(/severity is an integer 0-5/);
