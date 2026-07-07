@@ -1,0 +1,181 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import Pill from '../components/Pill.astro';
+
+// Method vocabulary mirrored from the HDDE domain pack
+// (apps/hdde-api/domain_packs/enterprise_hidden_dependency_discovery/). No @ag/hdde package exists;
+// the public site cannot import the pack YAML, so the descriptive labels are recopied here.
+
+// interview_blocks.yaml — the guided interview in eleven moves.
+const blocks = [
+  { label: 'Cadrage du cas', note: 'Périmètre, acteur visible de départ, question de décision.' },
+  { label: 'Acteur critique visible', note: 'Le fournisseur, l’organe ou le point de passage déclaré.' },
+  { label: 'Nature de la dépendance', note: 'Contractuelle, technique, financière, réglementaire ?' },
+  { label: 'Flux critique', note: 'Le flux physique, informationnel ou financier réellement en jeu.' },
+  { label: 'Substitution réelle', note: 'Existe-t-il une alternative crédible, à quel coût, en quel délai ?' },
+  { label: 'Dépendances cachées', note: 'Fournisseurs de second rang, juridictions, nœuds invisibles derrière l’acteur.' },
+  { label: 'Acteurs de contrôle et de nuisance', note: 'Gatekeepers, régulateurs, assureurs, acteurs de perturbation.' },
+  { label: 'Temporalité d’impact', note: 'À quelle vitesse une rupture se propage-t-elle jusqu’au client ?' },
+  { label: 'Seuils de décision', note: 'Les niveaux à partir desquels il faut préparer, agir ou escalader.' },
+  { label: 'Red team', note: 'Mise à l’épreuve contradictoire du diagnostic avant conclusion.' },
+  { label: 'Synthèse', note: 'Consolidation en packet de diagnostic traçable, source par source.' },
+] as const;
+
+// dimensions.yaml — nine diagnostic dimensions, scored 0–5.
+const dimensions = [
+  { label: 'Dépendance à l’acteur visible', question: 'À quel point l’entreprise dépend-elle de l’acteur déclaré ?' },
+  { label: 'Dépendance cachée', question: 'Quelle exposition passe par des nœuds non visibles en amont ?' },
+  { label: 'Faiblesse de substitution', question: 'Le remplacement est-il crédible, rapide, soutenable ?' },
+  { label: 'Exposition juridictionnelle', question: 'Quelles juridictions peuvent contraindre ou bloquer le flux ?' },
+  { label: 'Criticité du flux', question: 'Une rupture du flux met-elle en jeu l’activité elle-même ?' },
+  { label: 'Pression temporelle', question: 'Combien de temps avant que l’impact atteigne le client ?' },
+  { label: 'Pression des gatekeepers', question: 'Quel pouvoir de contrôle ou de nuisance des acteurs intermédiaires ?' },
+  { label: 'Qualité de preuve', question: 'Le diagnostic repose-t-il sur des preuves fiables et validées ?' },
+  { label: 'Préparation décisionnelle', question: 'L’entreprise est-elle prête à décider face à cette exposition ?' },
+] as const;
+
+// evidence_types.yaml — reliability scale 0–5; an LLM suggestion is never admissible as evidence.
+const evidence = [
+  { label: 'Source officielle', reliability: 5, admissible: true },
+  { label: 'Contrat', reliability: 4, admissible: true },
+  { label: 'Donnée logistique', reliability: 4, admissible: true },
+  { label: 'Clause d’assurance', reliability: 4, admissible: true },
+  { label: 'Document fournisseur', reliability: 3, admissible: true },
+  { label: 'Note analyste', reliability: 3, admissible: true },
+  { label: 'Déclaration client', reliability: 2, admissible: true },
+  { label: 'Signal de veille', reliability: 2, admissible: true },
+  { label: 'Suggestion LLM', reliability: 1, admissible: false },
+] as const;
+
+// verdict_rules.yaml — four graded verdicts.
+const verdicts = [
+  { label: 'Surveiller', description: 'Surveillance structurée.', band: 'monitor' },
+  { label: 'Préparer', description: 'Préparation active.', band: 'prepare' },
+  { label: 'Agir', description: 'Action opérationnelle limitée pour réduire l’incertitude ou sécuriser une option.', band: 'act' },
+  { label: 'Escalader', description: 'Escalade décisionnelle vers direction, juridique, finance ou crise.', band: 'escalate' },
+] as const;
+---
+
+<Base
+  title="Méthode HDDE"
+  description="HDDE : révéler les dépendances géopolitiques cachées derrière un acteur visible. Entretien expert guidé, neuf dimensions de diagnostic, échelle de preuve, red team — chaque sortie est un candidat en attente de validation humaine."
+>
+  <Section width="prose" class="py-14">
+    <p class="eyebrow">Méthode</p>
+    <h1 class="mt-4 font-serif text-title font-bold">HDDE — révéler les dépendances cachées</h1>
+    <p class="prose-ag mt-4">
+      Le <strong>Hidden Dependency Discovery Engine</strong> est un <strong>poste d’entretien expert</strong>
+      qui part d’un <em>acteur visible</em> — un fournisseur, un organe, un point de passage déclaré — pour
+      remonter jusqu’aux <strong>dépendances géopolitiques cachées</strong> d’une entreprise : fournisseurs
+      de second rang, juridictions, gatekeepers, chokepoints, assureurs, régulateurs, acteurs de nuisance.
+    </p>
+    <p class="prose-ag mt-4 text-sm text-muted">
+      Principe directeur : <strong>chaque sortie est un candidat en attente de validation humaine</strong>,
+      jamais un fait. Le diagnostic éclaire la décision du client ; il ne s’y substitue pas.
+    </p>
+  </Section>
+
+  <!-- The guided interview in 11 moves. -->
+  <Section class="py-10">
+    <div class="section-rule"><span class="label">L’entretien guidé en onze temps</span></div>
+    <div class="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2">
+      {
+        blocks.map((b, i) => (
+          <div class="bg-surface p-5">
+            <div class="flex items-baseline gap-3">
+              <span class="font-mono text-sm font-semibold text-accent">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="font-serif text-lg">{b.label}</h3>
+            </div>
+            <p class="mt-1.5 text-sm text-muted">{b.note}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- The 9 diagnostic dimensions. -->
+  <Section class="py-8">
+    <div class="section-rule"><span class="label">Neuf dimensions de diagnostic (0–5)</span></div>
+    <div class="grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+      {
+        dimensions.map((d, i) => (
+          <div class="bg-surface p-5">
+            <div class="flex items-baseline gap-3">
+              <span class="font-mono text-sm font-semibold text-accent">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="font-serif text-base">{d.label}</h3>
+            </div>
+            <p class="mt-1.5 text-sm text-muted">{d.question}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- Evidence scale — reliability governs the diagnostic. -->
+  <Section width="prose" class="py-8">
+    <div class="section-rule"><span class="label">L’échelle de preuve gouverne le diagnostic</span></div>
+    <p class="prose-ag">
+      Chaque élément est rattaché à une source dont la <strong>fiabilité (0–5)</strong> pondère le
+      diagnostic. Règle dure : <strong>une suggestion générée par le LLM n’est jamais une preuve</strong>,
+      et toute preuve exige une <strong>validation humaine</strong> avant d’entrer dans le packet.
+    </p>
+    <div class="mt-5 grid gap-2 sm:grid-cols-2">
+      {
+        evidence.map((e) => (
+          <div class="flex items-baseline justify-between gap-3 border border-line bg-surface p-3">
+            <span class="text-sm text-muted">{e.label}</span>
+            <Pill tone={e.admissible ? 'accent' : 'neutral'}>
+              {e.admissible ? `Fiabilité ${e.reliability}` : 'Non admissible'}
+            </Pill>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- The 4 verdicts. -->
+  <Section width="prose" class="py-8">
+    <div class="section-rule"><span class="label">Quatre verdicts gradués</span></div>
+    <div class="mt-5 space-y-3">
+      {
+        verdicts.map((v) => (
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border border-line bg-surface p-4">
+            <div>
+              <div class="font-medium text-ink">{v.label}</div>
+              <div class="text-sm text-muted">{v.description}</div>
+            </div>
+            <Pill tone="accent">{v.band}</Pill>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <!-- Red team + geopolitical articulation. -->
+  <Section width="prose" class="py-8">
+    <div class="section-rule"><span class="label">Red team & prisme géopolitique</span></div>
+    <p class="prose-ag">
+      Avant toute conclusion, le diagnostic passe par une <strong>red team</strong> : un modèle OpenAI
+      (<code>gpt-4o</code>) attaque le raisonnement — hypothèses fragiles, angles morts, dépendances
+      sous-estimées — pour durcir la synthèse. Ses objections restent des <em>candidats</em> soumis à
+      l’analyste.
+    </p>
+    <p class="prose-ag mt-4">
+      HDDE s’articule avec les autres actifs Applied Geopolitics : il consomme en <strong>lecture</strong>
+      les scores <strong>CVI</strong> du corridor et le contexte <strong>chokepoints</strong>, et il
+      <strong> alimente VERDICT</strong> — le packet de diagnostic pré-remplit l’arbitrage Premium
+      (<em>diagnostic → décision</em>). Aucune donnée canonique n’est modifiée par le processus
+      (ADR 0032–0035).
+    </p>
+  </Section>
+
+  <!-- Closing disclaimer, aligned with the CVI/VERDICT method pages. -->
+  <Section width="prose" class="py-8">
+    <p class="prose-ag text-sm text-muted">
+      HDDE ne prédit pas et ne remplace pas le jugement interne du client. Chaque score affiche ses
+      sources, sa fiabilité et ses incertitudes ; aucune sortie n’est un fait tant qu’elle n’a pas été
+      validée par un humain.
+    </p>
+  </Section>
+</Base>

@@ -1,6 +1,8 @@
 ---
 import { nav, site } from '../lib/site';
 const year = 2026;
+// Flatten dropdown groups so every method page still appears as a direct link.
+const footerLinks = nav.flatMap((n) => ('children' in n ? n.children : [n]));
 ---
 
 <footer class="bg-graticule mt-24 border-t-2 border-t-navy bg-surface">
@@ -17,7 +19,7 @@ const year = 2026;
       <nav class="text-sm">
         <div class="label mb-3">Explorer</div>
         <ul class="space-y-1.5">
-          {nav.map((n) => <li><a href={n.href} class="text-muted hover:text-ink">{n.label}</a></li>)}
+          {footerLinks.map((n) => <li><a href={n.href} class="text-muted hover:text-ink">{n.label}</a></li>)}
         </ul>
       </nav>
       <div class="text-sm">

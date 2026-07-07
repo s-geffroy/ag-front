@@ -7,15 +7,25 @@ export const site = {
     'Applied Geopolitics analyse les corridors par lesquels circulent les flux de puissance afin d’identifier les dépendances critiques, les vulnérabilités géopolitiques et les décisions de résilience possibles.',
 };
 
-export const nav = [
+export type NavLink = { href: string; label: string };
+/** A top-level nav entry is either a direct link or a group that opens a dropdown of links. */
+export type NavItem = NavLink | { label: string; children: readonly NavLink[] };
+
+export const nav: readonly NavItem[] = [
   { href: '/atlas', label: 'Atlas' },
   { href: '/dossiers', label: 'Dossiers' },
   { href: '/notes', label: 'Notes' },
-  { href: '/methode-cvi', label: 'Méthode CVI' },
-  { href: '/methode-verdict', label: 'Méthode VERDICT' },
+  {
+    label: 'Méthodes',
+    children: [
+      { href: '/methode-cvi', label: 'Méthode CVI' },
+      { href: '/methode-hdde', label: 'Méthode HDDE' },
+      { href: '/methode-verdict', label: 'Méthode VERDICT' },
+    ],
+  },
   { href: '/offres', label: 'Offres' },
   { href: '/a-propos', label: 'À propos' },
-] as const;
+];
 
 export type Offer = {
   id: 'basic' | 'standard' | 'premium';
