@@ -27,6 +27,9 @@ IFS='|' read -r model used_pct ctx_size inp_tok cache_create cache_read \
     (.rate_limits.seven_day.resets_at // 0)
   ] | join("|")' 2>/dev/null)"
 
+# ── Retire le suffixe « (1M context) » du nom de modèle ──
+model="${model/ (1M context)/}"
+
 # ── Couleur par seuil : vert <50, jaune <80, rouge ≥80 ──
 col() { local p=${1:-0}; if [ "$p" -ge 80 ]; then printf '%s' "$RED"
         elif [ "$p" -ge 50 ]; then printf '%s' "$YLW"; else printf '%s' "$GRN"; fi; }
