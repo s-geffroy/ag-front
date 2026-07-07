@@ -8,7 +8,7 @@ priority: P0
 regions:
   - Asie de l’Est
 access: public
-published: true
+published: false
 corrections: []
 updated: 2026-06-13
 confidence: moyen

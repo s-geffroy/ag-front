@@ -94,18 +94,17 @@
     "description": "Fiche comparative sur Malacca : énergie, conteneurs, alternatives limitées.",
     "type": "atlas_fiche",
     "pillar": "production",
-    "status": "sources",
+    "status": "review",
     "priority": "P0",
-    "progress": 30,
+    "progress": 80,
     "deadline": "2026-09-05",
-    "blocker": "Périmètre encore trop large.",
-    "next_action": "Limiter la fiche à énergie + conteneurs + alternatives.",
+    "next_action": "Fiche rédigée (périmètre restreint énergie/conteneurs/alternatives, cf. malacca.md). Dépubliée le temps de la revue conformité + validation humaine avant republication.",
     "impact": "atlas",
     "offer": "basic",
-    "quality_gate_status": "blocked",
+    "quality_gate_status": "at_risk",
     "gates": {
-      "sources_ok": false,
-      "llm_draft_done": false,
+      "sources_ok": true,
+      "llm_draft_done": true,
       "contradiction_done": false,
       "compliance_done": false,
       "human_review_done": false,
@@ -123,8 +122,55 @@
       "9": "todo",
       "10": "todo"
     },
-    "links": [],
-    "internal_notes": "Ne pas dériver vers géopolitique générale Indo-Pacifique."
+    "links": [
+      {
+        "label": "Lire la fiche (revue interne)",
+        "url": "/atlas/malacca"
+      }
+    ],
+    "internal_notes": "Ne pas dériver vers géopolitique générale Indo-Pacifique. Fiche dépubliée (published:false) le 2026-07-07 en attente de validation humaine — republier après human_review_done."
+  },
+  {
+    "id": "deliv_atlas_taiwan_fiche",
+    "title": "Fiche Atlas — Taïwan",
+    "description": "Fiche comparative sur Taïwan : semi-conducteurs avancés, routes maritimes, irremplaçabilité à court terme des composants de pointe.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "review",
+    "priority": "P0",
+    "progress": 80,
+    "deadline": "2026-09-20",
+    "next_action": "Fiche rédigée (nœud composants + maritime, cf. taiwan.md). Dépubliée le temps de la revue conformité + validation humaine avant republication.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false,
+      "cvi_justified": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Lire la fiche (revue interne)",
+        "url": "/atlas/taiwan"
+      }
+    ],
+    "internal_notes": "Cadrage strict : nœud critique composants + maritime, pas de commentaire géopolitique général. Carte créée le 2026-07-07 pour tracker une fiche jusque-là non suivie ; fiche dépubliée (published:false) en attente de validation humaine."
   },
   {
     "id": "deliv_site_homepage",
@@ -132,20 +178,20 @@
     "description": "Page d’accueil avec promesse, CTA progressifs, accès Atlas et dossier Mer Rouge/Suez.",
     "type": "site_page",
     "pillar": "site",
-    "status": "framing",
+    "status": "published",
     "priority": "P0",
-    "progress": 20,
+    "progress": 100,
     "deadline": "2026-09-01",
-    "next_action": "Rédiger hero, CTA phase 1 et structure de page.",
+    "next_action": "Page en ligne. Suivre les conversions des CTA (contact, dossier, Atlas).",
     "impact": "site_credibility",
     "offer": "public",
-    "quality_gate_status": "not_started",
+    "quality_gate_status": "ok",
     "gates": {
       "sources_ok": true,
-      "llm_draft_done": false,
+      "llm_draft_done": true,
       "contradiction_done": false,
-      "compliance_done": false,
-      "human_review_done": false
+      "compliance_done": true,
+      "human_review_done": true
     },
     "links": [],
     "internal_notes": "Applied Geopolitics en marque prioritaire. Sylvain Geffroy en signature secondaire."
@@ -158,7 +204,7 @@
     "pillar": "acquisition",
     "status": "production",
     "priority": "P0",
-    "progress": 35,
+    "progress": 5,
     "deadline": "2026-09-10",
     "next_action": "Compléter 20 contacts risk/resilience avec profil LinkedIn et organisation.",
     "impact": "premium_pilot",
