@@ -377,11 +377,37 @@ export const HealthOut = z.object({ status: z.string().nullish() }).passthrough(
 export type HealthOut = z.infer<typeof HealthOut>;
 
 /**
- * GET /chokepoints/{id}/fiche → structured public fiche for a corridor. The producer schema is
- * open (`application/json`, no fixed shape at v0.2.0), so this stays a permissive object; callers
- * read the fields they need. Taint-gated like the sibling `/chokepoints/{id}/*` routes.
+ * GET /chokepoints/{id}/fiche → the 16-section Chokepoint Control Method deliverable (`web/fiche.py`
+ * `build_fiche`). The producer serialises a plain dict (no `response_model`), so we type the known
+ * top-level sections as optional + `.passthrough()`: callers get autocomplete on the documented
+ * sections without the schema ever rejecting an additive producer change. Each section stays
+ * `z.unknown()` (its inner shape is producer-owned and evolving). Taint-gated like the sibling
+ * `/chokepoints/{id}/*` routes. Derived candidate, never canonical.
  */
-export const FicheOut = z.record(z.unknown());
+export const FicheOut = z
+  .object({
+    chokepoint_id: z.string().nullish(),
+    chokepoint: z.unknown().nullish(),
+    flows: z.unknown().nullish(),
+    regime: z.unknown().nullish(),
+    leverage: z.unknown().nullish(),
+    leverage_by_family: z.unknown().nullish(),
+    polarity: z.unknown().nullish(),
+    profiles: z.unknown().nullish(),
+    dependency: z.unknown().nullish(),
+    formal_effective: z.unknown().nullish(),
+    concentration: z.unknown().nullish(),
+    concentration_breakdown: z.unknown().nullish(),
+    architecture_labels: z.unknown().nullish(),
+    alerts: z.unknown().nullish(),
+    scenarios: z.unknown().nullish(),
+    backlog: z.unknown().nullish(),
+    uncertainties: z.unknown().nullish(),
+    audit: z.unknown().nullish(),
+    counts: z.unknown().nullish(),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
 export type FicheOut = z.infer<typeof FicheOut>;
 
 /** /chokepoints/{id}/event-signals → raw append-only event stream. */
@@ -461,3 +487,108 @@ export const ChokepointAnalysisDetail = ChokepointAnalysisSummary.extend({
   disclaimer: z.string().nullish(),
 }).passthrough();
 export type ChokepointAnalysisDetail = z.infer<typeof ChokepointAnalysisDetail>;
+
+// ---------------------------------------------------------------------------------------------------
+// 0.3.0 / 0.4.0 additive surface — pre-wired ahead of the producer deploy (see
+// docs/handoff/ag-back-deploy-0.4.0-and-consumer-needs.md). Endpoints exist in the ag-back repo
+// (contract 0.4.0) but are NOT yet on the deployed 0.2.0 instance, so these stay inert until the
+// pin bumps. Shapes mirror ag-back `api/schemas.py` exactly. All derived candidates, never canonical.
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * GET /analytics/system-resilience → whole-graph resilience via Ecological Network Analysis
+ * (Ulanowicz), engine `system_resilience` (ADR 0057). One global row (`scope="GLOBAL"`). `robustness`
+ * peaks in the balanced middle; `regime` is the window-of-vitality classification. 404 until computed.
+ */
+export const SystemResilienceOut = z
+  .object({
+    scope: z.string().default('GLOBAL'),
+    total_system_throughput: z.number().nullish(),
+    ascendency: z.number().nullish(),
+    development_capacity: z.number().nullish(),
+    overhead: z.number().nullish(),
+    alpha: z.number().nullish(),
+    robustness: z.number().nullish(),
+    regime: z.enum(['brittle', 'window_of_vitality', 'redundant']).nullish(),
+    weight_basis: z.enum(['strength_proxy', 'throughput']).nullish(),
+    node_count: z.number().nullish(),
+    edge_count: z.number().nullish(),
+    engine_version: z.string().nullish(),
+    generated_at: z.string().nullish(),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type SystemResilienceOut = z.infer<typeof SystemResilienceOut>;
+
+/** Strategic Flow Unit — SFIM (ADR 0054). Decision-oriented layer parallel to chokepoints. */
+export const StrategicFlowUnitSummary = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    flow_type: z.string(),
+    priority_class: z.string().nullish(),
+    status: z.string().nullish(),
+    validation_status: z.string(),
+    verdict: z.string().nullish(), // latest verdict decision (any status)
+    verdict_status: z.string().nullish(), // candidate | reviewed | accepted
+  })
+  .passthrough();
+export type StrategicFlowUnitSummary = z.infer<typeof StrategicFlowUnitSummary>;
+
+/** GET /strategic-flows → envelope { count, disclaimer, items }. */
+export const StrategicFlowUnitList = z
+  .object({
+    count: z.number().nullish(),
+    disclaimer: z.string().nullish(),
+    items: z.array(StrategicFlowUnitSummary).default([]),
+  })
+  .passthrough();
+export type StrategicFlowUnitList = z.infer<typeof StrategicFlowUnitList>;
+
+export const SfuDimensionOut = z
+  .object({
+    dimension: z.string(),
+    effective_score: z.number().nullish(),
+    auto_value: z.number().nullish(),
+    analyst_value: z.number().nullish(),
+    confidence: z.string().nullish(),
+    evidence_status: z.string().nullish(),
+    rationale: z.string().nullish(),
+  })
+  .passthrough();
+export type SfuDimensionOut = z.infer<typeof SfuDimensionOut>;
+
+/** GET /strategic-flows/{sfu_id}/verdict → SFIM decision (FAIRE/TESTER/…). Nullable if none yet. */
+export const SfuVerdictOut = z
+  .object({
+    decision: z.string(),
+    status: z.string(), // candidate | reviewed | accepted
+    confidence: z.string().nullish(),
+    rationale: z.string().nullish(),
+    required_actions: z.array(z.string()).default([]),
+    supporting_sources: z.array(z.string()).default([]),
+    rejected_verdicts: z.array(z.unknown()).default([]),
+  })
+  .passthrough();
+export type SfuVerdictOut = z.infer<typeof SfuVerdictOut>;
+
+/** GET /strategic-flows/{sfu_id}/fiche → full SFU fiche. `red_team` present only with read_tainted. */
+export const SfuFicheOut = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    flow_type: z.string(),
+    priority_class: z.string().nullish(),
+    status: z.string().nullish(),
+    routes: z.array(z.unknown()).default([]),
+    control_actors: z.array(z.unknown()).default([]),
+    value_chain: z.array(z.unknown()).default([]),
+    scoring: z.array(SfuDimensionOut).default([]),
+    aggregates: z.array(z.unknown()).default([]),
+    integration: z.array(z.unknown()).default([]),
+    verdict: SfuVerdictOut.nullish(),
+    red_team: z.unknown().nullish(),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type SfuFicheOut = z.infer<typeof SfuFicheOut>;

@@ -282,3 +282,107 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     expect(cvi.dimensions?.menace?.score).toBe(4);
   });
 });
+
+describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
+  it('getSystemResilience parses the global ENA row', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse({
+          scope: 'GLOBAL',
+          robustness: 0.37,
+          regime: 'window_of_vitality',
+          weight_basis: 'throughput',
+          node_count: 42,
+        });
+      },
+    });
+    const r = await client.getSystemResilience();
+    expect(calledUrl).toContain('/analytics/system-resilience');
+    expect(r.regime).toBe('window_of_vitality');
+    expect(r.robustness).toBe(0.37);
+  });
+
+  it('listStrategicFlows parses the SFIM envelope with verdict fields', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          count: 1,
+          items: [
+            {
+              id: 'sfu_containers_asia_europe_v1',
+              name: 'Conteneurs Asie→Europe',
+              flow_type: 'containers',
+              validation_status: 'validated',
+              verdict: 'TESTER',
+              verdict_status: 'candidate',
+            },
+          ],
+        }),
+    });
+    const list = await client.listStrategicFlows();
+    expect(list.items[0]!.verdict).toBe('TESTER');
+    expect(list.items[0]!.verdict_status).toBe('candidate');
+  });
+
+  it('getStrategicFlowVerdict returns null when no verdict is authored', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () => jsonResponse(null),
+    });
+    const v = await client.getStrategicFlowVerdict('sfu_x');
+    expect(v).toBeNull();
+  });
+
+  it('getStrategicFlowVerdict parses a decision with required_actions', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          decision: 'DIFFÉRER',
+          status: 'reviewed',
+          required_actions: ['Sécuriser une route alternative'],
+          rejected_verdicts: [],
+        }),
+    });
+    const v = await client.getStrategicFlowVerdict('sfu_x');
+    expect(v?.decision).toBe('DIFFÉRER');
+    expect(v?.required_actions).toEqual(['Sécuriser une route alternative']);
+  });
+
+  it('getStrategicFlowFiche parses scoring dimensions', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          id: 'sfu_x',
+          name: 'SFU X',
+          flow_type: 'containers',
+          scoring: [{ dimension: 'substitution', effective_score: 2.5, confidence: 'moyen' }],
+        }),
+    });
+    const f = await client.getStrategicFlowFiche('sfu_x');
+    expect(f.scoring[0]!.dimension).toBe('substitution');
+    expect(f.scoring[0]!.effective_score).toBe(2.5);
+  });
+
+  it('typed FicheOut exposes known sections and passes extra keys through', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({ chokepoint_id: 'p0_x', leverage: [{ family: 'toll' }], extra: 1 }),
+    });
+    const fiche = await client.getChokepointFiche('p0_x');
+    expect(fiche.chokepoint_id).toBe('p0_x');
+    expect(fiche).toHaveProperty('extra', 1);
+  });
+});

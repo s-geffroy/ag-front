@@ -26,6 +26,10 @@ import {
   ChokepointAnalysisDetail,
   HealthOut,
   FicheOut,
+  SystemResilienceOut,
+  StrategicFlowUnitList,
+  SfuVerdictOut,
+  SfuFicheOut,
 } from './schema';
 import type {
   FlowChokepointOut as FlowChokepointOutT,
@@ -49,6 +53,10 @@ import type {
   ChokepointAnalysisDetail as ChokepointAnalysisDetailT,
   HealthOut as HealthOutT,
   FicheOut as FicheOutT,
+  SystemResilienceOut as SystemResilienceOutT,
+  StrategicFlowUnitList as StrategicFlowUnitListT,
+  SfuVerdictOut as SfuVerdictOutT,
+  SfuFicheOut as SfuFicheOutT,
 } from './schema';
 
 export type ChokepointsClientOptions = {
@@ -118,7 +126,67 @@ export type ChokepointsClient = {
   getChokepointAnalysisDetail(id: string): Promise<ChokepointAnalysisDetailT>;
   getChokepointAnalysisDoc(id: string, doc: AnalysisDoc): Promise<string>;
   exportJsonl(): Promise<string>;
+  // --- 0.3.0 / 0.4.0 (additive; inert until the deployed instance bumps past 0.2.0) ---
+  /** GET /analytics/system-resilience — global ENA resilience row. Throws (404) until computed. */
+  getSystemResilience(): Promise<SystemResilienceOutT>;
+  /** GET /strategic-flows — SFIM flow-unit list (envelope with items). */
+  listStrategicFlows(): Promise<StrategicFlowUnitListT>;
+  /** GET /strategic-flows/{sfuId}/verdict — SFIM decision. `null` when no verdict authored yet. */
+  getStrategicFlowVerdict(sfuId: string): Promise<SfuVerdictOutT | null>;
+  /** GET /strategic-flows/{sfuId}/fiche — full SFU fiche (red_team block only with read_tainted). */
+  getStrategicFlowFiche(sfuId: string): Promise<SfuFicheOutT>;
 };
+
+/**
+ * Every contract path this client implements, as OpenAPI-style templates (producer param names, so
+ * they compare directly against the pinned `scripts/consumer/contract/openapi.json`). This is the
+ * TS-side coverage ledger the Python drift-check can't see (it generates a Python client, not this
+ * hand-written TS one). `contract-coverage.test.ts` asserts every pinned path appears here, so a
+ * contract that gains an endpoint fails the build until a method + schema are wired — closing the
+ * "front pinned to an older/narrower surface than the producer" gap (Phase 6). Entries beyond the
+ * current pin (cvi-assessment, system-resilience, strategic-flows) are pre-wired ahead of the 0.4.0
+ * deploy; the subset check is one-directional (pin ⊆ covered), so being ahead is fine.
+ */
+export const COVERED_PATHS = [
+  // 0.1.0
+  '/health',
+  '/chokepoints',
+  '/chokepoints/{chokepoint_id}',
+  '/chokepoints/{chokepoint_id}/fiche',
+  '/exports/geojson',
+  '/exports/jsonl',
+  '/relations',
+  '/strategic-systems',
+  '/strategic-systems/{system_id}',
+  '/episodes',
+  '/episodes/{episode_key}',
+  '/sources',
+  '/analytics/results',
+  '/analytics/engine-runs',
+  '/chokepoint-analyses',
+  '/chokepoint-analyses/{chokepoint_id}',
+  '/chokepoint-analyses/{chokepoint_id}/{doc}',
+  // 0.2.0
+  '/chokepoints/search',
+  '/chokepoints/nearby',
+  '/chokepoints/by-flow/{flow_type}',
+  '/chokepoints/by-risk/{risk_type}',
+  '/chokepoints/by-system/{system_id}',
+  '/chokepoints/{chokepoint_id}/analysis',
+  '/chokepoints/{chokepoint_id}/actors',
+  '/chokepoints/{chokepoint_id}/event-signals',
+  '/chokepoints/{chokepoint_id}/perception-signals',
+  '/actors',
+  '/vocabularies',
+  '/alerts',
+  // 0.3.0 (pre-wired ahead of deploy)
+  '/chokepoints/{chokepoint_id}/cvi-assessment',
+  // 0.4.0 (pre-wired ahead of deploy)
+  '/analytics/system-resilience',
+  '/strategic-flows',
+  '/strategic-flows/{sfu_id}/verdict',
+  '/strategic-flows/{sfu_id}/fiche',
+] as const;
 
 /**
  * Read-only client for the Chokepoints Read API.
@@ -294,6 +362,21 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
     },
     async exportJsonl() {
       return getText('/exports/jsonl');
+    },
+
+    // --- 0.3.0 / 0.4.0 additive endpoints ---
+    async getSystemResilience() {
+      return SystemResilienceOut.parse(await get('/analytics/system-resilience'));
+    },
+    async listStrategicFlows() {
+      return StrategicFlowUnitList.parse(await get('/strategic-flows'));
+    },
+    async getStrategicFlowVerdict(sfuId) {
+      // The producer returns `null` (not 404) when no verdict has been authored for the SFU yet.
+      return SfuVerdictOut.nullable().parse(await get(`/strategic-flows/${enc(sfuId)}/verdict`));
+    },
+    async getStrategicFlowFiche(sfuId) {
+      return SfuFicheOut.parse(await get(`/strategic-flows/${enc(sfuId)}/fiche`));
     },
   };
 }
