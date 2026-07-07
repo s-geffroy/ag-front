@@ -110,6 +110,20 @@ returns `unknown api route`" trap (stale Express process):
 The script builds inside the `tools` container (Docker-only rule), restarts the service, and
 health-checks `http://127.0.0.1:8787/api/health`.
 
+## GitHub (`gh` CLI)
+
+`gh` is installed on the VPS host (`/usr/bin/gh`) and authenticated for `s-geffroy/ag-front`. **Use it
+for all GitHub interactions** (PRs, issues, releases, API) instead of ad-hoc `git`/API calls. Like the
+skills and plugins, `gh` is **host/agent tooling — outside the Docker-only rule**; run it directly on
+the host, not in the `tools` container. Notes:
+
+- Auth is a **fine-grained PAT** stored in `~/.config/gh/hosts.yml` (**never in the repo**);
+  git protocol is `ssh` so the existing SSH deploy keys still handle `push`/`pull`. The **SSH deploy
+  key ≠ `gh` auth** — `gh` needs the PAT for API calls. **PAT expires ~2026-10-05** (90-day) → renew
+  before then (`gh auth login --hostname github.com --git-protocol ssh --with-token < <tokenfile>`).
+- Repo resolution: `origin` is the SSH alias `git@github-ag-front:...`; `gh` maps it to
+  `github.com/s-geffroy/ag-front` via `~/.ssh/config`, so `gh` commands work in-repo with no `-R`.
+
 ## Skills — when to use what
 
 Project skills live in `.claude/skills/` (versioned). They are agent tooling, not project tooling, so they
