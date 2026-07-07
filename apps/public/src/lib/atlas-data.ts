@@ -196,7 +196,7 @@ export async function loadCorridorsByRisk(): Promise<RiskBrowse[]> {
   // Fan out the per-risk lookups concurrently (bounded by PUBLIC_RISK_TYPES), so a slow API adds one
   // round-trip to the build, not N sequential ones. Each risk fails independently → [].
   const groups = await Promise.all(
-    PUBLIC_RISK_TYPES.map(async (risk) => {
+    PUBLIC_RISK_TYPES.map(async (risk): Promise<RiskBrowse | null> => {
       try {
         const rows = await client.chokepointsByRisk(risk);
         // Defence-in-depth taint drop (read-scope client is clear-only, but never trust the wire).
