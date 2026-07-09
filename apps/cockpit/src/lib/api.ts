@@ -5,7 +5,19 @@ import type {
   Milestone,
   Scorecard,
 } from '@ag/schema/cockpit';
-import type { ChokepointDetail, ChokepointList } from '@ag/chokepoints';
+import type {
+  ChokepointAnalysis,
+  ChokepointDetail,
+  ChokepointList,
+  CviAssessmentOut,
+  DerivedRelationGraphOut,
+  PerceptionSignalList,
+  StrategicFlowUnitList,
+  SfuFicheOut,
+  SfuVerdictOut,
+  SystemResilienceOut,
+  VocabulariesOut,
+} from '@ag/chokepoints';
 import type { CockpitState } from '../types';
 
 /** A candidate editorial artifact rendered for in-cockpit review (mirrors server/content.ts). */
@@ -134,6 +146,32 @@ export const api = {
   // `path` is a pre-built relative path (e.g. "actors", "chokepoints/p0_x/fiche"); callers assemble
   // it from the resource registry. Returns parsed JSON, or raw text for the JSONL export.
   exploreResource: (path: string) => fetch(`/api/explore/${path}`).then(asJson<unknown>),
+  // Typed reads of the endpoints the cockpit actually renders (the raw `exploreResource` stays for
+  // the long tail surfaced as JSON in the Explorateur).
+  getSystemResilience: () =>
+    fetch('/api/explore/analytics/system-resilience').then(asJson<SystemResilienceOut>),
+  getDerivedRelations: (params = 'limit=200') =>
+    fetch(`/api/explore/derived/relations?${params}`).then(asJson<DerivedRelationGraphOut>),
+  getCorridorCvi: (id: string) =>
+    fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/cvi-assessment`).then(
+      asJson<CviAssessmentOut>,
+    ),
+  getCorridorAnalysis: (id: string) =>
+    fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/analysis`).then(
+      asJson<ChokepointAnalysis>,
+    ),
+  getCorridorPerception: (id: string) =>
+    fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/perception-signals`).then(
+      asJson<PerceptionSignalList>,
+    ),
+  getStrategicFlows: () => fetch('/api/explore/strategic-flows').then(asJson<StrategicFlowUnitList>),
+  getStrategicFlowFiche: (id: string) =>
+    fetch(`/api/explore/strategic-flows/${encodeURIComponent(id)}/fiche`).then(asJson<SfuFicheOut>),
+  getStrategicFlowVerdict: (id: string) =>
+    fetch(`/api/explore/strategic-flows/${encodeURIComponent(id)}/verdict`).then(
+      asJson<SfuVerdictOut | null>,
+    ),
+  getVocabularies: () => fetch('/api/explore/vocabularies').then(asJson<VocabulariesOut>),
   exploreText: (path: string) =>
     fetch(`/api/explore/${path}`).then((r) =>
       r.ok ? r.text() : Promise.reject(new Error(`${r.status} ${r.statusText}`)),

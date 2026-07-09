@@ -4,6 +4,18 @@ import type { ChokepointDetail, ChokepointSummary } from '@ag/chokepoints';
 import { api } from '@/lib/api';
 import { Badge, Button, inputClass, Separator, Sheet } from '@/components/ui';
 import { PageHeader } from '@/components/common';
+import {
+  AlternativesPanel,
+  CviPanel,
+  DerivedRelationsPanel,
+  EngineBlocks,
+  FlowsPanel,
+  GeometriesPanel,
+  MetricsPanel,
+  PerceptionPanel,
+  RisksPanel,
+  SystemResiliencePanel,
+} from '@/components/chokepoints/panels';
 
 const PRIORITIES = ['P0', 'P1', 'P2', 'P3'] as const;
 const humanize = (s?: string | null) => (s ? s.replace(/_/g, ' ') : '');
@@ -144,15 +156,18 @@ export function ExplorationPage() {
 const API_RESOURCES: { label: string; path: string; text?: boolean }[] = [
   { label: 'health (liveness API)', path: 'health' },
   { label: 'actors', path: 'actors' },
-  { label: 'relations', path: 'relations' },
+  { label: 'relations (canoniques)', path: 'relations' },
   { label: 'sources', path: 'sources' },
   { label: 'vocabularies', path: 'vocabularies' },
   { label: 'strategic-systems', path: 'strategic-systems' },
+  { label: 'strategic-flows (SFIM)', path: 'strategic-flows' },
   { label: 'episodes', path: 'episodes' },
   { label: 'alerts', path: 'alerts' },
   { label: 'analytics / results', path: 'analytics/results' },
   { label: 'analytics / engine-runs', path: 'analytics/engine-runs' },
   { label: 'chokepoint-analyses', path: 'chokepoint-analyses' },
+  { label: 'derived / relation-graph', path: 'derived/relation-graph', text: true },
+  { label: 'exports / geojson', path: 'exports/geojson' },
   { label: 'exports / jsonl', path: 'exports/jsonl', text: true },
 ];
 
@@ -202,6 +217,26 @@ function ResourceExplorer() {
         </Button>
       </form>
 
+      <Separator />
+      <GlobalResource
+        load={api.getSystemResilience}
+        absent="Résilience systémique : pas encore calculée (graphe dégénéré)."
+      >
+        {(r) => <SystemResiliencePanel r={r} />}
+      </GlobalResource>
+
+      <Separator />
+      <GlobalResource
+        load={() => api.getDerivedRelations('limit=25')}
+        absent="Aucune relation dérivée."
+      >
+        {(g) => <DerivedRelationsPanel g={g} />}
+      </GlobalResource>
+
+      <Separator />
+      <div className="label text-[11px] uppercase tracking-wider text-muted">
+        Autres ressources (JSON brut)
+      </div>
       <div className="flex flex-wrap gap-1.5">
         {API_RESOURCES.map((r) => (
           <Button
@@ -225,6 +260,47 @@ function ResourceExplorer() {
   );
 }
 
+/** Same honest loading contract as `Resource`, for endpoints with no path parameter. */
+function GlobalResource<T>({
+  load,
+  absent,
+  children,
+}: {
+  load: () => Promise<T>;
+  absent: string;
+  children: (d: T) => React.ReactNode;
+}) {
+  const [data, setData] = useState<T | null>(null);
+  const [state, setState] = useState<'loading' | 'ok' | 'absent' | 'error'>('loading');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    load()
+      .then((d) => {
+        if (!alive) return;
+        setData(d);
+        setState('ok');
+      })
+      .catch((e: unknown) => {
+        if (!alive) return;
+        const msg = String(e);
+        setState(msg.includes('404') ? 'absent' : 'error');
+        setError(msg);
+      });
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (state === 'loading') return <p className="text-sm text-muted">Chargement…</p>;
+  if (state === 'absent') return <p className="text-sm text-muted">{absent}</p>;
+  if (state === 'error' || !data)
+    return <p className="text-sm text-status-blocked">Erreur : {error}</p>;
+  return <>{children(data)}</>;
+}
+
 function ResultView({
   title,
   busy,
@@ -237,7 +313,6 @@ function ResultView({
   result: unknown;
 }) {
   const count = Array.isArray(result) ? result.length : null;
-  const isCvi = title.includes('cvi-assessment');
   return (
     <div>
       <div className="mb-1 flex items-center gap-2">
@@ -247,11 +322,13 @@ function ResultView({
       {busy ? <p className="text-sm text-muted">Chargement…</p> : null}
       {error ? (
         <p className="text-sm text-status-blocked">
-          {error.includes('404') && isCvi
-            ? 'cvi-assessment : endpoint pas encore livré côté producteur (voir le brief). Se câblera au bump 0.3.0.'
-            : error.includes('503')
-              ? 'API chokepoints non configurée (token absent).'
-              : `Erreur : ${error}`}
+          {error.includes('503')
+            ? 'API chokepoints non configurée (token absent).'
+            : error.includes('403')
+              ? 'Refusé (403) : le jeton n’a pas le scope requis. Ce n’est pas un jeu de données vide.'
+              : error.includes('404')
+                ? 'Introuvable (404) : rien de calculé pour cette ressource.'
+                : `Erreur : ${error}`}
         </p>
       ) : null}
       {!busy && !error && result !== null ? (
@@ -304,22 +381,24 @@ function DetailPanel({ id }: { id: string }) {
         </p>
       ) : null}
 
+      <FlowsPanel flows={detail.flows} />
+      <MetricsPanel metrics={detail.metrics} />
+      <RisksPanel risks={detail.risks} />
+      <AlternativesPanel alternatives={detail.alternatives} />
+      <GeometriesPanel geometries={detail.geometries} disclaimer={detail.geometry_disclaimer} />
       <Section
-        title="Flux"
-        rows={detail.flows.map(
-          (f) => `${humanize(f.flow_type)}${f.directionality ? ` · ${f.directionality}` : ''}`,
+        title="Épisodes"
+        rows={detail.episodes.map(
+          (e) =>
+            `${e.name}${e.started_on ? ` · ${e.started_on}` : ''}` +
+            `${e.ended_on ? ` → ${e.ended_on}` : ''}` +
+            `${e.severity ? ` · ${humanize(e.severity)}` : ''}` +
+            `${e.object_role ? ` · ${humanize(e.object_role)}` : ''}`,
         )}
       />
-      <Section
-        title="Risques"
-        rows={detail.risks.map(
-          (r) =>
-            `${humanize(r.risk_type)}${r.risk_severity ? ` · ${humanize(r.risk_severity)}` : ''}` +
-            `${r.assessment_status ? ` · ${humanize(r.assessment_status)}` : ''}`,
-        )}
-      />
-      <Section title="Alternatives" rows={detail.alternatives.map((a) => a.description)} />
-      <Section title="Épisodes" rows={detail.episodes.map((e) => e.name)} />
+      {detail.source_ids.length ? (
+        <Section title="Sources de l'objet" rows={[detail.source_ids.join(' · ')]} />
+      ) : null}
 
       <Separator />
       <CorridorApiPanel id={id} />
@@ -333,15 +412,66 @@ function DetailPanel({ id }: { id: string }) {
   );
 }
 
-// Per-corridor Read API endpoints, scoped to the selected chokepoint id.
-const CORRIDOR_ENDPOINTS: { label: string; sub: string }[] = [
+// Per-corridor endpoints still surfaced as raw JSON: producer-owned, evolving shapes (the 16-section
+// fiche) or long tails not worth a bespoke view. Everything with a stable, decision-relevant shape
+// gets a typed panel below instead.
+const CORRIDOR_RAW_ENDPOINTS: { label: string; sub: string }[] = [
   { label: 'fiche', sub: 'fiche' },
   { label: 'actors', sub: 'actors' },
-  { label: 'analysis', sub: 'analysis' },
   { label: 'event-signals', sub: 'event-signals' },
-  { label: 'perception-signals', sub: 'perception-signals' },
-  { label: 'cvi-assessment', sub: 'cvi-assessment' },
 ];
+
+/** Load one typed resource, distinguishing "not found" from a real failure. */
+function useResource<T>(id: string, load: (id: string) => Promise<T>) {
+  const [data, setData] = useState<T | null>(null);
+  const [state, setState] = useState<'loading' | 'ok' | 'absent' | 'error'>('loading');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    setState('loading');
+    setData(null);
+    setError(null);
+    load(id)
+      .then((d) => {
+        if (!alive) return;
+        setData(d);
+        setState('ok');
+      })
+      .catch((e: unknown) => {
+        if (!alive) return;
+        const msg = String(e);
+        // A 404 means the producer computed nothing for this corridor — an honest absence.
+        // Anything else is a failure and must not be dressed up as "no data".
+        setState(msg.includes('404') ? 'absent' : 'error');
+        setError(msg);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [id, load]);
+
+  return { data, state, error };
+}
+
+function Resource<T>({
+  id,
+  load,
+  absent,
+  children,
+}: {
+  id: string;
+  load: (id: string) => Promise<T>;
+  absent: string;
+  children: (d: T) => React.ReactNode;
+}) {
+  const { data, state, error } = useResource(id, load);
+  if (state === 'loading') return <p className="text-sm text-muted">Chargement…</p>;
+  if (state === 'absent') return <p className="text-sm text-muted">{absent}</p>;
+  if (state === 'error' || !data)
+    return <p className="text-sm text-status-blocked">Erreur : {error}</p>;
+  return <>{children(data)}</>;
+}
 
 function CorridorApiPanel({ id }: { id: string }) {
   const [title, setTitle] = useState<string | null>(null);
@@ -364,27 +494,53 @@ function CorridorApiPanel({ id }: { id: string }) {
   }
 
   return (
-    <div>
-      <div className="label mb-1 text-[11px] uppercase tracking-wider text-muted">
-        Signaux & analyses (API)
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {CORRIDOR_ENDPOINTS.map((e) => (
-          <Button
-            key={e.sub}
-            size="sm"
-            variant={title?.startsWith(e.label) ? 'default' : 'outline'}
-            onClick={() => run(e.label, e.sub)}
-          >
-            {e.label}
-          </Button>
-        ))}
-      </div>
-      {title ? (
-        <div className="mt-2">
-          <ResultView title={title} busy={busy} error={error} result={result} />
+    <div className="space-y-5">
+      <Resource id={id} load={api.getCorridorCvi} absent="CVI : aucune évaluation calculée pour ce corridor.">
+        {(cvi) => <CviPanel cvi={cvi} />}
+      </Resource>
+
+      <Separator />
+      <Resource
+        id={id}
+        load={api.getCorridorPerception}
+        absent="Perception : aucun signal pour ce corridor."
+      >
+        {(p) => <PerceptionPanel p={p} />}
+      </Resource>
+
+      <Separator />
+      <div>
+        <div className="label mb-1 text-[11px] uppercase tracking-wider text-muted">
+          Sorties moteurs (analysis)
         </div>
-      ) : null}
+        <Resource id={id} load={api.getCorridorAnalysis} absent="Aucune sortie moteur.">
+          {(a) => <EngineBlocks analysis={a} />}
+        </Resource>
+      </div>
+
+      <Separator />
+      <div>
+        <div className="label mb-1 text-[11px] uppercase tracking-wider text-muted">
+          Autres ressources (JSON brut)
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {CORRIDOR_RAW_ENDPOINTS.map((e) => (
+            <Button
+              key={e.sub}
+              size="sm"
+              variant={title?.startsWith(e.label) ? 'default' : 'outline'}
+              onClick={() => run(e.label, e.sub)}
+            >
+              {e.label}
+            </Button>
+          ))}
+        </div>
+        {title ? (
+          <div className="mt-2">
+            <ResultView title={title} busy={busy} error={error} result={result} />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
