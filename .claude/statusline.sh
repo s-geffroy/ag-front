@@ -4,7 +4,7 @@ set -uo pipefail
 
 # ── Couleurs ──
 RST=$'\033[0m'; DIM=$'\033[38;5;245m'
-GRN=$'\033[32m'; YLW=$'\033[33m'; RED=$'\033[31m'
+GRN=$'\033[32m'; YLW=$'\033[33m'; ORG=$'\033[38;5;208m'; RED=$'\033[31m'
 CYN=$'\033[1;36m'; MAG=$'\033[1;35m'
 SEP=" ${DIM}│${RST} "
 
@@ -44,13 +44,14 @@ to_ts() {
   if [[ "$v" =~ ^[0-9]+$ ]]; then printf '%s' "$v"; else date -d "$v" +%s 2>/dev/null; fi
 }
 
-# ── Couleur selon le rythme tokens/temps : vert <0.8, jaune 0.8-1.2, rouge >1.2 (maths entières) ──
+# ── Couleur selon le rythme tokens/temps : vert <0.8, jaune 0.8-1.0, orange 1.0-1.2, rouge >1.2 (maths entières) ──
 col_rythme() { # $1=tokens_pct(int) $2=temps_pct(int)
   local tk=$1 tm=$2
   [ "$tk" -le 0 ] && { printf '%s' "$GRN"; return; }   # rien consommé → vert
   [ "$tm" -le 0 ] && { printf '%s' "$RED"; return; }   # temps ~0 mais tokens>0 → brûle
   if   [ $((tk*10)) -lt $((tm*8))  ]; then printf '%s' "$GRN"   # ratio < 0.8
-  elif [ $((tk*10)) -le $((tm*12)) ]; then printf '%s' "$YLW"   # 0.8 ≤ ratio ≤ 1.2
+  elif [ $((tk*10)) -lt $((tm*10)) ]; then printf '%s' "$YLW"   # 0.8 ≤ ratio < 1.0
+  elif [ $((tk*10)) -le $((tm*12)) ]; then printf '%s' "$ORG"   # 1.0 ≤ ratio ≤ 1.2
   else                                     printf '%s' "$RED"   # ratio > 1.2
   fi
 }
