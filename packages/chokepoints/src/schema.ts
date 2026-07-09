@@ -1,8 +1,14 @@
 import { z } from 'zod';
 
-// Response shapes for the Chokepoints Read API (v0.2.0). Defensive: `.passthrough()` tolerates extra
-// fields and additive API changes; we only depend on what we render. Mirrors
-// docs/api-interface-contract_V2.md (changelog 0.2.0 — additive, backward-compatible).
+// Response shapes for the Chokepoints Read API (v0.6.0). Defensive: `.passthrough()` tolerates extra
+// fields and additive API changes. Mirrors docs/api-interface-contract_V3.md.
+//
+// `.passthrough()` is a runtime safety net, NOT a licence to leave fields undeclared: an undeclared
+// field survives parsing but is invisible to consumers, so it is never rendered. `contract-coverage.
+// test.ts` therefore asserts, field by field, that every property of the pinned contract is declared
+// here — that guard is what makes "the app consumes the whole API" a build-time property rather than
+// a periodic catch-up. It is what would have caught the 0.4.0 `current_status` → `assessment_status`
+// rename, which silently blanked two live UIs.
 
 export const ChokepointSummary = z
   .object({
@@ -30,43 +36,122 @@ export const ChokepointList = z
   .passthrough();
 export type ChokepointList = z.infer<typeof ChokepointList>;
 
-const Flow = z
+/**
+ * A flow magnitude is meaningless without its qualifiers. `estimated_volume` is realised throughput
+ * over `volume_year`; `value_status` grades the evidence (a `qualitative_scored` flow carries no
+ * volume at all, by design); `method_note` states how the number was obtained and what it EXCLUDES.
+ * Per the contract, a consumer displaying a volume MUST surface `method_note` alongside it.
+ * `sources[]` is the evidence for THIS flow — narrower than the object-level `source_ids[]`.
+ */
+export const FlowOut = z
   .object({
     flow_type: z.string(),
     importance_score: z.number().nullish(),
     estimated_volume: z.union([z.number(), z.string()]).nullish(),
     volume_unit: z.string().nullish(),
+    volume_year: z.number().nullish(),
+    value_status: z.string().nullish(),
     directionality: z.string().nullish(),
+    source_confidence: z.string().nullish(),
+    method_note: z.string().nullish(),
+    sources: z.array(z.string()).default([]),
   })
   .passthrough();
+export type FlowOut = z.infer<typeof FlowOut>;
 
-const Risk = z
+/**
+ * What is NOT a flow (ADR 0069). `metric_kind` distinguishes a `stock` (a balance at a date) or a
+ * `capacity` (a maximum potential throughput, never a realised one) from a realised `estimated_volume`.
+ * Comparing the two is a category error; `metric_kind` exists so the mistake is detectable
+ * programmatically rather than by reading prose. Rows written by external collectors legitimately
+ * carry an empty `sources[]`.
+ */
+export const MetricOut = z
+  .object({
+    metric_key: z.string(),
+    metric_kind: z.string().nullish(),
+    metric_label: z.string().nullish(),
+    value: z.number().nullish(),
+    unit: z.string().nullish(),
+    period: z.string().nullish(),
+    rank: z.number().nullish(),
+    source_id: z.string().nullish(),
+    sources: z.array(z.string()).default([]),
+    url: z.string().nullish(),
+    notes: z.string().nullish(),
+  })
+  .passthrough();
+export type MetricOut = z.infer<typeof MetricOut>;
+
+/** Schematic geometry (WGS84). Display/proximity only — never navigational or legal precision. */
+export const GeometryOut = z
+  .object({
+    geometry_role: z.string(),
+    geometry_status: z.string(),
+    geom_geojson: z.unknown().nullish(),
+  })
+  .passthrough();
+export type GeometryOut = z.infer<typeof GeometryOut>;
+
+/** Per-flow reroute delta (searoute, schematic). Derived candidate — never advice. */
+export const RerouteDeltaOut = z
+  .object({
+    flow_type: z.string(),
+    vessel_class: z.string().nullish(),
+    delta_days: z.number().nullish(),
+    delta_cost_usd: z.number().nullish(),
+    toll_saved_usd: z.number().nullish(),
+    net_cost_usd: z.number().nullish(),
+    suggested_cost_penalty: z.string().nullish(),
+    corridor: z.string().nullish(),
+  })
+  .passthrough();
+export type RerouteDeltaOut = z.infer<typeof RerouteDeltaOut>;
+
+export const RiskOut = z
   .object({
     risk_type: z.string(),
     probability_score: z.number().nullish(),
     impact_score: z.number().nullish(),
-    current_status: z.string().nullish(),
+    vulnerability_score: z.number().nullish(),
+    // Renamed from `current_status` by the producer at 0.4.0 (breaking, shipped in a minor bump).
+    assessment_status: z.string().nullish(),
+    risk_severity: z.string().nullish(),
+    triggers: z.array(z.string()).default([]),
+    affected_flows: z.array(z.string()).default([]),
   })
   .passthrough();
+export type RiskOut = z.infer<typeof RiskOut>;
 
-const Alternative = z
+export const AlternativeOut = z
   .object({
     description: z.string(),
+    target_object_id: z.string().nullish(),
+    affected_flows: z.array(z.string()).default([]),
     feasibility: z.string().nullish(),
     cost_penalty: z.union([z.number(), z.string()]).nullish(),
     time_penalty: z.union([z.number(), z.string()]).nullish(),
+    capacity_penalty: z.union([z.number(), z.string()]).nullish(),
     substitution_note: z.string().nullish(),
+    validation_status: z.string().nullish(),
+    reroute_deltas: z.array(RerouteDeltaOut).default([]),
   })
   .passthrough();
+export type AlternativeOut = z.infer<typeof AlternativeOut>;
 
-const Episode = z
+/** A disruption episode as seen from one of its affected chokepoints. */
+export const ChokepointEpisodeOut = z
   .object({
     episode_key: z.string(),
     name: z.string(),
+    started_on: z.string().nullish(),
+    ended_on: z.string().nullish(),
     status: z.string().nullish(),
     severity: z.string().nullish(),
+    object_role: z.string().nullish(),
   })
   .passthrough();
+export type ChokepointEpisodeOut = z.infer<typeof ChokepointEpisodeOut>;
 
 /** GeoJSON export (/exports/geojson). Geometry kept loose; we only read feature properties + geometry. */
 export const GeoJsonFeature = z
@@ -119,10 +204,12 @@ export function toPublicFeatureCollection(fc: GeoJsonFeatureCollection): GeoJson
 }
 
 export const ChokepointDetail = ChokepointSummary.extend({
-  flows: z.array(Flow).default([]),
-  risks: z.array(Risk).default([]),
-  alternatives: z.array(Alternative).default([]),
-  episodes: z.array(Episode).default([]),
+  flows: z.array(FlowOut).default([]),
+  risks: z.array(RiskOut).default([]),
+  metrics: z.array(MetricOut).default([]),
+  geometries: z.array(GeometryOut).default([]),
+  alternatives: z.array(AlternativeOut).default([]),
+  episodes: z.array(ChokepointEpisodeOut).default([]),
   source_ids: z.array(z.string()).default([]),
   geometry_disclaimer: z.string().optional(),
 }).passthrough();
@@ -314,6 +401,7 @@ export const AnalyticalResultOut = z
     run_id: z.string().nullish(),
     engine_id: z.string().nullish(),
     engine_version: z.string().nullish(),
+    input_snapshot_id: z.string().nullish(),
     object_id: z.string().nullish(),
     object_type: z.string().nullish(),
     result_type: z.string().nullish(),
@@ -333,6 +421,7 @@ export const EngineRunOut = z
     run_id: z.string(),
     engine_id: z.string().nullish(),
     engine_version: z.string().nullish(),
+    input_snapshot_id: z.string().nullish(),
     status: z.string().nullish(),
     started_at: z.string().nullish(),
     finished_at: z.string().nullish(),
@@ -354,22 +443,39 @@ export const CviDimensionScoreOut = z
     score: z.number(),
     rationale: z.string().nullish(),
     confidence: z.string().nullish(),
+    source_refs: z.array(z.string()).default([]),
+    uncertainties: z.array(z.string()).default([]),
   })
   .passthrough();
 export type CviDimensionScoreOut = z.infer<typeof CviDimensionScoreOut>;
 
+/**
+ * `aggregate_score` is INTENTIONALLY ABSENT. The producer gates it on `methodology_documented`
+ * (always false) and never serves it (ADR 0049). We do not merely leave it undeclared — `.passthrough()`
+ * would let it reach a consumer if the producer ever regressed. The `.transform` below DELETES it,
+ * so "no 0–100 CVI aggregate" is a structural property of this client, like `toPublicFeatureCollection`.
+ * `dimensions` may omit any of the 8 keys (e.g. `resilience`, which usually has no engine input) —
+ * a dimension with no real input is omitted, never fabricated.
+ */
 export const CviAssessmentOut = z
   .object({
+    chokepoint_id: z.string().nullish(),
     scale: z.string(),
     global_level: z.string().nullish(),
     dimensions: z.record(z.string(), CviDimensionScoreOut).nullish(),
-    aggregate_score: z.number().nullish(),
     methodology_documented: z.boolean().nullish(),
+    status: z.string().nullish(),
+    engine_version: z.string().nullish(),
     sources: z.array(z.string()).nullish(),
     uncertainties: z.array(z.string()).nullish(),
     last_updated: z.string().nullish(),
+    disclaimer: z.string().nullish(),
   })
-  .passthrough();
+  .passthrough()
+  .transform((a) => {
+    delete (a as Record<string, unknown>).aggregate_score;
+    return a;
+  });
 export type CviAssessmentOut = z.infer<typeof CviAssessmentOut>;
 
 /** GET /health → liveness probe. Kept permissive; `{ "status": "ok" }` in practice. */
@@ -446,13 +552,48 @@ export const ChokepointAnalysis = z
   .passthrough();
 export type ChokepointAnalysis = z.infer<typeof ChokepointAnalysis>;
 
-/** /chokepoints/{id}/perception-signals → Polymarket P3 perception (read_tainted scope only). */
+/** Liquidity-weighted odds per signal_family, from the consensus engine. */
+export const PerceptionConsensusOut = z
+  .object({
+    signal_family: z.string().nullish(),
+    market_count: z.number().nullish(),
+    consensus_probability: z.number().nullish(),
+    max_probability_change_24h: z.number().nullish(),
+    total_liquidity: z.number().nullish(),
+    observed_window_end: z.string().nullish(),
+  })
+  .passthrough();
+export type PerceptionConsensusOut = z.infer<typeof PerceptionConsensusOut>;
+
+/** One raw prediction-market observation. Crowd ANTICIPATION, never event evidence. */
+export const PerceptionSignalOut = z
+  .object({
+    signal_family: z.string().nullish(),
+    market_question: z.string().nullish(),
+    classification: z.string().nullish(),
+    implied_probability: z.number().nullish(),
+    probability_change_24h: z.number().nullish(),
+    volume_24h: z.number().nullish(),
+    liquidity: z.number().nullish(),
+    perception_signal_score: z.number().nullish(),
+    proposed_action: z.string().nullish(),
+    observed_at: z.string().nullish(),
+  })
+  .passthrough();
+export type PerceptionSignalOut = z.infer<typeof PerceptionSignalOut>;
+
+/**
+ * /chokepoints/{id}/perception-signals → Polymarket P3 perception.
+ * Gated UNCONDITIONALLY on the `read_tainted` scope (the source is uncleared): a plain `read` token
+ * gets 403, whatever `include_tainted` says. Only the cockpit holds that token — HDDE and the public
+ * site must read the derived `prediction_consensus` block of /analysis instead (ADR 0013/0035).
+ */
 export const PerceptionSignalList = z
   .object({
     chokepoint_id: z.string(),
     count: z.number().nullish(),
-    consensus: z.array(z.unknown()).default([]),
-    signals: z.array(z.unknown()).default([]),
+    consensus: z.array(PerceptionConsensusOut).default([]),
+    signals: z.array(PerceptionSignalOut).default([]),
     disclaimer: z.string().nullish(),
   })
   .passthrough();
@@ -571,6 +712,70 @@ export const SfuVerdictOut = z
   })
   .passthrough();
 export type SfuVerdictOut = z.infer<typeof SfuVerdictOut>;
+
+/**
+ * GET /vocabularies → the enum-enforced vocabularies behind the data, plus the CCM analytics lookups.
+ * `controlled` holds ~48 named lists (priority_classes, families, flow_types, risk_types, …); the
+ * other blocks are lookup tables. Prefer driving UI filters from this rather than hard-coding lists.
+ */
+export const VocabulariesOut = z
+  .object({
+    controlled: z.record(z.string(), z.array(z.string())).default({}),
+    control_dimensions: z
+      .array(
+        z
+          .object({ control_dimension: z.string(), dimension_family: z.string().nullish() })
+          .passthrough(),
+      )
+      .default([]),
+    actor_profile_types: z
+      .array(z.object({ profile_type: z.string(), is_critical: z.boolean().nullish() }).passthrough())
+      .default([]),
+    alert_types: z
+      .array(z.object({ alert_type: z.string(), default_queue: z.string().nullish() }).passthrough())
+      .default([]),
+    architecture_labels: z.array(z.string()).default([]),
+  })
+  .passthrough();
+export type VocabulariesOut = z.infer<typeof VocabulariesOut>;
+
+/**
+ * One candidate edge of the derived systemic graph (ADR 0065), extracted from the analysis fiches.
+ * STRICTLY distinct from the canonical `/relations`: these are file-backed candidates pending human
+ * validation, never canonical. A target flagged `external_candidate` is a COVERAGE GAP — an object
+ * the corpus does not contain — not a corpus object. Never merge into seed/ without validation.
+ */
+export const DerivedRelationOut = z
+  .object({
+    from_object_id: z.string(),
+    to: z.string(),
+    to_label: z.string().nullish(),
+    to_status: z.string(),
+    relation_type: z.string(),
+    directionality: z.string().nullish(),
+    strength_score: z.number().nullish(),
+    resolution_score: z.number().nullish(),
+    validation_status: z.string().default('not_validated'),
+    analytical_effect: z.array(z.string()).default([]),
+    affected_flows: z.array(z.string()).default([]),
+    evidence_file: z.string().nullish(),
+    evidence_quote: z.string().nullish(),
+  })
+  .passthrough();
+export type DerivedRelationOut = z.infer<typeof DerivedRelationOut>;
+
+/** GET /derived/relations → envelope. Derived candidate graph, no taint gate (public order-of-magnitude). */
+export const DerivedRelationGraphOut = z
+  .object({
+    edge_count_total: z.number(),
+    returned: z.number(),
+    status: z.string().nullish(),
+    generated_from: z.string().nullish(),
+    items: z.array(DerivedRelationOut).default([]),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type DerivedRelationGraphOut = z.infer<typeof DerivedRelationGraphOut>;
 
 /** GET /strategic-flows/{sfu_id}/fiche → full SFU fiche. `red_team` present only with read_tainted. */
 export const SfuFicheOut = z

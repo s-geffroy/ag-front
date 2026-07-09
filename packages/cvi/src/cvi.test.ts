@@ -73,3 +73,55 @@ describe('dimension catalogue', () => {
     expect(Object.keys(cviDimensions).sort()).toEqual([...cviDimensionKeys].sort());
   });
 });
+
+describe('provenance survives validation', () => {
+  // Shape of the live producer payload for a P0 corridor (7 dimensions: `resilience` is omitted
+  // because it has no engine input). A strict `z.object` used to strip everything below.
+  const live = {
+    chokepoint_id: 'p0_maritime_canal_panama_canal',
+    scale: '0-5',
+    global_level: 'critique',
+    status: 'candidate',
+    engine_version: '0.1.0',
+    methodology_documented: false,
+    disclaimer:
+      'Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.',
+    dimensions: {
+      exposition: {
+        score: 5,
+        rationale: 'Cites the engine inputs.',
+        confidence: 'moyen',
+        source_refs: ['eia_world_oil_transit_chokepoints', 'acp_annual_report'],
+        uncertainties: ['transhipment excluded'],
+      },
+      menace: { score: 1, rationale: 'Low observed threat.', confidence: 'bas', source_refs: ['gdelt'] },
+    },
+    sources: ['eia_world_oil_transit_chokepoints'],
+    uncertainties: ['schematic capacities'],
+  };
+
+  it('keeps the candidate markers so a derived score never reads as a fact', () => {
+    const a = assertCvi(live);
+    expect(a.status).toBe('candidate');
+    expect(a.disclaimer).toContain('not human-validated');
+    expect(a.engine_version).toBe('0.1.0');
+    expect(a.chokepoint_id).toBe('p0_maritime_canal_panama_canal');
+  });
+
+  it('keeps per-dimension source_refs and uncertainties', () => {
+    const a = assertCvi(live);
+    expect(a.dimensions?.exposition?.source_refs).toEqual([
+      'eia_world_oil_transit_chokepoints',
+      'acp_annual_report',
+    ]);
+    expect(a.dimensions?.exposition?.uncertainties).toEqual(['transhipment excluded']);
+    // A dimension with no engine input is omitted, never fabricated.
+    expect(a.dimensions?.resilience).toBeUndefined();
+  });
+
+  it('still refuses a 0-100 aggregate without a documented methodology (ADR 0049)', () => {
+    const r = validateCvi({ ...live, scale: '0-100', aggregate_score: 91 });
+    expect(r.ok).toBe(false);
+    expect(r.issues.map((i) => i.code)).toContain('methodology_required');
+  });
+});

@@ -61,7 +61,8 @@ const detail = await loadChokepointDetail(summary.id);
                 {detail.risks.map((r) => (
                   <li>
                     <span class="font-medium">{humanize(r.risk_type)}</span>
-                    {r.current_status ? ` · ${r.current_status}` : ''}
+                    {r.risk_severity ? ` · ${humanize(r.risk_severity)}` : ''}
+                    {r.assessment_status ? ` · ${humanize(r.assessment_status)}` : ''}
                     {r.impact_score != null ? ` · impact ${r.impact_score}` : ''}
                   </li>
                 ))}

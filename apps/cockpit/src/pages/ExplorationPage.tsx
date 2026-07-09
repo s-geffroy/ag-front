@@ -313,7 +313,9 @@ function DetailPanel({ id }: { id: string }) {
       <Section
         title="Risques"
         rows={detail.risks.map(
-          (r) => `${humanize(r.risk_type)}${r.current_status ? ` · ${r.current_status}` : ''}`,
+          (r) =>
+            `${humanize(r.risk_type)}${r.risk_severity ? ` · ${humanize(r.risk_severity)}` : ''}` +
+            `${r.assessment_status ? ` · ${humanize(r.assessment_status)}` : ''}`,
         )}
       />
       <Section title="Alternatives" rows={detail.alternatives.map((a) => a.description)} />

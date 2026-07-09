@@ -79,8 +79,18 @@ describe('buildCandidates — geopolitical pre-fill', () => {
     const cvi: CviAssessment = {
       scale: '0-5',
       dimensions: {
-        menace: { score: 4, rationale: 'acteur étatique hostile' },
-        concentration: { score: 2, rationale: 'quelques alternatives' },
+        menace: {
+          score: 4,
+          rationale: 'acteur étatique hostile',
+          source_refs: ['gdelt'],
+          uncertainties: [],
+        },
+        concentration: {
+          score: 2,
+          rationale: 'quelques alternatives',
+          source_refs: [],
+          uncertainties: [],
+        },
       },
       methodology_documented: false,
       sources: [],

@@ -30,6 +30,8 @@ import {
   StrategicFlowUnitList,
   SfuVerdictOut,
   SfuFicheOut,
+  VocabulariesOut,
+  DerivedRelationGraphOut,
 } from './schema';
 import type {
   FlowChokepointOut as FlowChokepointOutT,
@@ -57,7 +59,37 @@ import type {
   StrategicFlowUnitList as StrategicFlowUnitListT,
   SfuVerdictOut as SfuVerdictOutT,
   SfuFicheOut as SfuFicheOutT,
+  VocabulariesOut as VocabulariesOutT,
+  DerivedRelationGraphOut as DerivedRelationGraphOutT,
 } from './schema';
+
+/**
+ * A non-2xx response from the Read API, carrying the status so callers can TELL FAILURES APART.
+ *
+ * This exists because the previous generic `Error` forced every consumer into `.catch(() => [])`,
+ * which conflates "not authorised" (403), "absent" (404) and "genuinely empty" ([]). That conflation
+ * hid a permanently-failing call for months: HDDE requests `/perception-signals` with a `read` token,
+ * the producer gates that route on `read_tainted` unconditionally, and the resulting 403 was silently
+ * rendered as "this corridor has no perception signals". An authorization bug must never look like an
+ * empty dataset.
+ */
+export class ChokepointsApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly path: string,
+  ) {
+    super(`Chokepoints API ${path} → HTTP ${status}`);
+    this.name = 'ChokepointsApiError';
+  }
+  /** The record (or route) is absent — an expected, benign outcome worth degrading to empty. */
+  get isNotFound(): boolean {
+    return this.status === 404;
+  }
+  /** Wrong scope. Never benign: it means the caller is using a token it was not provisioned for. */
+  get isForbidden(): boolean {
+    return this.status === 403;
+  }
+}
 
 export type ChokepointsClientOptions = {
   baseUrl: string;
@@ -89,6 +121,13 @@ export type AnalyticsParams = {
   limit?: number;
 };
 export type AnalysisDoc = 'synthesis' | 'theory-of-constraints' | 'leverage-points';
+export type DerivedRelationParams = {
+  relation_type?: string;
+  /** `in_corpus` | `external_candidate` — the latter marks a coverage gap, not a corpus object. */
+  to_status?: string;
+  from_object_id?: string;
+  limit?: number;
+};
 
 export type ChokepointsClient = {
   // --- 0.1.0 ---
@@ -114,7 +153,7 @@ export type ChokepointsClient = {
   listEpisodes(): Promise<EpisodeOutT[]>;
   getEpisode(key: string): Promise<EpisodeDetailT>;
   listSources(): Promise<SourceOutT[]>;
-  getVocabularies(): Promise<Record<string, unknown>>;
+  getVocabularies(): Promise<VocabulariesOutT>;
   listAlerts(params?: AlertParams): Promise<AlertOutT[]>;
   listAnalyticsResults(params?: AnalyticsParams): Promise<AnalyticalResultOutT[]>;
   listEngineRuns(engineId?: string): Promise<EngineRunOutT[]>;
@@ -126,7 +165,7 @@ export type ChokepointsClient = {
   getChokepointAnalysisDetail(id: string): Promise<ChokepointAnalysisDetailT>;
   getChokepointAnalysisDoc(id: string, doc: AnalysisDoc): Promise<string>;
   exportJsonl(): Promise<string>;
-  // --- 0.3.0 / 0.4.0 (additive; inert until the deployed instance bumps past 0.2.0) ---
+  // --- 0.3.0 / 0.4.0 ---
   /** GET /analytics/system-resilience — global ENA resilience row. Throws (404) until computed. */
   getSystemResilience(): Promise<SystemResilienceOutT>;
   /** GET /strategic-flows — SFIM flow-unit list (envelope with items). */
@@ -135,6 +174,11 @@ export type ChokepointsClient = {
   getStrategicFlowVerdict(sfuId: string): Promise<SfuVerdictOutT | null>;
   /** GET /strategic-flows/{sfuId}/fiche — full SFU fiche (red_team block only with read_tainted). */
   getStrategicFlowFiche(sfuId: string): Promise<SfuFicheOutT>;
+  // --- 0.6.0 ---
+  /** GET /derived/relations — candidate graph extracted from the analysis fiches (ADR 0065). */
+  listDerivedRelations(params?: DerivedRelationParams): Promise<DerivedRelationGraphOutT>;
+  /** GET /derived/relation-graph — raw centrality/topology report. Opaque text; do not parse. */
+  getDerivedRelationGraph(): Promise<string>;
 };
 
 /**
@@ -143,9 +187,8 @@ export type ChokepointsClient = {
  * TS-side coverage ledger the Python drift-check can't see (it generates a Python client, not this
  * hand-written TS one). `contract-coverage.test.ts` asserts every pinned path appears here, so a
  * contract that gains an endpoint fails the build until a method + schema are wired — closing the
- * "front pinned to an older/narrower surface than the producer" gap (Phase 6). Entries beyond the
- * current pin (cvi-assessment, system-resilience, strategic-flows) are pre-wired ahead of the 0.4.0
- * deploy; the subset check is one-directional (pin ⊆ covered), so being ahead is fine.
+ * "front pinned to an older/narrower surface than the producer" gap. The subset check is
+ * one-directional (pin ⊆ covered), so pre-wiring an endpoint ahead of a producer deploy is fine.
  */
 export const COVERED_PATHS = [
   // 0.1.0
@@ -186,7 +229,65 @@ export const COVERED_PATHS = [
   '/strategic-flows',
   '/strategic-flows/{sfu_id}/verdict',
   '/strategic-flows/{sfu_id}/fiche',
+  // 0.6.0
+  '/derived/relations',
+  '/derived/relation-graph',
 ] as const;
+
+/** A product surface that actually reads an endpoint. The client itself is NOT a consumer. */
+export type ConsumerSurface = 'public' | 'cockpit' | 'hdde' | 'verdict';
+
+/**
+ * Which product surface consumes each contract endpoint. `contract-coverage.test.ts` fails if a
+ * pinned path has no entry, closing the "wired in the client but read by nobody" gap: a method can
+ * satisfy `COVERED_PATHS` while no screen or packet ever calls it.
+ *
+ * Hand-maintained on purpose. Statically scanning four apps for usage is fragile; an explicit ledger
+ * is auditable and forces a conscious decision when the producer's surface grows.
+ *
+ * VERDICT never appears here: it must never call the Read API directly (ADR 0042) — it consumes the
+ * HDDE diagnostic packet. `/chokepoints/{id}/perception-signals` is cockpit-only: the producer gates
+ * it unconditionally on `read_tainted`, and HDDE holds a `read` token by design (ADR 0035), so it
+ * reads the derived `prediction_consensus` block of `/analysis` instead.
+ */
+export const CONSUMERS: Record<string, ConsumerSurface[]> = {
+  '/health': ['cockpit'],
+  '/chokepoints': ['public', 'cockpit', 'hdde'],
+  '/chokepoints/{chokepoint_id}': ['public', 'cockpit'],
+  '/chokepoints/{chokepoint_id}/fiche': ['cockpit'],
+  '/chokepoints/search': ['cockpit'],
+  '/chokepoints/nearby': ['cockpit'],
+  '/chokepoints/by-flow/{flow_type}': ['cockpit', 'hdde'],
+  '/chokepoints/by-risk/{risk_type}': ['public', 'cockpit'],
+  '/chokepoints/by-system/{system_id}': ['public', 'cockpit'],
+  '/chokepoints/{chokepoint_id}/analysis': ['cockpit', 'hdde'],
+  '/chokepoints/{chokepoint_id}/actors': ['cockpit', 'hdde'],
+  '/chokepoints/{chokepoint_id}/event-signals': ['cockpit', 'hdde'],
+  '/chokepoints/{chokepoint_id}/perception-signals': ['cockpit'],
+  '/chokepoints/{chokepoint_id}/cvi-assessment': ['cockpit', 'hdde'],
+  '/actors': ['cockpit'],
+  '/relations': ['cockpit', 'hdde'],
+  '/strategic-systems': ['public', 'cockpit'],
+  '/strategic-systems/{system_id}': ['public', 'cockpit'],
+  '/episodes': ['cockpit', 'hdde'],
+  '/episodes/{episode_key}': ['cockpit', 'hdde'],
+  '/sources': ['cockpit'],
+  '/vocabularies': ['cockpit'],
+  '/alerts': ['cockpit'],
+  '/analytics/results': ['cockpit', 'hdde'],
+  '/analytics/engine-runs': ['cockpit'],
+  '/analytics/system-resilience': ['cockpit', 'hdde'],
+  '/chokepoint-analyses': ['cockpit'],
+  '/chokepoint-analyses/{chokepoint_id}': ['cockpit'],
+  '/chokepoint-analyses/{chokepoint_id}/{doc}': ['cockpit'],
+  '/strategic-flows': ['cockpit'],
+  '/strategic-flows/{sfu_id}/verdict': ['cockpit'],
+  '/strategic-flows/{sfu_id}/fiche': ['cockpit'],
+  '/derived/relations': ['cockpit', 'hdde'],
+  '/derived/relation-graph': ['cockpit'],
+  '/exports/geojson': ['public', 'cockpit'],
+  '/exports/jsonl': ['cockpit'],
+};
 
 /**
  * Read-only client for the Chokepoints Read API.
@@ -222,7 +323,7 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       headers: { Authorization: `Bearer ${opts.token}`, Accept: 'application/json' },
       signal: AbortSignal.timeout(timeoutMs),
     });
-    if (!res.ok) throw new Error(`Chokepoints API ${path} → HTTP ${res.status}`);
+    if (!res.ok) throw new ChokepointsApiError(res.status, path);
     return res.json();
   }
 
@@ -242,7 +343,7 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       headers: { Authorization: `Bearer ${opts.token}` },
       signal: AbortSignal.timeout(timeoutMs),
     });
-    if (!res.ok) throw new Error(`Chokepoints API ${path} → HTTP ${res.status}`);
+    if (!res.ok) throw new ChokepointsApiError(res.status, path);
     return res.text();
   }
 
@@ -329,7 +430,7 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       return z.array(SourceOut).parse(await get('/sources'));
     },
     async getVocabularies() {
-      return z.record(z.unknown()).parse(await get('/vocabularies'));
+      return VocabulariesOut.parse(await get('/vocabularies'));
     },
     async listAlerts(params) {
       return z
@@ -377,6 +478,17 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
     },
     async getStrategicFlowFiche(sfuId) {
       return SfuFicheOut.parse(await get(`/strategic-flows/${enc(sfuId)}/fiche`));
+    },
+
+    // --- 0.6.0 additive endpoints ---
+    async listDerivedRelations(params) {
+      // Derived candidates, NOT canonical — distinct from `listRelations()`. No taint gate producer-side.
+      return DerivedRelationGraphOut.parse(
+        await get('/derived/relations', params as Record<string, string | number | undefined>),
+      );
+    },
+    async getDerivedRelationGraph() {
+      return getText('/derived/relation-graph');
     },
   };
 }

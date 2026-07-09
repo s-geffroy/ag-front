@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createChokepointsClient } from './client';
+import { createChokepointsClient, ChokepointsApiError } from './client';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return { ok: status < 400, status, json: async () => body } as unknown as Response;
@@ -384,5 +384,171 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
     const fiche = await client.getChokepointFiche('p0_x');
     expect(fiche.chokepoint_id).toBe('p0_x');
     expect(fiche).toHaveProperty('extra', 1);
+  });
+  it('a non-2xx raises a typed ChokepointsApiError carrying the status', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () => jsonResponse({ detail: "include_tainted requires the 'read_tainted' scope" }, 403),
+    });
+
+    // The regression that motivated this: a `read` token hitting the unconditionally
+    // read_tainted-gated /perception-signals got a 403 which callers turned into `[]` — an
+    // authorization failure that read as "this corridor has no perception signals".
+    const err = await client.getChokepointPerceptionSignals('p0_x').catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ChokepointsApiError);
+    expect((err as ChokepointsApiError).status).toBe(403);
+    expect((err as ChokepointsApiError).isForbidden).toBe(true);
+    expect((err as ChokepointsApiError).isNotFound).toBe(false);
+  });
+
+  it('distinguishes a 404 (absent) from a 403 (wrong scope)', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () => jsonResponse({ detail: 'Not Found' }, 404),
+    });
+    const err = (await client.getChokepoint('nope').catch((e: unknown) => e)) as ChokepointsApiError;
+    expect(err.isNotFound).toBe(true);
+    expect(err.isForbidden).toBe(false);
+  });
+
+  it('parses perception consensus + signals as typed rows', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          count: 1,
+          consensus: [
+            { signal_family: 'disruption_expectation', market_count: 29, consensus_probability: 0.017 },
+          ],
+          signals: [{ market_question: 'Q?', implied_probability: 0.002, liquidity: 4951.24 }],
+        }),
+    });
+    const p = await client.getChokepointPerceptionSignals('p0_x');
+    expect(p.consensus[0]!.market_count).toBe(29);
+    expect(p.signals[0]!.implied_probability).toBe(0.002);
+  });
+
+  it('ChokepointDetail exposes metrics and geometries (undeclared before 0.6.0)', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          id: 'p0_sumed',
+          canonical_name: 'SUMED',
+          metrics: [
+            {
+              metric_key: 'sumed_design_capacity',
+              metric_kind: 'capacity',
+              value: 2.5,
+              unit: 'million_barrels_per_day',
+              notes: 'A maximum potential rate, not a realised flow.',
+              sources: ['eia_world_oil_transit_chokepoints'],
+            },
+          ],
+          geometries: [{ geometry_role: 'display_point', geometry_status: 'schematic' }],
+          flows: [
+            {
+              flow_type: 'crude_oil',
+              value_status: 'qualitative_scored',
+              method_note: 'excludes transhipment',
+              volume_year: 2024,
+              sources: ['eia'],
+            },
+          ],
+          risks: [{ risk_type: 'congestion', assessment_status: 'assessed', risk_severity: 'elevated' }],
+          alternatives: [
+            {
+              description: 'Cape route',
+              capacity_penalty: 'high',
+              reroute_deltas: [{ flow_type: 'crude_oil', delta_days: 4.52, net_cost_usd: 787252 }],
+            },
+          ],
+          episodes: [{ episode_key: 'red_sea_2024', name: 'Red Sea', started_on: '2023-11-19' }],
+        }),
+    });
+    const d = await client.getChokepoint('p0_sumed');
+    // `capacity` is a maximum, never a realised throughput — must not be compared to estimated_volume.
+    expect(d.metrics[0]!.metric_kind).toBe('capacity');
+    expect(d.geometries[0]!.geometry_role).toBe('display_point');
+    // A qualitative_scored flow carries no volume by design; the note explaining that must reach us.
+    expect(d.flows[0]!.method_note).toBe('excludes transhipment');
+    expect(d.risks[0]!.risk_severity).toBe('elevated');
+    expect(d.alternatives[0]!.reroute_deltas[0]!.delta_days).toBe(4.52);
+    expect(d.episodes[0]!.started_on).toBe('2023-11-19');
+  });
+
+  it('CVI keeps its provenance and never yields an aggregate score (ADR 0049)', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          scale: '0-5',
+          global_level: 'critique',
+          status: 'candidate',
+          engine_version: '0.1.0',
+          disclaimer: 'Analytical results are derived, candidate outputs',
+          aggregate_score: 91,
+          dimensions: {
+            exposition: { score: 5, rationale: 'r', confidence: 'moyen', source_refs: ['eia'] },
+          },
+        }),
+    });
+    const cvi = await client.getChokepointCviAssessment('p0_x');
+    expect(cvi.status).toBe('candidate');
+    expect(cvi.disclaimer).toContain('candidate');
+    expect(cvi.dimensions!.exposition!.source_refs).toEqual(['eia']);
+    // The producer never serves it; even if it regressed, the client strips it.
+    expect(cvi).not.toHaveProperty('aggregate_score');
+    // `resilience` has no engine input and is omitted, never fabricated.
+    expect(cvi.dimensions!.resilience).toBeUndefined();
+  });
+
+  it('listDerivedRelations passes filters and marks external candidates', async () => {
+    let url = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (u) => {
+        url = String(u);
+        return jsonResponse({
+          edge_count_total: 769,
+          returned: 1,
+          status: 'derived_candidate_pending_human_validation',
+          items: [
+            {
+              from_object_id: 'p1_anchorage',
+              to: 'autres_hubs_pacifique_nord',
+              to_status: 'external_candidate',
+              relation_type: 'dependency',
+              strength_score: 4,
+            },
+          ],
+        });
+      },
+    });
+    const g = await client.listDerivedRelations({ to_status: 'external_candidate', limit: 10 });
+    expect(url).toContain('to_status=external_candidate');
+    expect(url).toContain('limit=10');
+    expect(g.edge_count_total).toBe(769);
+    // An external_candidate target is a coverage gap, not a corpus object.
+    expect(g.items[0]!.to_status).toBe('external_candidate');
+    expect(g.items[0]!.validation_status).toBe('not_validated');
+  });
+
+  it('getDerivedRelationGraph returns opaque text, not parsed JSON', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        ({ ok: true, status: 200, text: async () => '# Betweenness\n...' }) as unknown as Response,
+    });
+    expect(await client.getDerivedRelationGraph()).toContain('# Betweenness');
   });
 });
