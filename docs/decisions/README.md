@@ -43,3 +43,5 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0045](0045-access-provisioning-commercial-rail.md) | Access provisioning & commercial rail (payment → account, tiers, KPIs) | Proposed |
 | [0046](0046-human-validation-traceability.md) | Human validation traceability (validated-packet guard + validator log) | Accepted |
 | [0062](0062-consumer-pinned-contract-client.md) | Consumer pinned-contract client for the Chokepoints Read API (pin + drift cron) | Accepted |
+| [0063](0063-red-team-prompt-hardening.md) | Cross-cutting red-team prompt hardening (spotlighting, analysis-first, unified scale) | Accepted |
+| [0064](0064-pplx-cli-recherche-externe.md) | External web research: `pplx-cli` upstream of `agent-browser` (single sourcing chain) | Accepted |

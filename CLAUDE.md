@@ -136,7 +136,8 @@ Invoke the matching skill at these moments:
 | A bug, test failure, or unexpected behavior                                                       | `systematic-debugging` (before proposing a fix)                                           |
 | Parallel / multi-agent work                                                                       | `using-git-worktrees`, `dispatching-parallel-agents`, `subagent-driven-development`       |
 | Before declaring work done                                                                        | `verification-before-completion`                                                          |
-| Fetch/verify a **web source** for the evidence registry (feed a seed, validate a claim)           | `agent-browser`                                                                           |
+| **Discover** sources / verify an external fact (step 1 of any web sourcing)                       | `pplx-research` (ADR 0064)                                                                |
+| **Open** a page `pplx` cannot read — login, paywall, JS, PDF — or screenshot / drive a UI        | `agent-browser` (escalation from `pplx-research`)                                         |
 | Any change touching the **read API** or **admin UI** — auth, input handling, endpoints            | `owasp-security`                                                                          |
 | Build/modify the **admin/exploration UI** (components, layout, design system)                     | `frontend-design`                                                                         |
 | Produce a **visual deliverable** (briefing/report PDF, poster) from the data                      | `canvas-design`                                                                           |
@@ -146,7 +147,13 @@ Invoke the matching skill at these moments:
 
 **Data-integrity guardrails (override skill defaults):**
 
-- `agent-browser` collects **candidates pending human validation**, never facts — see "Data integrity" above.
+- `pplx-research` / `agent-browser` collect **candidates pending human validation**, never facts — see "Data
+  integrity" above.
+- **Sourcing chain, in this order** (overrides `agent-browser`'s own "prefer agent-browser over any web tools"):
+  `pplx search` discovers → `pplx fetch-url --facts` deepens one or two selected URLs → `agent-browser` is the
+  **escalation** when the page needs a real browser (login, paywall, JS, PDF) or `fetch-url` comes back empty →
+  `pplx verify --answer` arbitrates a contested claim. Never open a browser to find out which sources exist
+  (ADR 0064).
 - `canvas-design` / `frontend-design` consume **derived** data only; they MUST NOT mutate canonical records.
 - `thinking-theory-of-constraints` / `thinking-leverage-points` produce **derived analysis** only — constraint
   rankings, bypass capacities and leverage effects are **candidates pending human validation**, never facts, and
@@ -154,6 +161,10 @@ Invoke the matching skill at these moments:
 - `agent-browser` is installed in the **`tools` service** (ADR 0002), not on the host. Invoke it inside the
   container: `docker compose -f docker/docker-compose.yml run --rm tools agent-browser <cmd>`. The skill's
   guidance applies, but the binary lives in Docker, so prefix commands with the compose wrapper.
+- `pplx` is **host/agent tooling** like `gh` — installed on the host (`~/.local/bin/pplx`, via `uv tool
+  install`), **outside the Docker-only rule**. Its API key lives in `~/.claude/settings.json` (`env` block,
+  chmod 600), **never in the repo**. So the two halves of the sourcing chain run on opposite sides of the
+  container boundary; only a URL crosses it.
 
 ## Plugins — installed (ADR 0029)
 
