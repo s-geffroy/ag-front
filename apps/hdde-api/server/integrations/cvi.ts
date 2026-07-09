@@ -1,7 +1,7 @@
 // CVI enrichment — local, in-process reuse of @ag/cvi (ADR 0035). Maps the HDDE flow_criticality_score
 // (0-5) to the shared qualitative vulnerability level so the analyst sees a familiar CVI reading.
 // Derived candidate, never a fact; does not mutate any canonical record.
-import { createChokepointsClient } from '@ag/chokepoints';
+import { createChokepointsClient, ChokepointsApiError } from '@ag/chokepoints';
 import { levelFromScore, validateCvi, type VulnerabilityLevel, type CviAssessment } from '@ag/cvi';
 import { config } from '../config';
 
@@ -35,8 +35,20 @@ export async function fetchCorridorCvi(chokepointId: string): Promise<CviAssessm
   try {
     const raw = await client.getChokepointCviAssessment(chokepointId);
     const result = validateCvi(raw);
-    return result.ok ? result.data : null;
-  } catch {
-    return null; // 404 / transient / network — graceful degradation (ADR 0035).
+    if (!result.ok) {
+      console.warn(
+        `[hdde] CVI assessment for ${chokepointId} failed the candidate quality gate:`,
+        result.issues.map((i) => `${i.code}: ${i.message}`).join('; '),
+      );
+      return null;
+    }
+    return result.data;
+  } catch (err) {
+    // A 404 means no assessment has been computed for this corridor — expected, degrade quietly.
+    // Anything else (403 wrong scope, 5xx, network) is a defect and must not pass for "no CVI".
+    if (!(err instanceof ChokepointsApiError) || err.status !== 404) {
+      console.error(`[hdde] CVI assessment for ${chokepointId} failed — this is not "no CVI":`, err);
+    }
+    return null;
   }
 }

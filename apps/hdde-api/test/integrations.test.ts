@@ -89,12 +89,79 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
         ]),
       '/event-signals': () =>
         json([{ chokepoint_id: 'p0_x', domain: 'security', weight: 0.8, event_key: 'e1' }]),
-      '/perception-signals': () => json({ chokepoint_id: 'p0_x', count: 0, signals: [] }),
+      '/analysis': () => json({ chokepoint_id: 'p0_x', engines: [], relations: [], claims: [] }),
     });
     const ev = await fetchCorridorEvidence('p0_x');
     expect(ev.available).toBe(true);
     expect(ev.actors.map((a) => a.name)).toEqual(['Marine X']); // tainted actor dropped
     expect(ev.event_signals[0]!.domain).toBe('security');
+  });
+
+  /**
+   * HDDE holds a `read` token by design (ADR 0035). The producer gates /perception-signals
+   * unconditionally on `read_tainted`, so calling it always returned 403 — and the old
+   * `.catch(() => null)` reported that authorization failure as "this corridor has no perception
+   * signals". We now read the DERIVED prediction_consensus block of /analysis, served under `read`.
+   */
+  it('sources perception from the derived prediction_consensus block, never /perception-signals', async () => {
+    let perceptionCalled = false;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+      const u = String(url);
+      if (u.includes('/perception-signals')) {
+        perceptionCalled = true;
+        return json({ detail: "include_tainted requires the 'read_tainted' scope" }, 403);
+      }
+      if (u.includes('/actors')) return json([]);
+      if (u.includes('/event-signals')) return json([]);
+      if (u.includes('/analysis')) {
+        return json({
+          chokepoint_id: 'p0_x',
+          disclaimer: 'Analytical results are derived, candidate outputs',
+          engines: [
+            {
+              key: 'prediction_consensus',
+              columns: ['signal_family', 'market_count', 'consensus_probability'],
+              rows: [
+                { signal_family: 'disruption_expectation', market_count: 29, consensus_probability: 0.017 },
+                { signal_family: 'regime_change_expectation', market_count: 2, consensus_probability: 0.19 },
+              ],
+            },
+          ],
+          relations: [],
+          claims: [],
+        });
+      }
+      return new Response('not found', { status: 404 });
+    });
+
+    const ev = await fetchCorridorEvidence('p0_x');
+    expect(perceptionCalled).toBe(false); // the read_tainted-gated route is never touched
+    expect(ev.available).toBe(true);
+    expect(ev.perception?.count).toBe(2);
+    expect(ev.perception?.families[0]!.signal_family).toBe('disruption_expectation');
+    expect(ev.perception?.families[0]!.market_count).toBe(29);
+    // The candidate marking must travel with the derived data.
+    expect(ev.perception?.disclaimer).toContain('candidate');
+  });
+
+  it('a 403 is logged loudly, never silently rendered as an empty dataset', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>
+      json({ detail: 'forbidden' }, 403),
+    );
+    const ev = await fetchCorridorEvidence('p0_x');
+    expect(ev.available).toBe(false);
+    expect(spy).toHaveBeenCalled();
+    expect(spy.mock.calls.some((c) => String(c[0]).includes('403'))).toBe(true);
+    expect(spy.mock.calls.some((c) => String(c[0]).includes('NOT an empty dataset'))).toBe(true);
+  });
+
+  it('a 404 degrades quietly — an absent record is not a defect', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response('nope', { status: 404 }));
+    const ev = await fetchCorridorEvidence('p0_missing');
+    expect(ev.available).toBe(false);
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('degrades gracefully — every endpoint failing yields available:false, empty', async () => {

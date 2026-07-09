@@ -2,7 +2,7 @@
 // The client is created with includeTainted:false, and we additionally drop any record that still
 // carries license_taint=true as a defence-in-depth guard so no restricted data can reach the public
 // client. Suggestions are CANDIDATES pending analyst validation, never facts.
-import { createChokepointsClient } from '@ag/chokepoints';
+import { createChokepointsClient, ChokepointsApiError } from '@ag/chokepoints';
 import { config } from '../config';
 
 export interface ChokepointSuggestion {
@@ -103,12 +103,20 @@ export async function suggestChokepoints(
 
 // --- Per-corridor evidence (actors + signals) for the interview -----------------------------------
 
+/** Liquidity-weighted crowd anticipation per signal family. ANTICIPATION, never event evidence. */
+export interface PerceptionFamily {
+  signal_family?: string;
+  market_count?: number;
+  consensus_probability?: number;
+  total_liquidity?: number;
+}
+
 export interface CorridorEvidence {
   available: boolean;
   note: string;
   actors: { name: string; actor_type?: string; control_type?: string; basis?: string }[];
   event_signals: { domain?: string; weight?: number; observed_on?: string; event_key?: string }[];
-  perception: { count: number; disclaimer?: string } | null;
+  perception: { count: number; families: PerceptionFamily[]; disclaimer?: string } | null;
 }
 
 // Defence-in-depth taint drop (records may carry license_taint via passthrough).
@@ -116,11 +124,40 @@ const isTainted = (it: unknown): boolean =>
   (it as { license_taint?: boolean }).license_taint === true;
 
 /**
+ * Degrade a per-endpoint failure to `fallback`, but only when the failure is BENIGN.
+ *
+ * A 404 means the record or route is absent — expected, and an empty slice is the honest answer.
+ * Anything else (403 wrong scope, 5xx, network) is a defect: it must be logged loudly rather than
+ * disguised as "no data". Blanket `.catch(() => [])` is exactly how HDDE's `/perception-signals`
+ * call sat at a permanent 403 while the UI reported "no perception signals for this corridor".
+ */
+function degrade<T>(label: string, fallback: T): (err: unknown) => T {
+  return (err: unknown) => {
+    const status = err instanceof ChokepointsApiError ? err.status : 0;
+    if (status !== 404) {
+      console.error(
+        `[hdde] chokepoints ${label} failed (${status || 'network'}) — degrading to empty. ` +
+          `This is NOT an empty dataset; it is a failure.`,
+        err,
+      );
+    }
+    return fallback;
+  };
+}
+
+/**
  * Fetch actors + event/perception signals for ONE corridor as EVIDENCE CANDIDATES (ADR 0035:
- * read scope, never read_tainted; candidate ≠ fact). Each endpoint degrades independently — a
- * failure/404 on one yields an empty slice, never throws. NOTE: /perception-signals is a
- * read_tainted-scope surface producer-side, so on HDDE's read token it is best-effort (usually
- * empty). Returns available:false when the API is unconfigured or nothing came back.
+ * read scope, never read_tainted; candidate ≠ fact). Each endpoint degrades independently, but only
+ * a 404 degrades silently — see `degrade()`. Returns available:false when the API is unconfigured.
+ *
+ * PERCEPTION: we do NOT call `/perception-signals`. The producer gates that route unconditionally on
+ * the `read_tainted` scope (its Polymarket source is uncleared), so HDDE's `read` token always got a
+ * 403 — which the previous `.catch(() => null)` reported as "no perception signals". Granting HDDE a
+ * tainted token is forbidden (ADR 0013/0035: HDDE is on the public Internet behind app auth).
+ *
+ * Instead we read the DERIVED `prediction_consensus` block of `/analysis`, which the producer serves
+ * under plain `read`: the raw uncleared observations stay restricted, while their liquidity-weighted
+ * consensus — the part that is actually decision-relevant — is cleared for redistribution.
  */
 export async function fetchCorridorEvidence(chokepointId: string): Promise<CorridorEvidence> {
   const empty: CorridorEvidence = {
@@ -148,7 +185,7 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
           basis: r.basis ?? undefined,
         })),
     )
-    .catch(() => [] as CorridorEvidence['actors']);
+    .catch(degrade('actors', [] as CorridorEvidence['actors']));
 
   const event_signals = await client
     .getChokepointEventSignals(chokepointId, 20)
@@ -162,19 +199,30 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
           event_key: r.event_key ?? undefined,
         })),
     )
-    .catch(() => [] as CorridorEvidence['event_signals']);
+    .catch(degrade('event-signals', [] as CorridorEvidence['event_signals']));
 
   const perception = await client
-    .getChokepointPerceptionSignals(chokepointId, 20)
-    .then((p) => ({ count: p.count ?? p.signals.length, disclaimer: p.disclaimer ?? undefined }))
-    .catch(() => null);
+    .getChokepointAnalysis(chokepointId)
+    .then((a) => {
+      const block = a.engines.find((e) => e.key === 'prediction_consensus');
+      if (!block?.rows.length) return null;
+      const families = (block.rows as PerceptionFamily[]).map((r) => ({
+        signal_family: r.signal_family,
+        market_count: r.market_count,
+        consensus_probability: r.consensus_probability,
+        total_liquidity: r.total_liquidity,
+      }));
+      return { count: families.length, families, disclaimer: a.disclaimer ?? undefined };
+    })
+    .catch(degrade('analysis/prediction_consensus', null));
 
   const available =
     actors.length > 0 || event_signals.length > 0 || (perception?.count ?? 0) > 0;
   return {
     available,
     note: available
-      ? 'Signaux & acteurs du corridor (candidats à valider) — Read API, scope read.'
+      ? 'Signaux & acteurs du corridor (candidats à valider) — Read API, scope read. ' +
+        'Perception = consensus dérivé des marchés de prédiction (anticipation, pas une preuve).'
       : 'Aucun signal/acteur disponible pour ce corridor (scope read).',
     actors,
     event_signals,
@@ -216,7 +264,7 @@ export async function fetchCorridorContext(chokepointId: string): Promise<Corrid
           summary: (r as { result_summary?: string }).result_summary ?? undefined,
         })),
     )
-    .catch(() => [] as CorridorContext['analytics']);
+    .catch(degrade('analytics/results', [] as CorridorContext['analytics']));
 
   // Bound the per-episode detail fan-out: /episodes has no corridor filter, so we must getEpisode()
   // each to read membership. Cap the lookups and LOG if we truncate, so a silently-dropped precedent
@@ -232,7 +280,9 @@ export async function fetchCorridorContext(chokepointId: string): Promise<Corrid
         );
       }
       const details = await Promise.all(
-        all.slice(0, MAX_EPISODE_LOOKUPS).map((e) => client.getEpisode(e.episode_key).catch(() => null)),
+        all
+          .slice(0, MAX_EPISODE_LOOKUPS)
+          .map((e) => client.getEpisode(e.episode_key).catch(degrade(`episode ${e.episode_key}`, null))),
       );
       return details
         .filter((d): d is NonNullable<typeof d> => d !== null)
@@ -246,7 +296,7 @@ export async function fetchCorridorContext(chokepointId: string): Promise<Corrid
           ended_on: d.ended_on ?? undefined,
         }));
     })
-    .catch(() => [] as CorridorContext['episodes']);
+    .catch(degrade('episodes', [] as CorridorContext['episodes']));
 
   return { available: episodes.length > 0 || analytics.length > 0, episodes, analytics };
 }

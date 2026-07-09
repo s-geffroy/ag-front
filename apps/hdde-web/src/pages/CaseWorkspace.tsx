@@ -818,7 +818,16 @@ function CandidateRow({
         note: string;
         actors: { name: string; actor_type?: string; control_type?: string; basis?: string }[];
         event_signals: { domain?: string; weight?: number; observed_on?: string; event_key?: string }[];
-        perception: { count: number; disclaimer?: string } | null;
+        perception: {
+          count: number;
+          families: {
+            signal_family?: string;
+            market_count?: number;
+            consensus_probability?: number;
+            total_liquidity?: number;
+          }[];
+          disclaimer?: string;
+        } | null;
       }>(`/api/cases/${caseId}/enrichment/chokepoints/${encodeURIComponent(k.id)}/evidence`),
   });
 
@@ -860,8 +869,21 @@ function CandidateRow({
               )}
               {evidence.perception && evidence.perception.count > 0 && (
                 <div className="mt-1">
-                  <span className="font-semibold">Perception :</span> {evidence.perception.count}{' '}
-                  signal(aux)
+                  <span className="font-semibold">Perception :</span>{' '}
+                  <span className="text-sky-700 dark:text-sky-400">
+                    consensus des marchés de prédiction — anticipation, pas une preuve
+                  </span>
+                  <ul className="mt-0.5 pl-4">
+                    {evidence.perception.families.map((f) => (
+                      <li key={f.signal_family}>
+                        {(f.signal_family ?? '—').replace(/_/g, ' ')}
+                        {f.consensus_probability != null
+                          ? ` · ${(f.consensus_probability * 100).toFixed(1)} %`
+                          : ''}
+                        {f.market_count != null ? ` · ${f.market_count} marché(s)` : ''}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
               {!evidence.available && (
