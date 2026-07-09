@@ -5,6 +5,7 @@ import {
   Compass,
   Download,
   Globe2,
+  Waypoints,
   KanbanSquare,
   LayoutDashboard,
   Map as MapIcon,
@@ -55,6 +56,7 @@ const TOOLS_SECTION: NavSection = {
   items: [
     { to: '/outils/revue', label: 'Revue', icon: ClipboardCheck },
     { to: '/outils/exploration', label: 'Exploration', icon: Globe2 },
+    { to: '/outils/flux-strategiques', label: 'Flux stratégiques', icon: Waypoints },
     { to: '/outils/depots', label: 'Dépôts', icon: Upload },
     { to: '/outils/reference', label: 'Référence', icon: BookOpen },
   ],

@@ -7,6 +7,7 @@ import { ProjectScorecardPage } from './pages/ProjectScorecardPage';
 import { CommercialScorecardPage } from './pages/CommercialScorecardPage';
 import { AcquisitionPage } from './pages/AcquisitionPage';
 import { ExplorationPage } from './pages/ExplorationPage';
+import { SfimPage } from './pages/SfimPage';
 import { ContentReaderPage } from './pages/ContentReaderPage';
 import { ReferenceIndexPage } from './pages/ReferenceIndexPage';
 import { ReferenceReaderPage } from './pages/ReferenceReaderPage';
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       // Outils
       { path: 'outils/revue', element: <ReviewPage /> },
       { path: 'outils/exploration', element: <ExplorationPage /> },
+      { path: 'outils/flux-strategiques', element: <SfimPage /> },
       { path: 'outils/depots', element: <UploadsPage /> },
       { path: 'outils/reference', element: <ReferenceIndexPage /> },
 
