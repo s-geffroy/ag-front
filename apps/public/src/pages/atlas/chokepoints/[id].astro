@@ -42,12 +42,47 @@ const detail = await loadChokepointDetail(summary.id);
           {detail.flows.length ? (
             <section>
               <div class="section-rule"><span class="label">Flux</span></div>
-              <ul class="space-y-1.5 text-sm">
+              <ul class="space-y-2.5 text-sm">
                 {detail.flows.map((f) => (
                   <li>
                     <span class="font-medium">{humanize(f.flow_type)}</span>
                     {f.directionality ? ` · ${f.directionality}` : ''}
                     {f.importance_score != null ? ` · importance ${f.importance_score}` : ''}
+                    {/* A volume never appears bare: `value_status` grades the evidence and
+                        `method_note` states what the figure excludes. A `qualitative_scored` flow
+                        carries no volume at all, by design — omit, never fabricate. */}
+                    {f.estimated_volume != null ? (
+                      <div class="text-muted">
+                        {f.estimated_volume} {f.volume_unit ?? ''}
+                        {f.volume_year ? ` (${f.volume_year})` : ''}
+                        {f.value_status ? ` · ${humanize(f.value_status)}` : ''}
+                      </div>
+                    ) : null}
+                    {f.method_note ? <div class="text-xs italic text-muted">{f.method_note}</div> : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {detail.metrics.length ? (
+            <section>
+              <div class="section-rule"><span class="label">Métriques de référence</span></div>
+              <p class="mb-2 text-xs text-muted">
+                Une métrique n'est pas un flux : un <em>stock</em> est un solde à une date, une
+                <em> capacité</em> un maximum potentiel. Ni l'un ni l'autre ne se compare à un volume
+                réellement écoulé.
+              </p>
+              <ul class="space-y-2 text-sm">
+                {detail.metrics.map((m) => (
+                  <li>
+                    <span class="font-medium">{m.metric_label ?? humanize(m.metric_key)}</span>
+                    {m.metric_kind ? ` · ${humanize(m.metric_kind)}` : ''}
+                    <div class="text-muted">
+                      {m.value != null ? `${m.value} ${m.unit ?? ''}` : '—'}
+                      {m.period ? ` · ${m.period}` : ''}
+                    </div>
+                    {m.notes ? <div class="text-xs italic text-muted">{m.notes}</div> : null}
                   </li>
                 ))}
               </ul>
@@ -77,7 +112,9 @@ const detail = await loadChokepointDetail(summary.id);
                 {detail.alternatives.map((a) => (
                   <li>
                     <span class="font-medium">{a.description}</span>
-                    {a.feasibility ? ` — faisabilité : ${a.feasibility}` : ''}
+                    {a.feasibility ? ` — faisabilité : ${humanize(a.feasibility)}` : ''}
+                    {a.capacity_penalty ? ` · pénalité de capacité : ${humanize(String(a.capacity_penalty))}` : ''}
+                    {a.validation_status ? ` · ${humanize(a.validation_status)}` : ''}
                     {a.substitution_note ? <div class="text-muted">{a.substitution_note}</div> : null}
                   </li>
                 ))}
@@ -92,8 +129,9 @@ const detail = await loadChokepointDetail(summary.id);
                 {detail.episodes.map((e) => (
                   <li>
                     {e.name}
-                    {e.severity ? ` · ${e.severity}` : ''}
-                    {e.status ? ` · ${e.status}` : ''}
+                    {e.started_on ? ` · ${e.started_on}${e.ended_on ? ` → ${e.ended_on}` : ''}` : ''}
+                    {e.severity ? ` · ${humanize(e.severity)}` : ''}
+                    {e.status ? ` · ${humanize(e.status)}` : ''}
                   </li>
                 ))}
               </ul>
