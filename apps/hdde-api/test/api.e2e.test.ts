@@ -8,6 +8,14 @@ import type { Server } from 'node:http';
 process.env.HDDE_DB_PATH = ':memory:';
 process.env.LLM_ENABLED = 'false';
 process.env.SESSION_SECRET = 'test-secret-test-secret';
+// The `tools` container inherits CHOKEPOINTS_API_* from docker/.env, so leaving these set made the
+// packet build fan out to the LIVE tailnet API (chokepoint suggestions, CVI, analysis, derived
+// relations, and up to 100 /episodes lookups) — enough to blow the 5 s test timeout, and enough to
+// make this suite depend on a remote host being reachable. Unset them: the integrations degrade to
+// `available:false`, which is exactly the path this test should exercise. Per-integration behaviour
+// is covered against a mocked fetch in integrations.test.ts.
+delete process.env.CHOKEPOINTS_API_URL;
+delete process.env.CHOKEPOINTS_API_TOKEN;
 
 let server: Server;
 let base: string;
