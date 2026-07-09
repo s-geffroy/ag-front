@@ -117,7 +117,7 @@ quota() { # $1=label $2=tokens_pct $3=reset $4=window_s
 L=" ${CYN}🐼ag-front${RST}${SEP}${CYN}${model}${RST}"
 [ -n "$branch" ] && L+=" ${MAG}${branch}${RST}"
 [ -n "$ws" ]     && L+=" ${DIM}·${RST} ${YLW}${ws}${RST}"
-L+="${SEP}${DIM}ctx:${RST}$(col "$ctx")${ctx}%${RST} ${DIM}${used_k}k/${size_k}k${RST}"
+L+="${SEP}$(col "$ctx")ctx${RST}${DIM}:${ctx}%${RST} ${DIM}${used_k}k/${size_k}k${RST}"
 L+=" ${DIM}cache:${RST}$(col "$((100 - cache))")${cache}%${RST}"
 L+="${SEP}$(quota 5h "$rl5_pct" "$rl5_reset" "$W5")"
 L+="${SEP}$(quota 7d "$rl7_pct" "$rl7_reset" "$W7")"
