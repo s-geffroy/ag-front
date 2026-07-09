@@ -9,7 +9,7 @@ import {
   type ItemCollectionName,
 } from './store';
 import { chokepointsClient } from './chokepoints';
-import type { ChokepointsClient } from '@ag/chokepoints';
+import { ChokepointsApiError, type AnalysisDoc, type ChokepointsClient } from '@ag/chokepoints';
 import {
   InvalidSlugError,
   isContentType,
@@ -83,8 +83,9 @@ export function createApiRouter(): Router {
   // --- Read-API "Explorateur" (internal, Tailscale-only) -----------------------------------------
   // Server-side proxy over EVERY Chokepoints Read API endpoint so the cockpit console can consult the
   // full read surface. Namespaced under /explore to avoid the /chokepoints/:id route above. Uses the
-  // read_tainted token from env (restricted records never reach a public surface — ADR 0013). Text
-  // endpoints (JSONL export) are handled separately; the rest return JSON.
+  // read_tainted token from env (restricted records never reach a public surface — ADR 0013), which is
+  // why /chokepoints/:id/perception-signals works here and nowhere else. Text endpoints (JSONL export,
+  // raw Markdown) go through `proxyText`; the rest return JSON.
   const explore = express.Router();
   const str = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
   const num = (v: unknown): number | undefined => {
@@ -104,12 +105,10 @@ export function createApiRouter(): Router {
       } catch (err) {
         // Never echo upstream URLs/messages (may embed the tailnet host); log server-side.
         console.error('[cockpit] explore upstream error', req.path, err);
-        // Propagate an upstream 4xx (e.g. 404 = record absent / endpoint not yet shipped) distinctly
-        // so the UI doesn't mask a genuine outage as "not found". Everything else → 502.
-        const m = err instanceof Error ? err.message : '';
-        const up = /→ HTTP (\d{3})/.exec(m);
-        const code = up ? Number(up[1]) : 0;
-        res.status(code >= 400 && code < 500 ? code : 502).json({ error: 'upstream' });
+        // Propagate an upstream 4xx (404 = record absent, 403 = wrong scope) distinctly, so the UI
+        // never masks a genuine outage as "not found" — nor a 403 as an empty dataset. Else → 502.
+        const status = err instanceof ChokepointsApiError ? err.status : 0;
+        res.status(status >= 400 && status < 500 ? status : 502).json({ error: 'upstream' });
       }
     };
 
@@ -128,6 +127,25 @@ export function createApiRouter(): Router {
   explore.get('/analytics/engine-runs', proxy((c, req) => c.listEngineRuns(str(req.query.engine_id))));
   explore.get('/chokepoint-analyses', proxy((c) => c.listChokepointAnalyses()));
   explore.get('/chokepoint-analyses/:id', proxy((c, req) => c.getChokepointAnalysisDetail(req.params.id)));
+  // Global-scope engine: one ENA row over the WHOLE relation graph, not per-corridor (ADR 0057).
+  explore.get('/analytics/system-resilience', proxy((c) => c.getSystemResilience()));
+  // SFIM prescription layer (ADR 0054). The SFUs are authored in the ag-back workbench, not computed.
+  explore.get('/strategic-flows', proxy((c) => c.listStrategicFlows()));
+  explore.get('/strategic-flows/:id/verdict', proxy((c, req) => c.getStrategicFlowVerdict(req.params.id)));
+  explore.get('/strategic-flows/:id/fiche', proxy((c, req) => c.getStrategicFlowFiche(req.params.id)));
+  // Derived candidate graph (ADR 0065) — NOT canonical, distinct from /relations.
+  explore.get(
+    '/derived/relations',
+    proxy((c, req) =>
+      c.listDerivedRelations({
+        relation_type: str(req.query.relation_type),
+        to_status: str(req.query.to_status),
+        from_object_id: str(req.query.from_object_id),
+        limit: num(req.query.limit) ?? 500,
+      }),
+    ),
+  );
+  explore.get('/exports/geojson', proxy((c) => c.exportGeoJson()));
 
   // /chokepoints/* — literal-second-segment routes MUST precede the :id ones.
   explore.get('/chokepoints/search', proxy((c, req) => c.searchChokepoints({ q: str(req.query.q) ?? '', limit: 50 })));
@@ -140,24 +158,40 @@ export function createApiRouter(): Router {
   explore.get('/chokepoints/:id/analysis', proxy((c, req) => c.getChokepointAnalysis(req.params.id)));
   explore.get('/chokepoints/:id/event-signals', proxy((c, req) => c.getChokepointEventSignals(req.params.id, 100)));
   explore.get('/chokepoints/:id/perception-signals', proxy((c, req) => c.getChokepointPerceptionSignals(req.params.id, 100)));
-  // CVI assessment: endpoint not yet in v0.2.0 → client throws → proxy returns 502; the UI treats it
-  // as "not shipped yet" (see producer brief). Kept so it lights up the moment the producer ships it.
+  // 8 named 0–5 dimensions; a dimension with no engine input is omitted, never fabricated. The 0–100
+  // aggregate is gated on a documented methodology and is never served (ADR 0049).
   explore.get('/chokepoints/:id/cvi-assessment', proxy((c, req) => c.getChokepointCviAssessment(req.params.id)));
 
-  // JSONL export — raw text stream (not JSON).
-  explore.get('/exports/jsonl', async (_req: Request, res: Response) => {
-    const client = chokepointsClient();
-    if (!client) {
-      res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+  // Text endpoints (NDJSON stream, raw Markdown). Same taint gate, different content type.
+  const proxyText =
+    (contentType: string, handler: (c: ChokepointsClient, req: Request) => Promise<string>) =>
+    async (req: Request, res: Response) => {
+      const client = chokepointsClient();
+      if (!client) {
+        res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+        return;
+      }
+      try {
+        res.type(contentType).send(await handler(client, req));
+      } catch (err) {
+        console.error('[cockpit] explore text upstream error', req.path, err);
+        const status = err instanceof ChokepointsApiError ? err.status : 0;
+        res.status(status >= 400 && status < 500 ? status : 502).json({ error: 'upstream' });
+      }
+    };
+
+  explore.get('/exports/jsonl', proxyText('application/x-ndjson', (c) => c.exportJsonl()));
+  explore.get('/derived/relation-graph', proxyText('text/markdown', (c) => c.getDerivedRelationGraph()));
+  // `doc` is interpolated into the upstream path unencoded by the client, so allowlist it here rather
+  // than forwarding arbitrary user input into a URL.
+  const ANALYSIS_DOCS: readonly AnalysisDoc[] = ['synthesis', 'theory-of-constraints', 'leverage-points'];
+  explore.get('/chokepoint-analyses/:id/:doc', (req: Request, res: Response, next: NextFunction) => {
+    if (!ANALYSIS_DOCS.includes(req.params.doc as AnalysisDoc)) {
+      res.status(404).json({ error: 'unknown_doc' });
       return;
     }
-    try {
-      res.type('application/x-ndjson').send(await client.exportJsonl());
-    } catch (err) {
-      console.error('[cockpit] explore jsonl upstream error', err);
-      res.status(502).json({ error: 'upstream' });
-    }
-  });
+    next();
+  }, proxyText('text/markdown', (c, req) => c.getChokepointAnalysisDoc(req.params.id, req.params.doc as AnalysisDoc)));
 
   r.use('/explore', explore);
 
