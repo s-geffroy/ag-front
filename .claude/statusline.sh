@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Statusline Claude Code (app-geo) : tag projet · modèle · branche · workspace · contexte · cache · quota 5h/7d
+# Statusline Claude Code (app-geo) : tag projet · modèle · branche · workspace · contexte · cache · quota 5h/7d (rythme tokens/temps)
 set -uo pipefail
 
 # ── Couleurs ──
@@ -33,6 +33,27 @@ model="${model/ (1M context)/}"
 # ── Couleur par seuil : vert <50, jaune <80, rouge ≥80 ──
 col() { local p=${1:-0}; if [ "$p" -ge 80 ]; then printf '%s' "$RED"
         elif [ "$p" -ge 50 ]; then printf '%s' "$YLW"; else printf '%s' "$GRN"; fi; }
+
+# ── Durées des fenêtres quota (s) ──
+W5=18000    # 5 h
+W7=604800   # 7 j
+
+# ── resets_at (epoch OU ISO8601) → epoch, ou vide (même parsing que fin()) ──
+to_ts() {
+  local v="$1"; { [ -z "$v" ] || [ "$v" = "0" ] || [ "$v" = "null" ]; } && return
+  if [[ "$v" =~ ^[0-9]+$ ]]; then printf '%s' "$v"; else date -d "$v" +%s 2>/dev/null; fi
+}
+
+# ── Couleur selon le rythme tokens/temps : vert <0.8, jaune 0.8-1.2, rouge >1.2 (maths entières) ──
+col_rythme() { # $1=tokens_pct(int) $2=temps_pct(int)
+  local tk=$1 tm=$2
+  [ "$tk" -le 0 ] && { printf '%s' "$GRN"; return; }   # rien consommé → vert
+  [ "$tm" -le 0 ] && { printf '%s' "$RED"; return; }   # temps ~0 mais tokens>0 → brûle
+  if   [ $((tk*10)) -lt $((tm*8))  ]; then printf '%s' "$GRN"   # ratio < 0.8
+  elif [ $((tk*10)) -le $((tm*12)) ]; then printf '%s' "$YLW"   # 0.8 ≤ ratio ≤ 1.2
+  else                                     printf '%s' "$RED"   # ratio > 1.2
+  fi
+}
 
 # ── Contexte (%) + tokens ──
 ctx=0
@@ -73,14 +94,22 @@ fin() {
 }
 
 # ── Bloc quota générique : label · % · fin ──
-quota() { # $1=label $2=pct $3=reset
-  printf '%s%s:%s' "$DIM" "$1" "$RST"
+quota() { # $1=label $2=tokens_pct $3=reset $4=window_s
   if [ -n "$2" ] && [ "$2" != "null" ]; then
-    local i; i=$(printf '%.0f' "$2")
-    printf '%s%s%%%s' "$(col "$i")" "$i" "$RST"
+    local tk; tk=$(printf '%.0f' "$2")
+    local ts; ts=$(to_ts "$3"); local now; now=$(date +%s)
+    local c val
+    if [ -n "$ts" ] && [ "$ts" -gt 0 ] && [ "$4" -gt 0 ]; then
+      local rem=$(( ts - now )); [ "$rem" -lt 0 ] && rem=0; [ "$rem" -gt "$4" ] && rem="$4"
+      local tm=$(( (($4 - rem) * 100) / $4 ))         # temps écoulé %
+      c=$(col_rythme "$tk" "$tm"); val=$(printf '%s%%/%s%%' "$tk" "$tm")
+    else
+      c=$(col "$tk"); val=$(printf '%s%%' "$tk")       # repli : pas de reset → seuil absolu
+    fi
+    printf '%s%s%s%s:%s%s' "$c" "$1" "$RST" "$DIM" "$val" "$RST"  # label coloré (rythme), ":" + valeurs en dim
     local f; f=$(fin "$3"); [ -n "$f" ] && printf ' %s(-> %s)%s' "$DIM" "$f" "$RST"
   else
-    printf '%s-- (active /usage)%s' "$DIM" "$RST"
+    printf '%s%s:-- (active /usage)%s' "$DIM" "$1" "$RST"
   fi
 }
 
@@ -90,6 +119,6 @@ L=" ${CYN}🐼ag-front${RST}${SEP}${CYN}${model}${RST}"
 [ -n "$ws" ]     && L+=" ${DIM}·${RST} ${YLW}${ws}${RST}"
 L+="${SEP}${DIM}ctx:${RST}$(col "$ctx")${ctx}%${RST} ${DIM}${used_k}k/${size_k}k${RST}"
 L+=" ${DIM}cache:${RST}$(col "$((100 - cache))")${cache}%${RST}"
-L+="${SEP}$(quota 5h "$rl5_pct" "$rl5_reset")"
-L+="${SEP}$(quota 7d "$rl7_pct" "$rl7_reset")"
+L+="${SEP}$(quota 5h "$rl5_pct" "$rl5_reset" "$W5")"
+L+="${SEP}$(quota 7d "$rl7_pct" "$rl7_reset" "$W7")"
 printf '%s\n' "$L"
