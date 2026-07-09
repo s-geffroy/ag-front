@@ -7,6 +7,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 from ..types import UNSET, Unset
+from typing import cast
 from typing import cast, Union
 from typing import Union
 
@@ -27,18 +28,24 @@ class FlowOut:
             importance_score (Union[None, Unset, int]):
             estimated_volume (Union[None, Unset, float]):
             volume_unit (Union[None, Unset, str]):
+            volume_year (Union[None, Unset, int]):
             value_status (Union[None, Unset, str]):
             directionality (Union[None, Unset, str]):
             source_confidence (Union[None, Unset, str]):
+            method_note (Union[None, Unset, str]):
+            sources (Union[Unset, list[str]]):
      """
 
     flow_type: str
     importance_score: Union[None, Unset, int] = UNSET
     estimated_volume: Union[None, Unset, float] = UNSET
     volume_unit: Union[None, Unset, str] = UNSET
+    volume_year: Union[None, Unset, int] = UNSET
     value_status: Union[None, Unset, str] = UNSET
     directionality: Union[None, Unset, str] = UNSET
     source_confidence: Union[None, Unset, str] = UNSET
+    method_note: Union[None, Unset, str] = UNSET
+    sources: Union[Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -63,6 +70,12 @@ class FlowOut:
         else:
             volume_unit = self.volume_unit
 
+        volume_year: Union[None, Unset, int]
+        if isinstance(self.volume_year, Unset):
+            volume_year = UNSET
+        else:
+            volume_year = self.volume_year
+
         value_status: Union[None, Unset, str]
         if isinstance(self.value_status, Unset):
             value_status = UNSET
@@ -81,6 +94,18 @@ class FlowOut:
         else:
             source_confidence = self.source_confidence
 
+        method_note: Union[None, Unset, str]
+        if isinstance(self.method_note, Unset):
+            method_note = UNSET
+        else:
+            method_note = self.method_note
+
+        sources: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.sources, Unset):
+            sources = self.sources
+
+
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -93,12 +118,18 @@ class FlowOut:
             field_dict["estimated_volume"] = estimated_volume
         if volume_unit is not UNSET:
             field_dict["volume_unit"] = volume_unit
+        if volume_year is not UNSET:
+            field_dict["volume_year"] = volume_year
         if value_status is not UNSET:
             field_dict["value_status"] = value_status
         if directionality is not UNSET:
             field_dict["directionality"] = directionality
         if source_confidence is not UNSET:
             field_dict["source_confidence"] = source_confidence
+        if method_note is not UNSET:
+            field_dict["method_note"] = method_note
+        if sources is not UNSET:
+            field_dict["sources"] = sources
 
         return field_dict
 
@@ -139,6 +170,16 @@ class FlowOut:
         volume_unit = _parse_volume_unit(d.pop("volume_unit", UNSET))
 
 
+        def _parse_volume_year(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        volume_year = _parse_volume_year(d.pop("volume_year", UNSET))
+
+
         def _parse_value_status(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -169,14 +210,30 @@ class FlowOut:
         source_confidence = _parse_source_confidence(d.pop("source_confidence", UNSET))
 
 
+        def _parse_method_note(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        method_note = _parse_method_note(d.pop("method_note", UNSET))
+
+
+        sources = cast(list[str], d.pop("sources", UNSET))
+
+
         flow_out = cls(
             flow_type=flow_type,
             importance_score=importance_score,
             estimated_volume=estimated_volume,
             volume_unit=volume_unit,
+            volume_year=volume_year,
             value_status=value_status,
             directionality=directionality,
             source_confidence=source_confidence,
+            method_note=method_note,
+            sources=sources,
         )
 
 

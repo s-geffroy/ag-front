@@ -28,7 +28,8 @@ class RiskOut:
             probability_score (Union[None, Unset, int]):
             impact_score (Union[None, Unset, int]):
             vulnerability_score (Union[None, Unset, int]):
-            current_status (Union[None, Unset, str]):
+            assessment_status (Union[None, Unset, str]):
+            risk_severity (Union[None, Unset, str]):
             triggers (Union[Unset, list[str]]):
             affected_flows (Union[Unset, list[str]]):
      """
@@ -37,7 +38,8 @@ class RiskOut:
     probability_score: Union[None, Unset, int] = UNSET
     impact_score: Union[None, Unset, int] = UNSET
     vulnerability_score: Union[None, Unset, int] = UNSET
-    current_status: Union[None, Unset, str] = UNSET
+    assessment_status: Union[None, Unset, str] = UNSET
+    risk_severity: Union[None, Unset, str] = UNSET
     triggers: Union[Unset, list[str]] = UNSET
     affected_flows: Union[Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -64,11 +66,17 @@ class RiskOut:
         else:
             vulnerability_score = self.vulnerability_score
 
-        current_status: Union[None, Unset, str]
-        if isinstance(self.current_status, Unset):
-            current_status = UNSET
+        assessment_status: Union[None, Unset, str]
+        if isinstance(self.assessment_status, Unset):
+            assessment_status = UNSET
         else:
-            current_status = self.current_status
+            assessment_status = self.assessment_status
+
+        risk_severity: Union[None, Unset, str]
+        if isinstance(self.risk_severity, Unset):
+            risk_severity = UNSET
+        else:
+            risk_severity = self.risk_severity
 
         triggers: Union[Unset, list[str]] = UNSET
         if not isinstance(self.triggers, Unset):
@@ -94,8 +102,10 @@ class RiskOut:
             field_dict["impact_score"] = impact_score
         if vulnerability_score is not UNSET:
             field_dict["vulnerability_score"] = vulnerability_score
-        if current_status is not UNSET:
-            field_dict["current_status"] = current_status
+        if assessment_status is not UNSET:
+            field_dict["assessment_status"] = assessment_status
+        if risk_severity is not UNSET:
+            field_dict["risk_severity"] = risk_severity
         if triggers is not UNSET:
             field_dict["triggers"] = triggers
         if affected_flows is not UNSET:
@@ -140,14 +150,24 @@ class RiskOut:
         vulnerability_score = _parse_vulnerability_score(d.pop("vulnerability_score", UNSET))
 
 
-        def _parse_current_status(data: object) -> Union[None, Unset, str]:
+        def _parse_assessment_status(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        current_status = _parse_current_status(d.pop("current_status", UNSET))
+        assessment_status = _parse_assessment_status(d.pop("assessment_status", UNSET))
+
+
+        def _parse_risk_severity(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        risk_severity = _parse_risk_severity(d.pop("risk_severity", UNSET))
 
 
         triggers = cast(list[str], d.pop("triggers", UNSET))
@@ -161,7 +181,8 @@ class RiskOut:
             probability_score=probability_score,
             impact_score=impact_score,
             vulnerability_score=vulnerability_score,
-            current_status=current_status,
+            assessment_status=assessment_status,
+            risk_severity=risk_severity,
             triggers=triggers,
             affected_flows=affected_flows,
         )

@@ -76,9 +76,10 @@ def sync_detailed(
 ) -> Response[Union[Any, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
-     Full typed output of EVERY analytical engine for this chokepoint (latest snapshot), plus its
-    relation edges and evidence claims. Derived/candidate, never canonical (ADR 0005). This is the JSON
-    twin of the detail page's \"Engine outputs\" section.
+     Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
+    snapshot), plus its relation edges and evidence claims. Derived/candidate, never canonical (ADR
+    0005). This is the JSON twin of the detail page's \"Engine outputs\" section. The global-graph
+    system_resilience engine is served separately, at /analytics/system-resilience.
 
     Args:
         chokepoint_id (str):
@@ -114,9 +115,10 @@ def sync(
 ) -> Optional[Union[Any, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
-     Full typed output of EVERY analytical engine for this chokepoint (latest snapshot), plus its
-    relation edges and evidence claims. Derived/candidate, never canonical (ADR 0005). This is the JSON
-    twin of the detail page's \"Engine outputs\" section.
+     Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
+    snapshot), plus its relation edges and evidence claims. Derived/candidate, never canonical (ADR
+    0005). This is the JSON twin of the detail page's \"Engine outputs\" section. The global-graph
+    system_resilience engine is served separately, at /analytics/system-resilience.
 
     Args:
         chokepoint_id (str):
@@ -147,9 +149,10 @@ async def asyncio_detailed(
 ) -> Response[Union[Any, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
-     Full typed output of EVERY analytical engine for this chokepoint (latest snapshot), plus its
-    relation edges and evidence claims. Derived/candidate, never canonical (ADR 0005). This is the JSON
-    twin of the detail page's \"Engine outputs\" section.
+     Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
+    snapshot), plus its relation edges and evidence claims. Derived/candidate, never canonical (ADR
+    0005). This is the JSON twin of the detail page's \"Engine outputs\" section. The global-graph
+    system_resilience engine is served separately, at /analytics/system-resilience.
 
     Args:
         chokepoint_id (str):
@@ -185,9 +188,10 @@ async def asyncio(
 ) -> Optional[Union[Any, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
-     Full typed output of EVERY analytical engine for this chokepoint (latest snapshot), plus its
-    relation edges and evidence claims. Derived/candidate, never canonical (ADR 0005). This is the JSON
-    twin of the detail page's \"Engine outputs\" section.
+     Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
+    snapshot), plus its relation edges and evidence claims. Derived/candidate, never canonical (ADR
+    0005). This is the JSON twin of the detail page's \"Engine outputs\" section. The global-graph
+    system_resilience engine is served separately, at /analytics/system-resilience.
 
     Args:
         chokepoint_id (str):
