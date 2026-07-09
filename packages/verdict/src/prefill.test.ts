@@ -179,9 +179,28 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
     // Uncertainty argues for buying information, not for/against an option.
     const unc = r.pestel.find((p) => p.source_ref === 'cvi:incertitude');
     expect(unc?.uncertainty).toBe('pas de données buffer');
+  });
 
-    // The 0–100 aggregate is gated (ADR 0049) and must never surface in a statement.
-    for (const c of [...r.swot, ...r.pestel]) expect(c.statement).not.toMatch(/\/100/);
+  /**
+   * ADR 0049: the 0–100 CVI aggregate is gated on a documented methodology and never served. Guard the
+   * PROPERTY — no statement is ever built from `aggregate_score` — rather than a text pattern. Producer
+   * rationales legitimately contain strings like "HHI ≈51.0/100", so grepping statements for "/100"
+   * fails on real data while catching nothing that matters.
+   */
+  it('never builds a statement from aggregate_score, even if a rogue packet carries one', () => {
+    const cvi = {
+      scale: '0-5',
+      methodology_documented: false,
+      sources: [],
+      uncertainties: [],
+      aggregate_score: 91,
+      dimensions: { menace: dim(4, 'acteur hostile') },
+    } as unknown as CviAssessment;
+    const r = buildCandidates({ packet: packet(), cvi } satisfies PrefillInput);
+    for (const c of [...r.swot, ...r.pestel]) {
+      expect(c.statement).not.toContain('91');
+      expect(c.source_ref).not.toContain('aggregate');
+    }
   });
 
   it('tolerates the omitted `resilience` dimension without fabricating it', () => {

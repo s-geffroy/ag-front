@@ -90,6 +90,11 @@ Layout:
 - `docker/` — `tools.Dockerfile`, `docker-compose.yml`, pinned Node stack.
 - `.claude/skills/` — adopted agent skills (see `docs/skills/README.md`).
 - `docs/decisions/` — ADRs.
+- **Chokepoints read API contract:** `docs/api-interface-contract_V3.md` is the current human
+  companion (API `0.6.0`); the machine truth is the pinned spec
+  `scripts/consumer/contract/openapi.json`, kept in sync by `scripts/consumer/sync_contract.sh`.
+  The `_V2`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and every
+  field**; `packages/chokepoints/src/contract-coverage.test.ts` fails the build otherwise (ADR 0066).
 
 **Deployment:** `apps/public` → `www.applied-geopolitics.com` (public). `apps/cockpit` → exposed
 **only** via Tailscale `https://srv1100990.tail880531.ts.net` (tailnet `tail880531.ts.net`); never

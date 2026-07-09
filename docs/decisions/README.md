@@ -45,3 +45,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0062](0062-consumer-pinned-contract-client.md) | Consumer pinned-contract client for the Chokepoints Read API (pin + drift cron) | Accepted |
 | [0063](0063-red-team-prompt-hardening.md) | Cross-cutting red-team prompt hardening (spotlighting, analysis-first, unified scale) | Accepted |
 | [0064](0064-pplx-cli-recherche-externe.md) | External web research: `pplx-cli` upstream of `agent-browser` (single sourcing chain) | Accepted |
+| [0066](0066-consommation-integrale-read-api.md) | Full consumption of the chokepoints Read API 0.6.0, enforced by build-time coverage guards | Accepted |

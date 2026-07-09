@@ -1,0 +1,5298 @@
+{
+  "components": {
+    "schemas": {
+      "ActorControlOut": {
+        "properties": {
+          "actor_id": {
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "actor_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Name"
+          },
+          "actor_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Type"
+          },
+          "basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis"
+          },
+          "chokepoint_id": {
+            "title": "Chokepoint Id",
+            "type": "string"
+          },
+          "control_strength": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Strength"
+          },
+          "control_type": {
+            "title": "Control Type",
+            "type": "string"
+          },
+          "source_confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Confidence"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To"
+          }
+        },
+        "required": [
+          "actor_id",
+          "chokepoint_id",
+          "control_type"
+        ],
+        "title": "ActorControlOut",
+        "type": "object"
+      },
+      "ActorOut": {
+        "properties": {
+          "actor_type": {
+            "title": "Actor Type",
+            "type": "string"
+          },
+          "control_edge_count": {
+            "default": 0,
+            "title": "Control Edge Count",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "validation_status": {
+            "title": "Validation Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "actor_type",
+          "validation_status"
+        ],
+        "title": "ActorOut",
+        "type": "object"
+      },
+      "AlertOut": {
+        "properties": {
+          "affected_actors": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Actors",
+            "type": "array"
+          },
+          "affected_dimensions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Dimensions",
+            "type": "array"
+          },
+          "alert_type": {
+            "title": "Alert Type",
+            "type": "string"
+          },
+          "canonical_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Name"
+          },
+          "chokepoint_id": {
+            "title": "Chokepoint Id",
+            "type": "string"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "disclaimer": {
+            "default": "Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "generated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generated At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "queue": {
+            "title": "Queue",
+            "type": "string"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "time_horizon": {
+            "title": "Time Horizon",
+            "type": "string"
+          },
+          "trigger_summary": {
+            "title": "Trigger Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "chokepoint_id",
+          "alert_type",
+          "level",
+          "time_horizon",
+          "queue",
+          "trigger_summary",
+          "review_status"
+        ],
+        "title": "AlertOut",
+        "type": "object"
+      },
+      "AlternativeOut": {
+        "properties": {
+          "affected_flows": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Flows",
+            "type": "array"
+          },
+          "capacity_penalty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Penalty"
+          },
+          "cost_penalty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Penalty"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "feasibility": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feasibility"
+          },
+          "reroute_deltas": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RerouteDeltaOut"
+            },
+            "title": "Reroute Deltas",
+            "type": "array"
+          },
+          "substitution_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Substitution Note"
+          },
+          "target_object_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Object Id"
+          },
+          "time_penalty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Penalty"
+          },
+          "validation_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Status"
+          }
+        },
+        "required": [
+          "description"
+        ],
+        "title": "AlternativeOut",
+        "type": "object"
+      },
+      "AnalyticalResultOut": {
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "disclaimer": {
+            "default": "Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "engine_id": {
+            "title": "Engine Id",
+            "type": "string"
+          },
+          "engine_version": {
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "generated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generated At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "input_snapshot_id": {
+            "title": "Input Snapshot Id",
+            "type": "string"
+          },
+          "object_id": {
+            "title": "Object Id",
+            "type": "string"
+          },
+          "object_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object Type"
+          },
+          "result_payload": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Payload"
+          },
+          "result_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Summary"
+          },
+          "result_type": {
+            "title": "Result Type",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "run_id",
+          "engine_id",
+          "engine_version",
+          "input_snapshot_id",
+          "object_id",
+          "result_type",
+          "status"
+        ],
+        "title": "AnalyticalResultOut",
+        "type": "object"
+      },
+      "ChokepointAnalysisDetail": {
+        "properties": {
+          "available_docs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Available Docs",
+            "type": "array"
+          },
+          "canonical_name": {
+            "title": "Canonical Name",
+            "type": "string"
+          },
+          "disclaimer": {
+            "default": "Derived systemic analysis (Theory of Constraints + Leverage Points, ADR 0027/0028). Figures are unvalidated public order-of-magnitude candidates pending human validation; capacities and geometry are schematic. No canonical mutation or priority promotion.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "leverage_points_md": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leverage Points Md"
+          },
+          "macro_region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macro Region"
+          },
+          "priority_class": {
+            "title": "Priority Class",
+            "type": "string"
+          },
+          "synthesis_md": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Synthesis Md"
+          },
+          "theory_of_constraints_md": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Theory Of Constraints Md"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "priority_class",
+          "family"
+        ],
+        "title": "ChokepointAnalysisDetail",
+        "type": "object"
+      },
+      "ChokepointAnalysisList": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "disclaimer": {
+            "default": "Derived systemic analysis (Theory of Constraints + Leverage Points, ADR 0027/0028). Figures are unvalidated public order-of-magnitude candidates pending human validation; capacities and geometry are schematic. No canonical mutation or priority promotion.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChokepointAnalysisSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "count"
+        ],
+        "title": "ChokepointAnalysisList",
+        "type": "object"
+      },
+      "ChokepointAnalysisSummary": {
+        "description": "One chokepoint's derived ToC + Leverage Points analysis (metadata only).",
+        "properties": {
+          "available_docs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Available Docs",
+            "type": "array"
+          },
+          "canonical_name": {
+            "title": "Canonical Name",
+            "type": "string"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "macro_region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macro Region"
+          },
+          "priority_class": {
+            "title": "Priority Class",
+            "type": "string"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "priority_class",
+          "family"
+        ],
+        "title": "ChokepointAnalysisSummary",
+        "type": "object"
+      },
+      "ChokepointDetail": {
+        "properties": {
+          "alternatives": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AlternativeOut"
+            },
+            "title": "Alternatives",
+            "type": "array"
+          },
+          "canonical_name": {
+            "title": "Canonical Name",
+            "type": "string"
+          },
+          "episodes": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChokepointEpisodeOut"
+            },
+            "title": "Episodes",
+            "type": "array"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "flows": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/FlowOut"
+            },
+            "title": "Flows",
+            "type": "array"
+          },
+          "geometries": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/GeometryOut"
+            },
+            "title": "Geometries",
+            "type": "array"
+          },
+          "geometry_disclaimer": {
+            "default": "Geometry is schematic and not validated for navigational or legal precision.",
+            "title": "Geometry Disclaimer",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "license_taint": {
+            "title": "License Taint",
+            "type": "boolean"
+          },
+          "macro_region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macro Region"
+          },
+          "max_license_risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max License Risk"
+          },
+          "metrics": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MetricOut"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "object_kind": {
+            "title": "Object Kind",
+            "type": "string"
+          },
+          "priority_class": {
+            "title": "Priority Class",
+            "type": "string"
+          },
+          "required_attributions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Attributions",
+            "type": "array"
+          },
+          "risks": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RiskOut"
+            },
+            "title": "Risks",
+            "type": "array"
+          },
+          "source_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Ids",
+            "type": "array"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "object_kind",
+          "family",
+          "type",
+          "priority_class",
+          "license_taint"
+        ],
+        "title": "ChokepointDetail",
+        "type": "object"
+      },
+      "ChokepointEpisodeOut": {
+        "description": "A disruption episode as seen from one of its affected chokepoints.",
+        "properties": {
+          "ended_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended On"
+          },
+          "episode_key": {
+            "title": "Episode Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "object_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object Role"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity"
+          },
+          "started_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started On"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "episode_key",
+          "name",
+          "status"
+        ],
+        "title": "ChokepointEpisodeOut",
+        "type": "object"
+      },
+      "ChokepointList": {
+        "properties": {
+          "attribution_notice": {
+            "default": "Records may require source attribution. Redistribution-restricted (tainted) records are excluded by default; pass include_tainted=true to include them.",
+            "title": "Attribution Notice",
+            "type": "string"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "include_tainted": {
+            "title": "Include Tainted",
+            "type": "boolean"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChokepointSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "count",
+          "include_tainted"
+        ],
+        "title": "ChokepointList",
+        "type": "object"
+      },
+      "ChokepointSummary": {
+        "properties": {
+          "canonical_name": {
+            "title": "Canonical Name",
+            "type": "string"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "license_taint": {
+            "title": "License Taint",
+            "type": "boolean"
+          },
+          "macro_region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macro Region"
+          },
+          "max_license_risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max License Risk"
+          },
+          "object_kind": {
+            "title": "Object Kind",
+            "type": "string"
+          },
+          "priority_class": {
+            "title": "Priority Class",
+            "type": "string"
+          },
+          "required_attributions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Attributions",
+            "type": "array"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "object_kind",
+          "family",
+          "type",
+          "priority_class",
+          "license_taint"
+        ],
+        "title": "ChokepointSummary",
+        "type": "object"
+      },
+      "CviAssessment": {
+        "description": "Corridor Vulnerability Index assessment for one chokepoint (ADR 0055), derived/candidate.\n\nThe 8 `dimensions` keys are EXACTLY: exposition, concentration, menace, capacite_perturbation,\nresilience, cout_contournement, gouvernance, incertitude. A dimension with no real engine input is\nOMITTED, never fabricated (prompt §garde-fous 2). `aggregate_score` (0–100) is INTENTIONALLY ABSENT:\nit is gated on `methodology_documented` (always False here), so it is never served (hard gate, ADR\n0049). `global_level` is a per-corridor qualitative summary (binding constraint), not a cross-corridor\nranking. `status` flags the validation tier: candidate output is served clearly marked as not\nhuman-validated (disclaimer verbatim).",
+        "properties": {
+          "chokepoint_id": {
+            "title": "Chokepoint Id",
+            "type": "string"
+          },
+          "dimensions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DimensionScore"
+            },
+            "title": "Dimensions",
+            "type": "object"
+          },
+          "disclaimer": {
+            "default": "Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "engine_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engine Version"
+          },
+          "global_level": {
+            "anyOf": [
+              {
+                "enum": [
+                  "bas",
+                  "modere",
+                  "eleve",
+                  "critique"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Global Level"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated"
+          },
+          "methodology_documented": {
+            "default": false,
+            "title": "Methodology Documented",
+            "type": "boolean"
+          },
+          "scale": {
+            "default": "0-5",
+            "enum": [
+              "qualitative",
+              "0-5",
+              "0-100"
+            ],
+            "title": "Scale",
+            "type": "string"
+          },
+          "sources": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "status": {
+            "default": "candidate",
+            "enum": [
+              "candidate",
+              "validated",
+              "partially_validated"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "uncertainties": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Uncertainties",
+            "type": "array"
+          }
+        },
+        "required": [
+          "chokepoint_id",
+          "dimensions"
+        ],
+        "title": "CviAssessment",
+        "type": "object"
+      },
+      "DerivedRelationGraphOut": {
+        "properties": {
+          "disclaimer": {
+            "default": "Derived candidate strategic-relations graph (ADR 0065, piste 1): edges extracted from the analysis fiches, pending human validation — NOT canonical. Distinct from /relations (canonical, human-validated). Targets flagged 'external_candidate' are coverage gaps, not corpus objects. No canonical mutation or priority promotion. Never merge into seed/strategic_relations.yaml without human validation.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "edge_count_total": {
+            "title": "Edge Count Total",
+            "type": "integer"
+          },
+          "generated_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generated From"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DerivedRelationOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "returned": {
+            "title": "Returned",
+            "type": "integer"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "required": [
+          "edge_count_total",
+          "returned"
+        ],
+        "title": "DerivedRelationGraphOut",
+        "type": "object"
+      },
+      "DerivedRelationOut": {
+        "description": "One candidate edge of the derived systemic graph (file-backed, pending validation).",
+        "properties": {
+          "affected_flows": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Flows",
+            "type": "array"
+          },
+          "analytical_effect": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Analytical Effect",
+            "type": "array"
+          },
+          "directionality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Directionality"
+          },
+          "evidence_file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence File"
+          },
+          "evidence_quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Quote"
+          },
+          "from_object_id": {
+            "title": "From Object Id",
+            "type": "string"
+          },
+          "relation_type": {
+            "title": "Relation Type",
+            "type": "string"
+          },
+          "resolution_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Score"
+          },
+          "strength_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strength Score"
+          },
+          "to": {
+            "title": "To",
+            "type": "string"
+          },
+          "to_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Label"
+          },
+          "to_status": {
+            "title": "To Status",
+            "type": "string"
+          },
+          "validation_status": {
+            "default": "not_validated",
+            "title": "Validation Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_object_id",
+          "to",
+          "to_status",
+          "relation_type"
+        ],
+        "title": "DerivedRelationOut",
+        "type": "object"
+      },
+      "DimensionScore": {
+        "description": "One named CVI dimension (ADR 0055). `score` is an integer 0–5 (higher = more vulnerability);\n`rationale` is non-empty and cites the engine inputs; `confidence` is the ethics-required data-quality\ngrade (bas|moyen|eleve).",
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "enum": [
+                  "bas",
+                  "moyen",
+                  "eleve"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "source_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Refs",
+            "type": "array"
+          },
+          "uncertainties": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Uncertainties",
+            "type": "array"
+          }
+        },
+        "required": [
+          "score",
+          "rationale"
+        ],
+        "title": "DimensionScore",
+        "type": "object"
+      },
+      "EngineRunOut": {
+        "properties": {
+          "engine_id": {
+            "title": "Engine Id",
+            "type": "string"
+          },
+          "engine_version": {
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "input_snapshot_id": {
+            "title": "Input Snapshot Id",
+            "type": "string"
+          },
+          "output_result_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Result Count"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "engine_id",
+          "engine_version",
+          "input_snapshot_id",
+          "status"
+        ],
+        "title": "EngineRunOut",
+        "type": "object"
+      },
+      "EpisodeDetail": {
+        "properties": {
+          "affected_flows": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Flows",
+            "type": "array"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "ended_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended On"
+          },
+          "episode_key": {
+            "title": "Episode Key",
+            "type": "string"
+          },
+          "members": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EpisodeMemberOut"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "object_count": {
+            "default": 0,
+            "title": "Object Count",
+            "type": "integer"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity"
+          },
+          "started_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started On"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "episode_key",
+          "name",
+          "status"
+        ],
+        "title": "EpisodeDetail",
+        "type": "object"
+      },
+      "EpisodeMemberOut": {
+        "properties": {
+          "canonical_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Name"
+          },
+          "chokepoint_id": {
+            "title": "Chokepoint Id",
+            "type": "string"
+          },
+          "license_taint": {
+            "default": false,
+            "title": "License Taint",
+            "type": "boolean"
+          },
+          "object_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object Role"
+          },
+          "priority_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Class"
+          }
+        },
+        "required": [
+          "chokepoint_id"
+        ],
+        "title": "EpisodeMemberOut",
+        "type": "object"
+      },
+      "EpisodeOut": {
+        "properties": {
+          "affected_flows": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Flows",
+            "type": "array"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "ended_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended On"
+          },
+          "episode_key": {
+            "title": "Episode Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "object_count": {
+            "default": 0,
+            "title": "Object Count",
+            "type": "integer"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity"
+          },
+          "started_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started On"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "episode_key",
+          "name",
+          "status"
+        ],
+        "title": "EpisodeOut",
+        "type": "object"
+      },
+      "EventSignalOut": {
+        "properties": {
+          "chokepoint_id": {
+            "title": "Chokepoint Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "event_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Key"
+          },
+          "observed_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed On"
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight"
+          }
+        },
+        "required": [
+          "chokepoint_id",
+          "domain"
+        ],
+        "title": "EventSignalOut",
+        "type": "object"
+      },
+      "FlowChokepointOut": {
+        "description": "A chokepoint matched by a given flow_type, carrying that flow's importance.",
+        "properties": {
+          "canonical_name": {
+            "title": "Canonical Name",
+            "type": "string"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "importance_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importance Score"
+          },
+          "license_taint": {
+            "title": "License Taint",
+            "type": "boolean"
+          },
+          "macro_region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macro Region"
+          },
+          "max_license_risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max License Risk"
+          },
+          "object_kind": {
+            "title": "Object Kind",
+            "type": "string"
+          },
+          "priority_class": {
+            "title": "Priority Class",
+            "type": "string"
+          },
+          "required_attributions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Attributions",
+            "type": "array"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "object_kind",
+          "family",
+          "type",
+          "priority_class",
+          "license_taint"
+        ],
+        "title": "FlowChokepointOut",
+        "type": "object"
+      },
+      "FlowOut": {
+        "properties": {
+          "directionality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Directionality"
+          },
+          "estimated_volume": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Volume"
+          },
+          "flow_type": {
+            "title": "Flow Type",
+            "type": "string"
+          },
+          "importance_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importance Score"
+          },
+          "method_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method Note"
+          },
+          "source_confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Confidence"
+          },
+          "sources": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "value_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Status"
+          },
+          "volume_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Unit"
+          },
+          "volume_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Year"
+          }
+        },
+        "required": [
+          "flow_type"
+        ],
+        "title": "FlowOut",
+        "type": "object"
+      },
+      "GeometryOut": {
+        "properties": {
+          "geom_geojson": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geom Geojson"
+          },
+          "geometry_role": {
+            "title": "Geometry Role",
+            "type": "string"
+          },
+          "geometry_status": {
+            "title": "Geometry Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "geometry_role",
+          "geometry_status"
+        ],
+        "title": "GeometryOut",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "MetricOut": {
+        "properties": {
+          "metric_key": {
+            "title": "Metric Key",
+            "type": "string"
+          },
+          "metric_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Kind"
+          },
+          "metric_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Label"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "sources": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "metric_key"
+        ],
+        "title": "MetricOut",
+        "type": "object"
+      },
+      "PerceptionConsensusOut": {
+        "properties": {
+          "consensus_probability": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consensus Probability"
+          },
+          "market_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Count"
+          },
+          "max_probability_change_24h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Probability Change 24H"
+          },
+          "observed_window_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Window End"
+          },
+          "signal_family": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Family"
+          },
+          "total_liquidity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Liquidity"
+          }
+        },
+        "title": "PerceptionConsensusOut",
+        "type": "object"
+      },
+      "PerceptionSignalList": {
+        "properties": {
+          "chokepoint_id": {
+            "title": "Chokepoint Id",
+            "type": "string"
+          },
+          "consensus": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PerceptionConsensusOut"
+            },
+            "title": "Consensus",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "disclaimer": {
+            "default": "P3 perception signals from prediction markets (Polymarket, ADR 0037): crowd anticipation, NOT event evidence. The source is uncleared (high license risk); this endpoint requires the 'read_tainted' scope. Data never enters canonical without human validation.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "signals": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PerceptionSignalOut"
+            },
+            "title": "Signals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "chokepoint_id",
+          "count"
+        ],
+        "title": "PerceptionSignalList",
+        "type": "object"
+      },
+      "PerceptionSignalOut": {
+        "properties": {
+          "classification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classification"
+          },
+          "implied_probability": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Implied Probability"
+          },
+          "liquidity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Liquidity"
+          },
+          "market_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Question"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed At"
+          },
+          "perception_signal_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perception Signal Score"
+          },
+          "probability_change_24h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probability Change 24H"
+          },
+          "proposed_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed Action"
+          },
+          "signal_family": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Family"
+          },
+          "volume_24h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume 24H"
+          }
+        },
+        "title": "PerceptionSignalOut",
+        "type": "object"
+      },
+      "RelationOut": {
+        "properties": {
+          "affected_flows": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Flows",
+            "type": "array"
+          },
+          "analytical_effect": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Analytical Effect",
+            "type": "array"
+          },
+          "directionality": {
+            "title": "Directionality",
+            "type": "string"
+          },
+          "from_object_id": {
+            "title": "From Object Id",
+            "type": "string"
+          },
+          "relation_type": {
+            "title": "Relation Type",
+            "type": "string"
+          },
+          "strength_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strength Score"
+          },
+          "to_object_id": {
+            "title": "To Object Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_object_id",
+          "to_object_id",
+          "relation_type",
+          "directionality"
+        ],
+        "title": "RelationOut",
+        "type": "object"
+      },
+      "RerouteDeltaOut": {
+        "description": "Per-flow reroute delta (searoute, schematic): added transit days + estimated added\nvoyage cost (bunkers ∝ distance + charter hire ∝ days), net of the canal toll the reroute\navoids (or incurs). The cost band is taken from net_cost_usd.",
+        "properties": {
+          "corridor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corridor"
+          },
+          "delta_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Cost Usd"
+          },
+          "delta_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Days"
+          },
+          "flow_type": {
+            "title": "Flow Type",
+            "type": "string"
+          },
+          "net_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Cost Usd"
+          },
+          "suggested_cost_penalty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Cost Penalty"
+          },
+          "toll_saved_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toll Saved Usd"
+          },
+          "vessel_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vessel Class"
+          }
+        },
+        "required": [
+          "flow_type"
+        ],
+        "title": "RerouteDeltaOut",
+        "type": "object"
+      },
+      "RiskChokepointOut": {
+        "description": "A chokepoint matched by a given risk_type, carrying that risk's impact.",
+        "properties": {
+          "canonical_name": {
+            "title": "Canonical Name",
+            "type": "string"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "impact_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Score"
+          },
+          "license_taint": {
+            "title": "License Taint",
+            "type": "boolean"
+          },
+          "macro_region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macro Region"
+          },
+          "max_license_risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max License Risk"
+          },
+          "object_kind": {
+            "title": "Object Kind",
+            "type": "string"
+          },
+          "priority_class": {
+            "title": "Priority Class",
+            "type": "string"
+          },
+          "required_attributions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Attributions",
+            "type": "array"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "object_kind",
+          "family",
+          "type",
+          "priority_class",
+          "license_taint"
+        ],
+        "title": "RiskChokepointOut",
+        "type": "object"
+      },
+      "RiskOut": {
+        "properties": {
+          "affected_flows": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Affected Flows",
+            "type": "array"
+          },
+          "assessment_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessment Status"
+          },
+          "impact_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Score"
+          },
+          "probability_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Probability Score"
+          },
+          "risk_severity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Severity"
+          },
+          "risk_type": {
+            "title": "Risk Type",
+            "type": "string"
+          },
+          "triggers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Triggers",
+            "type": "array"
+          },
+          "vulnerability_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vulnerability Score"
+          }
+        },
+        "required": [
+          "risk_type"
+        ],
+        "title": "RiskOut",
+        "type": "object"
+      },
+      "SfuDimensionOut": {
+        "properties": {
+          "analyst_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analyst Value"
+          },
+          "auto_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Value"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "dimension": {
+            "title": "Dimension",
+            "type": "string"
+          },
+          "effective_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Score"
+          },
+          "evidence_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Status"
+          },
+          "rationale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rationale"
+          }
+        },
+        "required": [
+          "dimension"
+        ],
+        "title": "SfuDimensionOut",
+        "type": "object"
+      },
+      "SfuFicheOut": {
+        "properties": {
+          "aggregates": {
+            "default": [],
+            "items": {},
+            "title": "Aggregates",
+            "type": "array"
+          },
+          "control_actors": {
+            "default": [],
+            "items": {},
+            "title": "Control Actors",
+            "type": "array"
+          },
+          "disclaimer": {
+            "default": "Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "flow_type": {
+            "title": "Flow Type",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "integration": {
+            "default": [],
+            "items": {},
+            "title": "Integration",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "priority_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Class"
+          },
+          "red_team": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Red Team"
+          },
+          "routes": {
+            "default": [],
+            "items": {},
+            "title": "Routes",
+            "type": "array"
+          },
+          "scoring": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SfuDimensionOut"
+            },
+            "title": "Scoring",
+            "type": "array"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "value_chain": {
+            "default": [],
+            "items": {},
+            "title": "Value Chain",
+            "type": "array"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SfuVerdictOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "flow_type"
+        ],
+        "title": "SfuFicheOut",
+        "type": "object"
+      },
+      "SfuVerdictOut": {
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "decision": {
+            "title": "Decision",
+            "type": "string"
+          },
+          "rationale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rationale"
+          },
+          "rejected_verdicts": {
+            "default": [],
+            "items": {},
+            "title": "Rejected Verdicts",
+            "type": "array"
+          },
+          "required_actions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Actions",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "supporting_sources": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Supporting Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decision",
+          "status"
+        ],
+        "title": "SfuVerdictOut",
+        "type": "object"
+      },
+      "SourceOut": {
+        "properties": {
+          "attribution_required": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attribution Required"
+          },
+          "domain_relevance": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain Relevance"
+          },
+          "evidence_types": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Types",
+            "type": "array"
+          },
+          "license_risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License Risk"
+          },
+          "redistribution_allowed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Redistribution Allowed"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_level": {
+            "title": "Source Level",
+            "type": "string"
+          },
+          "source_name": {
+            "title": "Source Name",
+            "type": "string"
+          },
+          "storage_policy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Policy"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_name",
+          "source_level"
+        ],
+        "title": "SourceOut",
+        "type": "object"
+      },
+      "StrategicFlowUnitList": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "disclaimer": {
+            "default": "Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StrategicFlowUnitSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "count",
+          "items"
+        ],
+        "title": "StrategicFlowUnitList",
+        "type": "object"
+      },
+      "StrategicFlowUnitSummary": {
+        "properties": {
+          "flow_type": {
+            "title": "Flow Type",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "priority_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Class"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "validation_status": {
+            "title": "Validation Status",
+            "type": "string"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict"
+          },
+          "verdict_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict Status"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "flow_type",
+          "validation_status"
+        ],
+        "title": "StrategicFlowUnitSummary",
+        "type": "object"
+      },
+      "StrategicSystemDetail": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "member_count": {
+            "default": 0,
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "members": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SystemMemberOut"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "priority_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Class"
+          },
+          "system_type": {
+            "title": "System Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "system_type"
+        ],
+        "title": "StrategicSystemDetail",
+        "type": "object"
+      },
+      "StrategicSystemOut": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "member_count": {
+            "default": 0,
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "priority_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Class"
+          },
+          "system_type": {
+            "title": "System Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "system_type"
+        ],
+        "title": "StrategicSystemOut",
+        "type": "object"
+      },
+      "SystemMemberOut": {
+        "properties": {
+          "canonical_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Name"
+          },
+          "chokepoint_id": {
+            "title": "Chokepoint Id",
+            "type": "string"
+          },
+          "license_taint": {
+            "default": false,
+            "title": "License Taint",
+            "type": "boolean"
+          },
+          "member_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Role"
+          },
+          "priority_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Class"
+          }
+        },
+        "required": [
+          "chokepoint_id"
+        ],
+        "title": "SystemMemberOut",
+        "type": "object"
+      },
+      "SystemResilienceOut": {
+        "description": "System resilience via Ecological Network Analysis (Ulanowicz) over the WHOLE systemic relation\ngraph (engine `system_resilience`, ADR 0057). This engine emits a single global row (`scope`\n=\"GLOBAL\"), not a per-strategic-system result. Derived/candidate, never canonical (ADR 0005).\n`regime` is the window-of-vitality classification; `robustness` peaks in the balanced middle.\n`alpha` is the degree of order (0–1); `weight_basis` records whether edge weights came from a\nstrength proxy or throughput. All figures are schematic candidates pending human validation.",
+        "properties": {
+          "alpha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alpha"
+          },
+          "ascendency": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ascendency"
+          },
+          "development_capacity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Development Capacity"
+          },
+          "disclaimer": {
+            "default": "Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "edge_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edge Count"
+          },
+          "engine_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engine Version"
+          },
+          "generated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generated At"
+          },
+          "node_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Node Count"
+          },
+          "overhead": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overhead"
+          },
+          "regime": {
+            "anyOf": [
+              {
+                "enum": [
+                  "brittle",
+                  "window_of_vitality",
+                  "redundant"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regime"
+          },
+          "robustness": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Robustness"
+          },
+          "scope": {
+            "default": "GLOBAL",
+            "title": "Scope",
+            "type": "string"
+          },
+          "total_system_throughput": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total System Throughput"
+          },
+          "weight_basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "strength_proxy",
+                  "throughput"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Basis"
+          }
+        },
+        "title": "SystemResilienceOut",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Read-only access to canonical chokepoint data. Geometry is schematic. Redistribution-restricted (tainted) records are excluded by default.",
+    "title": "Chokepoints Read API",
+    "version": "0.6.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/actors": {
+      "get": {
+        "description": "Validated actors and how many control edges each holds (canonical, ADR 0041/0043).",
+        "operationId": "list_actors_actors_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActorOut"
+                  },
+                  "title": "Response List Actors Actors Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Actors"
+      }
+    },
+    "/alerts": {
+      "get": {
+        "description": "Analytical alerts (ADR 0047). An alert is a trigger for review, not a conclusion. Live alerts\n(open/acknowledged) by default; pass review_status to filter. Tainted chokepoints are excluded\nunless include_tainted + scope.",
+        "operationId": "list_alerts_alerts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "filter by review_status",
+            "in": "query",
+            "name": "review_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "filter by review_status",
+              "title": "Review Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "chokepoint_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chokepoint Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 2000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AlertOut"
+                  },
+                  "title": "Response List Alerts Alerts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Alerts"
+      }
+    },
+    "/analytics/engine-runs": {
+      "get": {
+        "operationId": "analytics_engine_runs_analytics_engine_runs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "engine_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Engine Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EngineRunOut"
+                  },
+                  "title": "Response Analytics Engine Runs Analytics Engine Runs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Analytics Engine Runs"
+      }
+    },
+    "/analytics/results": {
+      "get": {
+        "description": "Read-only view of derived (candidate) analytical results. Taint-aware via the\nreferenced canonical object; results for non-chokepoint objects are not filtered.",
+        "operationId": "analytics_results_analytics_results_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "object_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Object Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "engine_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Engine Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnalyticalResultOut"
+                  },
+                  "title": "Response Analytics Results Analytics Results Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Analytics Results"
+      }
+    },
+    "/analytics/system-resilience": {
+      "get": {
+        "description": "System resilience via Ecological Network Analysis over the WHOLE systemic relation graph\n(engine `system_resilience`, ADR 0057).\n\nDerived/candidate, never canonical (ADR 0005); scope `read`. This engine emits a single global row\n(`object_id='GLOBAL'`) over the entire relation graph rather than a per-object result, so it is\nserved here rather than in the per-chokepoint /analysis. 404 if no resilience result has been\ncomputed yet (e.g. degenerate graph). Latest snapshot only.",
+        "operationId": "get_system_resilience_analytics_system_resilience_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemResilienceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get System Resilience"
+      }
+    },
+    "/chokepoint-analyses": {
+      "get": {
+        "description": "Derived ToC + Leverage Points analyses available on disk (ADR 0027/0028).\n\nFile-backed (read-only Markdown), not canonical data — see ANALYSIS_DISCLAIMER.",
+        "operationId": "list_chokepoint_analyses_chokepoint_analyses_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "priority_class",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "P0",
+                    "P1",
+                    "P2",
+                    "P3"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Priority Class"
+            }
+          },
+          {
+            "in": "query",
+            "name": "family",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChokepointAnalysisList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Chokepoint Analyses"
+      }
+    },
+    "/chokepoint-analyses/{chokepoint_id}": {
+      "get": {
+        "description": "Full derived analysis (synthesis + ToC + Leverage Points) for one chokepoint.",
+        "operationId": "get_chokepoint_analysis_chokepoint_analyses__chokepoint_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChokepointAnalysisDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint Analysis"
+      }
+    },
+    "/chokepoint-analyses/{chokepoint_id}/{doc}": {
+      "get": {
+        "description": "Raw Markdown of one analysis doc (synthesis | theory-of-constraints | leverage-points).",
+        "operationId": "get_chokepoint_analysis_doc_chokepoint_analyses__chokepoint_id___doc__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "doc",
+            "required": true,
+            "schema": {
+              "title": "Doc",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint Analysis Doc"
+      }
+    },
+    "/chokepoints": {
+      "get": {
+        "operationId": "list_chokepoints_chokepoints_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "family",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Family"
+            }
+          },
+          {
+            "in": "query",
+            "name": "priority_class",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "P0",
+                    "P1",
+                    "P2",
+                    "P3"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Priority Class"
+            }
+          },
+          {
+            "in": "query",
+            "name": "macro_region",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Macro Region"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChokepointList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Chokepoints"
+      }
+    },
+    "/chokepoints/by-flow/{flow_type}": {
+      "get": {
+        "operationId": "chokepoints_by_flow_chokepoints_by_flow__flow_type__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "flow_type",
+            "required": true,
+            "schema": {
+              "title": "Flow Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FlowChokepointOut"
+                  },
+                  "title": "Response Chokepoints By Flow Chokepoints By Flow  Flow Type  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chokepoints By Flow"
+      }
+    },
+    "/chokepoints/by-risk/{risk_type}": {
+      "get": {
+        "operationId": "chokepoints_by_risk_chokepoints_by_risk__risk_type__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "risk_type",
+            "required": true,
+            "schema": {
+              "title": "Risk Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RiskChokepointOut"
+                  },
+                  "title": "Response Chokepoints By Risk Chokepoints By Risk  Risk Type  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chokepoints By Risk"
+      }
+    },
+    "/chokepoints/by-system/{system_id}": {
+      "get": {
+        "operationId": "chokepoints_by_system_chokepoints_by_system__system_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "system_id",
+            "required": true,
+            "schema": {
+              "title": "System Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ChokepointSummary"
+                  },
+                  "title": "Response Chokepoints By System Chokepoints By System  System Id  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chokepoints By System"
+      }
+    },
+    "/chokepoints/nearby": {
+      "get": {
+        "description": "Spatial proximity on the SCHEMATIC display_point — not navigational truth.",
+        "operationId": "nearby_chokepoints_chokepoints_nearby_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lat",
+            "required": true,
+            "schema": {
+              "maximum": 90.0,
+              "minimum": -90.0,
+              "title": "Lat",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lon",
+            "required": true,
+            "schema": {
+              "maximum": 180.0,
+              "minimum": -180.0,
+              "title": "Lon",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "radius_km",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "exclusiveMinimum": 0.0,
+              "maximum": 20000.0,
+              "title": "Radius Km",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChokepointList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Nearby Chokepoints"
+      }
+    },
+    "/chokepoints/search": {
+      "get": {
+        "operationId": "search_chokepoints_chokepoints_search_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChokepointList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search Chokepoints"
+      }
+    },
+    "/chokepoints/{chokepoint_id}": {
+      "get": {
+        "operationId": "get_chokepoint_chokepoints__chokepoint_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChokepointDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint"
+      }
+    },
+    "/chokepoints/{chokepoint_id}/actors": {
+      "get": {
+        "description": "Validated actor↔chokepoint control edges for this object (canonical, ADR 0041/0043).",
+        "operationId": "get_chokepoint_actors_chokepoints__chokepoint_id__actors_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActorControlOut"
+                  },
+                  "title": "Response Get Chokepoint Actors Chokepoints  Chokepoint Id  Actors Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint Actors"
+      }
+    },
+    "/chokepoints/{chokepoint_id}/analysis": {
+      "get": {
+        "description": "Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest\nsnapshot), plus its relation edges and evidence claims. Derived/candidate, never canonical (ADR\n0005). This is the JSON twin of the detail page's \"Engine outputs\" section. The global-graph\nsystem_resilience engine is served separately, at /analytics/system-resilience.",
+        "operationId": "get_chokepoint_engine_analysis_chokepoints__chokepoint_id__analysis_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint Engine Analysis"
+      }
+    },
+    "/chokepoints/{chokepoint_id}/cvi-assessment": {
+      "get": {
+        "description": "Corridor Vulnerability Index assessment (8 named dimensions) for this chokepoint (ADR 0055).\n\nDerived/candidate, never canonical (ADR 0005); scope `read`. Defensively taint-filtered: this endpoint\nhas NO `include_tainted` and never serves a tainted record, so a restricted chokepoint returns the same\n404 as a missing one (existence is not leaked) — even for a `read_tainted` principal. 404 also when no\nCVI assessment has been computed for the object. The 0–100 aggregate is gated on a documented\nmethodology and is therefore never served (methodology_documented=false; ADR 0049). The candidate output\nis served clearly marked (status + verbatim disclaimer).",
+        "operationId": "get_chokepoint_cvi_assessment_chokepoints__chokepoint_id__cvi_assessment_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CviAssessment"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint Cvi Assessment"
+      }
+    },
+    "/chokepoints/{chokepoint_id}/event-signals": {
+      "get": {
+        "description": "Raw append-only event-signal stream for this chokepoint (USGS hazards + GDELT media, ADR 0042).\nThe aggregated view is the event_pressure result in /chokepoints/{id}/analysis.",
+        "operationId": "get_chokepoint_event_signals_chokepoints__chokepoint_id__event_signals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 2000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EventSignalOut"
+                  },
+                  "title": "Response Get Chokepoint Event Signals Chokepoints  Chokepoint Id  Event Signals Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint Event Signals"
+      }
+    },
+    "/chokepoints/{chokepoint_id}/fiche": {
+      "get": {
+        "description": "Consolidated Chokepoint Control Method fiche as JSON (ADR 0049). Derived/candidate; validated\nanalytical readings only. There is intentionally NO global cross-chokepoint power ranking endpoint —\nleverage is grouped only within a leverage family for a single chokepoint.",
+        "operationId": "get_chokepoint_fiche_chokepoints__chokepoint_id__fiche_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chokepoint Fiche"
+      }
+    },
+    "/chokepoints/{chokepoint_id}/perception-signals": {
+      "get": {
+        "description": "Polymarket P3 perception signals for a chokepoint (ADR 0037) — anticipation, not evidence.\n\nThe source (`polymarket_gamma`) is uncleared (high license risk), so this endpoint is gated on\nthe `read_tainted` scope unconditionally; a plain `read` key gets 403.",
+        "operationId": "get_perception_signals_chokepoints__chokepoint_id__perception_signals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chokepoint_id",
+            "required": true,
+            "schema": {
+              "title": "Chokepoint Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerceptionSignalList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Perception Signals"
+      }
+    },
+    "/derived/relation-graph": {
+      "get": {
+        "description": "Raw Markdown of the derived centrality/topology report (betweenness, PageRank, communities).\n\nCandidate analysis pending human validation (ADR 0065). 404 if the report has not been generated.",
+        "operationId": "get_derived_relation_graph_report_derived_relation_graph_get",
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Derived Relation Graph Report"
+      }
+    },
+    "/derived/relations": {
+      "get": {
+        "description": "Derived candidate strategic-relations graph (ADR 0065, piste 1) — file-backed, pending validation.\n\nStrictly separate from the canonical `/relations` endpoint: these edges are extracted from the\nanalysis fiches and are NOT canonical (see DERIVED_GRAPH_DISCLAIMER). No taint gate — like the\nfile-backed `/chokepoint-analyses`, this is derived/public order-of-magnitude analysis, not\nredistribution-restricted source data.",
+        "operationId": "list_derived_relations_derived_relations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "relation_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Relation Type"
+            }
+          },
+          {
+            "description": "in_corpus | external_candidate",
+            "in": "query",
+            "name": "to_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "in_corpus | external_candidate",
+              "title": "To Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from_object_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From Object Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 1000,
+              "maximum": 2000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DerivedRelationGraphOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Derived Relations"
+      }
+    },
+    "/episodes": {
+      "get": {
+        "operationId": "list_episodes_episodes_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EpisodeOut"
+                  },
+                  "title": "Response List Episodes Episodes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Episodes"
+      }
+    },
+    "/episodes/{episode_key}": {
+      "get": {
+        "operationId": "get_episode_episodes__episode_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "episode_key",
+            "required": true,
+            "schema": {
+              "title": "Episode Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EpisodeDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Episode"
+      }
+    },
+    "/exports/geojson": {
+      "get": {
+        "description": "FeatureCollection of schematic display/core geometry (same query as the explorer).",
+        "operationId": "export_geojson_exports_geojson_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Geojson"
+      }
+    },
+    "/exports/jsonl": {
+      "get": {
+        "description": "Stream one canonical chokepoint summary per line (JSON Lines).",
+        "operationId": "export_jsonl_exports_jsonl_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Jsonl"
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Health Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/relations": {
+      "get": {
+        "operationId": "list_relations_relations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RelationOut"
+                  },
+                  "title": "Response List Relations Relations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Relations"
+      }
+    },
+    "/sources": {
+      "get": {
+        "operationId": "list_sources_sources_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SourceOut"
+                  },
+                  "title": "Response List Sources Sources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Sources"
+      }
+    },
+    "/strategic-flows": {
+      "get": {
+        "description": "List Strategic Flow Units with their latest verdict (SFIM prescription layer, ADR 0054).",
+        "operationId": "list_strategic_flows_strategic_flows_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategicFlowUnitList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Strategic Flows"
+      }
+    },
+    "/strategic-flows/{sfu_id}/fiche": {
+      "get": {
+        "description": "The full SFIM fiche: canonical description + latest derived scoring/aggregates/integration/verdict.\n\nThe LLM red-team block is advisory/uncleared, so it is included ONLY with the read_tainted scope.",
+        "operationId": "get_strategic_flow_fiche_strategic_flows__sfu_id__fiche_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sfu_id",
+            "required": true,
+            "schema": {
+              "title": "Sfu Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SfuFicheOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Strategic Flow Fiche"
+      }
+    },
+    "/strategic-flows/{sfu_id}/verdict": {
+      "get": {
+        "operationId": "get_strategic_flow_verdict_strategic_flows__sfu_id__verdict_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sfu_id",
+            "required": true,
+            "schema": {
+              "title": "Sfu Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SfuVerdictOut"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Strategic Flow Verdict Strategic Flows  Sfu Id  Verdict Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Strategic Flow Verdict"
+      }
+    },
+    "/strategic-systems": {
+      "get": {
+        "operationId": "list_strategic_systems_strategic_systems_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StrategicSystemOut"
+                  },
+                  "title": "Response List Strategic Systems Strategic Systems Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Strategic Systems"
+      }
+    },
+    "/strategic-systems/{system_id}": {
+      "get": {
+        "operationId": "get_strategic_system_strategic_systems__system_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "system_id",
+            "required": true,
+            "schema": {
+              "title": "System Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_tainted",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Tainted",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategicSystemDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Strategic System"
+      }
+    },
+    "/vocabularies": {
+      "get": {
+        "description": "The controlled vocabularies behind the enum-enforced fields, including the CCM analytics lookups\n(control dimensions + family, actor profile types + criticality, alert types + default queue,\narchitecture labels). The single documented source of truth (schemas/vocabularies.py + DB).",
+        "operationId": "get_vocabularies_vocabularies_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Vocabularies"
+      }
+    }
+  }
+}
