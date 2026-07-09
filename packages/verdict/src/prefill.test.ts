@@ -128,3 +128,171 @@ describe('buildCandidates — geopolitical pre-fill', () => {
     expect(all.every((c) => c.status === 'candidate' && c.source_kind !== 'manual')).toBe(true);
   });
 });
+
+/** Real payload shapes, copied from the live 0.6.0 producer (Hormuz / Panama). */
+describe('derived corridor context → candidates (ADR 0057/0065)', () => {
+  const dim = (score: number, rationale: string) => ({
+    score,
+    rationale,
+    source_refs: [],
+    uncertainties: [],
+  });
+
+  it('consumes all 8 CVI dimensions, routing each to the frame where it bears on the decision', () => {
+    const cvi: CviAssessment = {
+      scale: '0-5',
+      methodology_documented: false,
+      sources: [],
+      uncertainties: [],
+      dimensions: {
+        exposition: dim(5, 'flux dépendants'),
+        concentration: dim(4, 'peu d’alternatives'),
+        menace: dim(4, 'acteur hostile'),
+        capacite_perturbation: dim(5, 'moyens réels'),
+        // `resilience` is high → SLOW to bypass → an internal weakness, not a threat.
+        resilience: dim(4, 'contournement lent'),
+        cout_contournement: dim(5, 'coût prohibitif'),
+        gouvernance: dim(4, 'autorité contestée'),
+        incertitude: { ...dim(3, 'données lacunaires'), uncertainties: ['pas de données buffer'] },
+      },
+    };
+    const r = buildCandidates({ packet: packet(), cvi } satisfies PrefillInput);
+
+    const refs = [...r.swot, ...r.pestel].map((x) => x.source_ref);
+    for (const d of [
+      'exposition',
+      'concentration',
+      'menace',
+      'capacite_perturbation',
+      'resilience',
+      'cout_contournement',
+      'gouvernance',
+      'incertitude',
+    ]) {
+      expect(refs, `dimension ${d} not consumed`).toContain(`cvi:${d}`);
+    }
+
+    // A high `resilience` score means slow recovery: a weakness, never a threat.
+    const res = r.swot.find((s) => s.source_ref === 'cvi:resilience');
+    expect(res?.quadrant).toBe('weakness');
+
+    // Uncertainty argues for buying information, not for/against an option.
+    const unc = r.pestel.find((p) => p.source_ref === 'cvi:incertitude');
+    expect(unc?.uncertainty).toBe('pas de données buffer');
+
+    // The 0–100 aggregate is gated (ADR 0049) and must never surface in a statement.
+    for (const c of [...r.swot, ...r.pestel]) expect(c.statement).not.toMatch(/\/100/);
+  });
+
+  it('tolerates the omitted `resilience` dimension without fabricating it', () => {
+    const cvi: CviAssessment = {
+      scale: '0-5',
+      methodology_documented: false,
+      sources: [],
+      uncertainties: [],
+      dimensions: { menace: dim(4, 'acteur hostile') },
+    };
+    const r = buildCandidates({ packet: packet(), cvi } satisfies PrefillInput);
+    expect(r.swot.some((s) => s.source_ref === 'cvi:resilience')).toBe(false);
+    expect(r.swot.some((s) => s.source_ref === 'cvi:menace')).toBe(true);
+  });
+
+  it('turns decision-relevant engine rows into threats, and ignores the rest', () => {
+    const r = buildCandidates({
+      packet: packet({
+        corridor_analysis: {
+          engines: [
+            {
+              key: 'weaponizability',
+              columns: [],
+              rows: [
+                { leverage_score: 0.0962, top_actor_id: 'actor_state_iran', substitution_factor: 0.8 },
+              ],
+            },
+            {
+              key: 'exposed_trade_loss',
+              columns: [],
+              rows: [
+                { exposed_value_usd: 2_000_000_000, expected_value_at_risk_usd: 300_000_000, closure_days: 30 },
+              ],
+            },
+            {
+              key: 'network_centrality',
+              columns: [],
+              rows: [{ articulation_point: true, betweenness: 0.000187, reachable_nodes_lost: 12 }],
+            },
+            {
+              key: 'control_concentration',
+              columns: [],
+              rows: [{ hhi: 0.5102, actor_count: 2, top_actor_id: 'actor_state_iran', top_actor_share: 0.5714 }],
+            },
+            // Not a decision engine → no candidate at all.
+            { key: 'evidence_quality', columns: [], rows: [{ score: 3 }] },
+          ],
+        },
+      }),
+    } satisfies PrefillInput);
+
+    const stmts = r.swot.map((s) => s.statement).join('\n');
+    expect(stmts).toContain('instrumentalisable');
+    expect(stmts).toContain('actor_state_iran');
+    expect(stmts).toContain("Point d'articulation");
+    expect(stmts).toContain('Contrôle concentré');
+    expect(stmts).toMatch(/Valeur commerciale exposée/);
+    expect(r.swot.some((s) => s.source_ref?.startsWith('analysis:evidence_quality'))).toBe(false);
+    expect(r.swot.filter((s) => s.source_kind === 'analysis').every((s) => s.status === 'candidate')).toBe(true);
+  });
+
+  it('emits nothing for a zero score — "not weaponizable" is an answer, not a threat', () => {
+    const r = buildCandidates({
+      packet: packet({
+        corridor_analysis: {
+          engines: [
+            // Panama's real row: leverage 0, and a non-articulation centrality row.
+            { key: 'weaponizability', columns: [], rows: [{ leverage_score: 0, top_actor_id: 'acp' }] },
+            { key: 'network_centrality', columns: [], rows: [{ articulation_point: false, betweenness: 0 }] },
+            { key: 'control_concentration', columns: [], rows: [{ hhi: 0.1, actor_count: 9 }] },
+          ],
+        },
+      }),
+    } satisfies PrefillInput);
+    expect(r.swot.filter((s) => s.source_kind === 'analysis')).toEqual([]);
+  });
+
+  it('flags an out-of-corpus relation target as a coverage gap', () => {
+    const r = buildCandidates({
+      packet: packet({
+        corridor_relations: {
+          edges: [
+            {
+              to: 'autres_hubs_pacifique_nord',
+              to_label: 'autres hubs Pacifique Nord',
+              to_status: 'external_candidate',
+              relation_type: 'dependency',
+              strength_score: 4,
+            },
+            { to: 'p0_suez', to_status: 'in_corpus', relation_type: 'alternative_route' },
+          ],
+        },
+      }),
+    } satisfies PrefillInput);
+    const gap = r.swot.find((s) => s.source_ref === 'relation:dependency:autres_hubs_pacifique_nord');
+    expect(gap?.statement).toContain('hors corpus');
+    expect(gap?.source_kind).toBe('relation');
+    const inCorpus = r.swot.find((s) => s.source_ref === 'relation:alternative_route:p0_suez');
+    expect(inCorpus?.statement).not.toContain('hors corpus');
+  });
+
+  it('carries the GLOBAL ENA regime as systemic context, never as a corridor score', () => {
+    const r = buildCandidates({
+      packet: packet({
+        system_resilience: { scope: 'GLOBAL', regime: 'brittle', robustness: 0.2965, node_count: 165 },
+      }),
+    } satisfies PrefillInput);
+    const p = r.pestel.find((x) => x.source_kind === 'system_resilience');
+    expect(p?.source_ref).toBe('system_resilience:GLOBAL');
+    expect(p?.statement).toContain('brittle');
+    expect(p?.decisional_impact).toContain('se propage');
+    expect(p?.status).toBe('candidate');
+  });
+});

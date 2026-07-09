@@ -3,6 +3,7 @@
 // carries license_taint=true as a defence-in-depth guard so no restricted data can reach the public
 // client. Suggestions are CANDIDATES pending analyst validation, never facts.
 import { createChokepointsClient, ChokepointsApiError } from '@ag/chokepoints';
+import type { PacketPayload } from '@ag/schema/hdde';
 import { config } from '../config';
 
 export interface ChokepointSuggestion {
@@ -299,4 +300,94 @@ export async function fetchCorridorContext(chokepointId: string): Promise<Corrid
     .catch(degrade('episodes', [] as CorridorContext['episodes']));
 
   return { available: episodes.length > 0 || analytics.length > 0, episodes, analytics };
+}
+
+// --- Derived systemic context for the VERDICT packet (ADR 0042/0057/0065) --------------------------
+
+export type CorridorAnalysis = NonNullable<PacketPayload['corridor_analysis']>;
+export type CorridorRelations = NonNullable<PacketPayload['corridor_relations']>;
+export type SystemResilience = NonNullable<PacketPayload['system_resilience']>;
+
+function client() {
+  if (!config.chokepointsApiUrl || !config.chokepointsApiToken) return null;
+  // includeTainted intentionally omitted → false. Read scope only (ADR 0035).
+  return createChokepointsClient({
+    baseUrl: config.chokepointsApiUrl,
+    token: config.chokepointsApiToken,
+  });
+}
+
+/**
+ * Typed engine outputs for ONE corridor. Relayed verbatim (`columns[]` + `rows[]`): the producer owns
+ * these shapes and adds engines over time, so freezing 11 bespoke schemas here would rot on contact.
+ */
+export async function fetchCorridorAnalysis(chokepointId: string): Promise<CorridorAnalysis | null> {
+  const c = client();
+  if (!c) return null;
+  return c
+    .getChokepointAnalysis(chokepointId)
+    .then((a) => ({
+      disclaimer: a.disclaimer ?? undefined,
+      engines: a.engines.map((e) => ({
+        key: e.key,
+        title: e.title ?? undefined,
+        columns: e.columns,
+        rows: e.rows as Record<string, unknown>[],
+      })),
+    }))
+    .catch(degrade('analysis', null));
+}
+
+/** Candidate systemic edges OUT of this corridor. Never canonical — distinct from /relations. */
+export async function fetchDerivedRelations(chokepointId: string): Promise<CorridorRelations | null> {
+  const c = client();
+  if (!c) return null;
+  return c
+    .listDerivedRelations({ from_object_id: chokepointId, limit: 50 })
+    .then((g) =>
+      g.items.length
+        ? {
+            disclaimer: g.disclaimer ?? undefined,
+            edges: g.items.map((e) => ({
+              to: e.to,
+              to_label: e.to_label ?? undefined,
+              to_status: e.to_status,
+              relation_type: e.relation_type,
+              strength_score: e.strength_score ?? undefined,
+            })),
+          }
+        : null,
+    )
+    .catch(degrade('derived/relations', null));
+}
+
+/**
+ * The ONE global ENA resilience row — it describes the whole graph, not a corridor, so it is fetched
+ * once per process rather than once per case. 404 until the engine has run on a non-degenerate graph.
+ */
+let resilienceCache: { at: number; value: SystemResilience | null } | undefined;
+const RESILIENCE_TTL_MS = 10 * 60 * 1000;
+
+export async function fetchSystemResilience(): Promise<SystemResilience | null> {
+  const c = client();
+  if (!c) return null;
+  const now = Date.now();
+  if (resilienceCache && now - resilienceCache.at < RESILIENCE_TTL_MS) return resilienceCache.value;
+
+  const value = await c
+    .getSystemResilience()
+    .then((r) => ({
+      scope: r.scope,
+      regime: r.regime ?? undefined,
+      robustness: r.robustness ?? undefined,
+      ascendency: r.ascendency ?? undefined,
+      alpha: r.alpha ?? undefined,
+      node_count: r.node_count ?? undefined,
+      edge_count: r.edge_count ?? undefined,
+      disclaimer: r.disclaimer ?? undefined,
+    }))
+    .catch(degrade('analytics/system-resilience', null));
+
+  resilienceCache = { at: now, value };
+  return value;
 }

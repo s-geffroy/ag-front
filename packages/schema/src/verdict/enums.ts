@@ -78,6 +78,13 @@ export const sourceKinds = [
   'chokepoint',
   'episode',
   'analytics',
+  // Derived chokepoint context carried in the packet (never fetched by VERDICT itself — ADR 0042):
+  // `analysis` = typed engine blocks, `relation` = candidate systemic edges, `system_resilience` =
+  // the one global ENA row. All are candidates; the DB column is plain TEXT, so widening this zod
+  // enum is the only gate that matters.
+  'analysis',
+  'relation',
+  'system_resilience',
   'atlas',
   'manual',
 ] as const;

@@ -84,6 +84,59 @@ export const PacketPayload = z.object({
         .default([]),
     })
     .optional(),
+  // Typed engine outputs for the selected corridor (GET /chokepoints/{id}/analysis), carried so
+  // VERDICT prefills systemic context without a second data source (ADR 0042). Each block keeps the
+  // engine's own `columns[]`/`rows[]` shape: the producer owns it and adds engines over time, so we
+  // relay it verbatim rather than freezing 11 bespoke schemas. Candidates, never facts.
+  corridor_analysis: z
+    .object({
+      disclaimer: z.string().optional(),
+      engines: z
+        .array(
+          z.object({
+            key: z.string(),
+            title: z.string().optional(),
+            columns: z.array(z.string()).default([]),
+            rows: z.array(z.record(z.unknown())).default([]),
+          }),
+        )
+        .default([]),
+    })
+    .optional(),
+  // Candidate systemic edges from the DERIVED graph (GET /derived/relations, ADR 0065) — pending
+  // human validation, strictly distinct from the canonical /relations. A `to_status` of
+  // `external_candidate` marks a coverage gap, not a corpus object.
+  corridor_relations: z
+    .object({
+      disclaimer: z.string().optional(),
+      edges: z
+        .array(
+          z.object({
+            to: z.string(),
+            to_label: z.string().optional(),
+            to_status: z.string(),
+            relation_type: z.string(),
+            strength_score: z.number().optional(),
+          }),
+        )
+        .default([]),
+    })
+    .optional(),
+  // The ONE global ENA resilience row (GET /analytics/system-resilience, ADR 0057). It describes the
+  // WHOLE relation graph, not this corridor — modelled at packet level so it can never be misread as
+  // a per-corridor score. `regime: brittle` means the system has too much order and too little reserve.
+  system_resilience: z
+    .object({
+      scope: z.string().optional(),
+      regime: z.string().optional(),
+      robustness: z.number().optional(),
+      ascendency: z.number().optional(),
+      alpha: z.number().optional(),
+      node_count: z.number().optional(),
+      edge_count: z.number().optional(),
+      disclaimer: z.string().optional(),
+    })
+    .optional(),
   // Enterprise layer (ADR 0036): per-actor verdicts + concentration synthesis. Optional for back-compat.
   entities: z
     .array(

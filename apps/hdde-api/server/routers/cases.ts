@@ -20,6 +20,9 @@ import {
   suggestChokepoints,
   fetchCorridorEvidence,
   fetchCorridorContext,
+  fetchCorridorAnalysis,
+  fetchDerivedRelations,
+  fetchSystemResilience,
 } from '../integrations/chokepoints';
 import { runPersona, RedTeamError } from '../llm/openai';
 import { computeCost } from '../llm/pricing';
@@ -278,6 +281,14 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, wrap(async (req: CaseReque
     ? await fetchCorridorContext(chk.candidates[0].id)
     : null;
 
+  // Derived systemic context (ADR 0057/0065). Fetched concurrently: the two corridor-scoped calls are
+  // independent, and system-resilience is a GLOBAL row (memoised per process, not per case).
+  const [corridorAnalysis, corridorRelations, systemResilience] = await Promise.all([
+    chk.candidates[0] ? fetchCorridorAnalysis(chk.candidates[0].id) : null,
+    chk.candidates[0] ? fetchDerivedRelations(chk.candidates[0].id) : null,
+    fetchSystemResilience(),
+  ]);
+
   const packetPayload = {
     ...core,
     operational_verdict: adjustedVerdict,
@@ -298,6 +309,9 @@ casesRouter.post('/:id/diagnostic-packets', loadCase, wrap(async (req: CaseReque
           },
         }
       : {}),
+    ...(corridorAnalysis ? { corridor_analysis: corridorAnalysis } : {}),
+    ...(corridorRelations ? { corridor_relations: corridorRelations } : {}),
+    ...(systemResilience ? { system_resilience: systemResilience } : {}),
   };
 
   const snapshot = {

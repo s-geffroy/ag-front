@@ -208,12 +208,24 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
     });
   }
 
-  // --- CVI assessment → Threats + PESTEL ----------------------------------------------------
+  // --- CVI assessment → Threats + Weakness + PESTEL ------------------------------------------
+  // All 8 dimensions are consumed, each routed to the frame where it actually bears on the decision.
+  // Scores are 0–5, HIGHER = MORE VULNERABLE, so a high `resilience` score is a *weakness*, not a
+  // strength. Any dimension may be absent (no engine input → omitted, never fabricated), so every
+  // lookup is guarded: `dimensions` is a Partial record.
   if (cvi?.dimensions) {
-    const threatDims: CviDimensionKey[] = ['menace', 'capacite_perturbation', 'concentration'];
+    const THRESHOLD = 3;
+
+    // External pressure the enterprise does not control → SWOT threat.
+    const threatDims: CviDimensionKey[] = [
+      'menace',
+      'capacite_perturbation',
+      'concentration',
+      'exposition',
+    ];
     for (const dim of threatDims) {
       const ds = cvi.dimensions[dim];
-      if (ds && ds.score >= 3) {
+      if (ds && ds.score >= THRESHOLD) {
         swot.push(
           swotItem(
             'threat',
@@ -224,8 +236,36 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
         );
       }
     }
+
+    // A high `resilience` score means slow to bypass/repair/absorb — an internal weakness, not a threat.
+    const res = cvi.dimensions.resilience;
+    if (res && res.score >= THRESHOLD) {
+      swot.push(
+        swotItem(
+          'weakness',
+          `${cviDimensions.resilience.label} ${res.score}/5 : ${res.rationale}`,
+          'cvi',
+          'cvi:resilience',
+        ),
+      );
+    }
+
+    // Bypass cost is an economic constraint on every routing option.
+    const cost = cvi.dimensions.cout_contournement;
+    if (cost && cost.score >= THRESHOLD) {
+      pestel.push(
+        pestelFactor(
+          'economic',
+          `${cviDimensions.cout_contournement.label} ${cost.score}/5 : ${cost.rationale}`,
+          'Le coût de contournement fixe le prix plancher de toute option de routage alternative.',
+          'cvi',
+          'cvi:cout_contournement',
+        ),
+      );
+    }
+
     const legal = cvi.dimensions.gouvernance;
-    if (legal && legal.score >= 3) {
+    if (legal && legal.score >= THRESHOLD) {
       pestel.push(
         pestelFactor(
           'legal',
@@ -235,6 +275,22 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
           'cvi:gouvernance',
         ),
       );
+    }
+
+    // Uncertainty does not argue for or against an option — it argues for buying information first.
+    // It is therefore carried as an explicit `uncertainty`, not as a threat statement.
+    const unc = cvi.dimensions.incertitude;
+    if (unc && unc.score >= THRESHOLD) {
+      pestel.push({
+        ...pestelFactor(
+          'political',
+          `${cviDimensions.incertitude.label} ${unc.score}/5 : ${unc.rationale}`,
+          'Une incertitude élevée plaide pour un test/une levée de doute avant tout engagement lourd.',
+          'cvi',
+          'cvi:incertitude',
+        ),
+        uncertainty: unc.uncertainties.join(' · ') || unc.rationale,
+      });
     }
   }
 
@@ -281,5 +337,129 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
     });
   }
 
+  // --- Typed engine blocks (/analysis) → Threats ---------------------------------------------
+  // Only the engines whose output changes a decision are surfaced. `weaponizability` says the corridor
+  // can be turned into a lever; `exposed_trade_loss` sizes the damage; `network_centrality` flags an
+  // articulation point — a node whose removal disconnects the graph. The rest stay in the packet for
+  // the analyst to consult, without manufacturing a candidate for every row.
+  for (const block of packet.corridor_analysis?.engines ?? []) {
+    if (!DECISION_ENGINES.has(block.key)) continue;
+    block.rows.forEach((row, i) => {
+      const label = summariseEngineRow(block.key, row);
+      if (!label) return;
+      swot.push(swotItem('threat', label, 'analysis', `analysis:${block.key}:${i}`));
+    });
+  }
+
+  // --- Derived candidate edges (/derived/relations) → Threats ---------------------------------
+  // Cascade paths out of this corridor, pending human validation. An `external_candidate` target is a
+  // COVERAGE GAP (an object the corpus lacks), which is itself worth flagging to the analyst.
+  for (const edge of packet.corridor_relations?.edges ?? []) {
+    const target = edge.to_label ?? edge.to;
+    const gap = edge.to_status === 'external_candidate' ? ' [hors corpus — couverture à compléter]' : '';
+    const strength = edge.strength_score != null ? ` (force ${edge.strength_score})` : '';
+    swot.push(
+      swotItem(
+        'threat',
+        `Propagation candidate — ${edge.relation_type.replace(/_/g, ' ')} → ${target}${strength}${gap}`,
+        'relation',
+        `relation:${edge.relation_type}:${edge.to}`,
+      ),
+    );
+  }
+
+  // --- Global ENA resilience → PESTEL political -----------------------------------------------
+  // This describes the WHOLE systemic graph, not this corridor. A `brittle` regime means the system
+  // has too much order and too little reserve: a local shock propagates instead of being absorbed.
+  const sysres = packet.system_resilience;
+  if (sysres?.regime) {
+    const robustness = sysres.robustness != null ? ` (robustesse ${sysres.robustness.toFixed(3)})` : '';
+    pestel.push(
+      pestelFactor(
+        'political',
+        `Régime systémique global : ${sysres.regime}${robustness}`,
+        sysres.regime === 'brittle'
+          ? 'Un système cassant absorbe mal un choc local : la perturbation se propage au lieu de s’amortir.'
+          : 'Le régime du graphe systémique conditionne la propagation d’un choc local.',
+        'system_resilience',
+        `system_resilience:${sysres.scope ?? 'GLOBAL'}`,
+      ),
+    );
+  }
+
   return { pestel, swot, options };
+}
+
+/** Engine blocks whose rows change a decision. Everything else stays in the packet, unconverted. */
+const DECISION_ENGINES = new Set([
+  'weaponizability',
+  'exposed_trade_loss',
+  'network_centrality',
+  'control_concentration',
+]);
+
+/**
+ * Turn one engine row into a decision-relevant statement, or `null` when it says nothing useful.
+ *
+ * A zero score is a real answer ("this corridor is not weaponizable"), not a threat — emitting a
+ * candidate for it would bury the analyst in noise. Column names mirror the producer's engine output
+ * exactly; a rename upstream makes these return `null` rather than fabricate.
+ */
+function summariseEngineRow(key: string, row: Record<string, unknown>): string | null {
+  const n = (k: string): number | null => (typeof row[k] === 'number' ? (row[k] as number) : null);
+  const s = (k: string): string | null => (typeof row[k] === 'string' ? (row[k] as string) : null);
+  const usd = (v: number) => `${Math.round(v).toLocaleString('fr-FR')} USD`;
+
+  switch (key) {
+    case 'weaponizability': {
+      // leverage_score ∈ [0,1]: an actor's ability to turn the corridor into a lever.
+      const lev = n('leverage_score');
+      if (lev == null || lev <= 0) return null;
+      const actor = s('top_actor_id');
+      const sub = n('substitution_factor');
+      return (
+        `Corridor instrumentalisable — levier ${lev.toFixed(3)}` +
+        (actor ? ` par ${actor}` : '') +
+        (sub != null ? ` (facteur de substitution ${sub})` : '')
+      );
+    }
+    case 'exposed_trade_loss': {
+      const exposed = n('exposed_value_usd');
+      if (exposed == null || exposed <= 0) return null;
+      const atRisk = n('expected_value_at_risk_usd');
+      const days = n('closure_days');
+      return (
+        `Valeur commerciale exposée : ${usd(exposed)}` +
+        (atRisk != null ? ` · espérance de perte ${usd(atRisk)}` : '') +
+        (days != null ? ` (scénario de fermeture ${days} j)` : '')
+      );
+    }
+    case 'network_centrality': {
+      // An articulation point is a node whose removal disconnects the graph — the strongest structural
+      // warning this engine emits. Raw centrality, on its own, is not decision-relevant.
+      if (row.articulation_point !== true) return null;
+      const lost = n('reachable_nodes_lost');
+      const cascade = n('cascade_impact_if_removed');
+      return (
+        `Point d'articulation du graphe : sa perte déconnecte le réseau` +
+        (lost ? ` (${lost} nœuds deviennent inatteignables)` : '') +
+        (cascade ? ` · impact de cascade ${cascade.toFixed(4)}` : '')
+      );
+    }
+    case 'control_concentration': {
+      // HHI ∈ (0,1]; ≥0.25 is the conventional "concentrated" threshold, 1 = a single controller.
+      const hhi = n('hhi');
+      if (hhi == null || hhi < 0.25) return null;
+      const actor = s('top_actor_id');
+      const share = n('top_actor_share');
+      const count = n('actor_count');
+      return (
+        `Contrôle concentré (HHI ${hhi.toFixed(3)}${count != null ? `, ${count} acteur(s)` : ''})` +
+        (actor ? ` — dominant : ${actor}` : '') +
+        (share != null ? ` (${Math.round(share * 100)} %)` : '')
+      );
+    }
+    default:
+      return null;
+  }
 }
