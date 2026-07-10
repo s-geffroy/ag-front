@@ -31,6 +31,7 @@ class StrategicFlowUnitSummary:
             status (Union[None, Unset, str]):
             verdict (Union[None, Unset, str]):
             verdict_status (Union[None, Unset, str]):
+            dimensions_scored (Union[Unset, int]):  Default: 0.
      """
 
     id: str
@@ -41,6 +42,7 @@ class StrategicFlowUnitSummary:
     status: Union[None, Unset, str] = UNSET
     verdict: Union[None, Unset, str] = UNSET
     verdict_status: Union[None, Unset, str] = UNSET
+    dimensions_scored: Union[Unset, int] = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -77,6 +79,8 @@ class StrategicFlowUnitSummary:
         else:
             verdict_status = self.verdict_status
 
+        dimensions_scored = self.dimensions_scored
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -94,6 +98,8 @@ class StrategicFlowUnitSummary:
             field_dict["verdict"] = verdict
         if verdict_status is not UNSET:
             field_dict["verdict_status"] = verdict_status
+        if dimensions_scored is not UNSET:
+            field_dict["dimensions_scored"] = dimensions_scored
 
         return field_dict
 
@@ -150,6 +156,8 @@ class StrategicFlowUnitSummary:
         verdict_status = _parse_verdict_status(d.pop("verdict_status", UNSET))
 
 
+        dimensions_scored = d.pop("dimensions_scored", UNSET)
+
         strategic_flow_unit_summary = cls(
             id=id,
             name=name,
@@ -159,6 +167,7 @@ class StrategicFlowUnitSummary:
             status=status,
             verdict=verdict,
             verdict_status=verdict_status,
+            dimensions_scored=dimensions_scored,
         )
 
 

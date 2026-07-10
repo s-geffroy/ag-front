@@ -84,6 +84,7 @@ const SCHEMA_MAP: Record<string, z.ZodTypeAny> = {
   RerouteDeltaOut: schemas.RerouteDeltaOut,
   RiskChokepointOut: schemas.RiskChokepointOut,
   RiskOut: schemas.RiskOut,
+  SfuCompletenessOut: schemas.SfuCompletenessOut,
   SfuDimensionOut: schemas.SfuDimensionOut,
   SfuFicheOut: schemas.SfuFicheOut,
   SfuVerdictOut: schemas.SfuVerdictOut,

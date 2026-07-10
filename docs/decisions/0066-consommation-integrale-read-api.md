@@ -94,6 +94,15 @@ versions mineures durant.
   SFIM sont en `skeleton` (aucun verdict, aucun scoring). L'écran SFIM le dit franchement plutôt que
   de masquer ses sections : cacher une section vide donnerait à un pipeline non peuplé l'apparence du
   travail fini. Voir le handoff de suivi.
+
+  **Addendum 2026-07-10 (API 0.7.0).** Le constat ci-dessus est daté. Le `scoring: []` n'était pas un
+  manque de données mais un bug de lecture producteur (le moteur écrivait `sfim_auto_dimension`, la
+  fiche ne lisait que `sfim_scoring`). Depuis 0.7.0 les 7 SFU passent `skeleton` → `scoped`/`pilot`
+  avec 3 à 4 dimensions sur 10 scorées par le moteur. Le `verdict: null` subsiste et est **conçu**,
+  non lacunaire : seules 4 des 10 dimensions ont une source moteur déterministe ; les 6 dimensions de
+  jugement et le verdict sont rédigés par un analyste (ADR 0054 producteur). L'écran affiche désormais
+  la complétude (`n/10`, part auto vs analyste) et la provenance par dimension — un score moteur est un
+  candidat, pas un fait validé. La dimension CVI `resilience` reste omise partout.
 - Le test de couverture des champs est **volontairement peu profond** (propriétés de premier niveau,
   une récursion dans `items`). Descendre dans les unions et les records serait fragile et sans valeur ;
   les champs optionnels manquants sont un avertissement, jamais un échec.

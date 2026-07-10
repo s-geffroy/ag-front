@@ -41,6 +41,7 @@ from .relation_out import RelationOut
 from .reroute_delta_out import RerouteDeltaOut
 from .risk_chokepoint_out import RiskChokepointOut
 from .risk_out import RiskOut
+from .sfu_completeness_out import SfuCompletenessOut
 from .sfu_dimension_out import SfuDimensionOut
 from .sfu_fiche_out import SfuFicheOut
 from .sfu_verdict_out import SfuVerdictOut
@@ -97,6 +98,7 @@ __all__ = (
     "RerouteDeltaOut",
     "RiskChokepointOut",
     "RiskOut",
+    "SfuCompletenessOut",
     "SfuDimensionOut",
     "SfuFicheOut",
     "SfuVerdictOut",

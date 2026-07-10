@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createChokepointsClient, ChokepointsApiError } from './client';
+import { SfuCompletenessOut } from './schema';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return { ok: status < 400, status, json: async () => body } as unknown as Response;
@@ -321,6 +322,7 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
               validation_status: 'validated',
               verdict: 'TESTER',
               verdict_status: 'candidate',
+              dimensions_scored: 4,
             },
           ],
         }),
@@ -328,6 +330,7 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
     const list = await client.listStrategicFlows();
     expect(list.items[0]!.verdict).toBe('TESTER');
     expect(list.items[0]!.verdict_status).toBe('candidate');
+    expect(list.items[0]!.dimensions_scored).toBe(4);
   });
 
   it('getStrategicFlowVerdict returns null when no verdict is authored', async () => {
@@ -366,12 +369,46 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
           id: 'sfu_x',
           name: 'SFU X',
           flow_type: 'containers',
-          scoring: [{ dimension: 'substitution', effective_score: 2.5, confidence: 'moyen' }],
+          scoring: [
+            { dimension: 'substitution', effective_score: 2.5, confidence: 'moyen', origin: 'engine_auto' },
+          ],
+          completeness: {
+            dimensions_total: 10,
+            dimensions_scored: 4,
+            analyst_dimensions: 0,
+            auto_dimensions: 4,
+            has_draft: true,
+            draft_status: 'draft',
+            has_verdict: false,
+            awaiting_analyst_verdict: true,
+          },
         }),
     });
     const f = await client.getStrategicFlowFiche('sfu_x');
     expect(f.scoring[0]!.dimension).toBe('substitution');
     expect(f.scoring[0]!.effective_score).toBe(2.5);
+    expect(f.scoring[0]!.origin).toBe('engine_auto');
+    expect(f.completeness?.dimensions_scored).toBe(4);
+    expect(f.completeness?.analyst_dimensions).toBe(0);
+    expect(f.completeness?.awaiting_analyst_verdict).toBe(true);
+  });
+
+  it('a fiche without a completeness block parses, leaving it undefined', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () => jsonResponse({ id: 'sfu_x', name: 'SFU X', flow_type: 'containers' }),
+    });
+    const f = await client.getStrategicFlowFiche('sfu_x');
+    expect(f.completeness).toBeUndefined();
+  });
+
+  it('SfuCompletenessOut applies the contract defaults on an empty block', () => {
+    const c = SfuCompletenessOut.parse({});
+    expect(c.dimensions_total).toBe(10);
+    expect(c.dimensions_scored).toBe(0);
+    expect(c.has_draft).toBe(false);
+    expect(c.awaiting_analyst_verdict).toBe(true);
   });
 
   it('typed FicheOut exposes known sections and passes extra keys through', async () => {

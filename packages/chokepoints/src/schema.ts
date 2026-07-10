@@ -672,6 +672,7 @@ export const StrategicFlowUnitSummary = z
     validation_status: z.string(),
     verdict: z.string().nullish(), // latest verdict decision (any status)
     verdict_status: z.string().nullish(), // candidate | reviewed | accepted
+    dimensions_scored: z.number().nullish(), // numerator only — the total lives on the fiche
   })
   .passthrough();
 export type StrategicFlowUnitSummary = z.infer<typeof StrategicFlowUnitSummary>;
@@ -695,6 +696,7 @@ export const SfuDimensionOut = z
     confidence: z.string().nullish(),
     evidence_status: z.string().nullish(),
     rationale: z.string().nullish(),
+    origin: z.string().nullish(), // engine_auto | analyst_submission — the contract types it as a free string
   })
   .passthrough();
 export type SfuDimensionOut = z.infer<typeof SfuDimensionOut>;
@@ -712,6 +714,27 @@ export const SfuVerdictOut = z
   })
   .passthrough();
 export type SfuVerdictOut = z.infer<typeof SfuVerdictOut>;
+
+/**
+ * SFIM completeness envelope (API 0.7.0). Only 4 of the 10 dimensions have a deterministic engine
+ * source; the 6 judgment dimensions and the verdict are analyst-authored, so a partially-scored SFU
+ * with `awaiting_analyst_verdict: true` is the designed state, not a gap. Every field is optional —
+ * a fiche may omit the whole block.
+ */
+export const SfuCompletenessOut = z
+  .object({
+    dimensions_total: z.number().default(10),
+    dimensions_scored: z.number().default(0),
+    analyst_dimensions: z.number().default(0),
+    auto_dimensions: z.number().default(0),
+    has_draft: z.boolean().default(false),
+    draft_status: z.string().nullish(),
+    has_verdict: z.boolean().default(false),
+    verdict_status: z.string().nullish(),
+    awaiting_analyst_verdict: z.boolean().default(true),
+  })
+  .passthrough();
+export type SfuCompletenessOut = z.infer<typeof SfuCompletenessOut>;
 
 /**
  * GET /vocabularies → the enum-enforced vocabularies behind the data, plus the CCM analytics lookups.
@@ -792,6 +815,7 @@ export const SfuFicheOut = z
     aggregates: z.array(z.unknown()).default([]),
     integration: z.array(z.unknown()).default([]),
     verdict: SfuVerdictOut.nullish(),
+    completeness: SfuCompletenessOut.optional(), // absent-or-object, never null
     red_team: z.unknown().nullish(),
     disclaimer: z.string().nullish(),
   })

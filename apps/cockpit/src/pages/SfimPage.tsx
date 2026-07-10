@@ -8,10 +8,12 @@ import { Disclaimer, PanelTitle, humanize } from '@/components/chokepoints/panel
 /**
  * SFIM — Strategic Flow Units (ADR 0054), the prescription layer parallel to chokepoints.
  *
- * Scoring, verdicts and the red-team block are AUTHORED in the ag-back workbench, not computed by an
- * engine. As of the 0.6.0 deploy every SFU is still a `skeleton`: no verdict, no scoring, empty
- * routes. That is a gap on the PRODUCER side, not broken wiring here — so the screen says so plainly
- * rather than hiding the sections. Hiding them would make an unpopulated pipeline look finished.
+ * Only 4 of the 10 dimensions have a deterministic engine source; the 6 judgment dimensions and the
+ * verdict are AUTHORED by an analyst in the ag-back workbench. So since API 0.7.0 an SFU reads as
+ * partially scored by a machine and awaiting a human decision — `verdict: null` is the designed
+ * state, not a gap. The screen states that plainly rather than hiding the empty sections: hiding
+ * them would make an unpopulated pipeline look finished, and an engine score is a candidate, not a
+ * validated fact, so its provenance is shown per dimension.
  */
 
 const verdictTone = (v?: string | null) =>
@@ -40,13 +42,16 @@ export function SfimPage() {
     };
   }, []);
 
-  const scored = (items ?? []).filter((s) => s.verdict).length;
+  // `has a verdict` and `is scored` are distinct since 0.7.0: the engine fills dimensions, a human
+  // signs the verdict. Conflating them made the screen claim an engine-populated layer was empty.
+  const withVerdict = (items ?? []).filter((s) => s.verdict).length;
+  const enginePopulated = (items ?? []).some((s) => (s.dimensions_scored ?? 0) > 0);
 
   return (
     <div className="flex h-full flex-col">
       <PageHeader
         title="Flux stratégiques (SFIM)"
-        subtitle="Couche de prescription : une unité de flux, une décision. Scoring et verdicts sont rédigés en workbench côté ag-back, pas calculés."
+        subtitle="Couche de prescription : une unité de flux, une décision. Le moteur score 4 dimensions sur 10 ; les 6 autres et le verdict sont rédigés par un analyste côté ag-back."
       />
 
       {error ? (
@@ -55,10 +60,20 @@ export function SfimPage() {
         </div>
       ) : null}
 
-      {items && items.length > 0 && scored === 0 ? (
+      {items && items.length > 0 && withVerdict === 0 ? (
         <div className="mb-4 rounded-md border border-line bg-subtle p-3 text-sm text-muted">
-          Les {items.length} unités sont à l'état <strong>squelette</strong> : aucun verdict ni scoring
-          n'a encore été rédigé côté producteur. Le câblage est en place — c'est la donnée qui manque.
+          {enginePopulated ? (
+            <>
+              Les {items.length} unités sont <strong>renseignées par le moteur</strong> (scoring
+              partiel, dimensions déterministes uniquement) ; aucune n'a encore de verdict analyste.
+              Le remplissage machine n'est pas une validation : la couche attend une décision humaine.
+            </>
+          ) : (
+            <>
+              Les {items.length} unités n'ont ni scoring ni verdict. Le câblage est en place — c'est la
+              donnée qui manque côté producteur.
+            </>
+          )}
         </div>
       ) : null}
 
@@ -70,6 +85,8 @@ export function SfimPage() {
               <th className="px-3 py-2 font-medium">Flux</th>
               <th className="px-3 py-2 font-medium">Prio</th>
               <th className="px-3 py-2 font-medium">État</th>
+              {/* numerator only: `dimensions_total` exists on the fiche, not on the summary */}
+              <th className="px-3 py-2 font-medium">Dim. scorées</th>
               <th className="px-3 py-2 font-medium">Verdict</th>
             </tr>
           </thead>
@@ -89,6 +106,7 @@ export function SfimPage() {
                   {humanize(s.status)}
                   {s.validation_status ? ` · ${humanize(s.validation_status)}` : ''}
                 </td>
+                <td className="px-3 py-2 text-muted">{s.dimensions_scored ?? 0}</td>
                 <td className="px-3 py-2">
                   {s.verdict ? (
                     <Badge tone={verdictTone(s.verdict)}>
@@ -103,7 +121,7 @@ export function SfimPage() {
             ))}
             {items && items.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-sm text-muted">
+                <td colSpan={6} className="px-3 py-6 text-center text-sm text-muted">
                   Aucune unité de flux stratégique.
                 </td>
               </tr>
@@ -153,10 +171,12 @@ function SfuPanel({ id }: { id: string }) {
         <div className="text-xs text-muted">{fiche.id}</div>
       </div>
 
+      <CompletenessBlock completeness={fiche.completeness} />
+
       <VerdictBlock verdict={fiche.verdict} />
 
       <Separator />
-      <ScoringBlock scoring={fiche.scoring} />
+      <ScoringBlock scoring={fiche.scoring} completeness={fiche.completeness} />
 
       <Separator />
       <CountsBlock fiche={fiche} />
@@ -175,6 +195,35 @@ function SfuPanel({ id }: { id: string }) {
       ) : null}
 
       <Disclaimer text={fiche.disclaimer} />
+    </div>
+  );
+}
+
+/** 0.7.0 completeness envelope. Absent on an older producer — render nothing rather than invent it. */
+function CompletenessBlock({ completeness }: { completeness: SfuFicheOut['completeness'] }) {
+  if (!completeness) return null;
+  const c = completeness;
+  return (
+    <div className="rounded-md border border-line bg-subtle p-3">
+      <PanelTitle>Complétude</PanelTitle>
+      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-sm">
+        <Badge tone="neutral">
+          {c.dimensions_scored}/{c.dimensions_total} dimensions
+        </Badge>
+        <span className="text-[11px] text-muted">
+          {c.auto_dimensions} automatiques · {c.analyst_dimensions} analyste
+        </span>
+      </div>
+      <p className="mt-1 text-[11px] text-muted">
+        {c.awaiting_analyst_verdict
+          ? 'En attente du verdict analyste.'
+          : `Verdict ${humanize(c.verdict_status)}.`}
+        {c.has_draft
+          ? ` Brouillon côté producteur${
+              c.draft_status && c.draft_status !== 'draft' ? ` (${humanize(c.draft_status)})` : ''
+            }.`
+          : ''}
+      </p>
     </div>
   );
 }
@@ -221,7 +270,23 @@ function VerdictBlock({ verdict }: { verdict: SfuFicheOut['verdict'] }) {
   );
 }
 
-function ScoringBlock({ scoring }: { scoring: SfuFicheOut['scoring'] }) {
+/** An `engine_auto` score is a candidate, not a validated fact — provenance is shown, never implied. */
+const originLabel = (o?: string | null) =>
+  o === 'engine_auto' ? 'auto (moteur)' : o === 'analyst_submission' ? 'analyste' : humanize(o);
+
+function ScoringBlock({
+  scoring,
+  completeness,
+}: {
+  scoring: SfuFicheOut['scoring'];
+  completeness: SfuFicheOut['completeness'];
+}) {
+  // The unscored judgment dimensions never appear as rows and we hold no names for them (their
+  // labels live in /vocabularies). Count them rather than render fabricated blanks.
+  const remaining = completeness
+    ? Math.max(0, completeness.dimensions_total - completeness.dimensions_scored)
+    : 0;
+
   if (!scoring.length) {
     return (
       <div>
@@ -234,7 +299,8 @@ function ScoringBlock({ scoring }: { scoring: SfuFicheOut['scoring'] }) {
     <div>
       <PanelTitle>Scoring</PanelTitle>
       <p className="mb-1 text-[11px] text-muted">
-        `effective_score` arbitre entre la valeur automatique et celle de l'analyste.
+        `effective_score` arbitre entre la valeur automatique et celle de l'analyste. Origine{' '}
+        <em>auto</em> = candidat moteur non validé ; <em>analyste</em> = soumission humaine.
       </p>
       <ul className="space-y-1.5 text-sm">
         {scoring.map((d) => (
@@ -244,6 +310,7 @@ function ScoringBlock({ scoring }: { scoring: SfuFicheOut['scoring'] }) {
               {d.effective_score != null ? (
                 <Badge tone="neutral">{d.effective_score}</Badge>
               ) : null}
+              {d.origin ? <Badge tone="neutral">{originLabel(d.origin)}</Badge> : null}
               {d.confidence ? (
                 <span className="text-[11px] text-muted">confiance {d.confidence}</span>
               ) : null}
@@ -263,6 +330,12 @@ function ScoringBlock({ scoring }: { scoring: SfuFicheOut['scoring'] }) {
           </li>
         ))}
       </ul>
+      {remaining > 0 ? (
+        <p className="mt-1.5 text-[11px] text-muted">
+          {remaining} dimension{remaining > 1 ? 's' : ''} restante{remaining > 1 ? 's' : ''}, en
+          attente d'analyste.
+        </p>
+      ) : null}
     </div>
   );
 }

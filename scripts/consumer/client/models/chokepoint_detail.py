@@ -12,11 +12,11 @@ from typing import cast, Union
 from typing import Union
 
 if TYPE_CHECKING:
-  from ..models.alternative_out import AlternativeOut
-  from ..models.risk_out import RiskOut
   from ..models.metric_out import MetricOut
-  from ..models.chokepoint_episode_out import ChokepointEpisodeOut
   from ..models.geometry_out import GeometryOut
+  from ..models.risk_out import RiskOut
+  from ..models.chokepoint_episode_out import ChokepointEpisodeOut
+  from ..models.alternative_out import AlternativeOut
   from ..models.flow_out import FlowOut
 
 
@@ -74,11 +74,11 @@ class ChokepointDetail:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.alternative_out import AlternativeOut
-        from ..models.risk_out import RiskOut
         from ..models.metric_out import MetricOut
-        from ..models.chokepoint_episode_out import ChokepointEpisodeOut
         from ..models.geometry_out import GeometryOut
+        from ..models.risk_out import RiskOut
+        from ..models.chokepoint_episode_out import ChokepointEpisodeOut
+        from ..models.alternative_out import AlternativeOut
         from ..models.flow_out import FlowOut
         id = self.id
 
@@ -215,11 +215,11 @@ class ChokepointDetail:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.alternative_out import AlternativeOut
-        from ..models.risk_out import RiskOut
         from ..models.metric_out import MetricOut
-        from ..models.chokepoint_episode_out import ChokepointEpisodeOut
         from ..models.geometry_out import GeometryOut
+        from ..models.risk_out import RiskOut
+        from ..models.chokepoint_episode_out import ChokepointEpisodeOut
+        from ..models.alternative_out import AlternativeOut
         from ..models.flow_out import FlowOut
         d = dict(src_dict)
         id = d.pop("id")

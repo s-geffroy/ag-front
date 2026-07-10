@@ -14,6 +14,7 @@ from typing import Union
 if TYPE_CHECKING:
   from ..models.sfu_verdict_out import SfuVerdictOut
   from ..models.sfu_dimension_out import SfuDimensionOut
+  from ..models.sfu_completeness_out import SfuCompletenessOut
 
 
 
@@ -39,6 +40,9 @@ class SfuFicheOut:
             aggregates (Union[Unset, list[Any]]):
             integration (Union[Unset, list[Any]]):
             verdict (Union['SfuVerdictOut', None, Unset]):
+            completeness (Union[Unset, SfuCompletenessOut]): Why a fiche block is empty. Per ADR 0054 only 4 of the 10
+                dimensions have a deterministic engine
+                source; the 6 judgment dimensions and the verdict are authored by a human, never invented.
             red_team (Union[Any, None, Unset]):
             disclaimer (Union[Unset, str]):  Default: 'Analytical results are derived, candidate outputs (not human-
                 validated) and are never written back to canonical without a review gate.'.
@@ -56,6 +60,7 @@ class SfuFicheOut:
     aggregates: Union[Unset, list[Any]] = UNSET
     integration: Union[Unset, list[Any]] = UNSET
     verdict: Union['SfuVerdictOut', None, Unset] = UNSET
+    completeness: Union[Unset, 'SfuCompletenessOut'] = UNSET
     red_team: Union[Any, None, Unset] = UNSET
     disclaimer: Union[Unset, str] = 'Analytical results are derived, candidate outputs (not human-validated) and are never written back to canonical without a review gate.'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -64,6 +69,7 @@ class SfuFicheOut:
     def to_dict(self) -> dict[str, Any]:
         from ..models.sfu_verdict_out import SfuVerdictOut
         from ..models.sfu_dimension_out import SfuDimensionOut
+        from ..models.sfu_completeness_out import SfuCompletenessOut
         id = self.id
 
         name = self.name
@@ -129,6 +135,10 @@ class SfuFicheOut:
         else:
             verdict = self.verdict
 
+        completeness: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.completeness, Unset):
+            completeness = self.completeness.to_dict()
+
         red_team: Union[Any, None, Unset]
         if isinstance(self.red_team, Unset):
             red_team = UNSET
@@ -163,6 +173,8 @@ class SfuFicheOut:
             field_dict["integration"] = integration
         if verdict is not UNSET:
             field_dict["verdict"] = verdict
+        if completeness is not UNSET:
+            field_dict["completeness"] = completeness
         if red_team is not UNSET:
             field_dict["red_team"] = red_team
         if disclaimer is not UNSET:
@@ -176,6 +188,7 @@ class SfuFicheOut:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.sfu_verdict_out import SfuVerdictOut
         from ..models.sfu_dimension_out import SfuDimensionOut
+        from ..models.sfu_completeness_out import SfuCompletenessOut
         d = dict(src_dict)
         id = d.pop("id")
 
@@ -248,6 +261,16 @@ class SfuFicheOut:
         verdict = _parse_verdict(d.pop("verdict", UNSET))
 
 
+        _completeness = d.pop("completeness", UNSET)
+        completeness: Union[Unset, SfuCompletenessOut]
+        if isinstance(_completeness,  Unset):
+            completeness = UNSET
+        else:
+            completeness = SfuCompletenessOut.from_dict(_completeness)
+
+
+
+
         def _parse_red_team(data: object) -> Union[Any, None, Unset]:
             if data is None:
                 return data
@@ -273,6 +296,7 @@ class SfuFicheOut:
             aggregates=aggregates,
             integration=integration,
             verdict=verdict,
+            completeness=completeness,
             red_team=red_team,
             disclaimer=disclaimer,
         )

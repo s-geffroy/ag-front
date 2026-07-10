@@ -30,6 +30,7 @@ class SfuDimensionOut:
             confidence (Union[None, Unset, str]):
             evidence_status (Union[None, Unset, str]):
             rationale (Union[None, Unset, str]):
+            origin (Union[None, Unset, str]):
      """
 
     dimension: str
@@ -39,6 +40,7 @@ class SfuDimensionOut:
     confidence: Union[None, Unset, str] = UNSET
     evidence_status: Union[None, Unset, str] = UNSET
     rationale: Union[None, Unset, str] = UNSET
+    origin: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -81,6 +83,12 @@ class SfuDimensionOut:
         else:
             rationale = self.rationale
 
+        origin: Union[None, Unset, str]
+        if isinstance(self.origin, Unset):
+            origin = UNSET
+        else:
+            origin = self.origin
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -99,6 +107,8 @@ class SfuDimensionOut:
             field_dict["evidence_status"] = evidence_status
         if rationale is not UNSET:
             field_dict["rationale"] = rationale
+        if origin is not UNSET:
+            field_dict["origin"] = origin
 
         return field_dict
 
@@ -169,6 +179,16 @@ class SfuDimensionOut:
         rationale = _parse_rationale(d.pop("rationale", UNSET))
 
 
+        def _parse_origin(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        origin = _parse_origin(d.pop("origin", UNSET))
+
+
         sfu_dimension_out = cls(
             dimension=dimension,
             effective_score=effective_score,
@@ -177,6 +197,7 @@ class SfuDimensionOut:
             confidence=confidence,
             evidence_status=evidence_status,
             rationale=rationale,
+            origin=origin,
         )
 
 
