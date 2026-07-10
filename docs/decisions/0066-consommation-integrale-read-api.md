@@ -16,9 +16,17 @@ comparait le déployé à un pin périmé : il ne mesurait rien.
 
 Trois défauts en découlaient, tous **actifs en production** :
 
-1. **Un breaking change livré dans un bump mineur.** `RiskOut.current_status` a été renommé en
-   `assessment_status` + `risk_severity` en 0.4.0. La fiche publique et le cockpit lisaient encore
-   l'ancien nom : ils affichaient un champ vide depuis des mois, sans erreur.
+1. **Un breaking change livré sans bump du tout.** `RiskOut.current_status` a été retiré au profit
+   d'`assessment_status` + `risk_severity`, livré le 2026-06-27 **sous un littéral `0.2.0` inchangé**
+   et consigné rétroactivement sous l'entrée **0.3.0** du changelog producteur (ADR 0052 côté
+   ag-back, commit `3c55522`). La fiche publique et le cockpit lisaient encore l'ancien nom : ils
+   affichaient un champ vide depuis des mois, sans erreur.
+
+   *Rectificatif du 2026-07-10 (handoff ag-back `fd0449278b9c`).* Cette ADR attribuait le renommage
+   au mineur 0.4.0. C'est faux : la 0.4.0 est purement additive, et son étiquette ne ment pas. Le
+   changement a été livré sous un numéro **stable**, ce qui est pire qu'un mineur — aucun pin, aucun
+   drift-check comparant des numéros n'aurait pu le voir. Nous propagions cette erreur depuis deux
+   handoffs.
 2. **La provenance était jetée.** `@ag/cvi` validait avec des `z.object` stricts, qui suppriment les
    clés non déclarées. `disclaimer`, `status`, `engine_version` et, par dimension, `source_refs` /
    `uncertainties` disparaissaient. Un candidat qui perd son étiquette « candidat » en route vers le

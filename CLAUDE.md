@@ -90,11 +90,14 @@ Layout:
 - `docker/` — `tools.Dockerfile`, `docker-compose.yml`, pinned Node stack.
 - `.claude/skills/` — adopted agent skills (see `docs/skills/README.md`).
 - `docs/decisions/` — ADRs.
-- **Chokepoints read API contract:** `docs/api-interface-contract_V4.md` is the current human
-  companion (API `0.7.0`); the machine truth is the pinned spec
+- **Chokepoints read API contract:** `docs/api-interface-contract_V5.md` is the current human
+  companion (API `0.8.0`); the machine truth is the pinned spec
   `scripts/consumer/contract/openapi.json`, kept in sync by `scripts/consumer/sync_contract.sh`.
-  The `_V2`/`_V3`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and every
-  field**; `packages/chokepoints/src/contract-coverage.test.ts` fails the build otherwise (ADR 0066).
+  The `_V2`/`_V3`/`_V4`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and
+  every field**; `packages/chokepoints/src/contract-coverage.test.ts` fails the build otherwise
+  (ADR 0066). **A schema-identical bump is possible** — `0.8.0` changed only the version literal and
+  the *data* served (CVI `resilience` now emitted for 6 corridors). The coverage guard is blind to
+  that by construction: read the producer's changelog, not just the diff.
 
 ## Exchanging files with ag-back (srv1305127) — ADR 0067
 
