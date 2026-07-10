@@ -99,6 +99,15 @@ fi
 
 seq="$(next_seq "$OUT_MANIFEST")"
 msg_id="$(sha_file "$SRC")"
+
+# Identity IS content, so the same bytes deposited twice would put one msg_id on two messages:
+# `--in-reply-to` could no longer name either of them, and prefix resolution would report an
+# ambiguity in our own manifest. Re-depositing unchanged content is never what you meant.
+mapfile -t ours < <(msg_ids "$OUT_MANIFEST")
+if contains "$msg_id" "${ours[@]+"${ours[@]}"}"; then
+  die "ce contenu est déjà déposé sous $(short "$msg_id") ($(file_of "$OUT_MANIFEST" "$msg_id")) — un msg_id nomme un seul message"
+fi
+[[ "$SUPERSEDES" != "$msg_id" ]] || die "un message ne peut pas se remplacer lui-même"
 dest_name="$(printf '%04d-%s-%s.%s' "$seq" "$(date -u +%Y%m%d)" "$SLUG" "$ext")"
 dest="$OUTBOX/$dest_name"
 tmp="$OUTBOX/.$(printf '%04d' "$seq").tmp"
