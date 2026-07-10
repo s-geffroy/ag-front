@@ -68,10 +68,10 @@ grep -qI . -- "$SRC" || die "$SRC : contenu binaire — le canal transporte du t
 
 chain_verify "$OUT_MANIFEST" || die "notre propre manifeste a une chaîne rompue — corriger avant de déposer"
 
+# Both accept an unambiguous prefix; resolution refuses an unknown or ambiguous one,
+# so a msg_id can never be hand-completed from a truncated display.
 if [[ -n "$SUPERSEDES" ]]; then
-  mapfile -t ours < <(msg_ids "$OUT_MANIFEST")
-  contains "$SUPERSEDES" "${ours[@]+"${ours[@]}"}" ||
-    die "--supersedes $(short "$SUPERSEDES") : ce msg_id n'est pas un de nos dépôts"
+  SUPERSEDES="$(resolve_msg_id "$OUT_MANIFEST" "$SUPERSEDES" "--supersedes")"
 fi
 
 if [[ -n "$IN_REPLY_TO" ]]; then
@@ -79,10 +79,9 @@ if [[ -n "$IN_REPLY_TO" ]]; then
     die "--in-reply-to impossible : ag-back n'a pas de manifeste, aucune corrélation n'est vérifiable"
   chain_verify "$IN_MANIFEST" || die "chaîne du manifeste distant rompue — ne pas répondre dans le noir"
 
-  mapfile -t theirs < <(msg_ids "$IN_MANIFEST")
+  IN_REPLY_TO="$(resolve_msg_id "$IN_MANIFEST" "$IN_REPLY_TO" "--in-reply-to")"
+
   mapfile -t theirs_dead < <(superseded_ids "$IN_MANIFEST")
-  contains "$IN_REPLY_TO" "${theirs[@]+"${theirs[@]}"}" ||
-    die "--in-reply-to $(short "$IN_REPLY_TO") : ag-back n'a jamais déposé ce message"
   if contains "$IN_REPLY_TO" "${theirs_dead[@]+"${theirs_dead[@]}"}"; then
     die "--in-reply-to $(short "$IN_REPLY_TO") : ag-back a remplacé ce message — répondre à sa version courante"
   fi

@@ -86,8 +86,11 @@ classify() {
 
 # --- Acknowledge ------------------------------------------------------------
 if [[ "$MODE" == ack ]]; then
-  [[ -n "$ACK_ID" ]] || die "--ack attend un msg_id"
+  [[ -n "$ACK_ID" ]] || die "--ack attend un msg_id (empreinte entière ou préfixe non ambigu)"
   case "$STATUS" in read | actioned | rejected) ;; *) die "--status ∈ read|actioned|rejected" ;; esac
+
+  # A 12-char prefix is what we print; accept it, and refuse anything ambiguous.
+  ACK_ID="$(resolve_msg_id "$IN_MANIFEST" "$ACK_ID" "--ack")"
 
   file="$(file_of "$IN_MANIFEST" "$ACK_ID")"
   [[ -n "$file" ]] || die "msg_id inconnu du manifeste distant : $ACK_ID"

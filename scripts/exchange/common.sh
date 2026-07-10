@@ -94,6 +94,43 @@ contains() {
 }
 
 # ---------------------------------------------------------------------------
+# Prefix resolution. `inbox.sh` prints 12-char msg_ids, so requiring the full 64
+# invited hand-completing one from the displayed prefix -- which is fabricating an
+# identifier. Accept an unambiguous prefix instead, and REFUSE an ambiguous one:
+# a msg_id must never be guessed, and silently picking one of two matches would be
+# the same failure this protocol exists to prevent.
+#
+# Only ever resolves against msg_ids the given manifest actually attests.
+# ---------------------------------------------------------------------------
+
+MIN_PREFIX=8
+
+resolve_msg_id() {
+  local manifest="$1" prefix="$2" label="${3:-msg_id}"
+  [[ -n "$prefix" ]] || die "$label : empreinte vide"
+
+  if [[ ! "$prefix" =~ ^[0-9a-f]+$ ]]; then
+    die "$label $prefix : une empreinte est en hexadécimal minuscule"
+  fi
+  if ((${#prefix} < MIN_PREFIX)); then
+    die "$label $prefix : préfixe trop court (au moins $MIN_PREFIX caractères)"
+  fi
+
+  local matches
+  mapfile -t matches < <(msg_ids "$manifest" | grep -x -- "$prefix.*" || true)
+
+  case "${#matches[@]}" in
+    0) die "$label $(short "$prefix") : aucun message de $(basename "$(dirname "$manifest")") ne porte cette empreinte" ;;
+    1) printf '%s' "${matches[0]}" ;;
+    *)
+      warn "$label $(short "$prefix") est ambigu — ${#matches[@]} messages y correspondent :"
+      printf '  %s\n' "${matches[@]}" >&2
+      die "précisez l'empreinte ; un msg_id ne se devine pas"
+      ;;
+  esac
+}
+
+# ---------------------------------------------------------------------------
 # The `prev` chain: every line records the sha256 of the line before it. A gap or
 # a rewritten line breaks the chain, so a truncated conversation cannot pass as a
 # complete one.

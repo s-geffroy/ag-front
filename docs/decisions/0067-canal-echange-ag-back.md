@@ -63,6 +63,16 @@ L'adressage par contenu paie une seconde fois : recalculer le sha du fichier re�
 simultanément son intégrité (tronqué / en cours d'écriture) et son identité. Une seule opération, deux
 garanties.
 
+**Une empreinte s'abrège, elle ne se devine pas** (ajouté le 2026-07-10). `inbox.sh` affiche des
+`msg_id` tronqués à 12 caractères, et exiger les 64 au moment d'`--ack` ou d'`--in-reply-to` invitait à
+**compléter l'empreinte à la main** depuis le préfixe affiché — c'est-à-dire à fabriquer un
+identifiant. Nous l'avons fait, et le garde de corrélation l'a attrapé. Les scripts acceptent désormais
+un **préfixe non ambigu** (≥ 8 caractères hexadécimaux), résolu contre le manifeste qui l'atteste — le
+leur pour `--in-reply-to`, le nôtre pour `--supersedes`. Un préfixe ambigu est **refusé**, avec la
+liste des candidats : choisir silencieusement l'un des deux serait exactement la défaillance que ce
+protocole existe pour empêcher. C'est un changement d'**outillage**, pas de protocole : le fil ne porte
+que des empreintes entières, et `PROTOCOL.md` reste inchangé (sha `a69696038e49…`, qu'ag-back a épinglé).
+
 ### Un manifeste append-only chaîné, plutôt que l'état du répertoire
 
 `manifest.jsonl` par boîte, une ligne JSON par événement (`msg` | `ack`), chaque ligne portant `prev`
