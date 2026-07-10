@@ -221,6 +221,13 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
     // (ag-back handoff `787d92d14eb2`). The producer flags it — `confidence: 'bas'` and an explicit
     // `uncertainties` entry — and dropping either turns an absence of data into a max-severity fact.
     // So: a low-confidence dimension is a HYPOTHESIS, and its uncertainties travel with its statement.
+    //
+    // `confidence: 'bas'` is a BLUNT proxy, deliberately. Upstream it means two different things —
+    // "derived from an absence of data" (`concentration` when nothing is modelled) and "measured but
+    // weakly evidenced" (`menace`, `resilience`, `cout_contournement`, hardcoded `bas`). No field
+    // distinguishes them, so we over-trigger rather than under-trigger: labelling a weakly-evidenced
+    // score a hypothesis costs a caveat, treating an absence of data as a fact costs a wrong decision.
+    // Narrow this the day the producer ships an explicit ignorance marker (asked for in our `0006`).
     const isHypothesis = (ds: DimensionScore) => ds.confidence === 'bas';
     const uncertaintyOf = (ds: DimensionScore) => ds.uncertainties.join(' · ');
     const qualify = (ds: DimensionScore, statement: string) => {

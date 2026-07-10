@@ -223,6 +223,38 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
   });
 
   /**
+   * The rule over-triggers ON PURPOSE. Upstream, `confidence: 'bas'` is hardcoded for `menace`,
+   * `resilience` and `cout_contournement` — measured but weakly evidenced — and only `concentration`
+   * earns it from an absence of data (`engines/cvi.py:245`). No field separates the two cases, so a
+   * weakly-evidenced score is also flagged a hypothesis. That costs a caveat; the converse would cost
+   * a wrong decision. Pin the behaviour so narrowing it later is a deliberate act.
+   */
+  it('flags a weakly-evidenced dimension as a hypothesis too, erring on the safe side', () => {
+    const cvi: CviAssessment = {
+      scale: '0-5',
+      methodology_documented: false,
+      sources: [],
+      uncertainties: [],
+      dimensions: {
+        // Measured from a real searoute delta, yet the producer stamps it `bas`.
+        resilience: {
+          score: 4,
+          rationale: 'Délai de reroutage estimé ≈12 j.',
+          confidence: 'bas',
+          source_refs: ['chokepoints:table:analytics.substitution_route_delta'],
+          uncertainties: ['Proxy de résilience à partir du délai de reroutage.'],
+        },
+      },
+    };
+    const r = buildCandidates({ packet: packet(), cvi } satisfies PrefillInput);
+
+    const res = r.swot.find((s) => s.source_ref === 'cvi:resilience');
+    expect(res?.quadrant).toBe('weakness');
+    expect(res?.is_hypothesis).toBe(true);
+    expect(res?.statement).toContain('Proxy de résilience');
+  });
+
+  /**
    * The PESTEL half of the same defect: `uncertainty` was filled for `incertitude` only, so a
    * low-confidence `cout_contournement` or `gouvernance` reached the decision note bare.
    */
