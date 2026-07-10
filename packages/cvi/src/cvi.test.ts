@@ -124,4 +124,16 @@ describe('provenance survives validation', () => {
     expect(r.ok).toBe(false);
     expect(r.issues.map((i) => i.code)).toContain('methodology_required');
   });
+
+  /**
+   * `global_level` is absent-or-present, never `null`. ag-back is weighing a change that would send
+   * `null` to mean "indeterminate" once unexamined dimensions stop being scored (their handoff
+   * `5a7f0b2bc2bd`); that would fail the parse of the whole assessment, hence of the screen. Pin the
+   * contract so the day it arrives, the build says so instead of the UI.
+   */
+  it('rejects a null global_level — an absent key is the only way to say "no level"', () => {
+    expect(validateCvi({ ...live, global_level: null }).ok).toBe(false);
+    const { global_level: _omitted, ...withoutLevel } = live;
+    expect(validateCvi(withoutLevel).ok).toBe(true);
+  });
 });
