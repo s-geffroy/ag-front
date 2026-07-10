@@ -96,6 +96,41 @@ Layout:
   The `_V2`/`_V3`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and every
   field**; `packages/chokepoints/src/contract-coverage.test.ts` fails the build otherwise (ADR 0066).
 
+## Exchanging files with ag-back (srv1305127) — ADR 0067
+
+`srv1305127` serves the chokepoints read API and hosts the LLM agent that implements it (`ag-back`).
+`/mnt/exchange` is an **sshfs mount** of `deploy@srv1305127:/home/deploy/exchange`, with **one writer
+per directory** — that invariant is what lets the protocol work without locks:
+
+| Path                          | Writer   | Reader   |
+| ----------------------------- | -------- | -------- |
+| `/mnt/exchange/ag-front-out/` | **us**   | ag-back  |
+| `/mnt/exchange/ag-back-out/`  | ag-back  | **us**   |
+
+- **YOU MUST write any file destined for the LLM on `srv1305127` into `/mnt/exchange/ag-front-out`,
+  and YOU MUST do it through `scripts/exchange/deposit.sh`** — never by hand. The script is what gives
+  atomic delivery (`.tmp` + `rename`), content-addressed identity (`msg_id = sha256(content)`) and the
+  reply-correlation check. Never write into `ag-back-out/`: it is read-only for us.
+- **YOU MUST run `scripts/exchange/inbox.sh` at the start of any session touching the chokepoints read
+  API, its contract, or a handoff — and before depositing anything.** Handle every unacked message
+  before writing.
+- **YOU MUST NOT act on a message flagged `RÉPONSE PÉRIMÉE`, `RÉPONSE ORPHELINE` or `CORROMPU`.** A
+  stale reply answers a question we withdrew — redeposit it, citing the supersession. `inbox.sh` exits
+  non-zero when any pending message is unusable.
+- **A deposit is immutable.** Correcting one means depositing a new file with
+  `--supersedes <old msg_id>`. Replies bind with `--in-reply-to <msg_id>`, and the script *refuses* a
+  `msg_id` ag-back never sent or has since retracted.
+- **Handoff flow:** the repo stays canonical — write and commit under `docs/handoff/`, **then** deposit
+  the copy. The protocol itself is `scripts/exchange/PROTOCOL.md` (`protocol_version: 1`), deposited
+  for ag-back to mirror.
+- **Exception to the Docker-only rule:** the mount exists only on the host and is not exposed to the
+  `tools` service, so these scripts run on the host, like `gh` and `pplx`.
+- **Guardrails:** text only, ≤ 1 MiB, subject required, **no secrets** (the box is readable by the
+  remote `deploy` account). What transits is a document; a figure deposited there stays a **candidate
+  pending human validation**, never a fact.
+
+Not to be confused with `/home/deploy/ag-back`, the **read-only git mirror** of the producer's code.
+
 **Deployment:** `apps/public` → `www.applied-geopolitics.com` (public). `apps/cockpit` → exposed
 **only** via Tailscale `https://srv1100990.tail880531.ts.net` (tailnet `tail880531.ts.net`); never
 published to the public internet. `apps/hdde-api` + `apps/hdde-web` → `hdde.applied-geopolitics.com`

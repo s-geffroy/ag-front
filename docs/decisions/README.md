@@ -46,3 +46,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0063](0063-red-team-prompt-hardening.md) | Cross-cutting red-team prompt hardening (spotlighting, analysis-first, unified scale) | Accepted |
 | [0064](0064-pplx-cli-recherche-externe.md) | External web research: `pplx-cli` upstream of `agent-browser` (single sourcing chain) | Accepted |
 | [0066](0066-consommation-integrale-read-api.md) | Full consumption of the chokepoints Read API 0.6.0, enforced by build-time coverage guards | Accepted |
+| [0067](0067-canal-echange-ag-back.md) | ag-front ↔ ag-back file-exchange channel: content-addressed messages, verified reply correlation | Accepted |
