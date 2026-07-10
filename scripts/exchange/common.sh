@@ -69,6 +69,17 @@ superseded_ids() { manifest_query "$1" 'select(.type=="msg" and .supersedes != n
 
 acked_ids() { manifest_query "$1" 'select(.type=="ack") | .msg_id'; }
 
+# The msg_ids a manifest's author has replied to. With acked_ids(), these are the two
+# ways the peer can have COMMITTED to a message of ours -- after which rule 8 forbids
+# retracting it: the correction goes forward as a new message.
+replied_to_ids() { manifest_query "$1" 'select(.type=="msg" and .in_reply_to != null) | .in_reply_to'; }
+
+# Rule 9: several acks may bear on one msg_id (read -> actioned); the LAST one holds.
+last_ack_status() {
+  local manifest="$1" id="$2"
+  manifest_query "$manifest" "select(.type==\"ack\" and .msg_id==\"$id\") | .status" | tail -n 1
+}
+
 subject_of() {
   local manifest="$1" id="$2"
   manifest_query "$manifest" "select(.type==\"msg\" and .msg_id==\"$id\") | .subject" | head -n 1

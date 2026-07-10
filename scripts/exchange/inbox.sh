@@ -61,6 +61,8 @@ chain_verify "$IN_MANIFEST" || die "chaîne du manifeste distant rompue — cana
 mapfile -t OUR_IDS < <(msg_ids "$OUT_MANIFEST")
 mapfile -t OUR_SUPERSEDED < <(superseded_ids "$OUT_MANIFEST")
 mapfile -t ACKED < <(acked_ids "$OUT_MANIFEST")
+# What ag-back has acked of OURS: proof they read a message before we retracted it (rule 8).
+mapfile -t PEER_ACKED < <(acked_ids "$IN_MANIFEST")
 
 # Recompute the sha of the deposited file and compare with the announced msg_id.
 # Equal => intact AND identity confirmed, in one operation.
@@ -71,12 +73,20 @@ integrity_of() {
 }
 
 # The heart of the protocol: does this reply bind to something we actually still ask?
+#
+# Rule 8 (v2): "superseded" alone does not make a reply stale. If ag-back ACKED the message before we
+# retracted it, they answered the version they had, correctly, and could not have known the next one.
+# Only a retraction that PRECEDED their reading makes the reply stale.
 classify() {
   local in_reply_to="$1"
   if [[ -z "$in_reply_to" || "$in_reply_to" == null ]]; then
     echo spontaneous
   elif contains "$in_reply_to" "${OUR_SUPERSEDED[@]+"${OUR_SUPERSEDED[@]}"}"; then
-    echo stale
+    if contains "$in_reply_to" "${PEER_ACKED[@]+"${PEER_ACKED[@]}"}"; then
+      echo correlated_superseded
+    else
+      echo stale
+    fi
   elif contains "$in_reply_to" "${OUR_IDS[@]+"${OUR_IDS[@]}"}"; then
     echo correlated
   else
@@ -97,9 +107,16 @@ if [[ "$MODE" == ack ]]; then
   [[ "$(integrity_of "$ACK_ID" "$file")" == ok ]] ||
     die "refus d'acquitter $(short "$ACK_ID") : le fichier ne redonne pas ce sha (tronqué ou en cours d'écriture)"
 
-  if contains "$ACK_ID" "${ACKED[@]+"${ACKED[@]}"}"; then
-    echo "déjà acquitté : $(short "$ACK_ID")"
-    exit 0
+  # Rule 9 (v2): several acks may bear on one msg_id; the LAST one holds. A `read` that later becomes
+  # `actioned` is a legitimate progression -- refusing it would force us to lie on the first ack.
+  # Repeating the current status is a no-op.
+  previous="$(last_ack_status "$OUT_MANIFEST" "$ACK_ID")"
+  if [[ -n "$previous" ]]; then
+    if [[ "$previous" == "$STATUS" ]]; then
+      echo "déjà acquitté $(short "$ACK_ID") en « $STATUS » — sans effet"
+      exit 0
+    fi
+    echo "transition d'accusé : $previous → $STATUS"
   fi
 
   json="$(jq -nc \
@@ -135,6 +152,11 @@ while IFS=$'\t' read -r seq id file subject irt; do
   case "$verdict" in
     spontaneous) printf '       · message spontané (pas une réponse)\n' ;;
     correlated)  printf '       ✓ répond bien à « %s » (%s)\n' "$(subject_of "$OUT_MANIFEST" "$irt")" "$(short "$irt")" ;;
+    correlated_superseded)
+      printf '       ✓ répond à « %s » (%s), version que nous avons depuis corrigée.\n' \
+        "$(subject_of "$OUT_MANIFEST" "$irt")" "$(short "$irt")"
+      printf '         Il l’avait acquittée avant notre correction : la réponse est valide.\n'
+      ;;
     stale)
       printf '       ✗ RÉPONSE PÉRIMÉE — répond à %s, que nous avons remplacé.\n' "$(short "$irt")"
       printf '         ag-back n’avait pas lu notre correction. NE PAS consommer ; redéposer la question.\n'

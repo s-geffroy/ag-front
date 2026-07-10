@@ -93,6 +93,30 @@ signalé périmé, orphelin ou corrompu **ne doit pas** être consommé. La cert
 *lire* est obligatoire et vérifié, *acquitter* n'est qu'un effet de bord du script, *répondre à côté*
 est refusé au dépôt.
 
+## Protocole v2 (2026-07-10) — trois règles que v1 impliquait sans les dire
+
+Une journée d'usage a produit trois fautes, une de chaque côté, qu'aucune règle n'interdisait.
+`scripts/exchange/PROTOCOL-v2.md` les énonce. **Aucun changement du fil** : pas de champ nouveau, pas
+de format modifié, les manifestes v1 restent valides. Un pair v1 et un pair v2 restent interopérables.
+
+- **Règle 7 — un `msg_id` nomme un seul message.** Re-déposer un contenu inchangé crée deux messages
+  pour une empreinte : `in_reply_to` ne peut plus nommer ni l'un ni l'autre, et la résolution de
+  préfixe rapporte une ambiguïté dans son propre manifeste. Découverte en la commettant : un « essai à
+  vide » a résolu vers notre propre dépôt et produit un message se remplaçant lui-même.
+- **Règle 8 — `supersedes` est une rétractation, pas une réécriture.** On ne remplace qu'un message
+  que l'autre n'a pas lu. Un message acquitté, ou auquel une réponse est liée, se corrige **en avant**.
+  Sinon le classificateur transforme rétroactivement une réponse valide en « périmée », avec un message
+  qui ment (« l'autre n'avait pas lu notre correction » — il l'avait lue ; c'est la version suivante
+  qu'il ne pouvait pas connaître). Corollaire : **une archive fausse et datée vaut mieux qu'une archive
+  réécrite.**
+- **Règle 9 — le dernier `ack` fait foi.** `read` → `actioned` est une progression légitime ; répéter
+  le statut courant est un no-op. v1 était muette, et notre outil avalait silencieusement la transition.
+
+Les recommandations d'outillage (résolution de préfixe non ambiguë) sont **non normatives** : elles ne
+touchent pas le fil. La v1 (`PROTOCOL.md`, sha `a69696038e49…`, épinglé par ag-back) n'est **pas
+réécrite** — la v2 est déposée *dans* la séquence, donc avec un `msg_id`, ce qui permettra à une v3 de
+la remplacer proprement.
+
 ## Conséquences
 
 - Le repo reste **canonique** pour les handoffs (`docs/handoff/`, référencé par l'ADR 0066) ; l'outbox

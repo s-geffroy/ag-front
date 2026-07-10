@@ -72,6 +72,21 @@ chain_verify "$OUT_MANIFEST" || die "notre propre manifeste a une chaîne rompue
 # so a msg_id can never be hand-completed from a truncated display.
 if [[ -n "$SUPERSEDES" ]]; then
   SUPERSEDES="$(resolve_msg_id "$OUT_MANIFEST" "$SUPERSEDES" "--supersedes")"
+
+  # Rule 8 (protocol v2): `supersedes` retracts a message the peer has NOT yet read. Once they have
+  # acked it, or bound a reply to it, retracting would retroactively turn their valid reply into a
+  # "stale" one -- and the reader's own message would lie: "they had not read our correction". They
+  # had. A correction that arrives after a reply goes FORWARD, as a new message.
+  if [[ -f "$IN_MANIFEST" ]]; then
+    mapfile -t peer_acked < <(acked_ids "$IN_MANIFEST")
+    mapfile -t peer_replied < <(replied_to_ids "$IN_MANIFEST")
+    if contains "$SUPERSEDES" "${peer_acked[@]+"${peer_acked[@]}"}"; then
+      die "--supersedes $(short "$SUPERSEDES") : ag-back l'a déjà acquitté — corrigez en avant, par un nouveau message"
+    fi
+    if contains "$SUPERSEDES" "${peer_replied[@]+"${peer_replied[@]}"}"; then
+      die "--supersedes $(short "$SUPERSEDES") : ag-back y a déjà répondu — le remplacer invaliderait sa réponse ; corrigez en avant"
+    fi
+  fi
 fi
 
 if [[ -n "$IN_REPLY_TO" ]]; then
