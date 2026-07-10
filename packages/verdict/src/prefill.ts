@@ -1,5 +1,5 @@
 import { cviDimensions } from '@ag/cvi';
-import type { CviAssessment, CviDimensionKey } from '@ag/cvi';
+import type { CviAssessment, CviDimensionKey, DimensionScore } from '@ag/cvi';
 import type { PacketPayload } from '@ag/schema/hdde';
 import type { PestelFactor, SwotItem, DecisionOption } from '@ag/schema/verdict';
 
@@ -216,6 +216,18 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
   if (cvi?.dimensions) {
     const THRESHOLD = 3;
 
+    // A producer dimension can reach 5/5 out of IGNORANCE rather than measurement: `engine_substitution`
+    // scores an object nobody ever examined `5 - 0 = 5`, and `concentration` reads that number straight
+    // (ag-back handoff `787d92d14eb2`). The producer flags it — `confidence: 'bas'` and an explicit
+    // `uncertainties` entry — and dropping either turns an absence of data into a max-severity fact.
+    // So: a low-confidence dimension is a HYPOTHESIS, and its uncertainties travel with its statement.
+    const isHypothesis = (ds: DimensionScore) => ds.confidence === 'bas';
+    const uncertaintyOf = (ds: DimensionScore) => ds.uncertainties.join(' · ');
+    const qualify = (ds: DimensionScore, statement: string) => {
+      const unc = uncertaintyOf(ds);
+      return unc ? `${statement} [${unc}]` : statement;
+    };
+
     // External pressure the enterprise does not control → SWOT threat.
     const threatDims: CviDimensionKey[] = [
       'menace',
@@ -226,55 +238,59 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
     for (const dim of threatDims) {
       const ds = cvi.dimensions[dim];
       if (ds && ds.score >= THRESHOLD) {
-        swot.push(
-          swotItem(
+        swot.push({
+          ...swotItem(
             'threat',
-            `${cviDimensions[dim].label} ${ds.score}/5 : ${ds.rationale}`,
+            qualify(ds, `${cviDimensions[dim].label} ${ds.score}/5 : ${ds.rationale}`),
             'cvi',
             `cvi:${dim}`,
           ),
-        );
+          is_hypothesis: isHypothesis(ds),
+        });
       }
     }
 
     // A high `resilience` score means slow to bypass/repair/absorb — an internal weakness, not a threat.
     const res = cvi.dimensions.resilience;
     if (res && res.score >= THRESHOLD) {
-      swot.push(
-        swotItem(
+      swot.push({
+        ...swotItem(
           'weakness',
-          `${cviDimensions.resilience.label} ${res.score}/5 : ${res.rationale}`,
+          qualify(res, `${cviDimensions.resilience.label} ${res.score}/5 : ${res.rationale}`),
           'cvi',
           'cvi:resilience',
         ),
-      );
+        is_hypothesis: isHypothesis(res),
+      });
     }
 
     // Bypass cost is an economic constraint on every routing option.
     const cost = cvi.dimensions.cout_contournement;
     if (cost && cost.score >= THRESHOLD) {
-      pestel.push(
-        pestelFactor(
+      pestel.push({
+        ...pestelFactor(
           'economic',
           `${cviDimensions.cout_contournement.label} ${cost.score}/5 : ${cost.rationale}`,
           'Le coût de contournement fixe le prix plancher de toute option de routage alternative.',
           'cvi',
           'cvi:cout_contournement',
         ),
-      );
+        uncertainty: uncertaintyOf(cost),
+      });
     }
 
     const legal = cvi.dimensions.gouvernance;
     if (legal && legal.score >= THRESHOLD) {
-      pestel.push(
-        pestelFactor(
+      pestel.push({
+        ...pestelFactor(
           'legal',
           `Gouvernance du corridor ${legal.score}/5 : ${legal.rationale}`,
           'Qui peut sécuriser/coordonner conditionne la faisabilité des options de contournement.',
           'cvi',
           'cvi:gouvernance',
         ),
-      );
+        uncertainty: uncertaintyOf(legal),
+      });
     }
 
     // Uncertainty does not argue for or against an option — it argues for buying information first.
@@ -289,7 +305,7 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
           'cvi',
           'cvi:incertitude',
         ),
-        uncertainty: unc.uncertainties.join(' · ') || unc.rationale,
+        uncertainty: uncertaintyOf(unc) || unc.rationale,
       });
     }
   }

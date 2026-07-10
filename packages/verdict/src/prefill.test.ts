@@ -182,6 +182,73 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
   });
 
   /**
+   * A producer dimension may score 5/5 out of IGNORANCE, not measurement: `engine_substitution`
+   * falls back to `credit = 0` for an object nobody ever examined, so `difficulty = 5 - 0 = 5`, and
+   * `cvi.concentration` reads that number directly (ag-back handoff `787d92d14eb2`). The producer
+   * marks it — `confidence: 'bas'` plus an explicit `uncertainties` entry — and we were dropping
+   * both, emitting a max-severity SWOT threat indistinguishable from a measured one.
+   *
+   * A score whose provenance is an absence of data is a HYPOTHESIS, not a fact. That is exactly what
+   * `is_hypothesis` exists for (anti-bias guardrail §R), and the workspace renders it "(hypothèse)".
+   */
+  it('downgrades a low-confidence CVI dimension to a hypothesis and carries its uncertainty', () => {
+    const cvi: CviAssessment = {
+      scale: '0-5',
+      methodology_documented: false,
+      sources: [],
+      uncertainties: [],
+      dimensions: {
+        // The unexamined-corridor case, verbatim from `engines/cvi.py`.
+        concentration: {
+          score: 5,
+          rationale: 'Difficulté de substitution 5/5.',
+          confidence: 'bas',
+          source_refs: ['chokepoints:run:substitution'],
+          uncertainties: ['Alternatives non modélisées (dérivé du compte de relations).'],
+        },
+        // A measured dimension, same score: it must NOT be downgraded.
+        exposition: { ...dim(5, 'flux mesurés'), confidence: 'eleve' },
+      },
+    };
+    const r = buildCandidates({ packet: packet(), cvi } satisfies PrefillInput);
+
+    const conc = r.swot.find((s) => s.source_ref === 'cvi:concentration');
+    expect(conc?.is_hypothesis, 'a 5/5 born of ignorance must not read as a fact').toBe(true);
+    expect(conc?.statement).toContain('Alternatives non modélisées');
+
+    // Same score, real evidence: still a plain candidate threat.
+    const expo = r.swot.find((s) => s.source_ref === 'cvi:exposition');
+    expect(expo?.is_hypothesis).toBe(false);
+    expect(expo?.statement).not.toContain('Alternatives non modélisées');
+  });
+
+  /**
+   * The PESTEL half of the same defect: `uncertainty` was filled for `incertitude` only, so a
+   * low-confidence `cout_contournement` or `gouvernance` reached the decision note bare.
+   */
+  it('carries confidence and uncertainties onto every CVI-derived PESTEL factor', () => {
+    const cvi: CviAssessment = {
+      scale: '0-5',
+      methodology_documented: false,
+      sources: [],
+      uncertainties: [],
+      dimensions: {
+        cout_contournement: {
+          score: 5,
+          rationale: 'coût prohibitif',
+          confidence: 'bas',
+          source_refs: [],
+          uncertainties: ['Pas de capacité de contournement chiffrée.'],
+        },
+      },
+    };
+    const r = buildCandidates({ packet: packet(), cvi } satisfies PrefillInput);
+
+    const cost = r.pestel.find((p) => p.source_ref === 'cvi:cout_contournement');
+    expect(cost?.uncertainty).toBe('Pas de capacité de contournement chiffrée.');
+  });
+
+  /**
    * ADR 0049: the 0–100 CVI aggregate is gated on a documented methodology and never served. Guard the
    * PROPERTY — no statement is ever built from `aggregate_score` — rather than a text pattern. Producer
    * rationales legitimately contain strings like "HHI ≈51.0/100", so grepping statements for "/100"
