@@ -270,13 +270,17 @@ bas de ce registre.
 
 ### Axe 4 — Baselines transit / flux énergétiques (recoupement/actualisation)
 
-### C23 — Suez Canal Authority, _Suez Canal Statistics for 2025 Compared to 2024_ (source primaire institutionnelle) ✅ pplx `supported`
+### C23 — Suez Canal Authority, _Suez Canal Traffic Statistics — Annual Report 2025_ (source primaire institutionnelle) ✅ **PDF primaire lu en entier (2026-07-12)**
 
-- **URL (PDF)** : https://www.suezcanal.gov.eg/English/Downloads/DownloadsDocLibrary/Navigation%20Reports/Annual%20Reports/2025.pdf ⚠️ **URL instable** (404 en téléchargement direct 2026-07-12 ; le chemin publié contient des caractères de largeur nulle — récupération à la main requise).
-- **Type** : `institutionnel` (autorité gestionnaire) · **Accès** : contenu confirmé via le snippet du PDF SCA (index `pplx`) + FreightWaves.
-- **Étaye (axe 4 — série primaire, ce que l'ancien C16 laissait derrière un sélecteur)** : **12 758** navires en 2025 vs **13 213** en 2024 (**−3,4 %**) ; tonnage net **522,1** vs **524,5 M.t** (−0,5 %). Les deux années restent très en deçà de 2023.
-- **Recoupement primaire** : le WSC (C25) cite les statistiques officielles SCA — **26 434** transits en 2023 (record) — ce qui ancre la chute 2024/2025. → base 2023 recoupée.
-- **Note** : fournit le chiffre primaire SCA réclamé aux points 2 / 4 de la liste humaine. Reste à **télécharger le PDF SCA à la main** (URL instable) pour figer la décomposition par type.
+- **URL (PDF)** : `https://www.suezcanal.gov.eg/English/Downloads/DownloadsDocLibrary/Navigation Reports/Annual Reports<U+200B×3>/2025.pdf` — ⚠️ **le chemin publié contient trois espaces de largeur nulle** (`%E2%80%8B`) entre « Annual Reports » et « /2025.pdf » ; le chemin « propre » renvoie 404. Téléchargé avec le chemin exact (http 200, 932 ko, SCA « Planning & Research Dept. »).
+- **Type** : `institutionnel` (autorité gestionnaire) · **Accès** : PDF public (récupéré à la main).
+- **Étaye (axe 4 — série primaire officielle, décomposition par type)** :
+  - **Total transits** (Table 1) : 2023 = **26 434** (record ; 1 568 Mt net ; 72,4/jour) → 2024 = **13 213** (524,5 Mt) → 2025 = **12 758** (522,1 Mt ; 35,0/jour). Soit 2025 vs 2023 = **−51,7 %** en navires et **−66,7 %** en tonnage net.
+  - **Par type de navire, 2024 → 2025** (Table 3) : Tankers 4 954 → 4 991 (+0,7 %) ; **LNG 119 → 282 (+137 %)** ; Bulk −16,6 % ; Container 1 748 → 1 840 (**+5,3 % en nombre**, mais **−3,1 % en tonnage net** → navires plus petits) ; Car Carr. +46,7 % ; Général −7,2 %.
+  - **Parts 2025** (par nombre) : Tankers 39 %, Bulk 27 %, **Container 15 %**, Général 11 %, LNG 2 %.
+  - **Cargo par sens** (Table 4) : Nord→Sud −5,4 %, Sud→Nord +20,4 %, total +1,4 %.
+- **Nuance décisive** : les deltas **2025 vs 2024** sont faibles (deux années déjà effondrées) et **ne doivent pas se lire comme une reprise** — vs **2023**, la chute reste massive (−52 % navires). Le « +5,3 % conteneurs » SCA (tous conteneurs, feeders inclus) est cohérent avec le WSC (C25) : petits porteurs revenus, gros porteurs (≥ 7 500 EVP) quasi absents.
+- **Recoupement** : total 2023 = 26 434 confirmé aussi par le WSC (C25). Chiffres primaires figés ; validation humaine avant promotion.
 
 ### Escalade `agent-browser` (2026-07-12) — EUNAVFOR Aspides : résultat négatif consigné
 
@@ -311,9 +315,9 @@ bas de ce registre.
 - **Axe 2 / seuil incidents** : magnitude annuelle recoupée (C20/C21, ACLED) + garde-fou primaire (C22, MARAD).
   → **série hebdomadaire/mensuelle encore à extraire** avant de lever la mention « Hypothèse — non sourcé »
   du tableau de seuils de la fiche.
-- **Axe 4** : **PDF/pages primaires lus (2026-07-12)** — WSC (C25, doc janv. 2026 : décomposition par taille) et
-  EIA (C24, page primaire : 4,0 vs 8,7 mb/j) ; base SCA 2023 (26 434) recoupée via WSC. Reste à **télécharger le
-  PDF SCA 2025** (URL instable) pour la décomposition par type. Chiffres exacts figés, à valider par un humain.
+- **Axe 4** : **3 PDF/pages primaires lus (2026-07-12)** — SCA _Annual Report 2025_ (C23, décomposition par type +
+  série 1975-2025), WSC janv. 2026 (C25, décomposition par taille), EIA (C24, 4,0 vs 8,7 mb/j). Base 2023
+  (26 434) recoupée SCA×WSC. **Chiffres exacts figés**, à valider par un humain avant promotion.
 - **Gouvernance / Aspides** : escalade `agent-browser` faite → **négatif** (chiffres en vidéo, non extractibles).
 - **Durée de fermeture (seuil « > 4 sem. »)** : **toujours zéro source** — non couvert par cette salve.
 
@@ -321,8 +325,9 @@ bas de ce registre.
 
 1. **Escalade `agent-browser`** (conteneur `tools`) pour les sources primaires encore bloquées au bot :
    JWLA-032 complet (LMA/IUA), IUMI Stats, série S&P/Platts, chiffres EUNAVFOR Aspides.
-2. ✅ **Fait (2026-07-12)** : PDF/pages primaires WSC (C25) et EIA (C24) lus, chiffres figés ci-dessus. **Reste** à
-   télécharger à la main le **PDF SCA 2025** (C23, URL instable) pour la décomposition par type de navire.
+2. ✅ **Fait (2026-07-12)** : les 3 primaires (SCA C23, WSC C25, EIA C24) sont téléchargés/lus, chiffres figés
+   ci-dessus — dont la décomposition SCA par type de navire. Le chemin PDF SCA exact (avec 3 espaces de largeur
+   nulle) est consigné dans C23 pour re-téléchargement.
 3. **Extraire de la base ACLED** une série d'incidents mensuelle/hebdomadaire pour fonder (ou corriger) le
    seuil « ≥ 1/semaine » — condition pour lever « Hypothèse — non sourcé » dans la fiche.
 4. **Ne pas** promouvoir ces valeurs dans la fiche/dossier tant que la validation nominative (ADR 0046) n'est
