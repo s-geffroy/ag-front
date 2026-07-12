@@ -307,19 +307,46 @@ bas de ce registre.
   - IMF PortWatch (beta) : Bab el-Mandeb 2025 ≈ **45 %** du pré-crise (nov. ≈ 49 %) ; Suez nov. 2025 ≈ **56 %** ; en tonnes, Bab el-Mandeb ≈ **35 %**, Suez ≈ **41 %** de 2023.
 - **Note** : source **primaire** consolidant l'axe 4 par segment. Chiffres à valider par un humain avant promotion, mais **la fourchette « 14–32 % » que `pplx` opposait est ici résolue** (conteneurs globaux 32 %, gros porteurs 5,7 %).
 
+### Clôture des points ouverts (2026-07-12) — C26 à C28
+
+### C26 — EUNAVFOR Aspides : navires protégés — **corrige l'ancien C13** (« ≈ 700 » était le plafond de troupes) ⚠️ pplx `partially_supported` (medium)
+
+- **Sources** : CIMSEC, _« With the Shield, or On It? »_ (analyse navale, https://cimsec.org/with-the-shield-or-on-it-aspides-and-the-eu-aspirations-for-sea-control/, 2026-04-07) ; communiqué du Conseil UE (https://north-africa-middle-east-gulf.ec.europa.eu/news/red-sea-council-extends-mandate-operation-aspides-safeguard-freedom-navigation-2026-02-23_en, 2026-02-23) ; gCaptain.
+- **Type** : `analyse_secondaire` (CIMSEC) + `institutionnel` (Conseil UE) · **Accès** : libre.
+- **Étaye (axe 2 / gouvernance)** : Aspides « provided support to **over 1,200 ships** » (CIMSEC, avr. 2026) ; mandat prolongé jusqu'au **28 fév. 2027**, ~**15 M€** (Conseil UE, gCaptain).
+- **Correction actée** : l'ancien C13 donnait « ≈ 700 navires » — c'est en fait le **plafond de militaires allemands** (Bundeswehr), pas un compte de navires. Le bon ordre de grandeur est **> 1 000 navires**.
+- **Caveat** : le « 1 200 » vient d'une **analyse secondaire** ; le **communiqué officiel du Conseil ne publie pas le compte en texte** → le nombre exact officiel (et les protections rapprochées / menaces interceptées) reste dans la **vidéo/infographie EEAS « Operation in Numbers »**, à extraire pour un chiffre primaire.
+
+### C27 — Cadence d'attaques au pic — fonde le seuil « ≥ 1/semaine » (ancienne « Hypothèse — non sourcé ») ✅ pplx `supported`
+
+- **Sources** : CNBC (https://www.cnbc.com/2024/01/09/houthi-militias-launch-biggest-attack-to-date-on-merchant-vessels-in-red-sea.html, 2024-01-09) ; USNI News (_Top Stories 2024_, 2025-01-02) ; Wikipedia _Houthi attacks on commercial vessels_.
+- **Type** : `presse_specialisee` / `institutionnel` · **Accès** : libre.
+- **Étaye (axe 2 — seuil de fréquence)** : CNBC parle de la « **26th Houthi attack** on commercial shipping lanes in the Red Sea since Nov. 19 » au **9 janv. 2024** → ~26 attaques en ~51 jours ≈ **3,6/semaine** ; USNI : « the first couple of months of 2024 saw **nonstop** Houthi attacks ». Le seuil « ≥ 1/semaine sur 3 semaines » est **largement dépassé** au pic (déc. 2023 – printemps 2024).
+- **Note** : fonde la **plausibilité** du seuil ; une **série hebdomadaire continue** (base ACLED) reste souhaitable pour le calibrer finement avant de lever la mention dans la fiche.
+
+### C28 — Précédent de fermeture longue — fonde le seuil « durée > 4 semaines » (ancienne « Hypothèse — non sourcé ») ✅ pplx `supported`
+
+- **Sources** : Wikipedia _Closure of the Suez Canal (1967-1975)_ ; CEPR / VoxEU ; Atlantic Council (_A lifeline under threat_, 2025-03-20) ; ScienceDirect (Feyrer, natural experiment).
+- **Type** : `institutionnel` / `analyse_secondaire` · **Accès** : libre.
+- **Étaye (axe 4 — seuil de durée / scénario « rupture »)** : le canal a été **totalement fermé 8 ans** (5 juin 1967 → 5 juin 1975), « a disruption unprecedented in the canal's history » ; précédent secondaire : fermeture nov. 1956 → avr. 1957 (~5 mois, crise de Suez).
+- **Nuance décisive** : l'épisode Houthi **n'est pas une fermeture** (le canal reste ouvert) mais un **déroutage** ; le seuil « > 4 sem. » vise l'événement rare de fermeture — les précédents 1967-75 / 1956-57 en établissent la **réalité historique**, pas une occurrence actuelle.
+
 ### État du recoupement par axe (mise à jour 2026-07-12)
 
 - **Axe 1** (niveau **et trajectoire** des primes) : **désormais recoupé** — baseline (C17), pic juil. 2025
   (C18 + 3 relais), décrue post-cessez-le-feu (C19, ex-C5 débloquée). Ne restait « gap » depuis 2026-06-28.
   → validation humaine + série primaire JWC/LMA pour promotion.
-- **Axe 2 / seuil incidents** : magnitude annuelle recoupée (C20/C21, ACLED) + garde-fou primaire (C22, MARAD).
-  → **série hebdomadaire/mensuelle encore à extraire** avant de lever la mention « Hypothèse — non sourcé »
-  du tableau de seuils de la fiche.
+- **Axe 2 / seuil incidents** : magnitude annuelle recoupée (C20/C21, ACLED) + garde-fou primaire (C22, MARAD)
+  + **cadence de pic fondée** (C27 : ~3,6 attaques/sem. au 9 janv. 2024) → le seuil « ≥ 1/sem. » n'est plus
+  « non sourcé ». Reste une **série hebdomadaire continue** (base ACLED) pour le calibrage fin.
 - **Axe 4** : **3 PDF/pages primaires lus (2026-07-12)** — SCA _Annual Report 2025_ (C23, décomposition par type +
   série 1975-2025), WSC janv. 2026 (C25, décomposition par taille), EIA (C24, 4,0 vs 8,7 mb/j). Base 2023
   (26 434) recoupée SCA×WSC. **Chiffres exacts figés**, à valider par un humain avant promotion.
-- **Gouvernance / Aspides** : escalade `agent-browser` faite → **négatif** (chiffres en vidéo, non extractibles).
-- **Durée de fermeture (seuil « > 4 sem. »)** : **toujours zéro source** — non couvert par cette salve.
+- **Gouvernance / Aspides** : escalade `agent-browser` → chiffres officiels en vidéo ; **contournée en texte** (C26 :
+  > 1 200 navires, CIMSEC) qui **corrige l'ancien « ≈ 700 »** (= plafond de troupes). Compte officiel exact encore
+  à extraire de la vidéo/infographie EEAS.
+- **Durée de fermeture (seuil « > 4 sem. »)** : **fondée par précédent historique** (C28 : fermeture 8 ans 1967-75 ;
+  ~5 mois 1956-57). Nuance : l'épisode actuel est un **déroutage**, pas une fermeture.
 
 ### Prochaines actions (humain) — mise à jour
 
