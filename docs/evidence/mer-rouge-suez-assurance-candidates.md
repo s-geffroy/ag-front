@@ -192,3 +192,139 @@ bas de ce registre.
 3. Récupérer la **circulaire JWLA datée** (périmètre/coordonnées) et un **communiqué Aspides daté** (chiffres de protection) pour la désignation/intensité de zone.
 4. Extraire les séries de transit depuis les **rapports SCA** (C16) pour un recoupement officiel de l'axe 4.
 5. Une fois validé : intégrer au dossier avec citation normée + incertitude par affirmation, et passer `sources_ok = true`.
+
+---
+
+## Salve Perplexity Recherche Approfondie (2026-07-12) — vérifiée via `pplx`, renumérotée C17+
+
+> **STATUT : CANDIDATS EN ATTENTE DE VALIDATION HUMAINE — PAS DES FAITS.** Moisson issue d'un prompt
+> Perplexity Deep Research (voir plan de session), puis **triée et vérifiée** via la chaîne de sourcing
+> ADR 0064 (`pplx verify --answer --fresh` / `fetch-url`). Numérotation **C17+** pour ne pas écraser le
+> registre C1–C16 ci-dessus (la sortie brute rouvrait C1, avec un sens différent). Les verdicts `pplx`
+> qualifient chaque claim ; ils **ne valent pas validation humaine**. Chiffres **rapportés**, non confirmés.
+>
+> **Rejets actés (confabulation du moteur) — ne pas ressaisir :**
+>
+> - Frappes « M/V Tavvishi / M/V Norderney, golfe d'Aden, 8-9 juin **2026** » (source *The Ops Con*) :
+>   événement **réel de juin 2024** (Reuters, France24, CENTCOM), recyclé en 2026. **Rejeté.**
+> - « **28 incidents** d'attaques au T1 2026 » (source *Turqoa*) : **contredit** par la MARAD Advisory
+>   2026-006 (« *the Houthi… has not attacked commercial ships since the Israel-Gaza ceasefire agreement
+>   in October 2025* »). **Rejeté.**
+> - « Repricing JWC multi-théâtre, avril 2026 » (*arcaneintel.net*, auto-tagué `signal_faible`) : non
+>   recoupé, domaine à faible notoriété. **Écarté** (à ne reprendre que sur source institutionnelle).
+> - Renvois internes de la synthèse Perplexity vers « C79 / C86 / C98 » : **identifiants inexistants**
+>   (registre s'arrêtant à C45) → signal de confabulation, ignorés.
+
+### Axe 1 — Trajectoire de la prime _war-risk_ (le **verrou n°1**, désormais recoupé)
+
+### C17 — Reuters, _War risk insurance rates edge up after surge in Red Sea ship attacks_ (presse spécialisée) ✅ pplx `supported`
+
+- **URL** : https://www.reuters.com/world/middle-east/war-risk-insurance-rates-edge-up-after-surge-red-sea-ship-attacks-2023-12-04/ · **Date : 4 déc. 2023**
+- **Type** : `presse_specialisee` · **Accès** : libre
+- **Étaye (axe 1 — baseline / départ de trajectoire)** : primes _war-risk_ Red Sea « **0.05 % to 0.1 %** of the value of a ship, from around **0.03 %** » avant la vague d'attaques. Point bas de la trajectoire.
+- **Recoupement** : cohérent avec l'ancien C2 (IUMI/Maritime Executive : « 0.01 % → 1 % ») et C8 (Policyholder Pulse : « 0.05 % → 0.7 % → 1 % »).
+
+### C18 — Reuters, _Red Sea insurance soars after deadly Houthi ship attacks_ (presse spécialisée) ✅ pplx `supported`
+
+- **URL** : https://www.reuters.com/business/autos-transportation/red-sea-insurance-soars-after-deadly-houthi-ship-attacks-2025-07-10/ · **Date : 10 juil. 2025**
+- **Type** : `presse_specialisee` · **Accès** : libre
+- **Étaye (axe 1 — pic de juillet 2025)** : « War risk premiums have risen to around **0.7 %** of the value of a ship, from around **0.3 %** last week », à la suite du naufrage des _Magic Seas_ et _Eternity C_ (6-7 juil. 2025).
+- **Recoupement (≥ 3 sources indépendantes)** : programbusiness (« 0.3 % → 0.7 %, some quoting up to 1 % »), shippingwatch/Financial Times (« **1 %** of hull value from about **0.4 %** before the first attack on July 6 »), Pole Star. → **niveau ET spike recoupés**.
+
+### C19 — S&P Global (Platts), _Maritime war risk premiums fall in Red Sea, rise in Black Sea_ (presse spécialisée) ✅ pplx `supported` — **débloque l'ancien C5**
+
+- **URL** : https://www.spglobal.com/energy/en/news-research/latest-news/shipping/120425-maritime-war-risk-premiums-fall-in-red-sea-rise-in-black-sea-amid-changing-security-dynamics · **Date : 4 déc. 2025**
+- **Type** : `presse_specialisee` (relaie Platts / sources marché) · **Accès** : ⚠️ page bloquée au bot (ancien C5 « Access Denied »), **mais contenu extrait via `pplx`**.
+- **Étaye (axe 1 — décrue post-cessez-le-feu, la question stratégique « retour durable »)** : « The rate has fallen to around **0.2 %** of hull value from **0.5 %** before the ceasefire, a UK-based insurance source told Platts » (cessez-le-feu Gaza, oct. 2025).
+- **Note** : c'est **la** donnée qui manquait à l'axe 1 (trajectoire de décrue). Reste une valeur **rapportée** par une source de marché anonyme → à valider ; idéalement recouper sur la série primaire JWC/LMA (voir sites bloqués).
+
+> **Trajectoire consolidée (rapportée, à valider)** : ~0,03–0,05 % (avant oct. 2023) → 0,3–0,5 % (déc. 2023,
+> C17) → jusqu'à ~1 % (début 2024, C2/C8) → ~0,3 % → 0,7 %/jusqu'à 1 % (juil. 2025, C18) → ~0,2 % (après le
+> cessez-le-feu d'oct. 2025, C19). Verdict `pplx` d'ensemble : `partially_supported` (paliers solides ;
+> valeurs de **pic** ponctuelles plus fragiles). **L'axe 1 passe de « gap » à « recoupé, en attente de
+> validation humaine ».**
+
+### Axe 2 — Série de fréquence d'incidents (fondait un seuil **« ≥ 1/semaine »** auparavant **zéro source**)
+
+### C20 — ACLED, _Regional power struggles fuel simmering tensions across the Red Sea_ (institutionnel / données ouvertes) ✅ pplx `supported`
+
+- **URL** : https://acleddata.com/report/regional-power-struggles-fuel-simmering-tensions-across-red-sea · **Date : 11 déc. 2025**
+- **Type** : `institutionnel` / `donnees_ouvertes` · **Accès** : libre (résumé ; base ACLED complète sur inscription)
+- **Étaye (axe 2 — intensité de la menace, tendance annuelle)** : « The sharp drop in Houthi attacks on commercial vessels — only **seven in 2025**, compared to **150 in 2024** » ; « ACLED records **84 %** fewer Houthi attacks in the Red Sea than in all of 2024 ».
+- **Caveat** : totaux **annuels**, pas une série hebdomadaire — étaye la *magnitude* du seuil « incidents », pas directement le pas « ≥ 1/semaine sur 3 semaines » de la fiche. Une série mensuelle/hebdomadaire reste à extraire de la base ACLED avant de lever la mention « Hypothèse — non sourcé ».
+
+### C21 — ACLED, _A Red Sea hall of mirrors: US and Houthi statements vs. actions_ (institutionnel) ✅ pplx `supported`
+
+- **URL** : https://acleddata.com/report/red-sea-hall-mirrors-us-and-houthi-statements-vs-actions · **Date : 26 juin 2025**
+- **Type** : `institutionnel` · **Accès** : libre
+- **Étaye (axe 2 — volumétrie de la campagne)** : « more than **520 attacks** — targeting at least **176 ships** » sur ~18 mois ; « **774 airstrike events**… between 12 January 2024 and 6 May 2025 » (frappes US/coalition sur le Yémen — à distinguer des attaques maritimes).
+
+### Menace / rafraîchissement — source primaire d'autorité
+
+### C22 — US MARAD (Maritime Administration), _Advisory 2026-006 — Red Sea, Bab el-Mandeb, Gulf of Aden…_ (institutionnel / réglementaire) ✅ pplx vérifiée (existence + contenu)
+
+- **URL** : https://www.maritime.dot.gov/msci/2026-006-red-sea-bab-el-mandeb-strait-gulf-aden-arabian-sea-and-somali-basin-houthi-attacks · **Date : 26 mars 2026** (active jusqu'au 22 sept. 2026)
+- **Type** : `institutionnel` / `reglementaire` · **Accès** : libre
+- **Étaye (axes 2 & 3 — statut de la menace, chronologie officielle)** : « On **July 6-8, 2025**, the Houthis attacked and sank **two commercial vessels** in the southern Red Sea, killing **four seafarers** » ; « the Houthi… **has not attacked commercial ships since the Israel-Gaza ceasefire agreement in October 2025** ». (Perplexity rapporte en sus « **more than 100 incidents** between Nov. 2023 and Oct. 2025 affecting vessels from over 60 nations » — à confirmer sur le texte.)
+- **Note** : source **primaire** qui **invalide** deux candidats bruts (frappes « juin 2026 » et « 28 incidents T1 2026 ») → sert de garde-fou chronologique.
+
+### Axe 4 — Baselines transit / flux énergétiques (recoupement/actualisation)
+
+### C23 — Suez Canal Authority, _Suez Canal Statistics for 2025 Compared to 2024_ (source primaire institutionnelle) ✅ pplx `supported`
+
+- **URL (PDF)** : https://www.suezcanal.gov.eg/English/Downloads/DownloadsDocLibrary/Navigation%20Reports/Annual%20Reports/2025.pdf ⚠️ **URL instable** (404 en téléchargement direct 2026-07-12 ; le chemin publié contient des caractères de largeur nulle — récupération à la main requise).
+- **Type** : `institutionnel` (autorité gestionnaire) · **Accès** : contenu confirmé via le snippet du PDF SCA (index `pplx`) + FreightWaves.
+- **Étaye (axe 4 — série primaire, ce que l'ancien C16 laissait derrière un sélecteur)** : **12 758** navires en 2025 vs **13 213** en 2024 (**−3,4 %**) ; tonnage net **522,1** vs **524,5 M.t** (−0,5 %). Les deux années restent très en deçà de 2023.
+- **Recoupement primaire** : le WSC (C25) cite les statistiques officielles SCA — **26 434** transits en 2023 (record) — ce qui ancre la chute 2024/2025. → base 2023 recoupée.
+- **Note** : fournit le chiffre primaire SCA réclamé aux points 2 / 4 de la liste humaine. Reste à **télécharger le PDF SCA à la main** (URL instable) pour figer la décomposition par type.
+
+### Escalade `agent-browser` (2026-07-12) — EUNAVFOR Aspides : résultat négatif consigné
+
+- **Cible** : pages primaires EEAS « **Operation in Numbers** » (16.05.2026) et « **2025 Year in Review** » (25.02.2026), réclamées au point 4 de la liste humaine (chiffres de protection ≈ 700 navires / ≈ 410 escortes).
+- **Méthode** : `agent-browser` dans le conteneur `tools` (ouverture + `wait networkidle` + snapshot texte + capture pleine page).
+- **Résultat** : **les figures chiffrées sont enfermées dans une vidéo** ; le texte des pages ne contient **aucun nombre** (« *2025 marked the 2nd year of EUNAVFOR ASPIDES* »). → les chiffres de protection **restent non confirmés sur la source primaire** ; la mention « rapportés par la presse » (ancien C13) tient. Prochaine tentative : communiqué PDF/infographie Aspides daté, ou lecture de la vidéo.
+
+### C24 — US EIA, _Fewer tankers transit the Red Sea in 2024_ (institutionnel) ✅ **PDF/page primaire lue (2026-07-12)**
+
+- **URL (primaire)** : https://www.eia.gov/todayinenergy/detail.php?id=63446 · **Date réelle : ~oct. 2024** (et **non** « mars 2026 » comme l'indiquait la sortie brute — correction).
+- **Type** : `institutionnel` (EIA, calculs Vortexa) · **Accès** : page vivante (lue à la main via curl, http 200) ; relais libres safety4sea / NAM / Mansfield.
+- **Étaye (axe 4 — flux énergétique Bab el-Mandeb)** : « Oil trade flows through the Bab el-Mandeb Strait averaged **4.0 million b/d in 2024 through August** compared with **8.7 million b/d** » (2023) ; flux contournant le **Cap de Bonne-Espérance** « increased to **9.2 million b/d** ».
+- **Caveat** : le « 4,0 mb/j » porte sur **2024 jusqu'à août**, pas l'année pleine. Chiffres **rapportés** (Vortexa/AIS ; possible sous-estimation des tankers « dark »).
+
+### C25 — World Shipping Council, _Red Sea: Overview of necessary capacity and current transit_ (rapport primaire) ✅ **PDF primaire lu (2026-07-12)**
+
+- **URL (PDF)** : https://static1.squarespace.com/static/5ff6c5336c885a268148bdcc/t/696636194507fd634e6cc377/1768306201173/WSC+Red+Sea+Data+Sheet_June+2026.pdf · **Date du document : janvier 2026** (le nom de fichier « June 2026 » est trompeur — se fier à l'en-tête interne).
+- **Type** : `rapport_entreprise` / `donnees_ouvertes` (WSC, d'après Alphaliner, Lloyd's List, IMF PortWatch) · **Accès** : libre (PDF téléchargé et lu).
+- **Étaye (axe 4 — baselines et décomposition par taille, chiffres exacts)** :
+  - SCA officiel : **26 434** transits en 2023 (record) ; porte-conteneurs ≈ 22 %, soit **5 847** navires (~16/jour).
+  - Porte-conteneurs Suez **globaux 2025 ≈ 32 % de 2023** ; **nov. 2025 ≈ 31 %** de nov. 2023 → « two out of three » déroutés par le Cap. *(Résout l'ambiguïté du verdict `pplx` : le « 32 % » vaut pour les conteneurs **globaux**, pas le DWT.)*
+  - **Divergence par taille** : gros porte-conteneurs (≥ 7 500 EVP) Suez 2025 = **5,7 % de 2023** (nov. 6,3 %) ; **seulement 9 transits** ≥ 7 500 EVP via Bab el-Mandeb sur toute 2025 → retrait quasi total des lignes Asie-Europe. Petits (< 7 500 EVP) = **91 % de 2023** (nov. ~98 %, quasi normalisés).
+  - Bab el-Mandeb (Lloyd's List, sept.–nov. 2025) : tous cargos ≈ **43–48 % de 2023** ; par tonnage de port en lourd **35–39 %**.
+  - IMF PortWatch (beta) : Bab el-Mandeb 2025 ≈ **45 %** du pré-crise (nov. ≈ 49 %) ; Suez nov. 2025 ≈ **56 %** ; en tonnes, Bab el-Mandeb ≈ **35 %**, Suez ≈ **41 %** de 2023.
+- **Note** : source **primaire** consolidant l'axe 4 par segment. Chiffres à valider par un humain avant promotion, mais **la fourchette « 14–32 % » que `pplx` opposait est ici résolue** (conteneurs globaux 32 %, gros porteurs 5,7 %).
+
+### État du recoupement par axe (mise à jour 2026-07-12)
+
+- **Axe 1** (niveau **et trajectoire** des primes) : **désormais recoupé** — baseline (C17), pic juil. 2025
+  (C18 + 3 relais), décrue post-cessez-le-feu (C19, ex-C5 débloquée). Ne restait « gap » depuis 2026-06-28.
+  → validation humaine + série primaire JWC/LMA pour promotion.
+- **Axe 2 / seuil incidents** : magnitude annuelle recoupée (C20/C21, ACLED) + garde-fou primaire (C22, MARAD).
+  → **série hebdomadaire/mensuelle encore à extraire** avant de lever la mention « Hypothèse — non sourcé »
+  du tableau de seuils de la fiche.
+- **Axe 4** : **PDF/pages primaires lus (2026-07-12)** — WSC (C25, doc janv. 2026 : décomposition par taille) et
+  EIA (C24, page primaire : 4,0 vs 8,7 mb/j) ; base SCA 2023 (26 434) recoupée via WSC. Reste à **télécharger le
+  PDF SCA 2025** (URL instable) pour la décomposition par type. Chiffres exacts figés, à valider par un humain.
+- **Gouvernance / Aspides** : escalade `agent-browser` faite → **négatif** (chiffres en vidéo, non extractibles).
+- **Durée de fermeture (seuil « > 4 sem. »)** : **toujours zéro source** — non couvert par cette salve.
+
+### Prochaines actions (humain) — mise à jour
+
+1. **Escalade `agent-browser`** (conteneur `tools`) pour les sources primaires encore bloquées au bot :
+   JWLA-032 complet (LMA/IUA), IUMI Stats, série S&P/Platts, chiffres EUNAVFOR Aspides.
+2. ✅ **Fait (2026-07-12)** : PDF/pages primaires WSC (C25) et EIA (C24) lus, chiffres figés ci-dessus. **Reste** à
+   télécharger à la main le **PDF SCA 2025** (C23, URL instable) pour la décomposition par type de navire.
+3. **Extraire de la base ACLED** une série d'incidents mensuelle/hebdomadaire pour fonder (ou corriger) le
+   seuil « ≥ 1/semaine » — condition pour lever « Hypothèse — non sourcé » dans la fiche.
+4. **Ne pas** promouvoir ces valeurs dans la fiche/dossier tant que la validation nominative (ADR 0046) n'est
+   pas enregistrée ; les rejets actés (Tavvishi 2026, 28 incidents T1 2026, repricing arcaneintel) ne doivent
+   pas réapparaître.
