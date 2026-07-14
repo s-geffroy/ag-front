@@ -6,7 +6,7 @@ verdict: >-
   sur des routes maritimes majeures d'Asie de l'Est. La vulnérabilité n'est pas de
   volume mais d'irremplaçabilité : une interruption ne se contourne pas par une
   autre route, elle attend des années de reconstruction industrielle.
-family: cable_numerique
+family: semi_conducteurs
 priority: P0
 regions:
   - Asie de l'Est

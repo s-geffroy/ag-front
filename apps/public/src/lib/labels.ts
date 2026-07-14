@@ -36,6 +36,7 @@ export const familyLabel: Record<string, string> = {
   maritime: 'Corridor maritime',
   chokepoint: 'Chokepoint',
   cable_numerique: 'Câbles / numérique',
+  semi_conducteurs: 'Semi-conducteurs',
   energie: 'Énergie',
   pipeline_lng: 'Pipeline / GNL',
   minerais_critiques: 'Minerais critiques',
