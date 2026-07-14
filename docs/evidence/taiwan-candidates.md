@@ -89,6 +89,19 @@ Termine par une liste des points où les données publiques sont absentes, daté
 | T11 | Lithographie EUV = monopole de fait ASML ; marché EUV 11,4 Md$             | Global Market Insights     | 2024     | fait (monopole) + estimation (marché) |
 | —   | **Non documenté publiquement** : production < 7/5/3 nm ventilée par pays ; surcoût reroutage Est ; chiffre unique de coût de blocus | —                     | —        | à ne pas inventer          |
 
+## Traitement des findings de contradiction (ADR 0039)
+
+| Finding | Sév | Traitement dans `taiwan.md`                                                                 | Statut          |
+| ------- | --- | ------------------------------------------------------------------------------------------ | --------------- |
+| 1 — prod <5/3 nm = déduction | 4 | Contre-argument ajouté : part = **plafond** non 100 % (Samsung 3 nm en Corée dès 2022, Intel 18A aux É.-U.) | traité (nuancé) |
+| 2 — coût blocus non chiffré  | 3 | Ancré sur l'estimation nommée la plus citée : **Bloomberg Economics 2024 ≈ 10 000 Md$ / ~10 % PIB (guerre)**, blocus moindre ; reste scénarisé | traité (ancré)  |
+| 3 — surcoût reroutage non documenté | 3 | Caractérisé : détroit = route directe, contournement Est = distance limitée mais **plus exposé aux typhons** (ASPI) → coût de risque/météo, pas de kilométrage ; chiffre agrégé toujours non public | traité (qualifié) |
+
+> Aucune de ces objections n'était une contradiction interne : elles re-signalaient des zones déjà
+> marquées estimation/déduction/non documenté. Traitement = renforcement (contre-argument, ancrage,
+> qualification), sans invention de chiffre. Nouveaux candidats : **T12** (Samsung/Intel bornent la
+> déduction), **T13** (Bloomberg Economics 10 000 Md$), **T14** (ASPI reroutage/typhons).
+
 ## Sites bloqués au bot / accès manuel requis
 
 _(à compléter : rapports TSMC/SEMI en PDF, TrendForce derrière inscription, notes Rhodium, etc.)_

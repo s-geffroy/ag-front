@@ -48,6 +48,10 @@ sources:
   - label: Global Market Insights — Extreme Ultraviolet Lithography Market (marché EUV, 2024)
     type: analyse_secondaire
     url: https://www.gminsights.com/industry-analysis/extreme-ultraviolet-lithography-market
+  - label: "Bloomberg Economics — coût d'un conflit à Taïwan (2024 ; ~10 000 Md$ ≈ 10 % du PIB mondial, scénario guerre)"
+    type: analyse_secondaire
+  - label: "ASPI — A blockade of Taiwan would cripple China's economy (route Est plus exposée aux typhons)"
+    type: analyse_secondaire
 ---
 
 ## Définition du nœud
@@ -84,7 +88,10 @@ L'histoire n'est pas le volume, c'est l'**irremplaçabilité à court terme**.
   **> 90 %** du marché 3 nm (TrendForce, 2023–2024 — estimation par nœud). Comme ces nœuds sont produits à
   Taïwan, la littérature spécialisée en **déduit** que l'île concentre ≈ **80–90 %** de la production mondiale
   de logique < 5 nm et **> 90 %** du < 3 nm — **déduction** (TSMC + TrendForce), **non une statistique
-  officielle** : aucune source primaire ne ventile la production < 7 / 5 / 3 nm **par pays**.
+  officielle** : aucune source primaire ne ventile la production < 7 / 5 / 3 nm **par pays**. Contre-argument à
+  garder : cette part est un **plafond**, pas 100 % — **Samsung** produit du 3 nm (GAA) en **Corée** depuis
+  2022 et **Intel** monte sa génération 18A aux **États-Unis**, si bien qu'une fraction non-taïwanaise existe
+  même au nœud de pointe. La concentration est écrasante, non absolue.
 - **Maritime** — le détroit porte une part majeure du trafic conteneurisé (≈ 48 % de la flotte mondiale en
   transit sur 2022, Bloomberg/AIS), reliant Asie de l'Est, Amérique et Europe.
 - **Couplage amont** — la chaîne dépend d'intrants critiques, au premier rang desquels la **lithographie EUV
@@ -95,12 +102,13 @@ L'histoire n'est pas le volume, c'est l'**irremplaçabilité à court terme**.
 - **Irremplaçabilité à court terme** — la substitution industrielle des composants de pointe est **longue
   (années) et coûteuse** : aucune capacité de fonderie avancée ne peut absorber à court terme une perte de
   l'offre taïwanaise. C'est la vulnérabilité centrale.
-- **Effet de cascade** — une rupture se propage à l'aval (automobile, électronique, défense). Les chiffrages
-  d'un choc majeur ne font l'objet d'**aucune estimation publique unique et documentée** : les compilations de
-  think tanks évoquent des ordres de grandeur de **plusieurs milliers de milliards de dollars** et **plusieurs
-  points de PIB mondial** (jusqu'à ~5–10 % dans les scénarios de **guerre totale**, nettement moindre pour un
-  blocus partiel) — **estimations scénarisées**, très dépendantes des hypothèses (HCSS 2024, compilant
-  Rhodium/CSIS/Bloomberg).
+- **Effet de cascade** — une rupture se propage à l'aval (automobile, électronique, défense). **Aucune
+  estimation publique unique ne fait consensus** ; l'ancrage le plus cité est **Bloomberg Economics (2024)**,
+  qui chiffre une **guerre** autour de Taïwan à ≈ **10 000 Md$**, soit ≈ **10 % du PIB mondial** — un
+  **blocus** partiel étant nettement moindre. Les compilations de think tanks (HCSS 2024, d'après
+  Rhodium/CSIS/Bloomberg) convergent sur des ordres de grandeur de **plusieurs milliers de milliards** et
+  **plusieurs points de PIB mondial**. Ce sont des **estimations scénarisées**, très dépendantes des
+  hypothèses (durée, périmètre, sanctions), non des faits.
 - **Couplage risque maritime / risque d'appro** — les mêmes tensions menaceraient simultanément les fabs et
   les routes maritimes : le risque n'est pas diversifiable localement.
 - **Dépendance amont ASML / EUV** — la lithographie EUV de production est un **monopole de fait** (ASML seul
@@ -116,9 +124,11 @@ L'histoire n'est pas le volume, c'est l'**irremplaçabilité à court terme**.
   **projection** de capacité installée, non de production, et **sans ventilation Arizona vs Kumamoto**
   publiée). La montée en capacité s'étale sur **plusieurs années** : elle réduit la dépendance à horizon long,
   pas à court terme.
-- **Reroutage maritime à l'est de l'île** — le trafic peut contourner par la façade Pacifique (Luzon Strait) ;
-  route plus exposée aux cyclones. **Surcoût non documenté publiquement** : aucune source primaire (Lloyd's
-  List, Clarksons, BIMCO) ne publie un « +X % de distance / +Y jours » agrégé — donnée propriétaire des
+- **Reroutage maritime à l'est de l'île** — le détroit est la **route la plus directe** ; contourner par la
+  façade Pacifique (Luzon Strait) n'ajoute qu'une **distance limitée** pour la plupart des lignes, mais expose
+  davantage aux **typhons** (ASPI) : le coût du reroutage est d'abord un coût de **risque et de météo**, pas de
+  kilométrage. **Le surcoût chiffré agrégé n'est pas documenté publiquement** : aucune source primaire (Lloyd's
+  List, Clarksons, BIMCO) ne publie un « +X % de distance / +Y jours » — donnée propriétaire des
   armateurs/assureurs.
 - **Stocks stratégiques de composants** — tampon de court terme (quelques mois), pas une substitution.
 
