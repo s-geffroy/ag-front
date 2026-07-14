@@ -95,8 +95,11 @@ L'enjeu de Malacca est une **concentration** : beaucoup de flux vitaux sur un se
   limités concentrent le risque sur un couloir unique ; un incident majeur à Phillips Channel se propage
   immédiatement à l'ensemble du rail.
 - **Dépendance asymétrique** — la « dépendance de Malacca » (*Malacca dilemma*) est structurelle pour l'Asie
-  de l'Est : une part dominante de son approvisionnement énergétique tient à ce seul passage, sans stock ni
-  route de substitution capables d'absorber une interruption prolongée.
+  de l'Est : une part dominante de son approvisionnement énergétique tient à ce seul passage. Les importateurs
+  l'**atténuent** — réserves stratégiques, diversification (pipelines terrestres, route arctique) — ce qui
+  amortit un choc sur quelques semaines à quelques mois **sans le supprimer** : aucune de ces parades n'offre
+  une **route de substitution de capacité équivalente** pour une interruption prolongée. La dépendance est donc
+  une vulnérabilité de **coût et de délai**, pas d'effondrement instantané.
 - **Menace sécuritaire en hausse** — les détroits de Malacca et Singapour (SOMS) ont enregistré **108
   incidents** de piraterie / vol à main armée en 2025 (104 avérés + 4 tentatives), **+74 %** vs 62 en 2024 —
   le plus haut niveau depuis 2007 (ReCAAP ISC — fait mesuré). Mais **87 %** se concentrent sur janvier–juillet
