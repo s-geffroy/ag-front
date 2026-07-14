@@ -66,11 +66,23 @@ Termine par une liste des points où les données publiques sont absentes ou con
 8. **Série d'incidents ReCAAP** (_Vulnérabilités_, seuil « Incidents sécuritaires ») — ReCAAP ISC.
 9. **Part du GNL mondial** (_Flux_) — EIA / IEA.
 
-## Candidats vérifiés (à remplir)
+## Candidats sourcés (recherche Perplexity du 2026-07-14 — CANDIDATS, non validés)
 
-| Réf | Fait attesté (périmètre) | Source primaire | URL | Date | Type | Accès | Statut |
-| --- | ------------------------ | --------------- | --- | ---- | ---- | ----- | ------ |
-| M1  | _(à remplir)_            |                 |     |      |      |       | candidat |
+> Rapportés par Sylvain via Perplexity Recherche Avancée. Injectés dans `malacca.md` **avec** leur
+> statut (FAIT / ESTIMATION / non documenté). Restent candidats tant que le gate `sources_ok` n'a
+> pas été flippé après validation nominative (ADR 0046).
+
+| Réf | Fait / estimation (périmètre)                                              | Source primaire       | Date     | Statut analytique          |
+| --- | -------------------------------------------------------------------------- | --------------------- | -------- | -------------------------- |
+| M1  | ≈ 23,2 Mb/j pétrole+liquides via Malacca ; 1ᵉʳ chokepoint pétrolier mondial (Ormuz ≈ 20,9) | US EIA (Vortexa) | 1S 2025  | estimation                 |
+| M2  | Chine reçoit 48 % du pétrole de Malacca (≈ 7,9 Mb/j)                       | US EIA                | 1S 2025  | estimation                 |
+| M3  | GNL ≈ 9,2 Gpi³/j via le détroit                                            | US EIA                | 1S 2025  | estimation                 |
+| M4  | Singapour 41,12 M EVP (record)                                             | MPA Singapore (Annual Report) | 2024 | **fait** mesuré       |
+| M5  | Incidents SOMS 108 en 2025 (+74 % vs 62 en 2024), plus haut depuis 2007 ; majorité CAT 4, aucun CAT 1 ; Asie 132 (+23 %) | ReCAAP ISC Annual Report | 2025 | **fait** mesuré |
+| M6  | Pipeline Chine-Myanmar ≈ 400 000 b/j (GEM : 442 000) ≈ 5 % imports chinois | Reuters ; Global Energy Monitor | 2017 / 2025 | estimation (capacité nominale) |
+| M7  | Canal de Kra : non réalisé, sans décision ferme (« à l'étude »)            | ERIA                  | 2020-25  | constat qualitatif         |
+| M8  | Malaccamax ≈ 20,5–21 m tirant d'eau, ≈ 333 m, ≈ 300 000 tpl                | norme de design (non codifiée) | — | ordre de grandeur technique |
+| —   | **Non documenté publiquement** : part imports Japon/Corée via Malacca ; part GNL mondial ; nombre de transits pour le seul détroit ; surcoût Lombok chiffré | — | — | à ne pas inventer |
 
 ## Sites bloqués au bot / accès manuel requis
 
