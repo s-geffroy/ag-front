@@ -532,3 +532,11 @@ bas de ce registre.
 - **Primaires PDF lus le 2026-07-12** (C23 SCA, C24 EIA, C25 WSC) : au **même standard** que C29–C32 et
   **prêts à valider** — non inclus ici faute d'instruction explicite sur ce périmètre ; à ajouter au
   journal sur simple accord (nouvelle entrée datée, jamais en réécrivant celle-ci).
+
+### 2026-07-14 (complément) — Validateur : **Sylvain Geffroy** — primaires PDF C23/C24/C25
+
+| Réf | Statut | Fait attesté (périmètre) | Réserve portée AVEC le fait |
+| --- | --- | --- | --- |
+| **C23** SCA Annual Report 2025 | candidat → **validé (fait)** | Transits totaux Suez : **26 434** (2023) → 13 213 (2024) → **12 758** (2025), soit **−51,7 %** navires / −66,7 % tonnage net vs 2023 ; décomposition par type (Table 3). | Deltas **2025 vs 2024** faibles (deux années effondrées) : **ne pas lire comme une reprise** — la référence est 2023. |
+| **C24** US EIA (Bab el-Mandeb) | candidat → **validé (fait)** | Flux de brut Bab el-Mandeb **≈ 4,0 mb/j** (2024, jan.–août) vs **8,7 mb/j** (2023) ; contournement Cap ≈ 9,2 mb/j. | « 4,0 mb/j » = **2024 jusqu'à août**, pas l'année pleine ; données Vortexa/AIS (sous-estimation « dark » possible). |
+| **C25** WSC (janv. 2026) | candidat → **validé (fait)** | Conteneurs Suez 2025 ≈ **32 %** de 2023 ; **gros porteurs ≥ 7 500 EVP à 5,7 %** de 2023 (9 transits via BaM en 2025) ; petits porteurs ≈ **91 %**. | Chiffres d'après Alphaliner/Lloyd's List/IMF PortWatch (secondaire consolidé) ; base 2023 recoupée SCA×WSC. |

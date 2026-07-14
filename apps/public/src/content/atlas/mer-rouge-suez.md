@@ -15,7 +15,7 @@ regions:
 access: public
 published: false
 corrections: []
-updated: 2026-07-12
+updated: 2026-07-14
 confidence: moyen
 cvi_level: eleve
 map:
@@ -32,7 +32,7 @@ sources:
   - label: Suez Canal Authority — Traffic Statistics, Annual Report 2025 (série des transits)
     type: institutionnel
     url: https://www.suezcanal.gov.eg/English/Navigation/Pages/NavigationStatistics.aspx
-  - label: World Shipping Council — Red Sea: necessary capacity and current transit (janv. 2026)
+  - label: "World Shipping Council — Red Sea: necessary capacity and current transit (janv. 2026)"
     type: rapport_entreprise
     url: https://www.worldshipping.org/
   - label: UNCTAD — Navigating troubled waters + Review of Maritime Transport 2024
@@ -56,18 +56,27 @@ sources:
   - label: Joint War Committee (LMA/IUA) — Listed Areas, Hull War (désignation de zone)
     type: reglementaire
     url: https://lmalloyds.com/committee/joint-war-committee/
+  - label: JWC/LMA — Circulaire JWLA-033 (3 mars 2026 ; périmètre & coordonnées de la zone)
+    type: reglementaire
+    url: https://lmalloyds.com/wp-content/uploads/2026/03/JWLA-033_Iran.pdf
   - label: IUMI via The Maritime Executive — « cover remains affordable » (nuance l’indisponibilité)
     type: source_contradictoire
     url: https://maritime-executive.com/article/as-war-risk-spikes-in-red-sea-iumi-says-cover-remains-affordable
+  - label: IUMI — Stats Report 2025 (marché mondial assurance marine 39,92 Md$ ; ocean hull 9,67 Md$, 2024)
+    type: institutionnel
+    url: https://iumi.com/wp-content/uploads/2025/11/IUMI-Stats-Report-2025.pdf
   - label: US MARAD — Advisory 2026-006 (statut de la menace, chronologie officielle)
     type: reglementaire
     url: https://www.maritime.dot.gov/msci/2026-006-red-sea-bab-el-mandeb-strait-gulf-aden-arabian-sea-and-somali-basin-houthi-attacks
-  - label: ACLED — Houthi attacks on commercial vessels (série d’incidents)
+  - label: ACLED — Houthi attacks on commercial vessels (totaux annuels d’incidents)
     type: donnees_ouvertes
     url: https://acleddata.com/report/regional-power-struggles-fuel-simmering-tensions-across-red-sea
-  - label: EEAS / Conseil de l’UE — EUNAVFOR Aspides (mandat, UNSC 2722)
+  - label: JMIC / Combined Maritime Forces — Monthly Statistics (série mensuelle d’incidents)
     type: institutionnel
-    url: https://www.eeas.europa.eu/eunavfor-aspides/about-operation-eunavfor-aspides_en
+    url: https://mscio.eu/media/documents/JMIC_Monthly_Statistics_-_Jan_2026.pdf
+  - label: EEAS — EUNAVFOR Aspides, mandat (≈1 960 navires accompagnés / ≈650 protégés ; UNSC 2722)
+    type: institutionnel
+    url: https://www.eeas.europa.eu/eunavfor-aspides/eunavfor-aspides-mandate-0_en
   - label: CIMSEC — Aspides and the EU’s aspirations for sea control (navires protégés)
     type: analyse_secondaire
     url: https://cimsec.org/with-the-shield-or-on-it-aspides-and-the-eu-aspirations-for-sea-control/
@@ -120,7 +129,8 @@ L’histoire n’est plus la part de marché, c’est **l’effondrement et le t
 - **Menace sécuritaire** — capacité de perturbation démontrée : **~150** attaques contre des navires
   marchands en 2024, retombées à **~7** en 2025 (ACLED) ; au pic (déc. 2023 – printemps 2024), la cadence
   atteignait **~3–4 attaques par semaine**. Sud mer Rouge et golfe d’Aden restent classés « High Risk » par
-  le Joint War Committee. La menace est **latente, non éteinte** : aucune frappe depuis le cessez-le-feu
+  le Joint War Committee (circulaire primaire **JWLA-033**, 3 mars 2026 — zone désormais combinée/élargie).
+  La menace est **latente, non éteinte** : aucune frappe depuis le cessez-le-feu
   d’octobre 2025, mais l’arsenal (missiles/drones, portée démontrée > 150 milles) demeure.
 - **Assurance — la variable pivot.** La surprime _war-risk_ (en % de la valeur coque) a suivi un arc :
   ~0,05 % avant octobre 2023 → **0,3–0,5 %** en décembre 2023 → jusqu’à **~1 %** début 2024 → détente, puis
@@ -128,7 +138,8 @@ L’histoire n’est plus la part de marché, c’est **l’effondrement et le t
   d’octobre 2025 (Reuters, S&P Global/Platts — valeurs de marché rapportées). La couverture est restée
   **disponible et « abordable »** tout du long (IUMI), ce qui nuance la thèse d’une indisponibilité.
 - **Gouvernance** — réponse navale réelle mais **défensive** : l’opération européenne **EUNAVFOR Aspides**
-  a protégé **plus de 1 200 navires** depuis février 2024, mandat prolongé jusqu’en février 2027 (mandat
+  a **accompagné plus de 1 960 navires marchands** et assuré la **protection rapprochée de plus de 650**
+  d’entre eux depuis février 2024 (EEAS), mandat prolongé jusqu’en février 2027 (mandat
   d’accompagnement, non offensif). Sensibilité politique régionale forte (Yémen, Iran, riverains).
 
 ## Alternatives / bypass
@@ -151,7 +162,7 @@ des **repères de décision** (analyse), non des mesures. La colonne _Statut_ di
 | **Transits totaux** Suez (SCA)                              | recul **> 30 %** sur 4 semaines glissantes                       | corridor en tension — suivi rapproché                                    | **Adossé** — creux observé **−52 %** en 2025 vs 2023 (SCA) ; le seuil est un repère de vigilance                        |
 | **Gros porteurs déroutés** (≥ 7 500 EVP, Asie–Europe)       | **> 50 %** du tonnage de segment reroutés par le Cap             | rupture de la ligne mainline — le corridor est de facto fermé au segment | **Adossé** — segment à **~94 % dérouté** en 2025 (WSC) ; seuil déjà franchi, à surveiller à la baisse pour le retour     |
 | **Prime _war-risk_** (valeur coque)                         | **bond > ×2** sur un événement, ou palier **> 0,5 %** sur 2 sem. | ré-escalade — révision des choix d’armateurs                            | **Adossé** — arc 0,05 → 1 % → 0,2 % documenté (Reuters, S&P) ; recalibré : 1 % n’est qu’un **pic**, pas un régime durable |
-| **Incidents sécuritaires** Bab el-Mandeb / golfe d’Aden     | **≥ 1 / semaine** sur 3 semaines consécutives                    | menace persistante (et non ponctuelle)                                  | **Adossé** — cadence de pic **~3–4/sem.** (ACLED ; ~150 attaques en 2024) ; seuil dépassé au plus fort de la crise      |
+| **Incidents sécuritaires** Bab el-Mandeb / golfe d’Aden     | **≥ 1 / semaine** sur 3 semaines consécutives                    | menace persistante (et non ponctuelle)                                  | **Adossé** — série mensuelle primaire JMIC/CMF (pic déc. 2023 **~19/mois ≈ 4,4/sem.**) ; ~150 attaques 2024 (ACLED) ; seuil dépassé au plus fort |
 | **Durée de fermeture** ou quasi-fermeture continue          | **> 4 semaines**                                                 | bascule logistique structurelle (scénario « Rupture »)                  | **Repère historique** — précédent de fermeture **8 ans (1967-75)** ; l’épisode actuel est un **déroutage, pas une fermeture** |
 
 > Les seuils croisés (segment mainline dérouté **et** prime en bond sur événement) signalent un basculement

@@ -28,10 +28,10 @@ international (UNSC 2722 ; EUNAVFOR Aspides `[C13]`). Le refus de transit et la 
 surprimes ont une base contractuelle explicite (CONWARTIME/BIMCO `[C14]`, Skuld `[C15]`).
 
 **Ce qui reste hypothétique (à valider).** Le cœur de la thèse « assurance-dominé » — la _trajectoire_
-récente des primes _war-risk_ et la condition d'un « retour durable » (construct Z, §3) — dépend de
-sources encore **bloquées** (S&P `[C5]`, Argus `[C7]`, axe 1). Deux seuils de bascule (fréquence
-d'incidents, durée de fermeture) n'ont à ce jour **aucune série de données publique** et restent des
-repères. Le verdict opérationnel est donc **conditionnel** : _crédibilité commerciale durable_ =
+récente des primes _war-risk_ et la condition d'un « retour durable » (construct Z, §3) — reste **adossée
+à la presse** (Reuters, S&P/Platts `[C17]` `[C18]` `[C19]`), sans **série de taux primaire** (axe 1). En
+revanche, la **fréquence d'incidents** est désormais **fondée** sur la série mensuelle primaire JMIC/CMF
+(`[C30]`, validée le 2026-07-14) ; seule la **durée de fermeture** reste sans série (repère historique). Le verdict opérationnel est donc **conditionnel** : _crédibilité commerciale durable_ =
 transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y), surprime normalisée
 < 0,10 % (Z) — la validation de **Z** étant le verrou.
 
@@ -39,7 +39,9 @@ transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y
 
 - **Question** : cf. en-tête.
 - **Corpus** : sources institutionnelles (UNCTAD, JWC/LMA, IUMI), presse spécialisée assurance/shipping
-  (S&P, Lloyd's List, Argus), praticiens (clubs P&I). `[À SOURCER — voir registre]`
+  (S&P, Lloyd's List, Argus), praticiens (clubs P&I). **Corpus constitué et vérifié** (registre C1–C32) ;
+  primaires **validées le 2026-07-14** (journal ADR 0046 : `[C29]` JWLA-033, `[C30]` JMIC, `[C31]` EEAS,
+  `[C32]` IUMI ; `[C23]` SCA, `[C24]` EIA, `[C25]` WSC).
 - **Modèle** : arbitrage coût/risque des armateurs (prime + surcoût route ↔ valeur du temps/exposition).
 - **Critère de réfutation** : si le déroutement persiste alors que prime **et** menace refluent, le
   modèle « assurance-dominé » est faux → réviser vers un facteur contractuel/affréteur.
@@ -63,10 +65,12 @@ transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y
   - **Z < 0,10 %** : un ordre de grandeur sous le pic de crise (~1,0 % `[C2/C8]`) et ~2-10× le plancher
     pré-crise (0,01-0,05 % `[C2/C8]`). À mesurer sur un **benchmark de référence** (surprime zone JWC,
     coque standard, transit 7 j), la prime étant fragmentée par courtier/navire (cf. §7).
-    ⚠ **Z non confirmé** : la **trajectoire récente** des primes dépend des sources bloquées
-    (S&P `[C5]`, Argus `[C7]`) — axe 1 du registre. `[à confirmer avant promotion]`
+    ⚠ **Z non confirmé** : la **trajectoire récente** des primes est désormais **recoupée par la presse**
+    (Reuters `[C17]` `[C18]`, S&P/Platts `[C19]` : ~0,05 % → 0,7-1 % → ~0,2 % post-cessez-le-feu oct. 2025),
+    mais **reste presse/courtier, non validée** (axe 1 : aucune série de taux primaire publique). Z demeure
+    le **verrou** de la thèse « assurance-dominé ». `[à confirmer — source primaire de taux requise]`
 
-## 4. Données & baselines `[À SOURCER — valeurs rapportées, non confirmées]`
+## 4. Données & baselines `[primaires validées 2026-07-14 ; trajectoire de prime encore candidate]`
 
 > Chiffres **candidats** issus du registre de preuves ; chaque ligne note son **recoupement**
 > (nombre de sources indépendantes). Métriques hétérogènes (transits totaux vs conteneur vs tonnage) :
@@ -74,7 +78,7 @@ transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y
 
 | Indicateur                                          | Valeur (candidat — à valider)                       | Source(s) candidate(s)                       | Recoupement                       |
 | --------------------------------------------------- | --------------------------------------------------- | -------------------------------------------- | --------------------------------- |
-| Recul des **transits totaux** Suez (creux)          | −50 % (glissement annuel, déb. 2024)                | IMF/PortWatch `[C10]` ; gCaptain/IMF `[C12]` | 2 sources indép. d'UNCTAD         |
+| Recul des **transits totaux** Suez                  | **−52 %** en 2025 vs 2023 (26 434 → 12 758)          | **SCA `[C23]` ✅ validé** ; IMF/PortWatch `[C10]` | primaire SCA + recoupé            |
 | Recul du **volume conteneurs** Mer Rouge            | −66 % vs moy. 2017-2019 (déc. 2023)                 | Kiel Institute `[C11]`                       | méthode propre (3ᵉ angle)         |
 | Recul du **tonnage conteneur** Suez                 | −82 % (1ʳᵉ quinzaine fév. 2024)                     | UNCTAD `[C1]`                                | source primaire à confirmer       |
 | Report de trafic vers le **Cap de Bonne-Espérance** | +74 %                                               | IMF/PortWatch `[C10]` ; gCaptain `[C12]`     | 2 sources indép.                  |
@@ -83,7 +87,7 @@ transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y
 | Surdélai route du Cap                               | +7 à 20 j (Kiel) ; +10 j (IMF) ; ~+2 sem. (UNCTAD)  | `[C11]` / `[C10]` / `[C1]`                   | 3 sources, fourchette large       |
 | Surcoût fret 40′ Chine → Europe du Nord             | ~1 500 $ → > 4 000 $ (déc. 2023)                    | Kiel Institute `[C11]`                       | 1 source                          |
 | Prime _war-risk_ Red Sea (niveau)                   | 0,01 % → jusqu'à 1,0 % de la valeur coque           | IUMI/Maritime Executive `[C2]`               | + trajectoire 0,05→0,7→1 % `[C8]` |
-| Prime _war-risk_ Red Sea (**trajectoire récente**)  | baisse rapportée (fin 2025) — **non vérifiée**      | S&P `[C5]` ⛔ ; Argus `[C7]` ⛔              | **gap — sources bloquées**        |
+| Prime _war-risk_ Red Sea (**trajectoire récente**)  | ~0,7-1 % (juil. 2025) → **~0,2 %** (post-cessez-le-feu) | Reuters `[C18]` ; S&P/Platts `[C19]`       | recoupé **presse** — non validé (axe 1) |
 
 ## 5. Seuils de bascule
 
@@ -93,9 +97,9 @@ Repris de la fiche Atlas (cohérence dossier ↔ fiche), avec le **statut de fon
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Transits totaux Suez −30 % / 4 sem. glissantes | **Adossé** — creux ≈ −50 % recoupé (`[C10]` `[C11]` `[C12]`) ; seuil = repère de vigilance |
 | Part déroutée vers le Cap > 50 % du tonnage    | **Partiel** — report +74 % documenté (`[C10]` `[C12]`) ; valeur de bascule = repère        |
-| Prime _war-risk_ > 1 % durable (2 sem.)        | **Niveau adossé** (0,01→1 %, `[C2]` `[C8]`) ; **trajectoire bloquée** (`[C5]` `[C7]`)      |
-| Incidents ≥ 1/sem. sur 3 sem.                  | **Hypothèse — non sourcé** (pas de série d'incidents recoupée)                             |
-| Fermeture continue > 4 sem.                    | **Hypothèse — non sourcé** (aucune donnée de durée)                                        |
+| Prime _war-risk_ > 1 % durable (2 sem.)        | **Niveau adossé** (0,01→1 %, `[C2]` `[C8]`) ; **trajectoire recoupée presse** (`[C17]` `[C18]` `[C19]`), **non validée** |
+| Incidents ≥ 1/sem. sur 3 sem.                  | **Adossé** — série mensuelle primaire JMIC/CMF (`[C30]` ✅ validé) : pic déc. 2023 = 19/mois (~4,4/sem.), 0 en 2026 |
+| Fermeture continue > 4 sem.                    | **Repère historique** — précédent 1967-75 (`[C28]`, non validé) ; épisode actuel = déroutage, pas fermeture |
 
 Les seuils alimentent les scénarios §6 (déclencheur + indicateurs).
 
@@ -135,8 +139,9 @@ Hypothèses concurrentes expliquant le déroutement, pondérées `[poids candida
 - **(d) _Force majeure_ contractuelle** — base juridique du refus d'ordre de transit (CONWARTIME
   `[C14]` ; Skuld `[C15]` : déviation justifiée, remboursement des surprimes). _Poids_ : structurant —
   explique la **capacité** de dérouter indépendamment du niveau exact de prime.
-- **(e) Disponibilité d'escorte** (EUNAVFOR Aspides `[C13]`) — réduit le risque perçu mais ne couvre pas
-  tout le trafic. _Poids_ : modulateur.
+- **(e) Disponibilité d'escorte** (EUNAVFOR Aspides `[C13]` ; **> 1 960 navires accompagnés / > 650 en
+  protection rapprochée depuis fév. 2024, EEAS `[C31]` ✅ validé**) — réduit le risque perçu mais ne couvre
+  pas tout le trafic. _Poids_ : modulateur.
 
 **Critère de réfutation (rappel §2)** : si le déroutement persiste alors que prime **et** menace
 refluent, l'hypothèse (a) « assurance-dominé » est fausse → le poids bascule vers (b)/(d). Ce test
@@ -150,7 +155,8 @@ offres Standard/Premium (ADR 0043). Chaque appréciation est **candidate**, à c
 
 - **Exposition** — élevée : ≈ 15 % du commerce maritime mondial, ≈ 22 % du conteneurisé (`[C10]`/`[C1]`).
 - **Concentration** — élevée : pas d'alternative physique hors route du Cap (+7 à 20 j, `[C11]`).
-- **Menace** — élevée : zone « High Risk » JWC (`[C3]`), attaques depuis oct. 2023 (`[C13]`).
+- **Menace** — élevée : zone à risque de guerre désignée par circulaire primaire JWC/LMA **JWLA-033**
+  (3 mars 2026, `[C29]` ✅ validé — zone combinée élargie, extension Iran) ; série d'incidents JMIC (`[C30]` ✅ validé).
 - **Capacité de perturbation** — démontrée : déroutement massif observé (−50 % transits, `[C10]`).
 - **Résilience** — moyenne : le Cap absorbe le report mais au prix de délais/coûts (`[C11]`).
 - **Coût de contournement** — élevé : surcoût fret ~1 500 → > 4 000 $/40′ (`[C11]`, source unique).
@@ -168,5 +174,7 @@ offres Standard/Premium (ADR 0043). Chaque appréciation est **candidate**, à c
 
 ## 10. Références `[à valider]`
 
-Voir le registre `docs/evidence/mer-rouge-suez-assurance-candidates.md` (candidats _pending
-validation_). Promotion = recoupement humain ≥ 2 sources indépendantes.
+Voir le registre `docs/evidence/mer-rouge-suez-assurance-candidates.md`. **Sources primaires validées le
+2026-07-14** (journal de validation ADR 0046) : `[C23]` SCA, `[C24]` EIA, `[C25]` WSC, `[C29]` JWLA-033,
+`[C30]` JMIC, `[C31]` EEAS, `[C32]` IUMI. **Restent candidats** : trajectoire de la prime _war-risk_
+(axe 1, presse) et le cumul de menaces interceptées Aspides (vidéo).
