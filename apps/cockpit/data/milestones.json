@@ -17,10 +17,14 @@
     "horizon": "90d",
     "due_date": "2026-09-30",
     "status": "in_progress",
-    "linked_deliverables": ["deliv_atlas_red_sea_fiche", "deliv_atlas_malacca_fiche"],
+    "linked_deliverables": [
+      "deliv_atlas_red_sea_fiche",
+      "deliv_atlas_malacca_fiche",
+      "deliv_atlas_taiwan_fiche"
+    ],
     "expected_proof": "Atlas visible avec cas principal et cas secondaire.",
     "success_metric": "3 fiches publiées.",
-    "next_action": "Finaliser Mer Rouge puis cadrer Malacca et Taïwan."
+    "next_action": "Malacca et Taïwan structurées au gabarit P0 (flux/seuils/scénarios) ; sourcing chiffré en cours (prompts Perplexity + registres docs/evidence). Mer Rouge : matériaux de revue Munich/CVI prêts pour validation. Reste : sourcing humain, validation nominative, flip gates → published."
   },
   {
     "id": "milestone_50_contacts",
