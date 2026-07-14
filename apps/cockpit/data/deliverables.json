@@ -219,5 +219,251 @@
     },
     "links": [],
     "internal_notes": "Pas de vente directe. Demande de critique du dossier."
+  },
+  {
+    "id": "deliv_note_corridors_strategiques",
+    "title": "Note — Pourquoi les corridors sont redevenus stratégiques",
+    "description": "Note d’ouverture (~2 min) : les flux ne sont plus un espace lisse mais un système de points de passage. Top-of-funnel, nourrit l’Atlas et la méthode CVI.",
+    "type": "note",
+    "pillar": "production",
+    "status": "review",
+    "priority": "P1",
+    "progress": 70,
+    "deadline": "2026-07-31",
+    "next_action": "Note publiée en ligne mais rouverte pour enrichissement : étoffer au template complet (accroche datable, angle, 3 signaux avec seuil, implication, angle mort, 3–6 sources, « pour aller plus loin »). Puis revue humaine (contradiction_done / compliance_done / human_review_done).",
+    "impact": "atlas",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Note publiée",
+        "url": "/notes/pourquoi-les-corridors-strategiques"
+      }
+    ],
+    "internal_notes": "Carte créée le 2026-07-14 pour tracker une note jusque-là non suivie (rupture de parité : Atlas/Dossiers suivis 1:1, pas les notes). État des gates reconstruit, à confirmer par revue humaine. Note gratuite/publique — pas de CVI 0–5 (cvi_justified omis)."
+  },
+  {
+    "id": "deliv_note_assurance_maritime",
+    "title": "Note — Assurance maritime : le signal faible",
+    "description": "Note (~2 min) : la prime war-risk comme signal économique quasi temps réel de l’exposition d’un corridor. Nourrit directement le dossier et la fiche Mer Rouge / Suez.",
+    "type": "note",
+    "pillar": "production",
+    "status": "review",
+    "priority": "P1",
+    "progress": 70,
+    "deadline": "2026-07-31",
+    "next_action": "Note publiée en ligne mais rouverte pour enrichissement : étoffer au template complet (accroche datable sur la prime Mer Rouge, 3 signaux avec seuil, implication supply chain, angle mort, 3–6 sources, « pour aller plus loin » → fiche + dossier Mer Rouge). Toute figure = candidate pending validation. Puis revue humaine.",
+    "impact": "atlas",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Note publiée",
+        "url": "/notes/assurance-maritime-signal-faible"
+      }
+    ],
+    "internal_notes": "Carte créée le 2026-07-14 pour tracker une note jusque-là non suivie. État des gates reconstruit, à confirmer par revue humaine. Feeder direct du dossier Mer Rouge / Suez (axe prime war-risk)."
+  },
+  {
+    "id": "deliv_note_corridor_pas_route",
+    "title": "Note — Un corridor n’est pas une route",
+    "description": "Note méthodologique (~2 min) : vocabulaire précis (route, corridor, chokepoint, hub, bypass) pour raisonner en système plutôt qu’en cartes. Nourrit l’Atlas.",
+    "type": "note",
+    "pillar": "production",
+    "status": "review",
+    "priority": "P1",
+    "progress": 70,
+    "deadline": "2026-07-31",
+    "next_action": "Note publiée en ligne mais rouverte pour enrichissement : étoffer avec un exemple travaillé par terme (chokepoint = Malacca, hub = Singapour, bypass = Cap + coût), 3–6 sources, « pour aller plus loin » → fiches Atlas. Puis revue humaine.",
+    "impact": "atlas",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Note publiée",
+        "url": "/notes/un-corridor-nest-pas-une-route"
+      }
+    ],
+    "internal_notes": "Carte créée le 2026-07-14 pour tracker une note jusque-là non suivie. Note méthodo (confidence eleve) : peu de données factuelles, surtout définitionnelle. État des gates reconstruit, à confirmer par revue humaine."
+  },
+  {
+    "id": "deliv_note_malacca_teaser",
+    "title": "Note — Malacca : la dépendance énergétique sans vraie alternative",
+    "description": "Note teaser (~2 min, à produire) qui nourrit la fiche Atlas Malacca : concentration des flux énergétiques, alternatives limitées et coûteuses.",
+    "type": "note",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 0,
+    "deadline": "2026-08-31",
+    "next_action": "Cadrer l’angle (1 accroche + 1 thèse), puis lancer la chaîne de sourcing pplx (search → fetch-url --facts → verify) pour 3–6 sources ; s’appuyer sur les candidats déjà collectés pour la fiche Malacca (docs/evidence/malacca-candidates.md). Rester ≤ 2 min. Ne pas dériver vers géopolitique Indo-Pacifique générale.",
+    "impact": "atlas",
+    "offer": "public",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Fiche nourrie (Atlas Malacca)",
+        "url": "/atlas/malacca"
+      }
+    ],
+    "internal_notes": "Règle de scope (playbook §11.1) : une note doit nourrir une fiche/dossier. Ici → fiche Malacca."
+  },
+  {
+    "id": "deliv_note_taiwan_teaser",
+    "title": "Note — Taïwan : pourquoi les semi-conducteurs de pointe ne se relocalisent pas en un an",
+    "description": "Note teaser (~2 min, à produire) qui nourrit la fiche Atlas Taïwan : irremplaçabilité court terme des composants de pointe, inertie de la relocalisation.",
+    "type": "note",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 0,
+    "deadline": "2026-08-31",
+    "next_action": "Cadrer l’angle, puis chaîne de sourcing pplx pour 3–6 sources ; réutiliser les candidats de la fiche Taïwan (docs/evidence/taiwan-candidates.md). Cadrage strict : nœud composants + maritime, pas de commentaire géopolitique général. Rester ≤ 2 min.",
+    "impact": "atlas",
+    "offer": "public",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Fiche nourrie (Atlas Taïwan)",
+        "url": "/atlas/taiwan"
+      }
+    ],
+    "internal_notes": "Scope → fiche Taïwan. Irremplaçabilité = candidate pending validation, pas un fait absolu."
+  },
+  {
+    "id": "deliv_note_methode_cvi",
+    "title": "Note méthodologique — Mesurer la vulnérabilité d’un corridor (CVI)",
+    "description": "Note-méthode (~2 min, à produire) du pack de preuve 90 jours : ce que le CVI mesure et ne mesure pas, sans caricature. Nourrit la page méthode CVI.",
+    "type": "note",
+    "pillar": "method",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 0,
+    "deadline": "2026-08-31",
+    "next_action": "Rédiger l’explication non technique du CVI (frontière offre : score 0–5 réservé aux tiers payants, lecture qualitative en public). S’appuyer sur la méthode existante (page /methode-cvi, ADR 0043). Pas de nouvelle donnée chiffrée à sourcer — note conceptuelle. Rester ≤ 2 min.",
+    "impact": "method",
+    "offer": "public",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Méthode nourrie (page CVI)",
+        "url": "/methode-cvi"
+      }
+    ],
+    "internal_notes": "Note du pack 90 jours (spec §18.2). Ne pas divulguer la pondération fine du CVI en public — frontière d’offre."
   }
 ]
