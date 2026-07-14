@@ -360,3 +360,128 @@ bas de ce registre.
 4. **Ne pas** promouvoir ces valeurs dans la fiche/dossier tant que la validation nominative (ADR 0046) n'est
    pas enregistrée ; les rejets actés (Tavvishi 2026, 28 incidents T1 2026, repricing arcaneintel) ne doivent
    pas réapparaître.
+
+---
+
+## Salve Perplexity Recherche Approfondie (2026-07-14) — mission RENFORCEMENT, vérifiée pdf/page réelle, renumérotée C29+
+
+> **STATUT : CANDIDATS EN ATTENTE DE VALIDATION HUMAINE — PAS DES FAITS.** Campagne **RENFORCEMENT**
+> (prompt monté depuis `docs/research/prompt-perplexity-canonique.md`, 5 objets G1–G5) lancée en
+> Perplexity Deep Research, puis **vérifiée sur le document réel** : les trois PDF (JWLA-033, JMIC,
+> IUMI) ont été **téléchargés et lus dans le conteneur `tools`** (`pdf-parse`, chemin Docker-only) ;
+> la page EEAS via `pplx fetch-url`. Chiffres **rapportés**, non promus. Objectif : **battre** les
+> appuis presse/rapportés par des sources primaires — **aucune rétrogradation**.
+>
+> **URL résolues (curl, 2026-07-14)** : JWLA-033 `200 application/pdf`, JMIC `200 application/pdf`,
+> EEAS mandate `200 text/html`, IUMI 2025 `200 application/pdf`. S&P/Platts (axe 1, ci-dessous) reste
+> **`403` au bot**.
+
+### C29 — Joint War Committee (LMA/IUA), _JWLA-033 — JWC Listed Areas_ (réglementaire / autorité de marché) ✅ **PDF primaire lu (2026-07-14)** — **bat l'ancien C3**
+
+- **URL (PDF)** : https://lmalloyds.com/wp-content/uploads/2026/03/JWLA-033_Iran.pdf · **Date : 3 mars 2026** · **Accès** : libre (4 p.).
+- **Type** : `reglementaire` / `institutionnel` (Joint War Committee — LMA/IUA) · **Niveau proposé : S2** (autorité de désignation du marché war-risk londonien).
+- **Étaye (axe 2 — désignation de zone, périmètre chiffré)** — citation **verbatim** :
+  « **Persian/Arabian Gulf, Gulf of Oman, Indian Ocean, Gulf of Aden and Southern Red Sea** — The waters
+  enclosed by the following boundaries: a) On the northwest, by the Red Sea, south of **Latitude 18°N**;
+  b) On the northeast, from Pakistan coastline at **25°19'15"N, 65°E**; c) On the east, by a line to high
+  seas point **10°48'N, 65°E**, thence to high seas point **10°48'N, 60°15'E**, thence to high seas point
+  **6°45'S, 48°45'E**; d) and on the southwest, by the Somalia border at **1°40'S, 41°34'E**, to high seas
+  point at 6°45'S, 48°45'E. » En-tête : « JWLA-033 / 3rd March 2026 / Neil Roberts, Secretary ».
+- **En quoi elle bat l'ancien C3** : fournit **le numéro (JWLA-033), la date et les coordonnées** que la
+  page-comité (C3) ne portait pas. C'est **la** circulaire datée réclamée au point 3 de la liste humaine.
+- **⚠ Nuance décisive (presque-concordance à ne pas masquer)** : JWLA-033 est une **modification**
+  (« Added: Bahrain, Djibouti, Kuwait, Oman, Qatar » ; « Amended: … ») **déclenchée par la situation
+  iranienne** (nom de fichier `_Iran`). La « Southern Red Sea & Gulf of Aden » n'est **plus une zone
+  autonome** : elle est fondue dans une **zone combinée élargie** (golfe Persique/Arabique, golfe d'Oman,
+  côte pakistanaise à 25°N). Le périmètre cité couvre donc **plus** que notre corridor — à préciser au
+  moment de la promotion. Le prédécesseur **JWLA-032 (18 déc. 2023)** avait une délimitation antérieure.
+
+### C30 — JMIC / Combined Maritime Forces, _Monthly Statistics for the Middle East — Jan 2026_ (institutionnel militaire) ✅ **PDF primaire lu (2026-07-14)** — **complète l'axe 2 (série continue)**
+
+- **URL (PDF)** : https://mscio.eu/media/documents/JMIC_Monthly_Statistics_-_Jan_2026.pdf · **Date : janv. 2026** (couvre 19 nov. 2023 → 31 janv. 2026) · **Accès** : libre (13 p., 1,1 Mo).
+- **Type** : `institutionnel` / `donnees_ouvertes` (Joint Maritime Information Centre, entité analytique des Combined Maritime Forces — coalition navale multinationale sous NAVCENT) · **Niveau proposé : S1**.
+- **Étaye (axe 2 — série d'incidents datée, ce qui manquait pour le seuil « ≥ 1/sem. »)** — anchors **verbatim confirmés dans le texte** :
+  - Graphique p. 8 : « **Trending of Houthi-related Maritime Incidents** » ; « **19 Nov 2023 – 31 Jan 2026** ».
+  - Légende : « **Month-on-Month Comparison of All Reported Houthi Activity Towards Merchant Vessels (since 19 Nov 2023)** ».
+  - « **In 2025, we have observed a total of 16 incidents.** » ; « Since the start of 2026, we have observed **0** incident. »
+  - Heatmap CMF AOR : « **Total number of Incidents: 127** » depuis le 19 nov. 2023.
+  - Panneau « Last 6 months » (**périmètre CMF AOR, tous incidents**) : Aug 2025 = 0, **Sep 2025 = 4**, Oct 2025 = 1, **Nov 2025 = 2** (« one related to piracy and one state related activity »), Dec 2025 = 1, Jan 2026 = 0.
+- **En quoi elle bat l'actuel** : première **série mensuelle continue** d'une **autorité primaire opérant dans la zone**, en remplacement des totaux annuels ACLED (C20/C21) et du pic ponctuel CNBC (C27). Permet de dater le pic (déc. 2023 – printemps 2024) et la décrue à zéro en 2026.
+- **⚠ Caveat (à ne pas promouvoir tel quel)** : le **vecteur 27 valeurs mois-par-mois** rapporté par
+  Perplexity (« Nov:3 — Dec:19 — Jan:11 … Jun:17 … ») est **enfermé dans le graphique en barres** (image,
+  non extractible en texte) → **transcription candidate lue par le modèle**, à re-confirmer par lecture du
+  graphique (`agent-browser` pleine page). Ne pas **confondre** les deux séries : le graphique cité vise
+  « Houthi activity **towards merchant vessels** » (somme ≈ 119), distinct du panneau « CMF AOR / 127
+  incidents » (périmètre plus large incluant piraterie/activité étatique/suspecte). D'où l'écart JMIC
+  (16 en 2025) vs ACLED (7 en 2025) : périmètres différents, déjà noté en C20.
+
+### C31 — EEAS, _EUNAVFOR ASPIDES Mandate_ (institutionnel) ✅ **page primaire vérifiée (`pplx fetch-url`, 2026-07-14)** — **corrige/bat C13 & C26**
+
+- **URL** : https://www.eeas.europa.eu/eunavfor-aspides/eunavfor-aspides-mandate-0_en · **Date de page : 27 mai 2026** · **Accès** : libre.
+- **Type** : `institutionnel` (Service européen pour l'action extérieure) · **Niveau proposé : S1**.
+- **Étaye (axe 2 / gouvernance — chiffres de protection EN TEXTE)** — citation **verbatim** :
+  « Since its launch in February 2024, Aspides mission has **supported over 1960 merchant vessels**, ensuring
+  their safe transit and **provided protection to more than 650 ships**. »
+- **En quoi elle bat C13/C26** : source **primaire EEAS**, chiffres **en texte** (non plus en vidéo),
+  datée et plus récente que l'analyse secondaire CIMSEC (« > 1 200 » d'avr. 2026, C26). Deux métriques
+  distinctes : **navires accompagnés (> 1 960)** vs **protection rapprochée (> 650)**.
+- **⚠ Toujours non résolu (verrou vidéo)** : les **menaces interceptées** (missiles balistiques, UAV, USV)
+  restent **absentes du texte** institutionnel (page « Operation in Numbers », maj 16 mai 2026 = vidéo seule).
+  Les valeurs rapportées par Perplexity (« 19 drones/missiles » juil. 2024 ; « 4 missiles balistiques,
+  18 UAV, 20 USV » via _Maritime Executive_, S5) **restent non vérifiées** — non consignées comme candidat.
+  L'URL Borrell « 4 juil. 2024 » proposée par Perplexity est **tronquée/non résolue** → écartée.
+
+### C32 — IUMI, _Stats Report 2025_ (référence sectorielle — source primaire) ✅ **PDF primaire lu (2026-07-14)** — **débloque l'ancien C9**
+
+- **URL (PDF)** : https://iumi.com/wp-content/uploads/2025/11/IUMI-Stats-Report-2025.pdf · **Date : octobre 2025** (données **2024**) · **Accès** : libre (46 p., 2,2 Mo).
+- **Type** : `institutionnel` / `rapport_entreprise` (International Union of Marine Insurance, Facts & Figures Committee) · **Niveau proposé : S3** (association de branche portant le chiffre).
+- **Étaye (axe 1 — contexte de marché, chiffres exacts)** — citations **verbatim confirmées** :
+  « Global marine insurance premiums in 2024 totalled **USD39.92 billion** — a **1.5 %** uplift on 2023. » ;
+  « Ocean hull premiums were reported at **USD9.67 billion**, up by **3.5 %** on the previous year. » ;
+  « … hostilities in the **Red Sea region** continue to present substantial risks for international trade… ».
+- **En quoi elle bat C9** : remplace le « PDF candidat non lu » (C9, données 2023) par la version **2025
+  lue et citée page à page** (données 2024, les plus récentes) — prime marine mondiale **39,92 Md USD**,
+  ocean hull **9,67 Md USD**.
+- **⚠ Caveat (stress-test)** : IUMI **n'isole aucune ligne de prime war-risk** (mention seulement
+  qualitative de la Mer Rouge) → ne fournit **pas** la trajectoire de prime (axe 1 / construct Z). Pour un
+  chiffre war-risk, il faut les bilans syndicats Lloyd's / Cefor / réassurance — non trouvés en accès libre.
+
+### g1 — Trajectoire de la prime war-risk : **PAS MIEUX QUE L'EXISTANT** (source primaire de taux)
+
+- **Verdict RENFORCEMENT** : aucune **source S1/S2 en accès libre** ne publie une **série datée** de la
+  surprime war-risk en % de valeur coque. Les circulaires JWC/LMA (C29) **listent la zone mais pas les
+  taux** ; l'IUMI Stats (C32) **n'isole pas la war-risk** ; les indices courtiers (Marsh/WTW) ne sont pas
+  publics ; S&P/Platts (ex-C5/C19) **reste `403` au bot**. La trajectoire reste adossée à la presse
+  (Reuters C17/C18, Platts C19) — **valeurs de marché anonymes rapportées**, non primaires.
+- **Ajout non vérifié rapporté par Perplexity** : un point intermédiaire S&P/Platts (« AWRP … around
+  **0.5 %** of H&M value … for seven days », daté **12 mars 2025**). Non confirmé (page 403) → **candidat
+  faible, non promu** ; à récupérer manuellement / `agent-browser` si l'axe 1 doit gagner ce palier.
+- **Conclusion** : **ne rétrograde pas** l'existant ; l'axe 1 demeure « recoupé (presse) — en attente
+  d'une série primaire de taux », verrou structurel déjà noté au 2026-07-12.
+
+### État du recoupement par axe (mise à jour 2026-07-14)
+
+- **Axe 1** (trajectoire de prime) : **inchangé** — pas de série primaire de taux en accès libre (g1 =
+  PAS MIEUX). Reste presse (C17/C18/C19). Verrou structurel.
+- **Axe 2 — désignation de zone** : **renforcé** — circulaire **primaire datée JWLA-033** (C29, coord.
+  verbatim) **bat** la page-comité C3. ⚠ Zone désormais **combinée/élargie** (extension iranienne).
+- **Axe 2 — série d'incidents** : **renforcé** — **série mensuelle primaire JMIC/CMF** (C30) en
+  remplacement des totaux annuels ACLED ; anchors texte confirmés (127 total CMF AOR ; 16 en 2025 ;
+  décrue à 0 en 2026). Vecteur mensuel exact = candidat (graphique image) à re-lire.
+- **Gouvernance / Aspides** : **renforcé** — chiffres EEAS **en texte** (C31 : > 1 960 accompagnés /
+  > 650 protégés) **corrigent** C13/C26. Menaces interceptées **toujours en vidéo** (non consigné).
+- **Contexte marché assurance** : **débloqué** — IUMI Stats 2025 lu (C32 : 39,92 / 9,67 Md USD 2024).
+
+### Prochaines actions (humain) — 2026-07-14
+
+1. **Escalade `agent-browser`** (conteneur `tools`) pour lire **le graphique JMIC** (vecteur mensuel exact
+   du chart « Houthi activity towards merchant vessels ») et l'**infographie/vidéo EEAS « Operation in
+   Numbers »** (menaces interceptées) — les deux seuls chiffres encore image/vidéo.
+2. **Récupérer manuellement** l'article S&P/Platts du **12 mars 2025** (403) pour figer le palier 0,5 %
+   de l'axe 1, si ce point intermédiaire est jugé utile.
+3. **Préciser à la promotion** que JWLA-033 (C29) décrit une **zone combinée élargie** (Iran) et non la
+   seule « Southern Red Sea & Gulf of Aden » — citer JWLA-032 (18 déc. 2023) si le périmètre historique
+   du corridor est requis.
+4. **Ne pas** promouvoir ces valeurs dans la fiche/dossier tant que la **validation nominative (ADR 0046)**
+   n'est pas enregistrée. Rejets actés antérieurs (Tavvishi « 2026 », « 28 incidents T1 2026 »,
+   arcaneintel, IDs C79/C86/C98) toujours **à ne pas réintroduire**.
