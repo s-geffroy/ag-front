@@ -85,9 +85,9 @@ L'enjeu de Malacca est une **concentration** : beaucoup de flux vitaux sur un se
   qualitatives (« majorité »).
 - **GNL** : ≈ **9,2 milliards de pi³/j** de GNL via le détroit au 1S 2025 (US EIA — estimation) ; la **part du
   GNL maritime mondial** n'est pas publiée telle quelle (calcul dérivé nécessaire).
-- **Volume de navires** : pas de série primaire consolidée récente pour le **seul** détroit de Malacca ; les
-  chiffres courants (« > 90 000 navires/an ») **agrègent Malacca + Singapour** et proviennent de sources
-  secondaires. Ordre de grandeur ≈ 60 000–100 000/an, à manier avec prudence.
+- **Volume de navires** : **94 301** navires en 2024 dans les détroits de Malacca **et** Singapour (autorité
+  portuaire de Singapour, MPA — fait mesuré). Réserve : ce total **agrège Malacca + Singapour** ; il n'existe
+  pas de série primaire pour le **seul** détroit de Malacca.
 
 ## Vulnérabilités
 
@@ -107,20 +107,33 @@ L'enjeu de Malacca est une **concentration** : beaucoup de flux vitaux sur un se
 
 ## Alternatives / bypass
 
-- **Détroit de Lombok (+ Makassar)** — la principale alternative : plus profond (accueille les plus gros
-  navires) mais **plus long**. Le surcoût n'est **pas standardisé dans une source primaire** ; les évaluations
-  de routage donnent un ordre de grandeur de **+300 à +1 000 milles nautiques** (≈ +1 à +4 jours) selon les
-  ports et la vitesse — **modélisation**, non donnée officielle datée.
-- **Détroit de la Sonde (Sunda)** — étroit et peu profond, marginal pour les grands navires.
-- **Pipeline Chine–Myanmar** (Kyaukphyu → Yunnan) — contourne *partiellement* Malacca : capacité nominale
-  ≈ **400 000 b/j** (Reuters, 2017 ; **442 000 b/j** selon Global Energy Monitor), soit ≈ **5 %** des besoins
-  d'importation de la Chine. Part **théorique** : aucune série publique ne montre le taux d'utilisation réel ni
-  le volume effectivement détourné de Malacca sur 2023–2025.
+La question n'est pas *si* les navires peuvent physiquement passer ailleurs — ils le peuvent — mais *combien
+de volume* une route de report peut absorber sans saturer flotte et ports. **Aucune source publique ne chiffre
+cette « capacité résiduelle » d'absorption** en cas de fermeture de Malacca : c'est la principale lacune
+documentaire, et elle borne toute affirmation de substituabilité.
+
+- **Détroit de Lombok (+ Makassar)** — **capacité physique élevée** : profond (≈ **1 000 m**) et permissif, il
+  accueille les plus gros pétroliers et vraquiers que Malacca ne prend pas (littérature recherche-défense —
+  appréciation). La contrainte n'est donc **pas le gabarit** mais l'**absorption systémique** : l'allongement
+  de la route (ordre de grandeur **+300 à +1 000 milles nautiques**, ≈ +1 à +4 jours — modélisation, non
+  donnée officielle) **réduit le nombre de rotations annuelles** et immobilise davantage de navires — c'est
+  l'**effet de flotte** qui borne le report à grande échelle. Trafic annuel de Lombok et capacité résiduelle :
+  **non documentés publiquement**.
+- **Détroit de la Sonde (Sunda)** — plus contraint physiquement que Lombok ; rôle d'**appoint marginal** pour
+  les plus gros tonnages, pas d'exutoire principal d'un choc « fermeture de Malacca » (littérature —
+  qualitatif ; pas de chiffres physiques publics pour VLCC/ULCV).
+- **Pipeline Chine–Myanmar** (Kyaukphyu → Yunnan) — capacité nominale ≈ **400 000 b/j** (Reuters, 2017 ;
+  **442 000 b/j** selon Global Energy Monitor), soit ≈ **5 %** des besoins d'importation de la Chine **mais
+  seulement ≈ 1,7–1,9 % du débit total de Malacca** (23,2 Mb/j — calcul dérivé). Taux d'**utilisation réel
+  2023-2025 non trouvé** en source publique. Même à pleine capacité, il ne change pas l'ordre de grandeur.
 - **Canal de Kra (isthme thaïlandais)** — projet **non réalisé**, sans décision politique ferme de lancement,
   au mieux « à l'étude » et plusieurs fois mis en sommeil (ERIA). Aucune capacité réelle à ce jour.
 
-> Le report par Lombok/pipeline est **physiquement possible mais non substituable en capacité** : il déplace
-> le problème vers la distance et le carburant, pas vers une redondance véritable.
+> **Bilan de capacité (candidat).** Report *physiquement* possible, *systémiquement* **non substituable** : la
+> limite est la **perte de rotations de flotte** due au détour, non le tirant d'eau, et **aucune étude publique
+> ne fournit un « % du trafic Malacca réabsorbable »**. La seule alternative quantifiée (pipeline) ne couvre
+> que ~2 % du débit. L'affirmation « non substituable en capacité » est donc **étayée** — avec la réserve
+> assumée que le chiffre exact de capacité résiduelle n'existe pas en source primaire.
 
 ## Seuils d'alerte
 
@@ -131,7 +144,7 @@ sources vérifiées** (≥ 2 sources indépendantes) des **repères historiques 
 | Indicateur                                              | Seuil de déclenchement                                  | Bascule / action                                               | Statut / fondement                                                                                     |
 | ------------------------------------------------------ | ------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | **Flux de brut** via Malacca (Mb/j)                    | recul soutenu **> 15 %** vs baseline ≈ 23 Mb/j          | report vers Lombok/pipelines — hausse des coûts d'appro        | **Adossé** — baseline **23,2 Mb/j** (1S 2025, EIA) ; 1ᵉʳ chokepoint pétrolier mondial                  |
-| **Volume de transits** (navires/j)                     | recul **> 20 %** sur 4 semaines glissantes              | corridor en tension — suivi rapproché                          | **À adosser** — pas de série primaire pour le seul détroit (chiffres agrégés Malacca+Singapour)        |
+| **Volume de transits** (navires/an)                    | recul **> 20 %** sur 4 semaines glissantes              | corridor en tension — suivi rapproché                          | **Partiel** — **94 301** navires 2024 (Malacca **+** Singapour, MPA) ; pas de série pour le seul détroit |
 | **Incidents sécuritaires** (piraterie/vol) — SOMS      | **≥ 1 / semaine** sur 3 semaines consécutives           | menace persistante (et non ponctuelle) — prime d'assurance     | **Adossé** — série ReCAAP : **108 incidents SOMS en 2025** (+74 %), pic janv.–juil., majorité CAT 4    |
 | **Temps d'attente / congestion** autour de Singapour   | file de mouillage anormale (vs baseline portuaire)      | tension logistique — répercussion sur les chaînes aval         | **Repère opérationnel** — à calibrer sur données portuaires MPA                                        |
 | **Blocage physique** (échouement/collision) à Phillips | interruption continue **> 72 h**                        | bascule logistique — reroutage d'urgence par Lombok            | **Repère hypothétique** — pas de précédent de blocage prolongé documenté récemment                     |
@@ -162,10 +175,12 @@ sources vérifiées** (≥ 2 sources indépendantes) des **repères historiques 
 ## Niveau de confiance
 
 **Moyen.** Élevé sur la géographie, la **nature** de la dépendance (chokepoint énergétique sans substitut de
-capacité) et sur les chiffres de source primaire (**flux de brut EIA**, **débit EVP Singapour MPA**,
-**incidents ReCAAP**). L'incertitude porte sur les valeurs **absentes ou dérivées** : parts d'importation
-Japon/Corée, part du GNL mondial, nombre de transits pour le seul détroit, surcoût Lombok — non documentées en
-source primaire et signalées comme telles.
+capacité) et sur les chiffres de source primaire (**flux de brut EIA**, **débit EVP + 94 301 navires
+Singapour MPA**, **incidents ReCAAP**). L'incertitude porte sur les valeurs **absentes ou dérivées** : parts
+d'importation Japon/Corée, part du GNL mondial, transits pour le seul détroit, surcoût Lombok, et surtout la
+**capacité résiduelle d'absorption des alternatives** — non documentée en source primaire et signalée comme
+telle. Point établi malgré la lacune : le facteur limitant du report est l'**effet de flotte** (rotations
+perdues), non le gabarit.
 
 > **Fait / analyse.** Les valeurs de source primaire (EIA, MPA, ReCAAP) sont des **faits rapportés** (non
 > reconfirmés par nos soins) ; la « Malaccamax », la part mondiale de Singapour et le surcoût Lombok sont des

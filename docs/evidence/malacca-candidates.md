@@ -139,8 +139,22 @@ phrase par alternative ; (ii) la liste des points où les données publiques man
 
 ### Mapping fiche
 Résultats → section _Alternatives / bypass_ (chiffrer Lombok/Sunda/pipeline) + seuil « Flux de brut »
-et note _Confiance_. Réf candidats à ouvrir : **M9** (capacité Lombok), **M10** (utilisation réelle
-pipeline), **M11** (étude de modélisation d'absorption).
+et note _Confiance_.
+
+### Candidats sourcés (recherche Perplexity du 2026-07-14, 2ᵉ salve — CANDIDATS)
+
+| Réf | Fait / estimation (périmètre)                                                     | Source primaire            | Date    | Statut analytique              |
+| --- | --------------------------------------------------------------------------------- | -------------------------- | ------- | ------------------------------ |
+| M9  | 94 301 navires (détroits Malacca **+** Singapour)                                  | MPA Singapore              | 2024    | **fait** (agrégé, pas Malacca seul) |
+| M10 | Lombok profond ≈ 1 000 m, accueille VLCC/gros vraquiers (capacité physique élevée) | littérature recherche-défense FR | —  | appréciation qualitative       |
+| M11 | Contrainte plafonnante = **effet de flotte** (rotations perdues par le détour), pas le gabarit ; capacité résiduelle **non chiffrée** | analyse (déduction) | — | estimation analytique          |
+| M12 | Pipeline Chine-Myanmar ≈ 1,7–1,9 % du débit total Malacca (23,2 Mb/j) à pleine capacité ; utilisation réelle 2023-25 **non trouvée** | calcul dérivé (capacité GEM/Reuters vs EIA) | — | calcul dérivé |
+| —   | **Non documenté publiquement** : trafic annuel Lombok seul ; capacité résiduelle d'absorption ; perte de rotations en % ; contraintes Sunda pour VLCC/ULCV ; flux réels pipeline ; % réabsorbable modélisé | — | — | à ne pas inventer |
+
+**Effet sur le finding ADR 0039 (Malacca sev 4) :** l'affirmation « non substituable en capacité »
+est **étayée** (contrainte = effet de flotte, seule alternative quantifiée ≈ 2 %), avec réserve
+assumée que la capacité résiduelle exacte n'existe pas en source primaire. Objection traitée sans
+surinterprétation.
 
 ## Sites bloqués au bot / accès manuel requis
 
