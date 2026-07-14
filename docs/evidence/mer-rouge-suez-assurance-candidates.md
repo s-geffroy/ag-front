@@ -407,13 +407,17 @@ bas de ce registre.
   - Heatmap CMF AOR : « **Total number of Incidents: 127** » depuis le 19 nov. 2023.
   - Panneau « Last 6 months » (**périmètre CMF AOR, tous incidents**) : Aug 2025 = 0, **Sep 2025 = 4**, Oct 2025 = 1, **Nov 2025 = 2** (« one related to piracy and one state related activity »), Dec 2025 = 1, Jan 2026 = 0.
 - **En quoi elle bat l'actuel** : première **série mensuelle continue** d'une **autorité primaire opérant dans la zone**, en remplacement des totaux annuels ACLED (C20/C21) et du pic ponctuel CNBC (C27). Permet de dater le pic (déc. 2023 – printemps 2024) et la décrue à zéro en 2026.
-- **⚠ Caveat (à ne pas promouvoir tel quel)** : le **vecteur 27 valeurs mois-par-mois** rapporté par
-  Perplexity (« Nov:3 — Dec:19 — Jan:11 … Jun:17 … ») est **enfermé dans le graphique en barres** (image,
-  non extractible en texte) → **transcription candidate lue par le modèle**, à re-confirmer par lecture du
-  graphique (`agent-browser` pleine page). Ne pas **confondre** les deux séries : le graphique cité vise
-  « Houthi activity **towards merchant vessels** » (somme ≈ 119), distinct du panneau « CMF AOR / 127
-  incidents » (périmètre plus large incluant piraterie/activité étatique/suspecte). D'où l'écart JMIC
-  (16 en 2025) vs ACLED (7 en 2025) : périmètres différents, déjà noté en C20.
+- **Vecteur mensuel — CONFIRMÉ verbatim (escalade 2026-07-14).** Les valeurs du graphique en barres sont
+  **présentes en texte vectoriel** dans le PDF (labels de barres + axe daté « Nov 23 … Jan 26 », 27 mois).
+  Série lue mois-par-mois (Houthi activity **towards merchant vessels**, 19 nov. 2023 → 31 janv. 2026) :
+  **3, 19, 11, 13, 7, 7, 4, 17, 7, 10, 3, 5, 5, 1, 1, 0, 0, 1, 0, 0, 2, 1, 2, 0, 0, 0, 0** (somme = **119**).
+  → **concorde exactement** avec la transcription Perplexity : celle-ci passe de « candidat lu au modèle »
+  à **vérifiée sur le PDF**. **Correction** : le pic mensuel est **déc. 2023 = 19** (juin 2024 = 17 en
+  second), et non « juin 2024 » comme le résumait Perplexity.
+- **⚠ Ne pas confondre les deux séries** : ce vecteur vise « Houthi activity **towards merchant vessels** »
+  (somme 119), distinct du panneau « CMF AOR / **127** incidents » (périmètre plus large : piraterie,
+  activité étatique, suspecte). D'où l'écart JMIC (16 en 2025) vs ACLED (7 en 2025) : périmètres
+  différents, déjà noté en C20. Reste candidat quant à la **validation humaine** (ADR 0046), non promu.
 
 ### C31 — EEAS, _EUNAVFOR ASPIDES Mandate_ (institutionnel) ✅ **page primaire vérifiée (`pplx fetch-url`, 2026-07-14)** — **corrige/bat C13 & C26**
 
@@ -425,10 +429,20 @@ bas de ce registre.
 - **En quoi elle bat C13/C26** : source **primaire EEAS**, chiffres **en texte** (non plus en vidéo),
   datée et plus récente que l'analyse secondaire CIMSEC (« > 1 200 » d'avr. 2026, C26). Deux métriques
   distinctes : **navires accompagnés (> 1 960)** vs **protection rapprochée (> 650)**.
-- **⚠ Toujours non résolu (verrou vidéo)** : les **menaces interceptées** (missiles balistiques, UAV, USV)
-  restent **absentes du texte** institutionnel (page « Operation in Numbers », maj 16 mai 2026 = vidéo seule).
-  Les valeurs rapportées par Perplexity (« 19 drones/missiles » juil. 2024 ; « 4 missiles balistiques,
-  18 UAV, 20 USV » via _Maritime Executive_, S5) **restent non vérifiées** — non consignées comme candidat.
+- **⚠ Verrou vidéo — CONFIRMÉ définitivement (escalade `agent-browser`, 2026-07-14).** La page
+  « Operation in Numbers » (https://www.eeas.europa.eu/eunavfor-aspides/eunavfor-aspides-operation-numbers_en,
+  maj 16.05.2026) a été ouverte et défilée dans le conteneur `tools` : son contenu chiffré est une **vidéo
+  de 13 s** (lecteur `0:00 / 0:13`) suivie d'un seul paragraphe **sans chiffre**. Les **menaces interceptées**
+  (missiles/UAV/USV) ne sont donc **pas extractibles en texte ni en image statique** → cul-de-sac hors
+  lecture de la vidéo. Fiches connexes trouvées (via `pplx search`) mais **chiffres également en graphique** :
+  fact sheet EEAS _EUNAVFOR OPERATION ASPIDES_ (nov. 2025, PDF 1 p.,
+  https://www.eeas.europa.eu/sites/default/files/2025/documents/EUNAVFOR_OPERATION_ASPIDES_2025%5B1%5D.pdf) —
+  texte mandat lisible, mais compteurs (nations, effectifs, navires, menaces) rendus en **infographie**.
+- **Piste texte primaire pour l'existence des interceptions (early, non cumulatif)** : page EEAS
+  « One month since the launch » (19 mars 2024) rapporte, en **texte**, « close protection of **35** merchant
+  vessels … shooting down **8** UAVs and repelling **3** other UAV attacks » — snapshot **précoce** (pas un
+  cumul), **breadcrumb `pplx search` à re-vérifier** avant tout usage. Les cumuls Perplexity (« 4 missiles
+  balistiques, 18 UAV, 20 USV » via _Maritime Executive_, S5) **restent non vérifiés** — non consignés.
   L'URL Borrell « 4 juil. 2024 » proposée par Perplexity est **tronquée/non résolue** → écartée.
 
 ### C32 — IUMI, _Stats Report 2025_ (référence sectorielle — source primaire) ✅ **PDF primaire lu (2026-07-14)** — **débloque l'ancien C9**
@@ -474,9 +488,10 @@ bas de ce registre.
 
 ### Prochaines actions (humain) — 2026-07-14
 
-1. **Escalade `agent-browser`** (conteneur `tools`) pour lire **le graphique JMIC** (vecteur mensuel exact
-   du chart « Houthi activity towards merchant vessels ») et l'**infographie/vidéo EEAS « Operation in
-   Numbers »** (menaces interceptées) — les deux seuls chiffres encore image/vidéo.
+1. ✅ **Fait (escalade 2026-07-14)** : (a) **graphique JMIC** — vecteur mensuel exact **confirmé** (texte
+   vectoriel du PDF, cf. C30) ; (b) **EEAS « Operation in Numbers »** — escaladé : contenu en **vidéo 13 s**,
+   menaces interceptées **non extractibles** (cul-de-sac). Reste, si un humain veut le cumul de menaces
+   interceptées : lire la vidéo EEAS, ou trouver un communiqué EEAS daté portant ces cumuls **en texte**.
 2. **Récupérer manuellement** l'article S&P/Platts du **12 mars 2025** (403) pour figer le palier 0,5 %
    de l'axe 1, si ce point intermédiaire est jugé utile.
 3. **Préciser à la promotion** que JWLA-033 (C29) décrit une **zone combinée élargie** (Iran) et non la
