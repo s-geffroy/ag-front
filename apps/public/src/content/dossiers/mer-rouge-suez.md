@@ -48,3 +48,15 @@ revanche **à valider**. Le corridor porte normalement ≈ 15 % du commerce mari
 - Limites, angles morts et niveau de confiance.
 
 > Aucune affirmation structurante sans source ou marqueur d’incertitude.
+
+## Limites & angles morts
+
+- La **trajectoire récente de la prime _war-risk_** — cœur de la thèse — est **recoupée par la presse**
+  (Reuters, S&P/Platts), sans **série de taux primaire** : c’est le **verrou** de la validation, confirmé
+  par notre passe de contradiction interne (finding de sévérité élevée).
+- La **durabilité de l’accalmie** post-cessez-le-feu d’octobre 2025 reste incertaine : aucune attaque
+  contre un navire marchand depuis, mais la menace est jugée **latente** par les autorités (US MARAD).
+- Deux repères de bascule tiennent à des sources hétérogènes : la **fréquence d’incidents** est fondée
+  sur une série mensuelle primaire (JMIC/CMF), mais la **durée de fermeture** reste un repère historique.
+- Géométrie **schématique**, sans valeur navigationnelle ni juridique. Niveau de confiance global :
+  **moyen**.

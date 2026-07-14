@@ -167,8 +167,10 @@ offres Standard/Premium (ADR 0043). Chaque appréciation est **candidate**, à c
 
 - Fragmentation des primes (par courtier/navire/cargaison) : pas de source publique unique temps réel.
 - **Trajectoire des primes** (construct Z) et durée d'une stabilisation : faible visibilité, sources
-  spécialisées bloquées (S&P `[C5]`, Argus `[C7]`) — verrou principal de la validation.
-- Deux seuils (fréquence d'incidents, durée de fermeture) sans série de données : repères non fondés.
+  spécialisées **désormais recoupées par la presse** (Reuters `[C17]`, S&P/Platts `[C19]`), mais **sans
+  série de taux primaire** — **verrou principal** confirmé par la passe de contradiction (ADR 0039,
+  2026-07-14 : finding **sévérité 5**), limite assumée à la clôture de `contradiction_done`.
+- Deux seuils (fréquence d'incidents, durée de fermeture) naguère sans série : la **fréquence d’incidents** est désormais **fondée** (série primaire JMIC `[C30]`), seule la **durée de fermeture** reste un repère historique (`[C28]`, non validé).
 - Chiffres à source unique (−82 % tonnage, 586 navires, surcoût fret) : à recouper avant promotion.
 - Géométrie schématique, sans valeur navigationnelle ni juridique.
 
