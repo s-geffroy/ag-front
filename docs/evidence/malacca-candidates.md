@@ -84,6 +84,64 @@ Termine par une liste des points où les données publiques sont absentes ou con
 | M8  | Malaccamax ≈ 20,5–21 m tirant d'eau, ≈ 333 m, ≈ 300 000 tpl                | norme de design (non codifiée) | — | ordre de grandeur technique |
 | —   | **Non documenté publiquement** : part imports Japon/Corée via Malacca ; part GNL mondial ; nombre de transits pour le seul détroit ; surcoût Lombok chiffré | — | — | à ne pas inventer |
 
+## Complément — contradiction LLM (ADR 0039, finding Malacca sev 4)
+
+> Objectif : chiffrer la **capacité d'absorption** des alternatives vs le **volume à dérouter**,
+> pour étayer (ou nuancer) l'affirmation « report physiquement possible mais non substituable en
+> capacité ». Le finding objecte à juste titre qu'aucune donnée chiffrée ne compare la capacité
+> mensuelle de Lombok / du pipeline au volume dérouté potentiel. Résultats attendus = **candidats**.
+
+### Prompt Perplexity Recherche Avancée — à coller tel quel
+
+```
+Tu es analyste en logistique maritime et sécurité énergétique. Question précise : si le détroit
+de MALACCA devenait indisponible, quelle part du trafic pourrait RÉELLEMENT être absorbée par ses
+alternatives, et quelle est la contrainte qui plafonne cette absorption ? J'ai besoin de chiffres
+sourcés, chacun avec SOURCE PRIMAIRE, URL et DATE. Réponds EN FRANÇAIS. Pour chaque point : (a)
+valeur ; (b) date ; (c) source primaire (organisme + document) ; (d) URL ; (e) FAIT mesuré ou
+ESTIMATION. Si une donnée n'existe pas publiquement, dis-le explicitement — n'invente rien.
+Distingue bien « capacité PHYSIQUE de transit » (le détroit peut-il laisser passer les navires ?)
+et « capacité d'ABSORPTION systémique » (la route alternative peut-elle absorber le VOLUME sans
+saturer flotte/ports/soutage ?).
+
+VOLUME À DÉROUTER (baseline)
+1. Volume de pétrole+liquides et nombre/tonnage de navires transitant Malacca aujourd'hui (rappel
+   EIA ≈ 23,2 Mb/j au 1S 2025) — pour fixer l'ordre de grandeur du volume à réabsorber.
+
+DÉTROIT DE LOMBOK
+2. Le détroit de Lombok a-t-il une LIMITE physique de débit (profondeur, largeur, courants, trafic
+   actuel en navires/an) ? Peut-il accueillir les plus grands pétroliers/porte-conteneurs (VLCC,
+   ULCV) que Malacca ne prend pas ?
+3. Quel est le trafic ACTUEL de Lombok (navires/an) et existe-t-il une estimation de sa capacité
+   résiduelle disponible pour absorber un report depuis Malacca ?
+4. Quelle est la contrainte réellement limitante d'un report massif par Lombok : distance/temps
+   supplémentaire (donc immobilisation de flotte et baisse du nombre de rotations/an), soutage,
+   infrastructure portuaire hors hub de Singapour ? Chiffres si disponibles (+NM, +jours, % de
+   capacité de flotte « perdue » par l'allongement).
+
+DÉTROIT DE LA SONDE (SUNDA)
+5. Contraintes physiques de Sunda (profondeur, largeur) et types de navires exclus ; capacité
+   d'appoint réaliste.
+
+PIPELINE CHINE-MYANMAR (Kyaukphyu → Yunnan)
+6. Capacité nominale (rappel ≈ 400 000–442 000 b/j) ET taux d'UTILISATION réel récent (2023-2025) :
+   combien de b/j sont EFFECTIVEMENT détournés de Malacca ? Source sur les flux réels, pas seulement
+   la capacité de design.
+
+MODÉLISATION / ÉTUDES
+7. Existe-t-il des études (universitaires, think tanks, EIA/IEA, IMO) qui MODÉLISENT explicitement
+   la capacité d'absorption des alternatives à Malacca en cas de fermeture, avec un chiffre de « %
+   du trafic Malacca réabsorbable » et le facteur limitant retenu ?
+
+Termine par : (i) une synthèse « capacité d'absorption réaliste vs volume à dérouter » en une
+phrase par alternative ; (ii) la liste des points où les données publiques manquent.
+```
+
+### Mapping fiche
+Résultats → section _Alternatives / bypass_ (chiffrer Lombok/Sunda/pipeline) + seuil « Flux de brut »
+et note _Confiance_. Réf candidats à ouvrir : **M9** (capacité Lombok), **M10** (utilisation réelle
+pipeline), **M11** (étude de modélisation d'absorption).
+
 ## Sites bloqués au bot / accès manuel requis
 
 _(à compléter au fil de la collecte : PDF EIA/UNCTAD, portails portuaires derrière sélecteur, etc.)_
