@@ -98,7 +98,7 @@
     "priority": "P0",
     "progress": 80,
     "deadline": "2026-09-05",
-    "next_action": "Fiche structurée au gabarit P0 (flux, seuils d'alerte, scénarios, confiance — cf. malacca.md) ; chiffres marqués [À SOURCER]. Sourcing lancé : prompt Perplexity Recherche Avancée + registre candidats (docs/evidence/malacca-candidates.md). Reste : collecte humaine des chiffres → recoupement ≥2 sources → contradiction LLM (ADR 0039) → validation → flip gates. Reste dépubliée (published:false).",
+    "next_action": "Fiche P0 complète et sourcée : candidats Perplexity injectés (EIA 23,2 Mb/j, MPA 41,12 M EVP / 94 301 navires, ReCAAP 108 incidents SOMS, pipeline Chine-Myanmar) avec statut FAIT/ESTIMATION — cf. malacca.md + docs/evidence/malacca-candidates.md. Contradiction ADR 0039 tournée x2 (rapport candidat, status pending) : finding capacité sev 4 levé, nuance dépendance/atténuation ajoutée ; findings résiduels = lacunes publiques assumées. Reste jugement humain : marquer rapport reviewed → contradiction_done ; valider candidats → sources_ok ; revue Munich (2/6/7/8/9/10) → compliance_done ; cvi_justified ; puis human_review_done → published. Reste dépubliée (published:false).",
     "impact": "atlas",
     "offer": "basic",
     "quality_gate_status": "at_risk",
