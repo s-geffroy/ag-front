@@ -68,11 +68,26 @@ Termine par une liste des points où les données publiques sont absentes, daté
 8. **Surcoût reroutage Est** (_Alternatives_) — analyses de route.
 9. **Part de marché ASML EUV** (_Vulnérabilités_ amont) — ASML / analystes.
 
-## Candidats vérifiés (à remplir)
+## Candidats sourcés (recherche Perplexity du 2026-07-14 — CANDIDATS, non validés)
 
-| Réf | Fait attesté (périmètre) | Source primaire | URL | Date | Type | Accès | Statut |
-| --- | ------------------------ | --------------- | --- | ---- | ---- | ----- | ------ |
-| T1  | _(à remplir)_            |                 |     |      |      |       | candidat |
+> Rapportés par Sylvain via Perplexity Recherche Avancée. Injectés dans `taiwan.md` **avec** leur
+> statut (FAIT / ESTIMATION / DÉDUCTION / non documenté). Restent candidats tant que le gate
+> `sources_ok` n'a pas été flippé après validation nominative (ADR 0046).
+
+| Réf | Fait / estimation (périmètre)                                              | Source primaire            | Date     | Statut analytique          |
+| --- | -------------------------------------------------------------------------- | -------------------------- | -------- | -------------------------- |
+| T1  | TSMC = 67,6 % du marché fonderie pure-play                                  | TrendForce (via Focus Taiwan) | T1 2025  | estimation (revenus)       |
+| T2  | Taïwan ≈ 68 % capacité mondiale nœuds avancés (16/14 nm+) ; ≈ 80 % « EUV gen » (7 nm+) | TrendForce           | 2023     | estimation (capacité)      |
+| T3  | Mix revenus TSMC : 3 nm 26 % / 5 nm 34 % / 7 nm 14 %                        | TSMC earnings call         | Q4 2024  | **fait** (interne TSMC)    |
+| T4  | TSMC 70–80 % du marché 5 nm ; > 90 % du 3 nm                               | TrendForce                 | 2023-24  | estimation (par nœud)      |
+| T5  | Taïwan ≈ 80–90 % production < 5 nm ; > 90 % < 3 nm                          | déduction TSMC+TrendForce  | 2023-24  | **déduction** (pas officiel) |
+| T6  | ≈ 48 % des 5 400 porte-conteneurs mondiaux transitent le détroit ; 88 % du décile sup. | Bloomberg (AIS)     | jan-jui 2022 | estimation (AIS)         |
+| T7  | Kaohsiung 9,3 M EVP ; ≈ 17ᵉ rang mondial                                   | MoTC Taïwan / DG Trésor    | 2023     | **fait** mesuré            |
+| T8  | Capacité avancée hors Taïwan 32 % (2023) → 59 % (2027) ; Taïwan 68 %→41 %   | TrendForce                 | proj. 2027 | estimation / projection    |
+| T9  | Choc blocus : « milliers de milliards $ » / plusieurs pts PIB mondial (5–10 % guerre totale) | HCSS (comp. Rhodium/Bloomberg) | 2024 | estimations scénarisées   |
+| T10 | Lead-times : baseline 8–12 sem. ; pic 2021-22 46–47 (extr. 70–130) ; retour 8–12 en 2023 | BFM/Gys, Groupe Alpha, S&P | 2021-23  | estimations sectorielles   |
+| T11 | Lithographie EUV = monopole de fait ASML ; marché EUV 11,4 Md$             | Global Market Insights     | 2024     | fait (monopole) + estimation (marché) |
+| —   | **Non documenté publiquement** : production < 7/5/3 nm ventilée par pays ; surcoût reroutage Est ; chiffre unique de coût de blocus | —                     | —        | à ne pas inventer          |
 
 ## Sites bloqués au bot / accès manuel requis
 

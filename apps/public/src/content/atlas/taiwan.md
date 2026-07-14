@@ -27,20 +27,27 @@ map:
     label: Contournement Est (Pacifique)
     path: M 30 46 C 60 56, 74 44, 66 24
 sources:
-  - label: TSMC — Annual Report / financials (part des nœuds avancés, capacité)
+  - label: "TSMC — Q4 2024 Earnings Conference Call (16 janv. 2025 ; ventilation revenus par nœud)"
     type: rapport_entreprise
-    url: https://investor.tsmc.com/english/annual-reports
-  - label: SEMI — World Fab Forecast / market data (capacité de fonderie mondiale)
+    url: https://investor.tsmc.com/english/quarterly-results/2024/q4
+  - label: TrendForce — part de marché fonderie & capacité par nœud avancé (2023–2025)
+    type: analyse_secondaire
+    url: https://www.trendforce.com/presscenter/news/
+  - label: "Focus Taiwan — TSMC market share rises to 67.6% in Q1 (TrendForce, 2025)"
+    type: presse_specialisee
+    url: https://focustaiwan.tw/business/202506050014
+  - label: "Bloomberg — trafic du détroit de Taïwan (données AIS, 2022 ; ~48% de la flotte conteneurs)"
+    type: presse_specialisee
+    url: https://www.bloomberg.com/news/articles/2022-08-03/taiwan-tensions-raise-risks-in-one-of-busiest-shipping-lanes
+  - label: DG Trésor — Le leadership de Taïwan dans l'industrie des semi-conducteurs (Kaohsiung, rangs portuaires)
     type: institutionnel
-    url: https://www.semi.org/en/products-services/market-data
-  - label: TrendForce — parts de marché fonderie (segment avancé)
+    url: https://www.tresor.economie.gouv.fr/Pays/TW
+  - label: "HCSS — Taiwan: The Cost of Conflict (2024 ; compilation Rhodium/CSIS/Bloomberg)"
     type: analyse_secondaire
-    url: https://www.trendforce.com/
-  - label: Rhodium Group — coût économique d'un blocus de Taïwan (estimation)
+    url: https://hcss.nl/report/taiwan-the-cost-of-conflict/
+  - label: Global Market Insights — Extreme Ultraviolet Lithography Market (marché EUV, 2024)
     type: analyse_secondaire
-    url: https://rhg.com/
-  - label: Données de trafic maritime régional (part de la flotte transitant le détroit)
-    type: donnees_ouvertes
+    url: https://www.gminsights.com/industry-analysis/extreme-ultraviolet-lithography-market
 ---
 
 ## Définition du nœud
@@ -56,48 +63,64 @@ géopolitique général.
 
 ## Nœuds principaux
 
-- **Fabs TSMC** (Hsinchu, Tainan, Kaohsiung) — le cœur du nœud : Taïwan produit ≈ [À SOURCER] % des puces les
-  plus avancées (nœuds < 7 nm / < 5 nm), et TSMC concentre ≈ [À SOURCER] % de la fonderie mondiale sous
-  contrat. C'est une concentration **sans équivalent** dans aucune autre chaîne critique.
-- **Détroit de Taïwan** — rail maritime resserré entre l'île et le continent ; ≈ [À SOURCER] % de la flotte de
-  porte-conteneurs mondiale le traverse au fil de l'année.
-- **Port de Kaohsiung** — l'un des grands ports conteneurisés d'Asie de l'Est, exutoire logistique de l'île.
+- **Fabs TSMC** (Hsinchu, Tainan, Kaohsiung) — le cœur du nœud. TSMC détient **67,6 %** du marché mondial de
+  la fonderie *pure-play* au T1 2025 (TrendForce, en revenus — estimation). À l'échelle du pays, Taïwan
+  concentre ≈ **68 %** de la capacité mondiale de fonderie sur les nœuds avancés (16/14 nm et plus fins) et
+  ≈ **80 %** de la capacité des procédés « génération EUV » (7 nm et au-delà) en 2023 (TrendForce — estimations
+  de **capacité installée**, non de wafers produits).
+- **Détroit de Taïwan** — rail maritime resserré entre l'île et le continent : ≈ **48 %** des **5 400**
+  porte-conteneurs opérationnels dans le monde l'ont traversé sur janvier–juillet 2022 ; **88 %** du décile des
+  plus gros porteurs (Bloomberg, données AIS — estimation).
+- **Port de Kaohsiung** — **9,3 M EVP** manutentionnés en 2023, ≈ 17ᵉ rang mondial (statistiques portuaires
+  taïwanaises, via DG Trésor — fait mesuré).
 
 ## Flux concernés
 
 L'histoire n'est pas le volume, c'est l'**irremplaçabilité à court terme**.
 
-- **Semi-conducteurs avancés** : ≈ [À SOURCER] % de la production mondiale de logique avancée (< 7 nm) sort de
-  Taïwan. Pour les nœuds de pointe (< 5 nm / < 3 nm), la concentration est encore plus forte : ≈ [À SOURCER] %.
-  Ces composants irriguent l'automobile, l'électronique grand public, les centres de données (IA) et la
-  défense.
-- **Maritime** : le détroit et les eaux adjacentes portent une part significative du trafic conteneurisé
-  intra-asiatique et Asie–Amérique ([À SOURCER] % de la flotte mondiale en transit).
-- **Couplage amont** : la chaîne dépend elle-même d'intrants critiques (lithographie EUV **ASML**,
-  matériaux) — un point de fragilité en amont des fabs.
+- **Semi-conducteurs avancés** — la ventilation de revenus de TSMC au T4 2024 donne **3 nm : 26 %**,
+  **5 nm : 34 %**, **7 nm : 14 %** (soit **74 %** du CA wafers sur ces trois nœuds) (TSMC, earnings call du
+  16 janvier 2025 — **fait** interne à TSMC). TSMC détiendrait par ailleurs **70–80 %** du marché 5 nm et
+  **> 90 %** du marché 3 nm (TrendForce, 2023–2024 — estimation par nœud). Comme ces nœuds sont produits à
+  Taïwan, la littérature spécialisée en **déduit** que l'île concentre ≈ **80–90 %** de la production mondiale
+  de logique < 5 nm et **> 90 %** du < 3 nm — **déduction** (TSMC + TrendForce), **non une statistique
+  officielle** : aucune source primaire ne ventile la production < 7 / 5 / 3 nm **par pays**.
+- **Maritime** — le détroit porte une part majeure du trafic conteneurisé (≈ 48 % de la flotte mondiale en
+  transit sur 2022, Bloomberg/AIS), reliant Asie de l'Est, Amérique et Europe.
+- **Couplage amont** — la chaîne dépend d'intrants critiques, au premier rang desquels la **lithographie EUV
+  d'ASML** (voir *Vulnérabilités*).
 
 ## Vulnérabilités
 
 - **Irremplaçabilité à court terme** — la substitution industrielle des composants de pointe est **longue
   (années) et coûteuse** : aucune capacité de fonderie avancée ne peut absorber à court terme une perte de
   l'offre taïwanaise. C'est la vulnérabilité centrale.
-- **Effet de cascade** — une rupture d'approvisionnement se propage à l'aval (automobile, électronique,
-  défense) avec un multiplicateur économique estimé très supérieur au seul chiffre d'affaires des puces
-  ([À SOURCER] — estimations Rhodium/analystes).
-- **Couplage risque maritime / risque d'appro** — les mêmes tensions qui menaceraient les fabs affecteraient
-  simultanément les routes maritimes : le risque n'est pas diversifiable localement.
-- **Dépendance amont ASML/EUV** — la concentration de la lithographie de pointe ajoute un second goulet, en
-  amont des fabs taïwanaises.
+- **Effet de cascade** — une rupture se propage à l'aval (automobile, électronique, défense). Les chiffrages
+  d'un choc majeur ne font l'objet d'**aucune estimation publique unique et documentée** : les compilations de
+  think tanks évoquent des ordres de grandeur de **plusieurs milliers de milliards de dollars** et **plusieurs
+  points de PIB mondial** (jusqu'à ~5–10 % dans les scénarios de **guerre totale**, nettement moindre pour un
+  blocus partiel) — **estimations scénarisées**, très dépendantes des hypothèses (HCSS 2024, compilant
+  Rhodium/CSIS/Bloomberg).
+- **Couplage risque maritime / risque d'appro** — les mêmes tensions menaceraient simultanément les fabs et
+  les routes maritimes : le risque n'est pas diversifiable localement.
+- **Dépendance amont ASML / EUV** — la lithographie EUV de production est un **monopole de fait** (ASML seul
+  fournisseur de machines EUV opérationnelles ; marché EUV estimé à **11,4 Md$** en 2024, Global Market
+  Insights). Or ≈ 80 % de la capacité « génération EUV » est à Taïwan (TrendForce) : l'amont européen (ASML) et
+  le chokepoint taïwanais sont directement liés.
 
 ## Alternatives / bypass
 
-- **Nouvelles fabs hors de Taïwan** — Arizona (**CHIPS Act**, TSMC/Intel/Samsung), Kumamoto (**Japon**,
-  TSMC/JASM), Europe (Dresde) : réelles, mais **montée en capacité sur plusieurs années** et souvent sur des
-  nœuds moins avancés au départ. Elles réduisent la dépendance à horizon long, pas à court terme.
-- **Reroutage maritime à l'est de l'île** — le trafic peut contourner par la façade Pacifique : possible, avec
-  surcoût de distance/temps [À SOURCER], mais sans effet sur la dépendance aux composants.
-- **Stocks stratégiques de composants** — tampon de court terme (constitution de stocks par les
-  industriels/États), efficace quelques mois, pas une substitution.
+- **Nouvelles fabs hors de Taïwan** — la capacité de fonderie avancée située **hors de Taïwan** est passée de
+  ≈ **32 %** en 2023 à une projection de ≈ **59 %** en 2027 (part de Taïwan **68 % → 41 %**), sous l'effet du
+  **CHIPS Act** (Arizona : TSMC/Intel/Samsung) et des plans japonais (Kumamoto/JASM) (TrendForce —
+  **projection** de capacité installée, non de production, et **sans ventilation Arizona vs Kumamoto**
+  publiée). La montée en capacité s'étale sur **plusieurs années** : elle réduit la dépendance à horizon long,
+  pas à court terme.
+- **Reroutage maritime à l'est de l'île** — le trafic peut contourner par la façade Pacifique (Luzon Strait) ;
+  route plus exposée aux cyclones. **Surcoût non documenté publiquement** : aucune source primaire (Lloyd's
+  List, Clarksons, BIMCO) ne publie un « +X % de distance / +Y jours » agrégé — donnée propriétaire des
+  armateurs/assureurs.
+- **Stocks stratégiques de composants** — tampon de court terme (quelques mois), pas une substitution.
 
 > Contrairement à un détroit, le **bypass industriel n'existe pas à court terme** : la seule vraie redondance
 > se construit sur des années (fabs) ou se tamponne sur des mois (stocks).
@@ -108,13 +131,13 @@ Chaque seuil lie un indicateur observable à une bascule de régime et à l'acti
 **repères de décision** (analyse), non des mesures. La colonne _Statut_ distingue les repères **adossés à des
 sources vérifiées** (≥ 2 sources indépendantes) des **repères historiques ou hypothétiques**.
 
-| Indicateur                                                | Seuil de déclenchement                                | Bascule / action                                                | Statut / fondement                                                                 |
-| --------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| **Activité militaire** (incursions ADIZ, exercices)       | passage d'exercices ponctuels à un **blocus déclaré** | bascule de régime — activation des plans de continuité          | **Repère qualitatif** — série d'incursions à sourcer [À SOURCER]                    |
-| **Déclaration de quarantaine / zone d'exclusion**         | annonce officielle de restriction de navigation       | reroutage maritime forcé + choc assurance/appro                 | **Repère hypothétique** — pas de précédent récent ; scénario de rupture            |
-| **Délais d'approvisionnement** composants avancés         | allongement **> [À SOURCER]** semaines vs baseline    | tension de chaîne — rationnement, priorisation sectorielle      | **À adosser** — baseline de lead-time à sourcer [À SOURCER]                         |
-| **Reroutage / prime d'assurance** trafic détroit          | **bond > ×2** de la prime *war-risk* sur événement    | ré-évaluation des routes par les armateurs                      | **À adosser** — pas de série de prime propre au détroit publiée [À SOURCER]         |
-| **Capacité de fonderie hors Taïwan** (nœuds avancés)      | passage sous **[À SOURCER] %** de la demande mondiale | dépendance critique confirmée — priorité aux fabs de substitution | **À adosser** — part de capacité SEMI/TrendForce à sourcer [À SOURCER]              |
+| Indicateur                                                | Seuil de déclenchement                                | Bascule / action                                                | Statut / fondement                                                                                                   |
+| --------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Activité militaire** (incursions ADIZ, exercices)       | passage d'exercices ponctuels à un **blocus déclaré** | bascule de régime — activation des plans de continuité          | **Repère qualitatif** — série d'incursions non consolidée en source primaire unique                                 |
+| **Déclaration de quarantaine / zone d'exclusion**         | annonce officielle de restriction de navigation       | reroutage maritime forcé + choc assurance/appro                 | **Repère hypothétique** — pas de précédent récent ; scénario de rupture                                             |
+| **Délais d'approvisionnement** composants avancés         | dépassement durable de la baseline **8–12 sem.**      | tension de chaîne — rationnement, priorisation sectorielle      | **Adossé** — baseline 8–12 sem. ; pic 2021–22 à **46–47 sem.** (extrêmes 70–130) puis retour 2023 (BFM, Groupe Alpha, S&P/Supplyframe) |
+| **Reroutage / prime d'assurance** trafic détroit          | **bond > ×2** de la prime *war-risk* sur événement    | ré-évaluation des routes par les armateurs                      | **À adosser** — pas de série de prime propre au détroit publiée                                                      |
+| **Capacité de fonderie hors Taïwan** (nœuds avancés)      | recul du rythme sous la trajectoire **32 % → 59 %**   | dépendance critique prolongée — priorité aux fabs de substitution | **Adossé (projection)** — 32 % (2023) → 59 % (2027) attendus (TrendForce) ; à suivre contre le calendrier réel      |
 
 > Les seuils croisés (montée militaire **et** allongement des délais composants) signalent un basculement plus
 > probablement durable que conjoncturel.
@@ -133,21 +156,25 @@ sources vérifiées** (≥ 2 sources indépendantes) des **repères historiques 
 
 - **Chaînes industrielles européennes** — l'exposition indirecte (via l'automobile et l'électronique) fait de
   Taïwan une **vulnérabilité systémique** pour l'industrie européenne, au-delà de tout achat direct de puces.
-- **Choc macroéconomique** — les estimations d'un blocus prolongé chiffrent l'impact en points de PIB mondial
-  [À SOURCER] (Rhodium/analystes) — un ordre de grandeur qui excède largement la valeur du marché des puces.
+- **Choc macroéconomique** — les estimations d'un blocus prolongé se comptent en **milliers de milliards de
+  dollars** / **points de PIB mondial**, sans chiffre unique consensuel (voir *Vulnérabilités*) : ordres de
+  grandeur scénarisés, non des faits.
 - **Course à la relocalisation** — CHIPS Act, subventions japonaises et européennes redessinent lentement la
-  carte de la fonderie, sans supprimer la dépendance de court terme.
+  carte de la fonderie (part hors Taïwan 32 % → ~59 % projetés en 2027), sans supprimer la dépendance de court
+  terme.
 
 ## Niveau de confiance
 
 **Moyen.** Élevé sur la **nature** de la vulnérabilité (concentration de la fonderie avancée, irremplaçabilité
-à court terme, couplage maritime) ; l'incertitude porte sur les **valeurs chiffrées** (parts de marché par
-nœud, part de flotte en transit, estimations de choc PIB, délais), à sourcer et recouper sur sources primaires
-(TSMC, SEMI, TrendForce, Rhodium) avant toute promotion en fait.
+à court terme, couplage maritime et amont ASML/EUV) et sur plusieurs chiffres **de source primaire** (mix de
+revenus TSMC T4 2024 ; débit de Kaohsiung). L'incertitude porte sur la **production < 5 / < 3 nm par pays**
+(une **déduction**, non une statistique officielle), sur le **coût d'un blocus** (fourchettes scénarisées) et
+sur le **surcoût de reroutage** (non documenté publiquement).
 
-> **Fait / analyse.** La concentration de la fonderie avancée à Taïwan et son irremplaçabilité de court terme
-> relèvent du fait établi ; les valeurs chiffrées portent le marqueur `[À SOURCER]` tant qu'elles ne sont pas
-> adossées à ≥ 2 sources primaires ; les seuils et scénarios relèvent de l'analyse (repères de décision).
+> **Fait / analyse.** Les valeurs de source primaire (mix TSMC, EVP Kaohsiung, marché EUV) sont des **faits
+> rapportés** (non reconfirmés par nos soins) ; les parts de capacité/marché TrendForce sont des
+> **estimations** ; la part de production par pays est une **déduction** explicite ; les seuils et scénarios
+> relèvent de l'**analyse**. Ce qui n'est pas documenté publiquement est signalé comme tel.
 
 > Fiche Atlas — version publique (Basic). Le scoring CVI 0–5 par dimension est réservé à l'offre Standard.
 > Géométrie schématique, sans valeur navigationnelle ou juridique.
