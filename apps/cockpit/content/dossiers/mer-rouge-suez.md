@@ -147,21 +147,30 @@ Hypothèses concurrentes expliquant le déroutement, pondérées `[poids candida
 refluent, l'hypothèse (a) « assurance-dominé » est fausse → le poids bascule vers (b)/(d). Ce test
 n'est **pas tranchable** tant que la trajectoire des primes reste non vérifiée.
 
-## 8. CVI appliqué `[raisonnement qualitatif candidat — scores en attente du moteur]`
+## 8. CVI appliqué `[niveau qualitatif justifié 2026-07-14 — scoring 0–5 réservé Standard/Premium]`
 
-Les 8 dimensions CVI, en **appréciation qualitative** seulement. **Aucun score 0-5 n'est produit ici** :
-l'échelle chiffrée dépend du moteur d'évaluation par corridor (non construit) et reste réservée aux
-offres Standard/Premium (ADR 0043). Chaque appréciation est **candidate**, à confirmer.
+Les 8 dimensions CVI (`@ag/cvi`), en **appréciation qualitative** — c'est la granularité de l'offre
+**Basic**. **Aucun score 0-5 n'est produit ici** : l'échelle chiffrée dépend du moteur d'évaluation par
+corridor (non construit) et reste réservée aux offres **Standard** (0–5 par dimension) / **Premium**
+(0–100 agrégé, méthodo documentée) — ADR 0043. Les appréciations ci-dessous s'appuient désormais sur les
+**sources primaires validées** (journal ADR 0046) et **justifient le niveau qualitatif retenu**.
 
 - **Exposition** — élevée : ≈ 15 % du commerce maritime mondial, ≈ 22 % du conteneurisé (`[C10]`/`[C1]`).
 - **Concentration** — élevée : pas d'alternative physique hors route du Cap (+7 à 20 j, `[C11]`).
 - **Menace** — élevée : zone à risque de guerre désignée par circulaire primaire JWC/LMA **JWLA-033**
   (3 mars 2026, `[C29]` ✅ validé — zone combinée élargie, extension Iran) ; série d'incidents JMIC (`[C30]` ✅ validé).
-- **Capacité de perturbation** — démontrée : déroutement massif observé (−50 % transits, `[C10]`).
+- **Capacité de perturbation** — démontrée : déroutement massif observé (**−52 %** transits 2025 vs 2023, `[C23]` validé).
 - **Résilience** — moyenne : le Cap absorbe le report mais au prix de délais/coûts (`[C11]`).
 - **Coût de contournement** — élevé : surcoût fret ~1 500 → > 4 000 $/40′ (`[C11]`, source unique).
-- **Gouvernance** — mixte : réponse internationale (UNSC 2722, Aspides `[C13]`) vs sensibilité régionale.
-- **Incertitude** — élevée sur la trajectoire des primes (axe 1 bloqué) et la durée de stabilisation.
+- **Gouvernance** — mixte : réponse internationale (UNSC 2722 ; Aspides `[C31]` validé : > 1 960 navires accompagnés) vs sensibilité régionale (Yémen, Iran, riverains).
+- **Incertitude** — élevée sur la trajectoire des primes (axe 1 : presse, non primaire — verrou) et la durée de l'accalmie.
+
+> **Niveau CVI (Basic, qualitatif) = ÉLEVÉ** — justifié : six dimensions sur huit en tension haute
+> (exposition, concentration, menace, capacité de perturbation, coût de contournement, incertitude),
+> **bornées à « élevé » et non « critique »** par deux facteurs : la **résilience moyenne** (le Cap
+> absorbe le report, le corridor ne s'est jamais fermé, il s'est dédoublé) et une **gouvernance mixte**
+> (réponse internationale réelle). Cohérent avec la fiche Atlas (`cvi_level: eleve`). Le passage à un
+> score 0–5 par dimension (Standard) ou 0–100 agrégé (Premium) reste hors périmètre Basic (ADR 0043).
 
 ## 9. Limites et angles morts
 

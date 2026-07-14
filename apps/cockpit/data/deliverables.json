@@ -7,10 +7,10 @@
     "pillar": "production",
     "status": "production",
     "priority": "P0",
-    "progress": 75,
+    "progress": 90,
     "deadline": "2026-09-15",
     "blocker": "Limite assumée (non bloquante) : trajectoire de la prime war-risk (axe 1) presse/courtier, non primaire — finding contradiction sévérité 5, déclaré en Limites.",
-    "next_action": "Sources validées (ADR 0046), contradiction passée + revue (ADR 0039, report reviewed), revue Munich faite (10 devoirs ok ; section Limites ajoutée au teaser public pour R2). Reste : validation humaine finale (human_review_done) et justification CVI (cvi_justified) avant ready/published.",
+    "next_action": "Sources validées (ADR 0046), contradiction passée + revue (ADR 0039), revue Munich (compliance_done), CVI qualitatif justifié (niveau ÉLEVÉ, offre Basic — §8, ADR 0043). Reste UNIQUEMENT la validation humaine finale (human_review_done) avant ready/published.",
     "impact": "preuve_90_jours",
     "offer": "public",
     "quality_gate_status": "at_risk",
@@ -20,7 +20,7 @@
       "contradiction_done": true,
       "compliance_done": true,
       "human_review_done": false,
-      "cvi_justified": false
+      "cvi_justified": true
     },
     "munich": {
       "1": "ok",
