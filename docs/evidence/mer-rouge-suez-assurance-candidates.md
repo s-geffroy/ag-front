@@ -500,3 +500,35 @@ bas de ce registre.
 4. **Ne pas** promouvoir ces valeurs dans la fiche/dossier tant que la **validation nominative (ADR 0046)**
    n'est pas enregistrée. Rejets actés antérieurs (Tavvishi « 2026 », « 28 incidents T1 2026 »,
    arcaneintel, IDs C79/C86/C98) toujours **à ne pas réintroduire**.
+
+---
+
+## Journal de validation humaine (ADR 0046) — append-only
+
+> Enregistrement **nominatif** du saut **candidat → fait** (ADR 0027/0046). **Append-only** : aucune
+> réécriture rétroactive d'une ligne. Chaque entrée atteste que le validateur a revu la **citation
+> verbatim sur le document réel** (consignée plus haut) et en accepte l'usage **dans le périmètre exact**
+> noté. La validation porte sur la **source et sa citation** — elle **n'emporte pas** promotion automatique
+> dans le dossier : l'édition du markdown et la bascule des gates (`sources_ok`, `human_review_done`,
+> `cvi_justified`) restent une **étape éditoriale distincte** (ag-front).
+
+### 2026-07-14 — Validateur : **Sylvain Geffroy** (analyste, propriétaire du dépôt)
+
+| Réf | Statut | Fait attesté (périmètre) | Réserve portée AVEC le fait |
+| --- | --- | --- | --- |
+| **C29** JWLA-033 | candidat → **validé (fait)** | Circulaire JWC/LMA **JWLA-033, 3 mars 2026** désignant la zone war-risk, coordonnées verbatim (18°N ; 25°19'15"N 65°E ; 10°48'N 65°E→60°15'E→6°45'S 48°45'E ; Somalie 1°40'S 41°34'E). | Zone **combinée élargie** (extension Iran) : « Southern Red Sea & Gulf of Aden » **n'est plus autonome**. Pour le seul corridor historique, citer **JWLA-032 (18 déc. 2023)**. |
+| **C30** JMIC Jan 2026 | candidat → **validé (fait)** | Série mensuelle d'incidents **Houthi → navires marchands, 19 nov 2023 → 31 janv 2026** (vecteur verbatim, somme 119, **pic déc 2023 = 19**) ; « **16** incidents en 2025 » ; « **127** » incidents CMF AOR. | Deux séries à **ne pas confondre** (Houthi-vs-MV ≠ CMF AOR). Écart de périmètre JMIC(16)/ACLED(7) en 2025 assumé. |
+| **C31** EEAS Mandate | candidat → **validé (fait)** | EEAS (27.05.2026), verbatim : « supported **over 1960** merchant vessels … provided protection to **more than 650** ships ». | **Menaces interceptées non couvertes** (vidéo) — hors périmètre de ce fait. |
+| **C32** IUMI Stats 2025 | candidat → **validé (fait)** | IUMI (oct 2025, données **2024**), verbatim : prime marine mondiale **USD 39,92 Md** (+1,5 %) ; **ocean hull USD 9,67 Md** (+3,5 %). | IUMI **n'isole aucune ligne war-risk** : n'en déduire aucun chiffre de prime war-risk. |
+
+**Explicitement NON validés au 2026-07-14 (pas prêts — restent `candidat`) :**
+
+- **Axe 1 / trajectoire de prime (g1, C17/C18/C19, S&P)** : appuis **presse/courtier (S5)**, valeurs de
+  marché **rapportées** (dont sources anonymes). Restent **recoupés mais non promus en fait**. Aucune série
+  de taux primaire. → à revalider seulement si une source primaire/nominative datée est obtenue.
+- **Menaces interceptées EUNAVFOR Aspides** : enfermées en **vidéo** EEAS — non attestables en texte.
+- **Candidats `pplx`-only / presse antérieurs** (C2, C5, C7, C8, C12, C20, C21, C22, C26, C27, C28) :
+  verdicts `pplx` ou relais presse — **ne valent pas** validation humaine (rappel des salves C17+).
+- **Primaires PDF lus le 2026-07-12** (C23 SCA, C24 EIA, C25 WSC) : au **même standard** que C29–C32 et
+  **prêts à valider** — non inclus ici faute d'instruction explicite sur ce périmètre ; à ajouter au
+  journal sur simple accord (nouvelle entrée datée, jamais en réécrivant celle-ci).
