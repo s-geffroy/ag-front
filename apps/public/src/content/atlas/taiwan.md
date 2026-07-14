@@ -100,8 +100,11 @@ L'histoire n'est pas le volume, c'est l'**irremplaçabilité à court terme**.
 ## Vulnérabilités
 
 - **Irremplaçabilité à court terme** — la substitution industrielle des composants de pointe est **longue
-  (années) et coûteuse** : aucune capacité de fonderie avancée ne peut absorber à court terme une perte de
-  l'offre taïwanaise. C'est la vulnérabilité centrale.
+  (années) et coûteuse** : les fabs de substitution en cours l'illustrent — **TSMC Arizona** (annoncé 2020,
+  première production ≈ 2024-2025) et **Kumamoto / JASM** au Japon (chantier 2022, production fin 2024) ont
+  demandé **3 à 5 ans**, souvent sur des nœuds au départ moins avancés que la pointe taïwanaise. Aucune
+  capacité de fonderie avancée ne peut donc absorber à court terme une perte de l'offre taïwanaise. C'est la
+  vulnérabilité centrale.
 - **Effet de cascade** — une rupture se propage à l'aval (automobile, électronique, défense). **Aucune
   estimation publique unique ne fait consensus** ; l'ancrage le plus cité est **Bloomberg Economics (2024)**,
   qui chiffre une **guerre** autour de Taïwan à ≈ **10 000 Md$**, soit ≈ **10 % du PIB mondial** — un

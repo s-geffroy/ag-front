@@ -102,6 +102,22 @@ Termine par une liste des points où les données publiques sont absentes, daté
 > qualification), sans invention de chiffre. Nouveaux candidats : **T12** (Samsung/Intel bornent la
 > déduction), **T13** (Bloomberg Economics 10 000 Md$), **T14** (ASPI reroutage/typhons).
 
+### Relance (2ᵉ passe) — convergence
+
+La 2ᵉ passe re-signale les mêmes lacunes inhérentes (prod par pays, coût de blocus scénarisé, surcoût
+reroutage) — **normal : la fiche les déclare honnêtement, la donnée n'existe pas publiquement**. Un
+seul finding nouveau et actionnable, traité :
+
+| Finding v2 | Sév | Traitement | Statut |
+| ---------- | --- | ---------- | ------ |
+| Substitution « longue (années) » sans exemple | 3 | Cas documentés ajoutés : **TSMC Arizona** (2020→~2024-25), **Kumamoto/JASM** (2022→fin 2024) = 3-5 ans (T15) | traité |
+| Prod <5/3 nm = déduction | 4 | inhérent — déjà nuancé (plafond, Samsung/Intel) ; donnée par pays inexistante | assumé |
+| Coût blocus scénarisé | 4 | inhérent — déjà ancré (Bloomberg) + marqué scénarisé | assumé |
+| Surcoût reroutage | 3 | inhérent — déjà qualifié (ASPI/typhons) ; chiffre agrégé non public | assumé |
+
+> **Convergence actée** : les findings résiduels sont des lacunes publiques assumées, pas des défauts
+> de contenu. On ne relance plus (chaque passe les re-signalera). Prêt pour revue humaine.
+
 ## Sites bloqués au bot / accès manuel requis
 
 _(à compléter : rapports TSMC/SEMI en PDF, TrendForce derrière inscription, notes Rhodium, etc.)_
