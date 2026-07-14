@@ -140,7 +140,7 @@
     "priority": "P0",
     "progress": 80,
     "deadline": "2026-09-20",
-    "next_action": "Fiche structurée au gabarit P0 (double nœud composants + maritime, flux, seuils, scénarios — cf. taiwan.md) ; chiffres marqués [À SOURCER]. Sourcing lancé : prompt Perplexity Recherche Avancée + registre candidats (docs/evidence/taiwan-candidates.md). Reste : collecte humaine des chiffres → recoupement ≥2 sources → contradiction LLM (ADR 0039) → validation → flip gates. Reste dépubliée (published:false).",
+    "next_action": "Fiche P0 complète et sourcée : candidats Perplexity injectés (mix TSMC Q4 2024 = fait ; 67,6 % fonderie, ~68 %/80 % capacité avancée/EUV, ~48 % flotte détroit, Kaohsiung 9,3 M EVP, cap. hors Taïwan 32→59 % 2027) avec statut FAIT/ESTIMATION/DÉDUCTION — cf. taiwan.md + docs/evidence/taiwan-candidates.md. Contradiction ADR 0039 tournée x1 (rapport candidat, status pending) : 3 findings = zones déjà marquées estimation/déduction/non documenté (prod par pays, coût blocus scénarisé, surcoût reroutage). Reste jugement humain : marquer rapport reviewed → contradiction_done ; valider candidats → sources_ok ; revue Munich (1/2/3/4/6/7/8/9/10) → compliance_done ; cvi_justified ; puis human_review_done → published. Reste dépubliée (published:false).",
     "impact": "atlas",
     "offer": "basic",
     "quality_gate_status": "at_risk",
