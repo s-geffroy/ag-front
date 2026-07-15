@@ -7,9 +7,11 @@ import {
   Contact,
   Contradictions,
   Deliverable,
+  Judgements,
   Milestone,
   QualityGates,
   Scorecard,
+  ValidationJournal,
 } from '@ag/schema/cockpit';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -24,6 +26,10 @@ export const collectionSchemas = {
   contacts: z.array(Contact),
   quality_gates: QualityGates,
   contradictions: Contradictions,
+  // LLM judge candidate reports (ADR 0068) — regenerable, git-ignored (seed = []).
+  judgements: Judgements,
+  // Append-only human-validation journal (ADR 0046/0068) — git-tracked audit trail.
+  validation_journal: ValidationJournal,
 } as const;
 
 export type CollectionName = keyof typeof collectionSchemas;
@@ -132,15 +138,36 @@ export async function mutateCollection<N extends CollectionName>(
 }
 
 export async function readState() {
-  const [config, deliverables, milestones, metrics, contacts, quality_gates, contradictions] =
-    await Promise.all([
-      readCollection('config'),
-      readCollection('deliverables'),
-      readCollection('milestones'),
-      readCollection('metrics'),
-      readCollection('contacts'),
-      readCollection('quality_gates'),
-      readCollection('contradictions'),
-    ]);
-  return { config, deliverables, milestones, metrics, contacts, quality_gates, contradictions };
+  const [
+    config,
+    deliverables,
+    milestones,
+    metrics,
+    contacts,
+    quality_gates,
+    contradictions,
+    judgements,
+    validation_journal,
+  ] = await Promise.all([
+    readCollection('config'),
+    readCollection('deliverables'),
+    readCollection('milestones'),
+    readCollection('metrics'),
+    readCollection('contacts'),
+    readCollection('quality_gates'),
+    readCollection('contradictions'),
+    readCollection('judgements'),
+    readCollection('validation_journal'),
+  ]);
+  return {
+    config,
+    deliverables,
+    milestones,
+    metrics,
+    contacts,
+    quality_gates,
+    contradictions,
+    judgements,
+    validation_journal,
+  };
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { api, type RenderedContent } from '@/lib/api';
@@ -8,6 +8,8 @@ import { useCockpit } from '@/store';
 import { Badge, Card, CardContent } from '@/components/ui';
 import { PageHeader } from '@/components/common';
 import { ContradictionPanel } from '@/components/quality/ContradictionPanel';
+import { JudgePanel } from '@/components/quality/JudgePanel';
+import { PublishControl } from '@/components/quality/PublishControl';
 
 // Maps the content folder to the public-site URL prefix (identical here, but kept explicit).
 const publicPrefix: Record<string, string> = {
@@ -21,14 +23,22 @@ export function ContentReaderPage() {
   const [doc, setDoc] = useState<RenderedContent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // `refetch: true` re-reads without blanking the view (used after a publish flips the frontmatter).
+  const load = useCallback(
+    (refetch = false) => {
+      if (!refetch) setDoc(null);
+      setError(null);
+      api
+        .getContent(type, slug)
+        .then(setDoc)
+        .catch((e: unknown) => setError(String(e)));
+    },
+    [type, slug],
+  );
+
   useEffect(() => {
-    setDoc(null);
-    setError(null);
-    api
-      .getContent(type, slug)
-      .then(setDoc)
-      .catch((e: unknown) => setError(String(e)));
-  }, [type, slug]);
+    load();
+  }, [load]);
 
   if (error) {
     return (
@@ -110,7 +120,14 @@ export function ContentReaderPage() {
         </CardContent>
       </Card>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-6">
+        <PublishControl
+          type={doc.type}
+          slug={doc.slug}
+          published={isPublished}
+          onChanged={() => load(true)}
+        />
+        <JudgePanel contentType={doc.type} slug={doc.slug} />
         <ContradictionPanel contentType={doc.type} slug={doc.slug} />
       </div>
     </div>

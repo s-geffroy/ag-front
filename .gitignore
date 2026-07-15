@@ -22,6 +22,19 @@ apps/cockpit/data/contacts.json
 # seed is contradictions.seed.json; the live file is git-ignored and materialised from it on first run.
 apps/cockpit/data/contradictions.json
 
+# LLM judge / pré-validation reports (ADR 0068): per-gate CANDIDATE verdicts, regenerated on demand.
+# Tracked seed is judgements.seed.json; the live file is git-ignored. NB: validation_journal.json is
+# the append-only human-validation audit trail (ADR 0046) and IS tracked — do not ignore it.
+apps/cockpit/data/judgements.json
+
+# One-click publish runtime markers (ADR 0069): the cockpit touches `.publish-pending`, the host
+# rebuild watcher writes `.last-build`. Host state, never tracked.
+apps/public/.publish-pending
+apps/public/.last-build
+
+# Host rebuild-watcher log (scripts/redeploy-public.sh --if-pending).
+scripts/redeploy-public.log
+
 # Source deposits: uploaded evidence files (binary, possibly paywalled/confidential) + their index.
 # Never tracked; the dir is created at runtime by the cockpit server.
 apps/cockpit/data/uploads/

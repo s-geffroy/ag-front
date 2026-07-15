@@ -1,10 +1,11 @@
 # 0046 — Traçabilité de la validation humaine
 
-- **Statut :** accepté (garde HDDE→VERDICT **faite** ; journal validateur = cible)
-- **Date :** 2026-07-01
+- **Statut :** accepté (garde HDDE→VERDICT **faite** ; journal validateur **fait côté cockpit** — ADR 0068 ;
+  reste cible côté HDDE/VERDICT)
+- **Date :** 2026-07-01 (amendé le 2026-07-15 : journal cockpit implémenté, ADR 0068)
 - **Contexte connexe :** ADR 0027 (candidat ≠ fait), 0037 (Munich, `compliance_done`), 0034 (red team
-  accept/reject), 0040 (divergence HDDE), 0041/0042 (VERDICT, audit veto), methode-verdict. Registre :
-  `apps/cockpit/reference/workflow-commercial.md` §7.2.
+  accept/reject), 0040 (divergence HDDE), 0041/0042 (VERDICT, audit veto), 0068 (LLM-juge de
+  pré-validation cockpit), methode-verdict. Registre : `apps/cockpit/reference/workflow-commercial.md` §7.2.
 
 ## Contexte
 
@@ -43,7 +44,21 @@ Faire de la **traçabilité de la validation** une garde de premier ordre.
 
 ## Conséquences
 
-- La garde HDDE→VERDICT est **effective** (code + tests). Le reste (identité systématique + journal
-  immuable) est un lot à implémenter côté HDDE et VERDICT.
+- La garde HDDE→VERDICT est **effective** (code + tests).
+- **Journal validateur cockpit : implémenté (ADR 0068).** Le franchissement `candidate → fact` sur un gate
+  éditorial (gates du livrable + contrôles Munich) passe désormais par `POST /api/deliverables/:id/validate`,
+  qui, en un flux atomique, coche la cible **et** écrit une entrée dans la collection **append-only**
+  `validation_journal.json` (git-trackée) : `deliverable_id`, `target_kind`, `target_id`, `decision`,
+  `reserve`, `before`/`after`, `judge_verdict_snapshot` (le candidat LLM confirmé/écarté, ADR 0068),
+  `validated_by`, `validated_at`. Le serveur **refuse** toute mutation/suppression d'une entrée existante,
+  et refuse `compliance_done` tant que les 10 contrôles Munich ne sont pas `ok`. Cela remplace le tableau
+  markdown tenu à la main dans `docs/evidence/*-gates-review.md`.
+- **Limite d'identité (honor-system).** Le cockpit n'a pas d'authentification — il n'est joignable que sur
+  le tailnet (Tailscale, ADR 0005) par un opérateur unique. `validated_by` est donc déclaratif : il provient
+  d'une identité `operator` configurée (`config.json`) et confirmée par action, **jamais** dérivée
+  silencieusement de l'utilisateur OS. Une future couche d'auth durcirait ce point ; en l'état, le journal
+  append-only reste une piste d'audit rejouable et suffisante pour un mono-opérateur.
+- Reste **cible** côté HDDE et VERDICT : identité systématique + journal immuable sur l'acceptation red team
+  et l'audit hard-veto.
 - Léger surcoût de schéma (colonnes validateur + table de journal), justifié par l'auditabilité exigée
   par la posture anti-prédiction et la valeur Premium.

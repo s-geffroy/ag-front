@@ -9,6 +9,8 @@ import { QualityGateMatrix } from '@/components/quality/QualityGateMatrix';
 import { MunichMatrix } from '@/components/quality/MunichMatrix';
 import { RequiredGatesReference } from '@/components/quality/RequiredGatesReference';
 import { ContradictionRollup } from '@/components/quality/ContradictionPanel';
+import { JudgeRollup } from '@/components/quality/JudgePanel';
+import { ValidationJournal } from '@/components/quality/ValidationJournal';
 import { ReviewList } from '@/components/review/ReviewList';
 import { UploadsList } from '@/components/uploads/UploadsList';
 
@@ -78,9 +80,11 @@ export function OutputWorkspacePage() {
         {tab === 'gates' ? (
           <div className="space-y-5">
             <QualityGateMatrix typeFilter={output.type} />
+            <JudgeRollup contentType={output.content_type} />
             <ContradictionRollup contentType={output.content_type} />
             <RequiredGatesReference typeFilter={output.type} />
             <MunichMatrix typeFilter={output.type} />
+            <ValidationJournal deliverableIds={idsOfType} />
           </div>
         ) : null}
         {tab === 'revue' ? <ReviewList contentTypes={[output.content_type]} /> : null}

@@ -37,5 +37,12 @@ export const Config = z.object({
   quality_gate_statuses: z.array(QualityGateStatus),
   contact_stages: z.array(ContactStageDef),
   output_types: z.array(OutputTypeDef),
+  /**
+   * Nominative identity of the human operator, used as the default `validated_by` when writing a
+   * validation-journal entry (ADR 0046 / 0068). Honor-system: the cockpit has no auth (tailnet-only),
+   * so this is a declared identity confirmed per action, never derived from the OS user. Optional so
+   * a config without it still parses; the validate endpoint requires an explicit `validated_by`.
+   */
+  operator: z.string().optional(),
 });
 export type Config = z.infer<typeof Config>;

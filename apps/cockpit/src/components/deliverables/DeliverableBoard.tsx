@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Swords } from 'lucide-react';
+import { AlertTriangle, Check, Circle, Scale, Swords } from 'lucide-react';
 import type { Deliverable, DeliverableType, StatusId } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
 import { applyFilter, emptyFilter, groupByStatus, type KanbanFilter } from '@/lib/filters';
 import { contentRefFromLinks, formatDate, gateLabel, pillarLabel, typeLabel } from '@/lib/display';
 import { contradictionForDeliverable, maxSeverity, severityTone } from '@/lib/contradiction';
+import { judgementForDeliverable, latestValidation, summarize } from '@/lib/judge';
+import { GateValidateDialog, type ValidateTarget } from '@/components/quality/GateValidateDialog';
 import { outputByType } from '@/lib/outputs';
 import {
   Badge,
@@ -197,10 +199,18 @@ function DeliverableDetail({
   const { state } = useCockpit();
   const [draft, setDraft] = useState<Deliverable>(deliverable);
   const set = (patch: Partial<Deliverable>) => setDraft((d) => ({ ...d, ...patch }));
+  const [gateTarget, setGateTarget] = useState<ValidateTarget | null>(null);
 
   const contentRef = contentRefFromLinks(draft.links);
   const report = state ? contradictionForDeliverable(state.contradictions, draft) : undefined;
   const space = state ? outputByType(state.config, draft.type) : undefined;
+  // Gates + Munich are changed ONLY through the nominative validate dialog (journalled), never by the
+  // sheet's "Enregistrer". Read them from the LIVE store copy so a validation done while the sheet is
+  // open is reflected, and so saving project-tracking fields never clobbers a just-validated gate.
+  const live = state?.deliverables.find((d) => d.id === deliverable.id) ?? deliverable;
+  const judge = state ? judgementForDeliverable(state.judgements, deliverable) : undefined;
+  const judgeSummary = judge ? summarize(judge) : null;
+  const handleSave = () => onSave({ ...draft, gates: live.gates, munich: live.munich });
 
   return (
     <div className="space-y-4">
@@ -285,34 +295,94 @@ function DeliverableDetail({
       <Separator />
 
       <div>
-        <Label>Quality gates</Label>
-        <div className="grid grid-cols-2 gap-1.5">
+        <Label>Quality gates — validation nominative</Label>
+        <div className="space-y-1.5">
           {GATE_FIELDS.map(({ key, label }) => {
-            const value = draft.gates[key];
-            const checked = value === true;
-            const disabled = key === 'cvi_justified' && draft.gates.cvi_justified === undefined;
+            const value = live.gates[key];
+            const validated = value === true;
+            const applicable = !(key === 'cvi_justified' && value === undefined);
+            const last = state
+              ? latestValidation(state.validation_journal, deliverable.id, key)
+              : undefined;
             return (
-              <label
+              <div
                 key={key}
-                className={`flex items-center gap-2 text-sm ${disabled ? 'opacity-40' : ''}`}
+                className={`flex items-center justify-between gap-2 rounded-md border border-line px-2.5 py-1.5 text-sm ${applicable ? '' : 'opacity-40'}`}
               >
-                <input
-                  type="checkbox"
-                  className="accent-accent"
-                  checked={checked}
-                  disabled={disabled}
-                  onChange={(e) => set({ gates: { ...draft.gates, [key]: e.target.checked } })}
-                />
-                {label}
-              </label>
+                <span className="flex items-center gap-2">
+                  {validated ? (
+                    <Check className="h-4 w-4 text-status-on_track" />
+                  ) : (
+                    <Circle className="h-3.5 w-3.5 text-status-at_risk" />
+                  )}
+                  {label}
+                  {last ? (
+                    <span className="text-[11px] text-muted">
+                      · {last.decision === 'validated' ? 'validé' : 'rejeté'} par{' '}
+                      {last.validated_by}
+                    </span>
+                  ) : null}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!applicable}
+                  onClick={() =>
+                    setGateTarget({
+                      kind: key === 'cvi_justified' ? 'cvi' : 'gate',
+                      id: key,
+                      label,
+                    })
+                  }
+                >
+                  {validated ? 'Revoir' : 'Valider'}
+                </Button>
+              </div>
             );
           })}
         </div>
         <p className="mt-1 text-[11px] text-muted">
-          {gateLabel[draft.quality_gate_status]} — un livrable peut être prêt mais bloqué
-          méthodologiquement.
+          {gateLabel[draft.quality_gate_status]} — chaque gate est une validation nominative
+          journalisée (ADR 0046). Un clic par gate, jamais en lot. « Enregistrer » ne touche pas aux
+          gates.
         </p>
       </div>
+
+      {/* Judge pré-validation summary for the linked document, so the human knows where to look before
+          validating. Detail + per-gate candidates live in the reader (ADR 0068). */}
+      {contentRef ? (
+        <div className="rounded-md border border-line px-3 py-2.5">
+          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted">
+            <Scale className="h-3.5 w-3.5" /> Pré-validation (juge LLM)
+          </div>
+          {judge && judgeSummary ? (
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <Badge tone={judgeSummary.attention > 0 ? 'at_risk' : 'on_track'}>
+                {judgeSummary.pass}/{judgeSummary.total} satisfait(s)
+              </Badge>
+              {judgeSummary.attention > 0 ? (
+                <Badge tone="at_risk">{judgeSummary.attention} à examiner</Badge>
+              ) : null}
+              <Link
+                to={`/lire/${contentRef.type}/${contentRef.slug}`}
+                className="text-xs text-accent hover:underline"
+              >
+                Voir les verdicts
+              </Link>
+            </div>
+          ) : (
+            <p className="text-xs text-muted">
+              Aucune passe lancée.{' '}
+              <Link
+                to={`/lire/${contentRef.type}/${contentRef.slug}`}
+                className="text-accent hover:underline"
+              >
+                Lancer dans le lecteur
+              </Link>
+            </p>
+          )}
+        </div>
+      ) : null}
 
       {/* Red-team state for the linked document, so the `contradiction_done` gate above isn't ticked
           blind. Running/reading happens in the reader (ADR 0039). */}
@@ -351,8 +421,18 @@ function DeliverableDetail({
       ) : null}
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button onClick={() => void onSave(draft)}>Enregistrer</Button>
+        <Button onClick={() => void handleSave()}>Enregistrer</Button>
       </div>
+
+      {gateTarget ? (
+        <GateValidateDialog
+          open={gateTarget !== null}
+          onOpenChange={(o) => !o && setGateTarget(null)}
+          deliverable={live}
+          target={gateTarget}
+          currentValue={live.gates[gateTarget.id as keyof Deliverable['gates']]}
+        />
+      ) : null}
     </div>
   );
 }

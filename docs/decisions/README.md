@@ -47,3 +47,5 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0064](0064-pplx-cli-recherche-externe.md) | External web research: `pplx-cli` upstream of `agent-browser` (single sourcing chain) | Accepted |
 | [0066](0066-consommation-integrale-read-api.md) | Full consumption of the chokepoints Read API 0.6.0, enforced by build-time coverage guards | Accepted |
 | [0067](0067-canal-echange-ag-back.md) | ag-front ↔ ag-back file-exchange channel: content-addressed messages, verified reply correlation | Accepted |
+| [0068](0068-cockpit-llm-judge-prevalidation.md) | Cockpit: LLM judge pre-validation (per-gate candidate verdict) + nominative validation journal (ADR 0046) | Accepted |
+| [0069](0069-cockpit-one-click-publish.md) | Cockpit: one-click publish (guarded frontmatter flag flip + journalled) + host rebuild watcher | Accepted |

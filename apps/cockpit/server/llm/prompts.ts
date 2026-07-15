@@ -34,15 +34,16 @@ Biais de méthode à exploiter : une thèse géopolitique nette masque souvent u
 Calibration — finding FAIBLE à REJETER : claim « Le document parle de la mer Rouge », objection « Ce n'est pas assez détaillé », suggested_test « Ajouter des détails » (générique, non falsifiable). Finding FORT à ÉMETTRE : claim « Le contournement par le Cap absorbe le trafic dérouté », objection « présenté comme acquis alors qu'aucune capacité chiffrée n'est citée », basis « unsupported_claim », suggested_test « comparer la capacité mensuelle de la route du Cap au volume dérouté sur une source citée ; faille confirmée si l'écart n'est pas documenté ».`;
 
 // --- Spotlighting fence (per-request random marker) -----------------------------------------------
-const MARK_OPEN = (m: string) => `«data:${m}»`;
-const MARK_CLOSE = (m: string) => `«/data:${m}»`;
+// Exported so the LLM judge (ADR 0068) reuses the exact same hardening — one implementation, no drift.
+export const MARK_OPEN = (m: string) => `«data:${m}»`;
+export const MARK_CLOSE = (m: string) => `«/data:${m}»`;
 
 // Strip any fence marker (current, stale or forged) so document content cannot forge/close the fence
 // and smuggle instructions past the model (LLM01 / ASI01).
-function sanitize(s: string): string {
+export function sanitize(s: string): string {
   return String(s).replace(/«\/?data:[0-9a-f]+»/gi, '');
 }
-function fence(s: string, marker: string): string {
+export function fence(s: string, marker: string): string {
   return `${MARK_OPEN(marker)}\n${sanitize(s)}\n${MARK_CLOSE(marker)}`;
 }
 

@@ -2,8 +2,11 @@ import type {
   Contact,
   ContradictionReport,
   Deliverable,
+  JudgeGateVerdict,
+  JudgeReport,
   Milestone,
   Scorecard,
+  ValidationEntry,
 } from '@ag/schema/cockpit';
 import type {
   ChokepointAnalysis,
@@ -70,6 +73,23 @@ export interface UploadEntry {
   uploaded_at: string;
   deliverable_id?: string;
   note?: string;
+}
+
+/** Payload for a nominative gate validation (mirrors the server's ValidateBody, ADR 0046 / 0068). */
+export interface ValidatePayload {
+  target_kind: 'gate' | 'munich' | 'cvi';
+  target_id: string;
+  decision: 'validated' | 'rejected';
+  reserve?: string;
+  validated_by: string;
+  judge_verdict_snapshot?: JudgeGateVerdict;
+}
+
+/** Payload for a one-click publish / unpublish (mirrors the server, ADR 0069). */
+export interface PublishPayload {
+  decision: 'publish' | 'unpublish';
+  validated_by: string;
+  reserve?: string;
 }
 
 async function asJson<T>(res: Response): Promise<T> {
@@ -142,6 +162,31 @@ export const api = {
       `/api/contradictions/${encodeURIComponent(type)}/${encodeURIComponent(slug)}/review`,
       put({ status }),
     ).then(asJson<ContradictionReport>),
+  // Editorial LLM judge / pré-validation (ADR 0068). The report is a candidate pending human validation.
+  runJudgement: (type: string, slug: string) =>
+    fetch(`/api/judgements/${encodeURIComponent(type)}/${encodeURIComponent(slug)}/run`, {
+      method: 'POST',
+    }).then(asJson<JudgeReport>),
+  reviewJudgement: (type: string, slug: string, status: 'pending' | 'reviewed') =>
+    fetch(
+      `/api/judgements/${encodeURIComponent(type)}/${encodeURIComponent(slug)}/review`,
+      put({ status }),
+    ).then(asJson<JudgeReport>),
+  // Nominative gate validation: ticks one gate AND writes the append-only journal (ADR 0046 / 0068).
+  validateGate: (deliverableId: string, payload: ValidatePayload) =>
+    fetch(`/api/deliverables/${encodeURIComponent(deliverableId)}/validate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(asJson<{ entry: ValidationEntry; deliverable: Deliverable }>),
+  // One-click publish (ADR 0069): flips the frontmatter flag (gated), journals it, touches the host
+  // rebuild sentinel. Going live still needs the host rebuild (watcher, ~2 min).
+  publishDoc: (type: string, slug: string, payload: PublishPayload) =>
+    fetch(`/api/publish/${encodeURIComponent(type)}/${encodeURIComponent(slug)}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(asJson<{ published: boolean; entry: ValidationEntry; pending_rebuild: boolean }>),
   // --- Read-API Explorateur (server-side proxy over the full Chokepoints read surface) ---
   // `path` is a pre-built relative path (e.g. "actors", "chokepoints/p0_x/fiche"); callers assemble
   // it from the resource registry. Returns parsed JSON, or raw text for the JSONL export.
