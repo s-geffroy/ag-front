@@ -1,9 +1,11 @@
-// OpenAI editorial JUDGE / pré-validation client (gpt-4o). Server-side only; the key never reaches the
-// browser (ADR 0068). Complement to the red team (contradiction.ts): the judge issues a per-gate
-// CANDIDATE verdict a human confirms/overrides. The response is forced to JSON and validated with a
-// strict zod schema — a non-conforming response is REJECTED, never persisted. When LLM is disabled
-// (no key), a clearly-labelled deterministic facade (every verdict `uncertain`) is returned so dev/test
-// work offline without burning tokens.
+// OpenAI editorial JUDGE / pré-validation client (ADR 0068). Server-side only; the key never reaches
+// the browser. Complement to the red team (contradiction.ts): the judge issues a per-gate CANDIDATE
+// verdict a human confirms/overrides. Unlike the red team (Chat Completions + temperature), the judge
+// runs a REASONING model via the OpenAI Responses API, tuned by reasoning EFFORT — a judge needs
+// precision, and reasoning models judge non-verifiable criteria more accurately (arXiv 2601.03630).
+// The response is forced to JSON and validated with a strict zod schema — a non-conforming response is
+// REJECTED, never persisted. When LLM is disabled (no key), a clearly-labelled deterministic facade
+// (every verdict `uncertain`) is returned so dev/test work offline without burning tokens.
 import { randomBytes } from 'node:crypto';
 import OpenAI from 'openai';
 import { JudgeAnalysis, judgeableMunichControls } from '@ag/schema/cockpit';
@@ -121,29 +123,29 @@ export async function runJudge(ctx: JudgeContext): Promise<JudgeRunResult> {
   let content: string;
   let usage: TokenUsage | null = null;
   try {
-    const completion = await client.chat.completions.create({
+    // Responses API (reasoning model): the system prompt goes in `instructions`, the fenced untrusted
+    // document in `input`; consistency comes from reasoning EFFORT, not temperature (which reasoning
+    // models don't take). Structured Outputs are configured via `text.format` (vs `response_format`).
+    const completion = await client.responses.create({
       model: config.openaiJudgeModel,
-      // Lower temperature than the red team: judging wants consistency, not adversarial creativity.
-      temperature: 0.2,
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
+      reasoning: { effort: config.judgeReasoningEffort },
+      instructions: JUDGE_SYSTEM_PROMPT,
+      // Per-request random marker fences the untrusted document (spotlighting, ADR 0063).
+      input: buildJudgeUserPrompt(ctx, randomBytes(6).toString('hex')),
+      text: {
+        format: {
+          type: 'json_schema',
           name: 'editorial_judge',
           strict: true,
           schema: JUDGE_JSON_SCHEMA,
         },
       },
-      messages: [
-        { role: 'system', content: JUDGE_SYSTEM_PROMPT },
-        // Per-request random marker fences the untrusted document (spotlighting, ADR 0063).
-        { role: 'user', content: buildJudgeUserPrompt(ctx, randomBytes(6).toString('hex')) },
-      ],
     });
-    content = completion.choices[0]?.message?.content ?? '';
+    content = completion.output_text ?? '';
     if (completion.usage) {
       usage = {
-        prompt_tokens: completion.usage.prompt_tokens ?? 0,
-        completion_tokens: completion.usage.completion_tokens ?? 0,
+        prompt_tokens: completion.usage.input_tokens ?? 0,
+        completion_tokens: completion.usage.output_tokens ?? 0,
         total_tokens: completion.usage.total_tokens ?? 0,
       };
     }

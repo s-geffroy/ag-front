@@ -27,10 +27,15 @@ et **prépare** la décision humaine sans jamais la prendre.
 - **Verdict-candidat par gate.** Pour un document, le juge émet, pour chaque gate de rubrique du type
   (`quality_gates.json`) et chaque contrôle Munich _adossable au texte_, un verdict `pass | fail | uncertain`
   assorti d'une justification d'une ligne **citant un passage du document**, d'une citation (`evidence_quote`)
-  et d'une **confiance** 0–1. Modèle OpenAI `gpt-4o`, réutilisant à l'identique le socle durci de l'ADR
-  0039/0063 (spotlighting à marqueur aléatoire, anti-injection `INJECTION DÉTECTÉE:`, `json_schema` strict
-  avec validation zod, façade hors-ligne). Persisté en candidat régénérable (`judgements.json`,
-  git-ignoré), un rapport par document, keyé par `${content_type}/${slug}` — exactement comme le red team.
+  et d'une **confiance** 0–1. Le juge tourne un **modèle de raisonnement** (défaut `gpt-5.6-terra`) via
+  l'**API Responses**, réglé par l'**effort de raisonnement** (`OPENAI_JUDGE_EFFORT`, défaut `medium`) et
+  non par la température — un juge a besoin de précision, et les modèles de raisonnement jugent plus
+  fidèlement les critères non-vérifiables (arXiv 2601.03630). Clé/modèle découplés du red team
+  (`OPENAI_JUDGE_API_KEY`/`OPENAI_JUDGE_MODEL`, la clé se rabattant sur celle du red team). Il réutilise
+  le socle durci de l'ADR 0039/0063 (spotlighting à marqueur aléatoire, anti-injection
+  `INJECTION DÉTECTÉE:`, `json_schema` strict via `text.format` + validation zod, façade hors-ligne).
+  Persisté en candidat régénérable (`judgements.json`, git-ignoré), un rapport par document, keyé par
+  `${content_type}/${slug}` — exactement comme le red team.
 - **Candidat, jamais gate.** Un verdict `pass` **ne coche jamais** un booléen. Seul un clic humain qui
   écrit une entrée de journal nominative (ADR 0046) coche un gate. Le juge ne mute jamais le contenu canonique.
 - **Deux passes indépendantes.** Le juge et le red team tournent séparément et ne se voient pas. Le
