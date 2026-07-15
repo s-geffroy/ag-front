@@ -349,40 +349,44 @@
     "description": "Note teaser (~2 min, à produire) qui nourrit la fiche Atlas Malacca : concentration des flux énergétiques, alternatives limitées et coûteuses.",
     "type": "note",
     "pillar": "production",
-    "status": "framing",
+    "status": "review",
     "priority": "P2",
-    "progress": 0,
+    "progress": 80,
     "deadline": "2026-08-31",
-    "next_action": "Cadrer l’angle (1 accroche + 1 thèse), puis lancer la chaîne de sourcing pplx (search → fetch-url --facts → verify) pour 3–6 sources ; s’appuyer sur les candidats déjà collectés pour la fiche Malacca (docs/evidence/malacca-candidates.md). Rester ≤ 2 min. Ne pas dériver vers géopolitique Indo-Pacifique générale.",
+    "next_action": "Valider les chiffres candidats (ADR 0046 → sources_ok) puis revue humaine finale (human_review_done). Alors seulement : draft:false + rebuild apps/public pour mise en ligne.",
     "impact": "atlas",
     "offer": "public",
-    "quality_gate_status": "not_started",
+    "quality_gate_status": "at_risk",
     "gates": {
       "sources_ok": false,
-      "llm_draft_done": false,
-      "contradiction_done": false,
-      "compliance_done": false,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
       "human_review_done": false
     },
     "munich": {
-      "1": "todo",
-      "2": "todo",
-      "3": "todo",
-      "4": "todo",
-      "5": "todo",
-      "6": "todo",
-      "7": "todo",
-      "8": "todo",
-      "9": "todo",
-      "10": "todo"
+      "1": "ok",
+      "2": "ok",
+      "3": "ok",
+      "4": "ok",
+      "5": "ok",
+      "6": "ok",
+      "7": "ok",
+      "8": "ok",
+      "9": "ok",
+      "10": "ok"
     },
     "links": [
+      {
+        "label": "Brouillon note Malacca (draft, hors-ligne)",
+        "url": "/notes/malacca-dependance-energetique"
+      },
       {
         "label": "Fiche nourrie (Atlas Malacca)",
         "url": "/atlas/malacca"
       }
     ],
-    "internal_notes": "Règle de scope (playbook §11.1) : une note doit nourrir une fiche/dossier. Ici → fiche Malacca."
+    "internal_notes": "Règle de scope (playbook §11.1) : une note doit nourrir une fiche/dossier. Ici → fiche Malacca. Brouillon écrit le 2026-07-15 (draft:true) ; chiffres = candidats non validés (sources_ok reste false tant que la validation nominative ADR 0046 n'a pas eu lieu). Contradiction ADR 0039 (gpt-4o) le 2026-07-15 : 3 findings traités — sev 4 (pipeline « 2 % » sans méthodo) → dérivation explicitée (≈ 400 000 b/j ÷ ≈ 23 Mb/j) ; sev 3 (surcoût Sonde/Lombok non chiffré) → qualifié « non documenté publiquement » ; sev 3 (lien incidents→assurance) → qualifié « non quantifié ». Aucun chiffre inventé. Munich : machine R1/R2/R3/R7 PASS ; 10 points revus ok. contradiction_done + compliance_done posés ; sources_ok reste false (candidats non validés, ADR 0046), human_review_done false."
   },
   {
     "id": "deliv_note_taiwan_teaser",
@@ -390,40 +394,44 @@
     "description": "Note teaser (~2 min, à produire) qui nourrit la fiche Atlas Taïwan : irremplaçabilité court terme des composants de pointe, inertie de la relocalisation.",
     "type": "note",
     "pillar": "production",
-    "status": "framing",
+    "status": "review",
     "priority": "P2",
-    "progress": 0,
+    "progress": 80,
     "deadline": "2026-08-31",
-    "next_action": "Cadrer l’angle, puis chaîne de sourcing pplx pour 3–6 sources ; réutiliser les candidats de la fiche Taïwan (docs/evidence/taiwan-candidates.md). Cadrage strict : nœud composants + maritime, pas de commentaire géopolitique général. Rester ≤ 2 min.",
+    "next_action": "Valider les chiffres candidats (ADR 0046 → sources_ok) puis revue humaine finale. Alors seulement : draft:false + rebuild pour mise en ligne.",
     "impact": "atlas",
     "offer": "public",
-    "quality_gate_status": "not_started",
+    "quality_gate_status": "at_risk",
     "gates": {
       "sources_ok": false,
-      "llm_draft_done": false,
-      "contradiction_done": false,
-      "compliance_done": false,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
       "human_review_done": false
     },
     "munich": {
-      "1": "todo",
-      "2": "todo",
-      "3": "todo",
-      "4": "todo",
-      "5": "todo",
-      "6": "todo",
-      "7": "todo",
-      "8": "todo",
-      "9": "todo",
-      "10": "todo"
+      "1": "ok",
+      "2": "ok",
+      "3": "ok",
+      "4": "ok",
+      "5": "ok",
+      "6": "ok",
+      "7": "ok",
+      "8": "ok",
+      "9": "ok",
+      "10": "ok"
     },
     "links": [
+      {
+        "label": "Brouillon note Taïwan (draft, hors-ligne)",
+        "url": "/notes/taiwan-semiconducteurs-irremplacables"
+      },
       {
         "label": "Fiche nourrie (Atlas Taïwan)",
         "url": "/atlas/taiwan"
       }
     ],
-    "internal_notes": "Scope → fiche Taïwan. Irremplaçabilité = candidate pending validation, pas un fait absolu."
+    "internal_notes": "Scope → fiche Taïwan. Irremplaçabilité = candidate pending validation, pas un fait absolu. Brouillon écrit le 2026-07-15 (draft:true) ; chiffres = candidats non validés (sources_ok reste false jusqu'à validation nominative ADR 0046). Contradiction ADR 0039 (gpt-4o) le 2026-07-15 : 4 findings traités — 2× sev 4 source_gap (80 % EUV, ~2/3 fonderie) → attributions TrendForce + dates ajoutées ; sev 3 overstated (« relocaliser prend des années ») → contre-exemples Samsung/Intel ajoutés (borne la déduction) ; sev 3 (projection 32→59 %) → « projection TrendForce » ajouté. Aucun chiffre inventé. Munich : machine R1/R2/R3/R7 PASS ; 10 points revus ok. contradiction_done + compliance_done posés ; sources_ok false (candidats, ADR 0046), human_review_done false."
   },
   {
     "id": "deliv_note_methode_cvi",
@@ -431,39 +439,43 @@
     "description": "Note-méthode (~2 min, à produire) du pack de preuve 90 jours : ce que le CVI mesure et ne mesure pas, sans caricature. Nourrit la page méthode CVI.",
     "type": "note",
     "pillar": "method",
-    "status": "framing",
+    "status": "review",
     "priority": "P2",
-    "progress": 0,
+    "progress": 80,
     "deadline": "2026-08-31",
-    "next_action": "Rédiger l’explication non technique du CVI (frontière offre : score 0–5 réservé aux tiers payants, lecture qualitative en public). S’appuyer sur la méthode existante (page /methode-cvi, ADR 0043). Pas de nouvelle donnée chiffrée à sourcer — note conceptuelle. Rester ≤ 2 min.",
+    "next_action": "Validation humaine de la note de méthode (sources_ok = méthode interne) + revue finale. Alors seulement : draft:false + rebuild pour mise en ligne.",
     "impact": "method",
     "offer": "public",
-    "quality_gate_status": "not_started",
+    "quality_gate_status": "at_risk",
     "gates": {
       "sources_ok": false,
-      "llm_draft_done": false,
-      "contradiction_done": false,
-      "compliance_done": false,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
       "human_review_done": false
     },
     "munich": {
-      "1": "todo",
-      "2": "todo",
-      "3": "todo",
-      "4": "todo",
-      "5": "todo",
-      "6": "todo",
-      "7": "todo",
-      "8": "todo",
-      "9": "todo",
-      "10": "todo"
+      "1": "ok",
+      "2": "ok",
+      "3": "ok",
+      "4": "ok",
+      "5": "ok",
+      "6": "ok",
+      "7": "ok",
+      "8": "ok",
+      "9": "ok",
+      "10": "ok"
     },
     "links": [
+      {
+        "label": "Brouillon note méthode CVI (draft, hors-ligne)",
+        "url": "/notes/mesurer-vulnerabilite-corridor-cvi"
+      },
       {
         "label": "Méthode nourrie (page CVI)",
         "url": "/methode-cvi"
       }
     ],
-    "internal_notes": "Note du pack 90 jours (spec §18.2). Ne pas divulguer la pondération fine du CVI en public — frontière d’offre."
+    "internal_notes": "Note du pack 90 jours (spec §18.2). Ne pas divulguer la pondération fine du CVI en public — frontière d’offre. Brouillon écrit le 2026-07-15 (draft:true). Note conceptuelle : pas de chaîne pplx (sourcing = méthode interne) ; sources_ok reste false jusqu'à revue humaine. Pondération fine du CVI non divulguée. Contradiction ADR 0039 (gpt-4o) le 2026-07-15 : 3 findings traités — sev 3 source_gap (dimensions sourcées) → « dans l'évaluation d'un corridor donné » précisé ; sev 2 (incertitude abstraite) → assumé (méta-dimension) ; sev 3 missing_counterargument (non-prédiction = limite ?) → posée comme choix déontologique assumé (anti-prédiction). Note conceptuelle, pas de chiffre. Munich : machine R1/R2/R3/R7 PASS ; 10 points revus ok. contradiction_done + compliance_done posés ; sources_ok false (validation méthode = humaine), human_review_done false."
   }
 ]
