@@ -110,6 +110,64 @@ liens croisés `/notes/…` ; **jamais** `/atlas/<fiche>` ni `/dossiers/<x>` tan
 
 ---
 
+## Notes explicatives produit — HDDE & VERDICT (ajout 2026-07-15)
+
+Deux notes **conceptuelles** supplémentaires, sur le même patron que le Brief 3 (note *méthode CVI*) :
+elles n'apportent **aucune donnée chiffrée nouvelle** ⇒ **pas de chaîne pplx**, sourcing = méthode
+interne + références déjà citées par la méthode. `confidence: eleve`. Elles nourrissent une **page
+méthode** (scope playbook §11.1 satisfait comme pour la note CVI), sont top-of-funnel et renvoient vers
+`/methode-*` et `/offres`. Records de suivi : `deliv_note_hdde_explicative`,
+`deliv_note_verdict_explicative` (`status: production`). Brouillons complets rédigés (`draft:true`, corps
+au template — hors-ligne jusqu'à revue humaine).
+
+### Brief 4 — `deliv_note_hdde_explicative`
+
+- **Fichier** : `apps/public/src/content/notes/dependance-visible-dependance-cachee.md`
+- **Nourrit** : page `/methode-hdde` + offre Premium. **Réf.** (méthode interne) :
+  `apps/public/src/pages/methode-hdde.astro`, domain pack
+  `apps/hdde-api/domain_packs/enterprise_hidden_dependency_discovery/`, ADR 0040 (modèle de divergence
+  `hidden = exposure × blindness`), ADR 0034 (frontière de preuve : suggestion LLM ≠ preuve).
+- **Angle** : une entreprise voit un acteur critique **visible** (fournisseur, point de passage) ; le
+  risque réel est l'**angle mort** — l'écart entre résilience *déclarée* et résilience *prouvée*. HDDE
+  remonte du visible aux dépendances cachées (rang-2, juridictions, gatekeepers, chokepoints).
+- **Accroche** : une entreprise découvre **tard** qu'un fournisseur visible reposait sur une dépendance
+  cachée (candidate, datable).
+- **« Trois signaux » adaptés (angles morts, dérivés de `red_flags.yaml`)** : (1) alternative déclarée
+  mais non testée/contractualisée ; (2) dépendance de rang-2 inconnue ; (3) gatekeeper non cartographié
+  (logistique/assurance/finance/régulateur).
+- **Angle mort** : HDDE ne prédit pas et ne remplace pas le jugement interne ; suggestion LLM ≠ preuve.
+- **Frontière d'offre** : HDDE = outil des offres **payantes** ; diagnostic complet (packet, scores 0–5)
+  réservé ; lecture publique **qualitative**.
+- **Scope** : concept de dépendance cachée. **Ne pas** dériver vers un cas d'entreprise nominatif.
+- **confidence** : `eleve`.
+
+### Brief 5 — `deliv_note_verdict_explicative`
+
+- **Fichier** : `apps/public/src/content/notes/du-diagnostic-a-la-decision.md`
+- **Nourrit** : page `/methode-verdict` + offre Premium. **Réf.** (méthode interne) :
+  `apps/public/src/pages/methode-verdict.astro`, `packages/verdict/src/labels.ts` (7 temps, 7 critères,
+  preuve 0–5, 4 verdicts — source FR synchronisée avec le moteur), `docs/methode-verdict.md`, ADR 0043.
+- **Angle** : une fois les dépendances révélées (HDDE), il faut **trancher**. VERDICT transforme une
+  situation incertaine en options **comparables, testables, arbitrables** et rend un verdict
+  (FAIRE / TESTER / DIFFÉRER / ABANDONNER) assorti d'un **seuil d'arrêt** et d'une **date de revue**.
+  Principe : « le score ouvre une possibilité, il ne décide jamais seul » (anti-tyrannie du score).
+- **Accroche** : une décision engagée sous incertitude, sans condition d'arrêt, dont le coût se mesure
+  trop tard (conceptuelle, datable si possible).
+- **« Trois signaux » adaptés (garde-fous, de `packages/verdict/src/audit.ts`)** : (1) FAIRE interdit
+  sous preuve niveau 4 ; (2) TESTER exige un test de vérité **capable de tuer l'option** ; (3) aucune
+  action sans seuil d'arrêt **+ validation humaine**.
+- **Angle mort** : la red team (LLM) = preuve **niveau 0** ; VERDICT ne prédit pas, ne remplace pas le
+  jugement du dirigeant.
+- **Sources** (`analyse_secondaire`) : cadres fondateurs déjà cités par la méthode — PESTEL (Aguilar
+  1967), SWOT/TOWS, Business Model Canvas (Osterwalder & Pigneur 2010), décision sous incertitude
+  (Kahneman 2011, Popper).
+- **Frontière d'offre** : VERDICT = 3ᵉ étage **Premium « Arbitrer »** ; **ne pas divulguer la
+  pondération fine** ; l'arbitrage opérationnel se fait dans le pilote fermé.
+- **Scope** : principe d'arbitrage. **Pas** de cas de décision client réel.
+- **confidence** : `eleve`.
+
+---
+
 ## Vérification (à la publication de chaque note)
 
 1. Build public en Docker : `docker compose -f docker/docker-compose.yml run --rm tools npm --workspace

@@ -477,5 +477,95 @@
       }
     ],
     "internal_notes": "Note du pack 90 jours (spec §18.2). Ne pas divulguer la pondération fine du CVI en public — frontière d’offre. Brouillon écrit le 2026-07-15 (draft:true). Note conceptuelle : pas de chaîne pplx (sourcing = méthode interne) ; sources_ok reste false jusqu'à revue humaine. Pondération fine du CVI non divulguée. Contradiction ADR 0039 (gpt-4o) le 2026-07-15 : 3 findings traités — sev 3 source_gap (dimensions sourcées) → « dans l'évaluation d'un corridor donné » précisé ; sev 2 (incertitude abstraite) → assumé (méta-dimension) ; sev 3 missing_counterargument (non-prédiction = limite ?) → posée comme choix déontologique assumé (anti-prédiction). Note conceptuelle, pas de chiffre. Munich : machine R1/R2/R3/R7 PASS ; 10 points revus ok. contradiction_done + compliance_done posés ; sources_ok false (validation méthode = humaine), human_review_done false."
+  },
+  {
+    "id": "deliv_note_hdde_explicative",
+    "title": "Note explicative — Ce que vous voyez n’est pas ce dont vous dépendez (HDDE)",
+    "description": "Note top-of-funnel (~2 min, à produire) : du fournisseur visible aux dépendances cachées. Explique HDDE de façon accessible et nourrit la page méthode HDDE + l’offre Premium.",
+    "type": "note",
+    "pillar": "method",
+    "status": "production",
+    "priority": "P1",
+    "progress": 45,
+    "deadline": "2026-08-31",
+    "next_action": "Brouillon rédigé au template (corps complet, draft:true, hors-ligne). Prochaine étape : contradiction ADR 0039, puis Munich/compliance et revue humaine. sources_ok reste false (méthode interne, validé à la revue). draft:false + rebuild seulement après human_review_done.",
+    "impact": "method",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette note HDDE (draft, hors-ligne)",
+        "url": "/notes/dependance-visible-dependance-cachee"
+      },
+      {
+        "label": "Méthode nourrie (page HDDE)",
+        "url": "/methode-hdde"
+      }
+    ],
+    "internal_notes": "Note explicative HDDE top-of-funnel (préparation le 2026-07-15). Brouillon complet rédigé draft:true (frontmatter + corps au template). Note conceptuelle : pas de chaîne pplx (sourcing = méthode interne : page /methode-hdde, domain pack, ADR 0040 modèle de divergence hidden=exposure×blindness, ADR 0034 frontière de preuve : suggestion LLM ≠ preuve) ; sources_ok reste false jusqu’à revue humaine. Frontière d’offre : HDDE = outil des offres payantes, diagnostic complet (packet, scores 0–5) réservé ; lecture publique qualitative. Note gratuite/publique — cvi_justified omis."
+  },
+  {
+    "id": "deliv_note_verdict_explicative",
+    "title": "Note explicative — Du diagnostic à la décision : arbitrer sous incertitude (VERDICT)",
+    "description": "Note top-of-funnel (~2 min, à produire) : transformer une situation incertaine en options comparables et arbitrables. Explique VERDICT de façon accessible et nourrit la page méthode VERDICT + l’offre Premium.",
+    "type": "note",
+    "pillar": "method",
+    "status": "production",
+    "priority": "P1",
+    "progress": 45,
+    "deadline": "2026-08-31",
+    "next_action": "Brouillon rédigé au template (corps complet, draft:true, hors-ligne). Prochaine étape : contradiction ADR 0039, puis Munich/compliance et revue humaine. sources_ok reste false (méthode interne, validé à la revue). draft:false + rebuild seulement après human_review_done.",
+    "impact": "method",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "ok",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette note VERDICT (draft, hors-ligne)",
+        "url": "/notes/du-diagnostic-a-la-decision"
+      },
+      {
+        "label": "Méthode nourrie (page VERDICT)",
+        "url": "/methode-verdict"
+      }
+    ],
+    "internal_notes": "Note explicative VERDICT top-of-funnel (préparation le 2026-07-15). Brouillon complet rédigé draft:true (frontmatter + corps au template). Note conceptuelle : pas de chaîne pplx (sourcing = méthode interne : page /methode-verdict, packages/verdict/src/labels.ts, docs/methode-verdict.md, ADR 0043 ; références fondatrices PESTEL/SWOT/BMC/Kahneman/Popper) ; sources_ok reste false jusqu’à revue humaine. Principe : le score ouvre une possibilité, il ne décide jamais seul (anti-tyrannie du score, vetos durs). Frontière d’offre : VERDICT = 3ᵉ étage Premium « Arbitrer » ; ne pas divulguer la pondération fine ; l’arbitrage opérationnel se fait dans le pilote fermé. Note gratuite/publique — cvi_justified omis."
   }
 ]
