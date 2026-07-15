@@ -29,38 +29,53 @@ _sha256() {
   else shasum -a 256 "$1" | awk '{print $1}'; fi
 }
 
-# Minimal JSON-string escaper (quotes, backslashes, tabs, CR, then newlines -> \n).
-_json_escape() {
-  printf '%s' "$1" \
-    | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/\\t/g' -e 's/\r//g' \
-    | sed ':a;N;$!ba;s/\n/\\n/g'
-}
+# Block Kit Slack notifier (shared; single source of truth for the escaper + the POST).
+# shellcheck source=../lib/slack.sh
+. "$SCRIPT_DIR/../lib/slack.sh"
 
-# POST a plain-text alert to Slack if a webhook is configured; silent no-op otherwise.
-_notify_slack() {
-  [ -n "${SLACK_WEBHOOK_URL:-}" ] || return 0
-  local data
-  data="{\"text\":\"$(_json_escape "$1")\"}"
-  curl -sf -X POST -H 'Content-Type: application/json' --data "$data" "$SLACK_WEBHOOK_URL" >/dev/null \
-    || echo "warn: Slack notify failed (webhook unreachable?)" >&2
-}
+# Pull the concise summary block sync_contract.sh emits between markers, and the version line from it.
+_drift_detail() { printf '%s\n' "$1" | sed -n '/DRIFT-SUMMARY-BEGIN/,/DRIFT-SUMMARY-END/p' | sed '1d;$d'; }
+_drift_version() { printf '%s\n' "$1" | sed -n 's/^version: //p' | head -1; }
 
-# (a) pin vs live — sync_contract.sh exits non-zero on drift (and prints the diff). Capture its
-# output so the same detail reaches both the log/stderr and the Slack message.
-if ! sync_out="$("$SCRIPT_DIR/sync_contract.sh" 2>&1)"; then
+# (a) pin vs live — sync_contract.sh exit codes: 0 up-to-date, 3 version/data-only bump (soft, info),
+# 2 structural drift, other non-zero = fetch/other failure. Capture output for the log + Slack summary.
+soft_seen=0
+sync_rc=0
+sync_out="$("$SCRIPT_DIR/sync_contract.sh" 2>&1)" || sync_rc=$?
+if [ "$sync_rc" -eq 3 ]; then
+  # Version/data-only bump: the consumer is functionally up to date (coverage green, client matches
+  # the pin) — only the version literal lags. Informational, not a page; refresh the pin at leisure.
+  soft_seen=1
+  echo "INFO: version/data-only bump — refresh the pin at leisure" >&2
+  printf '%s\n' "$sync_out" >&2
+  ver="$(_drift_version "$sync_out")"
+  slack_notify ":information_source:" "Chokepoints read-API — version/data-only bump${ver:+ ($ver)}" \
+    "*change:* version/data-only — no path or schema delta
+*build impact:* none (coverage test stays green)
+*action:* refresh the pin at leisure — \`cp openapi.live.json openapi.json && gen_client.sh\`" \
+    "$(_drift_detail "$sync_out")"
+elif [ "$sync_rc" -ne 0 ]; then
+  # Structural drift OR fetch failure — a real problem: red alarm.
   msg="pinned spec has drifted from live — accept the diff then rerun gen_client.sh"
   echo "NOT up to date: $msg" >&2
   printf '%s\n' "$sync_out" >&2
-  _notify_slack ":rotating_light: Chokepoints read-API — $msg"$'\n\n'"$(printf '%s\n' "$sync_out" | head -50)"
+  ver="$(_drift_version "$sync_out")"
+  detail="$(_drift_detail "$sync_out")"
+  [ -n "$detail" ] || detail="$(printf '%s\n' "$sync_out" | tail -20)" # e.g. a fetch failure has no summary
+  slack_notify ":rotating_light:" "Chokepoints read-API — $msg${ver:+ ($ver)}" \
+    "*action:* review the diff, then \`cp openapi.live.json openapi.json && gen_client.sh\`
+*build impact:* the contract-coverage test fails until the client is regenerated" \
+    "$detail"
   exit 1
+else
+  printf '%s\n' "$sync_out"
 fi
-printf '%s\n' "$sync_out"
 
 # (b) client vs pin
 if [ ! -f "$STAMP" ]; then
   msg="client not generated (no $STAMP) — run gen_client.sh"
   echo "NOT up to date: $msg" >&2
-  _notify_slack ":warning: Chokepoints read-API — $msg"
+  slack_notify_text ":warning: Chokepoints read-API — $msg"
   exit 1
 fi
 want="$(_sha256 "$SPEC")"; have="$(cat "$STAMP")"
@@ -68,11 +83,14 @@ if [ "$want" != "$have" ]; then
   msg="generated client is stale vs the pin — run gen_client.sh"
   echo "NOT up to date: $msg" >&2
   echo "  pin=$want  client=$have" >&2
-  _notify_slack ":warning: Chokepoints read-API — $msg"$'\n'"pin=$want  client=$have"
+  slack_notify ":warning:" "Chokepoints read-API — $msg" \
+    "*pin:* \`$want\`
+*client:* \`$have\`" ""
   exit 1
 fi
 
 echo "up to date: pin matches live AND client matches pin"
-if [ "$HEARTBEAT" = 1 ]; then
-  _notify_slack ":white_check_mark: Chokepoints read-API consumer — alive & fully up to date ($(date -u +%FT%TZ))"
+# A pending soft bump means the pin lags live, so don't also claim "fully up to date".
+if [ "$HEARTBEAT" = 1 ] && [ "${soft_seen:-0}" != 1 ]; then
+  slack_notify_text ":white_check_mark: Chokepoints read-API consumer — alive & fully up to date ($(date -u +%FT%TZ))"
 fi

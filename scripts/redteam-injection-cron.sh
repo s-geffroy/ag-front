@@ -42,41 +42,60 @@ if [ -z "${SLACK_WEBHOOK_URL:-}" ] && [ -f "$SCRIPT_DIR/consumer/.env" ]; then .
 set +a
 set -e
 
-# Minimal JSON-string escaper + Slack POST — identical to scripts/consumer/check_client.sh.
-_json_escape() {
-  printf '%s' "$1" \
-    | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/\\t/g' -e 's/\r//g' \
-    | sed ':a;N;$!ba;s/\n/\\n/g'
+# Block Kit Slack notifier (shared; single source of truth for the JSON escaper + the POST).
+# shellcheck source=lib/slack.sh
+. "$SCRIPT_DIR/lib/slack.sh"
+
+# Parse the harness stdout into a compact one-line surfacing summary + failing rows, so the Slack
+# alert carries a readable digest instead of a raw 40-line stdout tail.
+_summ_model() { printf '%s\n' "$1" | sed -n 's/.*(model \(.*\)).*/\1/p' | head -1; }
+_summ_surfacing() {
+  printf '%s\n' "$1" | sed -n '/Surfacing rate/,/^$/p' | grep -E '[0-9]+/[0-9]+' \
+    | sed -e 's/^ *//' -e 's/  */ /g' | awk '{ printf "%s%s", (NR > 1 ? " · " : ""), $0 }'
 }
-_notify_slack() {
-  [ -n "${SLACK_WEBHOOK_URL:-}" ] || return 0
-  local data
-  data="{\"text\":\"$(_json_escape "$1")\"}"
-  curl -sf -X POST -H 'Content-Type: application/json' --data "$data" "$SLACK_WEBHOOK_URL" >/dev/null \
-    || echo "warn: Slack notify failed (webhook unreachable?)" >&2
-}
+_summ_hard() { printf '%s\n' "$1" | sed -n 's/^HARD failures[^:]*: \([0-9]*\).*/\1/p' | tail -1; }
+_summ_flaky() { printf '%s\n' "$1" | sed -n 's/^Flaky (.*): \([0-9]*\).*/\1/p' | tail -1; }
+# Only the rows that matter for triage: contamination/leak (❌) and hard errors — never RESULT/summary lines.
+_summ_fails() { printf '%s\n' "$1" | grep -E '❌|ERROR' | grep -v 'RESULT:' || true; }
 
 if [ -z "${OPENAI_API_KEY:-}" ]; then
   echo "SKIP: OPENAI_API_KEY unset — cannot run the real regression" >&2
-  _notify_slack ":warning: $LABEL — skipped: OPENAI_API_KEY not set on the host"
+  slack_notify_text ":warning: $LABEL — skipped: OPENAI_API_KEY not set on the host"
   exit 1
 fi
 
 cd "$ROOT"
 set +e
+# LLM_TIMEOUT_MS: the heavier red-team probes can be slow; give them more headroom than the 30s
+# product default so a transient slow call doesn't abort (the harness also retries transient aborts).
 out="$($COMPOSE run --rm \
   -e LLM_ENABLED=true -e OPENAI_API_KEY -e OPENAI_MODEL="${OPENAI_MODEL:-gpt-4o}" \
+  -e LLM_TIMEOUT_MS="${LLM_TIMEOUT_MS:-60000}" \
   tools npx tsx scripts/redteam-injection-regression.ts $QUICK 2>&1)"
 rc=$?
 set -e
 printf '%s\n' "$out"
 
+# Digest for Slack (shared across the REGRESSION + heartbeat branches).
+model="$(_summ_model "$out")"
+surfacing="$(_summ_surfacing "$out")"
+hard="$(_summ_hard "$out")"
+flaky="$(_summ_flaky "$out")"
+flaky="${flaky:-0}"
+
 if [ "$rc" -ne 0 ]; then
-  _notify_slack ":rotating_light: $LABEL — REGRESSION (exit $rc, $(date -u +%FT%TZ))"$'\n\n'"$(printf '%s\n' "$out" | tail -40)"
+  fields="*model:* ${model:-?}
+*HARD failures:* ${hard:-?}   ·   *flaky (non-hard):* ${flaky}
+*surfacing:* ${surfacing:-n/a}"
+  slack_notify ":rotating_light:" "$LABEL — REGRESSION (exit $rc, $(date -u +%FT%TZ))" \
+    "$fields" "$(_summ_fails "$out")"
   exit "$rc"
 fi
 
 echo "OK: no injection regression"
 if [ "$HEARTBEAT" = 1 ]; then
-  _notify_slack ":white_check_mark: $LABEL — all clear ($(date -u +%FT%TZ))"$'\n'"$(printf '%s\n' "$out" | tail -6)"
+  fields="*model:* ${model:-?}
+*surfacing:* ${surfacing:-n/a}
+*HARD failures:* ${hard:-0}   ·   *flaky (non-hard):* ${flaky}"
+  slack_notify ":white_check_mark:" "$LABEL — all clear ($(date -u +%FT%TZ))" "$fields" ""
 fi
