@@ -217,8 +217,7 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
     })
     .catch(degrade('analysis/prediction_consensus', null));
 
-  const available =
-    actors.length > 0 || event_signals.length > 0 || (perception?.count ?? 0) > 0;
+  const available = actors.length > 0 || event_signals.length > 0 || (perception?.count ?? 0) > 0;
   return {
     available,
     note: available
@@ -283,7 +282,9 @@ export async function fetchCorridorContext(chokepointId: string): Promise<Corrid
       const details = await Promise.all(
         all
           .slice(0, MAX_EPISODE_LOOKUPS)
-          .map((e) => client.getEpisode(e.episode_key).catch(degrade(`episode ${e.episode_key}`, null))),
+          .map((e) =>
+            client.getEpisode(e.episode_key).catch(degrade(`episode ${e.episode_key}`, null)),
+          ),
       );
       return details
         .filter((d): d is NonNullable<typeof d> => d !== null)
@@ -321,7 +322,9 @@ function client() {
  * Typed engine outputs for ONE corridor. Relayed verbatim (`columns[]` + `rows[]`): the producer owns
  * these shapes and adds engines over time, so freezing 11 bespoke schemas here would rot on contact.
  */
-export async function fetchCorridorAnalysis(chokepointId: string): Promise<CorridorAnalysis | null> {
+export async function fetchCorridorAnalysis(
+  chokepointId: string,
+): Promise<CorridorAnalysis | null> {
   const c = client();
   if (!c) return null;
   return c
@@ -339,7 +342,9 @@ export async function fetchCorridorAnalysis(chokepointId: string): Promise<Corri
 }
 
 /** Candidate systemic edges OUT of this corridor. Never canonical — distinct from /relations. */
-export async function fetchDerivedRelations(chokepointId: string): Promise<CorridorRelations | null> {
+export async function fetchDerivedRelations(
+  chokepointId: string,
+): Promise<CorridorRelations | null> {
   const c = client();
   if (!c) return null;
   return c

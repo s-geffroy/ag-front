@@ -39,7 +39,11 @@ export async function fetchLatestPacket(caseRef: string): Promise<FetchedPacket 
   }
   const parsed = PacketPayload.safeParse(body.packet);
   if (!parsed.success) {
-    console.error('[verdict-api] HDDE packet failed validation', parsed.error.issues.length, 'issues');
+    console.error(
+      '[verdict-api] HDDE packet failed validation',
+      parsed.error.issues.length,
+      'issues',
+    );
     return null;
   }
   return {

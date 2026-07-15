@@ -41,7 +41,9 @@ export default function App() {
   const { user, loading } = useAuth();
   if (loading)
     return (
-      <div className="grid min-h-screen place-items-center text-slatewarn dark:text-slate-400">…</div>
+      <div className="grid min-h-screen place-items-center text-slatewarn dark:text-slate-400">
+        …
+      </div>
     );
   if (!user) {
     return (

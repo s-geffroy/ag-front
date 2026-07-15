@@ -301,8 +301,9 @@ function deriveHiddenDependency(
 ): DimensionScore {
   const s = divergenceSignals(answers, scores);
   const value = round05((s.exposure * s.blindness) / 5);
-  const answered = [Q_REPLACEABILITY, Q_TIER2].filter((q) => answers.some((a) => a.question_id === q))
-    .length;
+  const answered = [Q_REPLACEABILITY, Q_TIER2].filter((q) =>
+    answers.some((a) => a.question_id === q),
+  ).length;
   void questionById;
   return {
     dimension_id: HIDDEN_DIMENSION,

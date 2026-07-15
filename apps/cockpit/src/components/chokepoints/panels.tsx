@@ -78,7 +78,9 @@ export function FlowsPanel({ flows }: { flows: FlowOut[] }) {
             ) : null}
             {/* The contract REQUIRES the method note beside any volume: it states what the figure
                 excludes. A `qualitative_scored` flow carries no volume at all, by design. */}
-            {f.method_note ? <div className="text-xs italic text-muted">{f.method_note}</div> : null}
+            {f.method_note ? (
+              <div className="text-xs italic text-muted">{f.method_note}</div>
+            ) : null}
             {f.sources.length ? (
               <div className="text-[11px] text-muted">Sources : {f.sources.join(' · ')}</div>
             ) : null}
@@ -96,7 +98,8 @@ export function MetricsPanel({ metrics }: { metrics: MetricOut[] }) {
       <PanelTitle>Métriques de référence</PanelTitle>
       <p className="mb-1 text-[11px] text-muted">
         Une métrique n'est pas un flux : un <em>stock</em> est un solde à une date, une{' '}
-        <em>capacity</em> un maximum potentiel. Ni l'un ni l'autre ne se compare à un volume réalisé.
+        <em>capacity</em> un maximum potentiel. Ni l'un ni l'autre ne se compare à un volume
+        réalisé.
       </p>
       <ul className="space-y-2 text-sm">
         {metrics.map((m) => (
@@ -204,7 +207,13 @@ export function AlternativesPanel({ alternatives }: { alternatives: AlternativeO
   );
 }
 
-export function GeometriesPanel({ geometries, disclaimer }: { geometries: GeometryOut[]; disclaimer?: string }) {
+export function GeometriesPanel({
+  geometries,
+  disclaimer,
+}: {
+  geometries: GeometryOut[];
+  disclaimer?: string;
+}) {
   if (!geometries.length) return null;
   return (
     <div>
@@ -239,8 +248,9 @@ export function CviPanel({ cvi }: { cvi: CviAssessmentOut }) {
         {cvi.status ? <Badge tone="neutral">{humanize(cvi.status)}</Badge> : null}
       </div>
       <p className="mb-1.5 text-[11px] text-muted">
-        Échelle {cvi.scale} — plus haut = plus vulnérable. {dims.length}/8 dimensions ; une dimension
-        sans donnée moteur est omise, jamais fabriquée. Aucun score agrégé 0–100 n'est publié.
+        Échelle {cvi.scale} — plus haut = plus vulnérable. {dims.length}/8 dimensions ; une
+        dimension sans donnée moteur est omise, jamais fabriquée. Aucun score agrégé 0–100 n'est
+        publié.
       </p>
       {dims.length ? (
         <ul className="space-y-2 text-sm">
@@ -288,10 +298,16 @@ export function SystemResiliencePanel({ r }: { r: SystemResilienceOut }) {
   const rows: [string, string][] = [
     ['Robustesse', r.robustness != null ? r.robustness.toFixed(4) : '—'],
     ['Ascendance', r.ascendency != null ? num(r.ascendency) : '—'],
-    ['Capacité de développement', r.development_capacity != null ? num(r.development_capacity) : '—'],
+    [
+      'Capacité de développement',
+      r.development_capacity != null ? num(r.development_capacity) : '—',
+    ],
     ['Overhead (réserve)', r.overhead != null ? num(r.overhead) : '—'],
     ['Alpha (degré d’ordre)', r.alpha != null ? r.alpha.toFixed(4) : '—'],
-    ['Débit total du système', r.total_system_throughput != null ? num(r.total_system_throughput) : '—'],
+    [
+      'Débit total du système',
+      r.total_system_throughput != null ? num(r.total_system_throughput) : '—',
+    ],
     ['Graphe', `${r.node_count ?? '—'} nœuds · ${r.edge_count ?? '—'} arêtes`],
     ['Base des poids', humanize(r.weight_basis) || '—'],
   ];

@@ -752,10 +752,14 @@ export const VocabulariesOut = z
       )
       .default([]),
     actor_profile_types: z
-      .array(z.object({ profile_type: z.string(), is_critical: z.boolean().nullish() }).passthrough())
+      .array(
+        z.object({ profile_type: z.string(), is_critical: z.boolean().nullish() }).passthrough(),
+      )
       .default([]),
     alert_types: z
-      .array(z.object({ alert_type: z.string(), default_queue: z.string().nullish() }).passthrough())
+      .array(
+        z.object({ alert_type: z.string(), default_queue: z.string().nullish() }).passthrough(),
+      )
       .default([]),
     architecture_labels: z.array(z.string()).default([]),
   })

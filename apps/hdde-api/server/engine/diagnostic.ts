@@ -102,10 +102,7 @@ const salienceRank = (id: string): number => {
   return i === -1 ? SALIENCE.length : i;
 };
 
-function pickPrimaryDiagnosis(
-  activated: string[],
-  scores: Record<string, DimensionScore>,
-): string {
+function pickPrimaryDiagnosis(activated: string[], scores: Record<string, DimensionScore>): string {
   if (activated.length === 0) return 'visible_supplier_dependency';
   return [...activated]
     .map((id) => ({ id, score: backingScore(id, scores) }))

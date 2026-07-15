@@ -17,7 +17,7 @@ interface DecisionRow {
 const verdictClass: Record<string, string> = {
   FAIRE: 'v-FAIRE',
   TESTER: 'v-TESTER',
-  'DIFFÉRER': 'v-DIFFERER',
+  DIFFÉRER: 'v-DIFFERER',
   ABANDONNER: 'v-ABANDONNER',
 };
 
@@ -97,7 +97,9 @@ export default function DecisionsList() {
             </div>
             <div className="flex items-center gap-2">
               {d.final_verdict && (
-                <span className={`chip ${verdictClass[d.final_verdict] ?? ''}`}>{d.final_verdict}</span>
+                <span className={`chip ${verdictClass[d.final_verdict] ?? ''}`}>
+                  {d.final_verdict}
+                </span>
               )}
               <span className="chip bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                 {d.status}

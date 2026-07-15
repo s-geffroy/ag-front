@@ -139,7 +139,10 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
         ),
       );
     }
-    if (conc.customer_top_share_pct !== null && conc.customer_top_share_pct >= CUSTOMER_CONCENTRATION_THRESHOLD_PCT) {
+    if (
+      conc.customer_top_share_pct !== null &&
+      conc.customer_top_share_pct >= CUSTOMER_CONCENTRATION_THRESHOLD_PCT
+    ) {
       swot.push(
         swotItem(
           'threat',
@@ -185,7 +188,9 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
 
   // --- HDDE light_actions → Opportunities + option seeds ------------------------------------
   for (const action of packet.light_actions) {
-    swot.push(swotItem('opportunity', action.action, 'hdde_packet', `hdde:light_action:${action.priority}`));
+    swot.push(
+      swotItem('opportunity', action.action, 'hdde_packet', `hdde:light_action:${action.priority}`),
+    );
     options.push({
       option_id: ids.next('opt'),
       type: 'minimal_alternative',
@@ -328,7 +333,9 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
         `chokepoint:${cp.id}`,
       ),
     );
-    swot.push(swotItem('threat', `Dépendance au corridor ${cp.name}`, 'chokepoint', `chokepoint:${cp.id}`));
+    swot.push(
+      swotItem('threat', `Dépendance au corridor ${cp.name}`, 'chokepoint', `chokepoint:${cp.id}`),
+    );
   }
 
   // --- Corridor context (episodes + analytics, read scope) → Threats -------------------------
@@ -337,7 +344,9 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
   const ctx = packet.corridor_context;
   if (ctx) {
     for (const ep of ctx.episodes) {
-      const period = ep.started_on ? ` (${ep.started_on.slice(0, 10)}${ep.ended_on ? `→${ep.ended_on.slice(0, 10)}` : ''})` : '';
+      const period = ep.started_on
+        ? ` (${ep.started_on.slice(0, 10)}${ep.ended_on ? `→${ep.ended_on.slice(0, 10)}` : ''})`
+        : '';
       swot.push(
         swotItem(
           'threat',
@@ -354,7 +363,12 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
       if (label) {
         // Index-suffix the ref so multiple analytics of the same result_type don't collide.
         swot.push(
-          swotItem('threat', `Analytique corridor : ${label}`, 'analytics', `analytics:${a.result_type ?? 'result'}:${i}`),
+          swotItem(
+            'threat',
+            `Analytique corridor : ${label}`,
+            'analytics',
+            `analytics:${a.result_type ?? 'result'}:${i}`,
+          ),
         );
       }
     });
@@ -379,7 +393,8 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
   // COVERAGE GAP (an object the corpus lacks), which is itself worth flagging to the analyst.
   for (const edge of packet.corridor_relations?.edges ?? []) {
     const target = edge.to_label ?? edge.to;
-    const gap = edge.to_status === 'external_candidate' ? ' [hors corpus — couverture à compléter]' : '';
+    const gap =
+      edge.to_status === 'external_candidate' ? ' [hors corpus — couverture à compléter]' : '';
     const strength = edge.strength_score != null ? ` (force ${edge.strength_score})` : '';
     swot.push(
       swotItem(
@@ -396,7 +411,8 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
   // has too much order and too little reserve: a local shock propagates instead of being absorbed.
   const sysres = packet.system_resilience;
   if (sysres?.regime) {
-    const robustness = sysres.robustness != null ? ` (robustesse ${sysres.robustness.toFixed(3)})` : '';
+    const robustness =
+      sysres.robustness != null ? ` (robustesse ${sysres.robustness.toFixed(3)})` : '';
     pestel.push(
       pestelFactor(
         'political',

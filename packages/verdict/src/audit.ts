@@ -29,7 +29,11 @@ const REQUIRED_TRUTH_TEST_FIELDS = [
 ] as const;
 
 // Loose shapes — the audit tolerates partial/draft data and reports what's missing.
-type AnyOption = Record<string, unknown> & { option_id?: string; type?: string; proof_level?: number | null };
+type AnyOption = Record<string, unknown> & {
+  option_id?: string;
+  type?: string;
+  proof_level?: number | null;
+};
 type AnyScoreEntry = Record<string, unknown> & { option_id?: string };
 type AnyRedFlag = { severity?: string; resolved?: boolean };
 
@@ -114,7 +118,10 @@ function auditScores(
     const criteria = (entry.criteria as Record<string, unknown>) ?? {};
     errors.push(...validateCriterionValues(criteria, `score_${optionId}`));
     if (Object.keys(criteria).length > 0 && Object.keys(weights).length > 0) {
-      const expectedRaw = computeRawScore(criteria as Record<(typeof CRITERIA)[number], number>, weights);
+      const expectedRaw = computeRawScore(
+        criteria as Record<(typeof CRITERIA)[number], number>,
+        weights,
+      );
       if (entry.raw_score === null || entry.raw_score === undefined) {
         errors.push(`missing_raw_score_for_option_${optionId}`);
       } else if (Math.trunc(Number(entry.raw_score)) !== expectedRaw) {
@@ -149,7 +156,8 @@ export function auditDecision(input: AuditInput): AuditResult {
   const warnings: string[] = [];
 
   const finalVerdict =
-    (decision.final_verdict as string | undefined) ?? (decision.proposed_verdict as string | undefined);
+    (decision.final_verdict as string | undefined) ??
+    (decision.proposed_verdict as string | undefined);
   const confidence = decision.confidence as string | undefined;
   const humanValidation = Boolean(decision.human_validation ?? false);
   const stopThreshold = decision.stop_threshold;
@@ -197,16 +205,18 @@ export function auditDecision(input: AuditInput): AuditResult {
       errors.push('faire_forbidden_when_confidence_low');
     }
     if (
-      redFlags.some(
-        (r) => (r.severity === 'blocking' || r.severity === 'bloquant') && !r.resolved,
-      )
+      redFlags.some((r) => (r.severity === 'blocking' || r.severity === 'bloquant') && !r.resolved)
     ) {
       errors.push('faire_forbidden_with_unresolved_blocking_red_flag');
     }
     if (!decision.why_faire_not_tester) {
       warnings.push('faire_should_explain_why_tester_is_not_preferable');
     }
-    if (selectedAdjusted !== null && selectedAdjusted !== undefined && Number(selectedAdjusted) < 80) {
+    if (
+      selectedAdjusted !== null &&
+      selectedAdjusted !== undefined &&
+      Number(selectedAdjusted) < 80
+    ) {
       warnings.push('faire_with_adjusted_score_below_80_requires_exception_justification');
     }
   }

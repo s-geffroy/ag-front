@@ -7,7 +7,12 @@ import OpenAI from 'openai';
 import { RedTeamOutput } from '@ag/schema/verdict';
 import type { RedTeamOutput as RedTeamOutputT } from '@ag/schema/verdict';
 import { config } from '../config';
-import { SYSTEM_PROMPT, buildUserPrompt, type RedTeamRole, type VerdictRedTeamContext } from './verdict-prompts';
+import {
+  SYSTEM_PROMPT,
+  buildUserPrompt,
+  type RedTeamRole,
+  type VerdictRedTeamContext,
+} from './verdict-prompts';
 
 export class RedTeamError extends Error {}
 
@@ -73,7 +78,9 @@ function facade(role: RedTeamRole, targetOptionId: string | null): RedTeamOutput
     ],
     overestimations: ['La valeur stratégique peut être surestimée sans preuve directe.'],
     missing_proofs: ['Preuve directe de faisabilité de l’option retenue.'],
-    undervalued_alternatives: ['Une alternative minimale moins coûteuse mérite d’être testée d’abord.'],
+    undervalued_alternatives: [
+      'Une alternative minimale moins coûteuse mérite d’être testée d’abord.',
+    ],
     could_change_recommendation: true,
     reason: 'Sans preuve ≥4, TESTER est préférable à FAIRE.',
     do_not_conclude: [
@@ -102,7 +109,8 @@ export async function runRedTeam(
   ctx: VerdictRedTeamContext,
 ): Promise<RedTeamRunResult> {
   const targetOptionId = ctx.targetOption?.option_id ?? null;
-  if (!llmAvailable()) return { output: facade(role, targetOptionId), usage: null, model: 'facade' };
+  if (!llmAvailable())
+    return { output: facade(role, targetOptionId), usage: null, model: 'facade' };
 
   // Force Node's native fetch (the SDK's bundled shim raises "Premature close" on POST in this runtime).
   const client = new OpenAI({
@@ -148,7 +156,11 @@ export async function runRedTeam(
     throw new RedTeamError('OpenAI returned non-JSON content.');
   }
 
-  const result = RedTeamOutput.safeParse({ ...(parsed as object), role, target_option_id: targetOptionId });
+  const result = RedTeamOutput.safeParse({
+    ...(parsed as object),
+    role,
+    target_option_id: targetOptionId,
+  });
   if (!result.success) {
     throw new RedTeamError(`OpenAI output failed schema validation: ${result.error.message}`);
   }

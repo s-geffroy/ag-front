@@ -11,12 +11,7 @@ export const DecisionVerdict = z.enum(decisionVerdicts);
 export type DecisionVerdict = z.infer<typeof DecisionVerdict>;
 
 // Default verdict suggested by the adjusted score before vetoes (FAIRE_POSSIBLE ≠ FAIRE).
-export const scoreDefaultVerdicts = [
-  'FAIRE_POSSIBLE',
-  'TESTER',
-  'DIFFÉRER',
-  'ABANDONNER',
-] as const;
+export const scoreDefaultVerdicts = ['FAIRE_POSSIBLE', 'TESTER', 'DIFFÉRER', 'ABANDONNER'] as const;
 export const ScoreDefaultVerdict = z.enum(scoreDefaultVerdicts);
 export type ScoreDefaultVerdict = z.infer<typeof ScoreDefaultVerdict>;
 

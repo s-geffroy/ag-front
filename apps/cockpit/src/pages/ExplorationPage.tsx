@@ -195,15 +195,17 @@ function ResourceExplorer() {
   return (
     <div className="space-y-4">
       <p className="text-[11px] text-muted">
-        Proxy interne (token côté serveur) sur toute la surface lecture de l'API chokepoints. Données
-        dérivées = candidats à valider ; peut inclure des enregistrements restreints — usage interne.
+        Proxy interne (token côté serveur) sur toute la surface lecture de l'API chokepoints.
+        Données dérivées = candidats à valider ; peut inclure des enregistrements restreints — usage
+        interne.
       </p>
 
       <form
         className="flex gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          if (q.trim()) run(`search « ${q.trim()} »`, `chokepoints/search?q=${encodeURIComponent(q.trim())}`);
+          if (q.trim())
+            run(`search « ${q.trim()} »`, `chokepoints/search?q=${encodeURIComponent(q.trim())}`);
         }}
       >
         <input
@@ -495,7 +497,11 @@ function CorridorApiPanel({ id }: { id: string }) {
 
   return (
     <div className="space-y-5">
-      <Resource id={id} load={api.getCorridorCvi} absent="CVI : aucune évaluation calculée pour ce corridor.">
+      <Resource
+        id={id}
+        load={api.getCorridorCvi}
+        absent="CVI : aucune évaluation calculée pour ce corridor."
+      >
         {(cvi) => <CviPanel cvi={cvi} />}
       </Resource>
 

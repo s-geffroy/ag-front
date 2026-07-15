@@ -7,3 +7,11 @@ package-lock.json
 
 # Vendored agent tooling (version-matched, not our source).
 .claude/skills/
+
+# Prose éditoriale & docs — rédigés à la main, pas machine-formatés.
+# CI (format:check) cadre volontairement prettier au code source.
+*.md
+
+# Specs API épinglées / historiques — les bytes font foi, synchronisées par script, jamais reformater.
+scripts/consumer/contract/openapi.json
+docs/openapi_*.json

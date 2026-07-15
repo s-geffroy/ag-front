@@ -182,33 +182,33 @@ export function createEntity(caseId: string, input: CaseEntityInput): Row {
   const id = newId();
   tx(() => {
     db()
-    .prepare(
-      `INSERT INTO case_entities
+      .prepare(
+        `INSERT INTO case_entities
          (id, case_id, entity_type, name, country, role, what_it_enables, tier, criticality,
           substitutability, tier2_visibility, jurisdiction_risk, time_to_impact, single_source,
           share_pct, notes)
        VALUES (@id, @case_id, @entity_type, @name, @country, @role, @what_it_enables, @tier,
           @criticality, @substitutability, @tier2_visibility, @jurisdiction_risk, @time_to_impact,
           @single_source, @share_pct, @notes)`,
-    )
-    .run({
-      id,
-      case_id: caseId,
-      entity_type: input.entity_type,
-      name: input.name,
-      country: input.country ?? '',
-      role: input.role ?? '',
-      what_it_enables: input.what_it_enables ?? '',
-      tier: input.tier ?? null,
-      criticality: input.criticality,
-      substitutability: input.substitutability,
-      tier2_visibility: input.tier2_visibility,
-      jurisdiction_risk: input.jurisdiction_risk,
-      time_to_impact: input.time_to_impact,
-      single_source: input.single_source ? 1 : 0,
-      share_pct: input.share_pct ?? null,
-      notes: input.notes ?? '',
-    });
+      )
+      .run({
+        id,
+        case_id: caseId,
+        entity_type: input.entity_type,
+        name: input.name,
+        country: input.country ?? '',
+        role: input.role ?? '',
+        what_it_enables: input.what_it_enables ?? '',
+        tier: input.tier ?? null,
+        criticality: input.criticality,
+        substitutability: input.substitutability,
+        tier2_visibility: input.tier2_visibility,
+        jurisdiction_risk: input.jurisdiction_risk,
+        time_to_impact: input.time_to_impact,
+        single_source: input.single_source ? 1 : 0,
+        share_pct: input.share_pct ?? null,
+        notes: input.notes ?? '',
+      });
     touchCase(caseId);
   });
   return getEntity(id)!;
@@ -260,8 +260,8 @@ export function upsertAnswer(caseId: string, input: InterviewAnswerInput): Row {
   const id = existing?.id ?? newId();
   tx(() => {
     db()
-    .prepare(
-      `INSERT INTO interview_answers
+      .prepare(
+        `INSERT INTO interview_answers
          (id, case_id, question_id, block_id, raw_answer, normalized_answer, answer_type,
           evidence_quality, interviewer_note)
        VALUES (@id, @case_id, @question_id, @block_id, @raw_answer, @normalized_answer, @answer_type,
@@ -270,18 +270,18 @@ export function upsertAnswer(caseId: string, input: InterviewAnswerInput): Row {
          raw_answer=excluded.raw_answer, normalized_answer=excluded.normalized_answer,
          answer_type=excluded.answer_type, evidence_quality=excluded.evidence_quality,
          interviewer_note=excluded.interviewer_note`,
-    )
-    .run({
-      id,
-      case_id: caseId,
-      question_id: input.question_id,
-      block_id: input.block_id,
-      raw_answer: input.raw_answer,
-      normalized_answer: input.normalized_answer ?? null,
-      answer_type: input.answer_type,
-      evidence_quality: input.evidence_quality,
-      interviewer_note: input.interviewer_note ?? null,
-    });
+      )
+      .run({
+        id,
+        case_id: caseId,
+        question_id: input.question_id,
+        block_id: input.block_id,
+        raw_answer: input.raw_answer,
+        normalized_answer: input.normalized_answer ?? null,
+        answer_type: input.answer_type,
+        evidence_quality: input.evidence_quality,
+        interviewer_note: input.interviewer_note ?? null,
+      });
     touchCase(caseId);
   });
   return db().prepare('SELECT * FROM interview_answers WHERE id = ?').get(id) as Row;
@@ -321,9 +321,7 @@ export function getEvidence(id: string): Row | undefined {
 }
 
 export function listEvidenceLinks(caseId: string): Row[] {
-  return db()
-    .prepare('SELECT * FROM evidence_links WHERE case_id = ?')
-    .all(caseId) as Row[];
+  return db().prepare('SELECT * FROM evidence_links WHERE case_id = ?').all(caseId) as Row[];
 }
 
 export function createEvidenceLink(
@@ -415,9 +413,9 @@ export function listPackets(caseId: string): Row[] {
 }
 
 export function validatePacket(id: string, userId: string): Row | undefined {
-  const existing = db()
-    .prepare('SELECT status FROM diagnostic_packets WHERE id=?')
-    .get(id) as { status: string } | undefined;
+  const existing = db().prepare('SELECT status FROM diagnostic_packets WHERE id=?').get(id) as
+    | { status: string }
+    | undefined;
   if (!existing) return undefined;
   // Idempotent: a packet is validated once. Re-POSTing must not overwrite validated_by/validated_at.
   if (existing.status === 'validated') return getPacket(id);

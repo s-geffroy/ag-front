@@ -39,7 +39,8 @@ export const verdictStages: Stage[] = [
     letter: 'D',
     key: 'define',
     title: 'Définir les options décisionnelles',
-    summary: '≥3 options (principale + alternative minimale + opposée/non-action) ; Canvas de viabilité.',
+    summary:
+      '≥3 options (principale + alternative minimale + opposée/non-action) ; Canvas de viabilité.',
     guardrail: 'Alternative minimale et opposée/non-action obligatoires.',
   },
   {
@@ -66,14 +67,45 @@ export const verdictStages: Stage[] = [
 ];
 
 /** The 7 scoring criteria with their FR label, weight and guiding question. */
-export const criterionLabels: Record<CriterionKey, { label: string; question: string; weight: number }> = {
-  strategic_value: { label: 'Valeur stratégique', question: 'L’option améliore-t-elle réellement la situation ?', weight: DEFAULT_WEIGHTS.strategic_value },
-  context_fit: { label: 'Adéquation au contexte', question: 'Résiste-t-elle aux forces externes ?', weight: DEFAULT_WEIGHTS.context_fit },
-  real_capacity: { label: 'Capacité réelle', question: 'Avons-nous vraiment les moyens d’exécuter ?', weight: DEFAULT_WEIGHTS.real_capacity },
-  systemic_viability: { label: 'Viabilité systémique', question: 'Peut-elle fonctionner comme un système réel ?', weight: DEFAULT_WEIGHTS.systemic_viability },
-  net_risk: { label: 'Risque net', question: 'Le risque est-il acceptable au regard du gain ?', weight: DEFAULT_WEIGHTS.net_risk },
-  proof_level: { label: 'Niveau de preuve', question: 'Repose-t-elle sur des preuves solides ?', weight: DEFAULT_WEIGHTS.proof_level },
-  optionality: { label: 'Optionalité', question: 'Ouvre-t-elle plus de portes qu’elle n’en ferme ?', weight: DEFAULT_WEIGHTS.optionality },
+export const criterionLabels: Record<
+  CriterionKey,
+  { label: string; question: string; weight: number }
+> = {
+  strategic_value: {
+    label: 'Valeur stratégique',
+    question: 'L’option améliore-t-elle réellement la situation ?',
+    weight: DEFAULT_WEIGHTS.strategic_value,
+  },
+  context_fit: {
+    label: 'Adéquation au contexte',
+    question: 'Résiste-t-elle aux forces externes ?',
+    weight: DEFAULT_WEIGHTS.context_fit,
+  },
+  real_capacity: {
+    label: 'Capacité réelle',
+    question: 'Avons-nous vraiment les moyens d’exécuter ?',
+    weight: DEFAULT_WEIGHTS.real_capacity,
+  },
+  systemic_viability: {
+    label: 'Viabilité systémique',
+    question: 'Peut-elle fonctionner comme un système réel ?',
+    weight: DEFAULT_WEIGHTS.systemic_viability,
+  },
+  net_risk: {
+    label: 'Risque net',
+    question: 'Le risque est-il acceptable au regard du gain ?',
+    weight: DEFAULT_WEIGHTS.net_risk,
+  },
+  proof_level: {
+    label: 'Niveau de preuve',
+    question: 'Repose-t-elle sur des preuves solides ?',
+    weight: DEFAULT_WEIGHTS.proof_level,
+  },
+  optionality: {
+    label: 'Optionalité',
+    question: 'Ouvre-t-elle plus de portes qu’elle n’en ferme ?',
+    weight: DEFAULT_WEIGHTS.optionality,
+  },
 };
 
 /** Proof-level scale 0–5. */
@@ -87,9 +119,28 @@ export const proofLevels: { level: number; label: string }[] = [
 ];
 
 /** The four operational verdicts. */
-export const verdictLabels: Record<DecisionVerdict, { label: string; description: string; scoreBand: string }> = {
-  FAIRE: { label: 'Faire', description: 'Engager — preuve ≥4, pas de veto, validation humaine.', scoreBand: '≥ 80' },
-  TESTER: { label: 'Tester', description: 'Lancer un test de vérité falsifiable qui peut tuer l’option.', scoreBand: '60–79' },
-  'DIFFÉRER': { label: 'Différer', description: 'Attendre un signal de réouverture ; revoir à date fixée.', scoreBand: '40–59' },
-  ABANDONNER: { label: 'Abandonner', description: 'Renoncer ; définir la disposition (archiver/transformer).', scoreBand: '0–39' },
+export const verdictLabels: Record<
+  DecisionVerdict,
+  { label: string; description: string; scoreBand: string }
+> = {
+  FAIRE: {
+    label: 'Faire',
+    description: 'Engager — preuve ≥4, pas de veto, validation humaine.',
+    scoreBand: '≥ 80',
+  },
+  TESTER: {
+    label: 'Tester',
+    description: 'Lancer un test de vérité falsifiable qui peut tuer l’option.',
+    scoreBand: '60–79',
+  },
+  DIFFÉRER: {
+    label: 'Différer',
+    description: 'Attendre un signal de réouverture ; revoir à date fixée.',
+    scoreBand: '40–59',
+  },
+  ABANDONNER: {
+    label: 'Abandonner',
+    description: 'Renoncer ; définir la disposition (archiver/transformer).',
+    scoreBand: '0–39',
+  },
 };

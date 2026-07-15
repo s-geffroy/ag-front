@@ -6,7 +6,12 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { config } from '../config';
 import {
-  getDecision, listOptions, listScores, listPestel, listSwot, latestAudit,
+  getDecision,
+  listOptions,
+  listScores,
+  listPestel,
+  listSwot,
+  latestAudit,
 } from '../db/repo';
 
 const MARKDOWN_TEMPLATES = ['decision.fr.md.j2', 'decision.en.md.j2'] as const;

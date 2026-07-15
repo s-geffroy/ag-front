@@ -809,7 +809,11 @@ function CandidateRow({
   k: { id: string; canonical_name: string; family?: string };
 }) {
   const [open, setOpen] = useState(false);
-  const { data: evidence, isFetching, isError } = useQuery({
+  const {
+    data: evidence,
+    isFetching,
+    isError,
+  } = useQuery({
     queryKey: ['corridor-evidence', caseId, k.id],
     enabled: open,
     queryFn: () =>
@@ -817,7 +821,12 @@ function CandidateRow({
         available: boolean;
         note: string;
         actors: { name: string; actor_type?: string; control_type?: string; basis?: string }[];
-        event_signals: { domain?: string; weight?: number; observed_on?: string; event_key?: string }[];
+        event_signals: {
+          domain?: string;
+          weight?: number;
+          observed_on?: string;
+          event_key?: string;
+        }[];
         perception: {
           count: number;
           families: {

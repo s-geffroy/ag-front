@@ -13,14 +13,37 @@ function packet(overrides: Partial<PacketPayload> = {}): PacketPayload {
     primary_diagnosis: 'hidden_second_tier_dependency',
     matched_verdict_rules: [],
     scores: [
-      { dimension_id: 'hidden_dependency_score', value: 4, confidence: 'medium', rationale: 'tier-2 invisible', evidence_refs: [], open_uncertainties: [] },
-      { dimension_id: 'evidence_quality_score', value: 2, confidence: 'low', rationale: 'peu de preuves', evidence_refs: [], open_uncertainties: [] },
+      {
+        dimension_id: 'hidden_dependency_score',
+        value: 4,
+        confidence: 'medium',
+        rationale: 'tier-2 invisible',
+        evidence_refs: [],
+        open_uncertainties: [],
+      },
+      {
+        dimension_id: 'evidence_quality_score',
+        value: 2,
+        confidence: 'low',
+        rationale: 'peu de preuves',
+        evidence_refs: [],
+        open_uncertainties: [],
+      },
     ],
-    activated_patterns: [{ id: 'hidden_second_tier_dependency', label_fr: 'Dépendance cachée de rang 2' }],
+    activated_patterns: [
+      { id: 'hidden_second_tier_dependency', label_fr: 'Dépendance cachée de rang 2' },
+    ],
     red_flags: [{ id: 'tier2_unknown', severity: 4, message: 'Tier-2 inconnu' }],
     open_uncertainties: [],
     light_actions: [
-      { priority: 1, action: 'Cartographier les fournisseurs tier-2', purpose: 'Lever l’angle mort', owner_category: 'achats', suggested_delay: '30j', linked_risk: 'rupture' },
+      {
+        priority: 1,
+        action: 'Cartographier les fournisseurs tier-2',
+        purpose: 'Lever l’angle mort',
+        owner_category: 'achats',
+        suggested_delay: '30j',
+        linked_risk: 'rupture',
+      },
     ],
     matrix_rows: [],
     cvi: { flow_criticality_score: 4, vulnerability_level: 'élevé', note: 'corridor critique' },
@@ -45,21 +68,29 @@ describe('buildCandidates — geopolitical pre-fill', () => {
     const r = buildCandidates({ packet: packet() });
     const weaknesses = r.swot.filter((s) => s.quadrant === 'weakness');
     expect(weaknesses.some((w) => w.source_ref === 'hdde:red_flag:tier2_unknown')).toBe(true);
-    expect(weaknesses.some((w) => w.source_ref === 'hdde:score:hidden_dependency_score')).toBe(true);
+    expect(weaknesses.some((w) => w.source_ref === 'hdde:score:hidden_dependency_score')).toBe(
+      true,
+    );
     expect(weaknesses.some((w) => w.source_ref === 'hdde:concentration:single_source')).toBe(true);
   });
 
   it('maps activated patterns and concentration to SWOT threats', () => {
     const r = buildCandidates({ packet: packet() });
     const threats = r.swot.filter((s) => s.quadrant === 'threat');
-    expect(threats.some((t) => t.source_ref === 'hdde:pattern:hidden_second_tier_dependency')).toBe(true);
-    expect(threats.some((t) => t.source_ref === 'hdde:concentration:customer_top_share')).toBe(true);
+    expect(threats.some((t) => t.source_ref === 'hdde:pattern:hidden_second_tier_dependency')).toBe(
+      true,
+    );
+    expect(threats.some((t) => t.source_ref === 'hdde:concentration:customer_top_share')).toBe(
+      true,
+    );
     expect(threats.some((t) => t.source_ref === 'hdde:concentration:supplier_country')).toBe(true);
   });
 
   it('turns light actions into opportunities AND option seeds', () => {
     const r = buildCandidates({ packet: packet() });
-    expect(r.swot.some((s) => s.quadrant === 'opportunity' && s.source_ref === 'hdde:light_action:1')).toBe(true);
+    expect(
+      r.swot.some((s) => s.quadrant === 'opportunity' && s.source_ref === 'hdde:light_action:1'),
+    ).toBe(true);
     expect(r.options).toHaveLength(1);
     expect(r.options[0].title).toBe('Cartographier les fournisseurs tier-2');
     expect(r.options[0].status).toBe('candidate');
@@ -70,9 +101,19 @@ describe('buildCandidates — geopolitical pre-fill', () => {
       packet: packet(),
       chokepoints: [{ id: 'suez', name: 'Canal de Suez', note: 'tensions Mer Rouge' }],
     });
-    expect(r.pestel.some((p) => p.category === 'political' && p.source_ref === 'hdde:concentration:supplier_country')).toBe(true);
-    expect(r.pestel.some((p) => p.category === 'economic' && p.source_ref === 'hdde:cvi:flow_criticality')).toBe(true);
-    expect(r.pestel.some((p) => p.category === 'political' && p.source_ref === 'chokepoint:suez')).toBe(true);
+    expect(
+      r.pestel.some(
+        (p) => p.category === 'political' && p.source_ref === 'hdde:concentration:supplier_country',
+      ),
+    ).toBe(true);
+    expect(
+      r.pestel.some(
+        (p) => p.category === 'economic' && p.source_ref === 'hdde:cvi:flow_criticality',
+      ),
+    ).toBe(true);
+    expect(
+      r.pestel.some((p) => p.category === 'political' && p.source_ref === 'chokepoint:suez'),
+    ).toBe(true);
   });
 
   it('adds CVI threat dimensions when scored ≥3', () => {
@@ -324,14 +365,22 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
               key: 'weaponizability',
               columns: [],
               rows: [
-                { leverage_score: 0.0962, top_actor_id: 'actor_state_iran', substitution_factor: 0.8 },
+                {
+                  leverage_score: 0.0962,
+                  top_actor_id: 'actor_state_iran',
+                  substitution_factor: 0.8,
+                },
               ],
             },
             {
               key: 'exposed_trade_loss',
               columns: [],
               rows: [
-                { exposed_value_usd: 2_000_000_000, expected_value_at_risk_usd: 300_000_000, closure_days: 30 },
+                {
+                  exposed_value_usd: 2_000_000_000,
+                  expected_value_at_risk_usd: 300_000_000,
+                  closure_days: 30,
+                },
               ],
             },
             {
@@ -342,7 +391,14 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
             {
               key: 'control_concentration',
               columns: [],
-              rows: [{ hhi: 0.5102, actor_count: 2, top_actor_id: 'actor_state_iran', top_actor_share: 0.5714 }],
+              rows: [
+                {
+                  hhi: 0.5102,
+                  actor_count: 2,
+                  top_actor_id: 'actor_state_iran',
+                  top_actor_share: 0.5714,
+                },
+              ],
             },
             // Not a decision engine → no candidate at all.
             { key: 'evidence_quality', columns: [], rows: [{ score: 3 }] },
@@ -358,7 +414,9 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
     expect(stmts).toContain('Contrôle concentré');
     expect(stmts).toMatch(/Valeur commerciale exposée/);
     expect(r.swot.some((s) => s.source_ref?.startsWith('analysis:evidence_quality'))).toBe(false);
-    expect(r.swot.filter((s) => s.source_kind === 'analysis').every((s) => s.status === 'candidate')).toBe(true);
+    expect(
+      r.swot.filter((s) => s.source_kind === 'analysis').every((s) => s.status === 'candidate'),
+    ).toBe(true);
   });
 
   it('emits nothing for a zero score — "not weaponizable" is an answer, not a threat', () => {
@@ -367,8 +425,16 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
         corridor_analysis: {
           engines: [
             // Panama's real row: leverage 0, and a non-articulation centrality row.
-            { key: 'weaponizability', columns: [], rows: [{ leverage_score: 0, top_actor_id: 'acp' }] },
-            { key: 'network_centrality', columns: [], rows: [{ articulation_point: false, betweenness: 0 }] },
+            {
+              key: 'weaponizability',
+              columns: [],
+              rows: [{ leverage_score: 0, top_actor_id: 'acp' }],
+            },
+            {
+              key: 'network_centrality',
+              columns: [],
+              rows: [{ articulation_point: false, betweenness: 0 }],
+            },
             { key: 'control_concentration', columns: [], rows: [{ hhi: 0.1, actor_count: 9 }] },
           ],
         },
@@ -394,7 +460,9 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
         },
       }),
     } satisfies PrefillInput);
-    const gap = r.swot.find((s) => s.source_ref === 'relation:dependency:autres_hubs_pacifique_nord');
+    const gap = r.swot.find(
+      (s) => s.source_ref === 'relation:dependency:autres_hubs_pacifique_nord',
+    );
     expect(gap?.statement).toContain('hors corpus');
     expect(gap?.source_kind).toBe('relation');
     const inCorpus = r.swot.find((s) => s.source_ref === 'relation:alternative_route:p0_suez');
@@ -404,7 +472,12 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
   it('carries the GLOBAL ENA regime as systemic context, never as a corridor score', () => {
     const r = buildCandidates({
       packet: packet({
-        system_resilience: { scope: 'GLOBAL', regime: 'brittle', robustness: 0.2965, node_count: 165 },
+        system_resilience: {
+          scope: 'GLOBAL',
+          regime: 'brittle',
+          robustness: 0.2965,
+          node_count: 165,
+        },
       }),
     } satisfies PrefillInput);
     const p = r.pestel.find((x) => x.source_kind === 'system_resilience');

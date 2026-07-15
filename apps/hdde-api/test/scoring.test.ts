@@ -78,9 +78,24 @@ describe('scoring engine (pack-driven)', () => {
   // --- Divergence model proofs (ADR 0040): "hidden" = declared-vs-proven gap, not a relabel. ---
   it('flags a HIGH hidden dependency when the client is overconfident (claims replaceable, unproven, blind)', () => {
     const overconfident: EngineAnswer[] = [
-      { question_id: 'critical_actor_replaceability_30d', raw_answer: 'Oui, remplaçable', normalized_answer: 'yes', evidence_quality: 1 },
-      { question_id: 'dependency_breaks_first', raw_answer: 'production', normalized_answer: 'production', evidence_quality: 1 },
-      { question_id: 'hidden_tier2_visibility', raw_answer: 'Aucune visibilité', normalized_answer: 'no', evidence_quality: 1 },
+      {
+        question_id: 'critical_actor_replaceability_30d',
+        raw_answer: 'Oui, remplaçable',
+        normalized_answer: 'yes',
+        evidence_quality: 1,
+      },
+      {
+        question_id: 'dependency_breaks_first',
+        raw_answer: 'production',
+        normalized_answer: 'production',
+        evidence_quality: 1,
+      },
+      {
+        question_id: 'hidden_tier2_visibility',
+        raw_answer: 'Aucune visibilité',
+        normalized_answer: 'no',
+        evidence_quality: 1,
+      },
     ];
     const core = buildDiagnostic(pack, overconfident);
     const hidden = core.scores.find((s) => s.dimension_id === 'hidden_dependency_score')!;
@@ -92,10 +107,29 @@ describe('scoring engine (pack-driven)', () => {
 
   it('keeps hidden dependency LOW when an equally-critical dependency is proven and visible', () => {
     const knownProven: EngineAnswer[] = [
-      { question_id: 'critical_actor_replaceability_30d', raw_answer: 'Oui', normalized_answer: 'yes', evidence_quality: 5 },
-      { question_id: 'substitution_real_test_proof', raw_answer: 'Bascule testée en conditions réelles en 2025.', evidence_quality: 5 },
-      { question_id: 'dependency_breaks_first', raw_answer: 'production', normalized_answer: 'production', evidence_quality: 5 },
-      { question_id: 'hidden_tier2_visibility', raw_answer: 'Cartographie complète', normalized_answer: 'yes', evidence_quality: 5 },
+      {
+        question_id: 'critical_actor_replaceability_30d',
+        raw_answer: 'Oui',
+        normalized_answer: 'yes',
+        evidence_quality: 5,
+      },
+      {
+        question_id: 'substitution_real_test_proof',
+        raw_answer: 'Bascule testée en conditions réelles en 2025.',
+        evidence_quality: 5,
+      },
+      {
+        question_id: 'dependency_breaks_first',
+        raw_answer: 'production',
+        normalized_answer: 'production',
+        evidence_quality: 5,
+      },
+      {
+        question_id: 'hidden_tier2_visibility',
+        raw_answer: 'Cartographie complète',
+        normalized_answer: 'yes',
+        evidence_quality: 5,
+      },
     ];
     const core = buildDiagnostic(pack, knownProven);
     const flow = core.scores.find((s) => s.dimension_id === 'flow_criticality_score')!;
@@ -106,21 +140,43 @@ describe('scoring engine (pack-driven)', () => {
 
   it('wires linked evidence into scores: raises confidence and reduces the divergence', () => {
     const overconfident: EngineAnswer[] = [
-      { question_id: 'critical_actor_replaceability_30d', raw_answer: 'Oui', normalized_answer: 'yes', evidence_quality: 1 },
-      { question_id: 'dependency_breaks_first', raw_answer: 'production', normalized_answer: 'production', evidence_quality: 1 },
-      { question_id: 'hidden_tier2_visibility', raw_answer: 'Aucune', normalized_answer: 'no', evidence_quality: 1 },
+      {
+        question_id: 'critical_actor_replaceability_30d',
+        raw_answer: 'Oui',
+        normalized_answer: 'yes',
+        evidence_quality: 1,
+      },
+      {
+        question_id: 'dependency_breaks_first',
+        raw_answer: 'production',
+        normalized_answer: 'production',
+        evidence_quality: 1,
+      },
+      {
+        question_id: 'hidden_tier2_visibility',
+        raw_answer: 'Aucune',
+        normalized_answer: 'no',
+        evidence_quality: 1,
+      },
     ];
     const baseline = buildDiagnostic(pack, overconfident);
-    const withEvidence = buildDiagnostic(pack, overconfident, {}, {
-      substitution_weakness_score: [{ id: 'ev1', reliability: 5, status: 'accepted' }],
-    });
+    const withEvidence = buildDiagnostic(
+      pack,
+      overconfident,
+      {},
+      {
+        substitution_weakness_score: [{ id: 'ev1', reliability: 5, status: 'accepted' }],
+      },
+    );
 
     const sEv = withEvidence.scores.find((s) => s.dimension_id === 'substitution_weakness_score')!;
     expect(sEv.evidence_refs).toContain('ev1'); // linking proof now populates evidence_refs
     expect(sEv.confidence).toBe('high'); // ...and lifts dimension confidence
 
     const hBase = baseline.scores.find((s) => s.dimension_id === 'hidden_dependency_score')!.value;
-    const hEv = withEvidence.scores.find((s) => s.dimension_id === 'hidden_dependency_score')!.value;
+    const hEv = withEvidence.scores.find(
+      (s) => s.dimension_id === 'hidden_dependency_score',
+    )!.value;
     expect(hEv).toBeLessThan(hBase); // documented dependency is LESS hidden (blind spot shrinks)
   });
 

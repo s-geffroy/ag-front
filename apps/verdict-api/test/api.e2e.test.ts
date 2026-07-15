@@ -87,8 +87,18 @@ describe('VERDICT API — full decision workflow', () => {
   it('adds the three mandatory options', async () => {
     const opts = [
       { option_id: 'opt_main', type: 'main', title: 'Rerouter', proof_level: 3 },
-      { option_id: 'opt_minimal', type: 'minimal_alternative', title: 'Tester un fournisseur alterne', proof_level: 4 },
-      { option_id: 'opt_opposite', type: 'opposite', title: 'Ne rien changer, surveiller', proof_level: 3 },
+      {
+        option_id: 'opt_minimal',
+        type: 'minimal_alternative',
+        title: 'Tester un fournisseur alterne',
+        proof_level: 4,
+      },
+      {
+        option_id: 'opt_opposite',
+        type: 'opposite',
+        title: 'Ne rien changer, surveiller',
+        proof_level: 3,
+      },
     ];
     for (const o of opts) {
       const res = await api('PUT', `/api/decisions/${decisionId}/options`, {
@@ -103,13 +113,39 @@ describe('VERDICT API — full decision workflow', () => {
 
   it('scores each option (raw computed server-side)', async () => {
     const scores = {
-      opt_main: { strategic_value: 4, context_fit: 3, real_capacity: 3, systemic_viability: 3, net_risk: 3, proof_level: 3, optionality: 3 },
-      opt_minimal: { strategic_value: 4, context_fit: 4, real_capacity: 4, systemic_viability: 3, net_risk: 4, proof_level: 4, optionality: 4 },
-      opt_opposite: { strategic_value: 2, context_fit: 3, real_capacity: 5, systemic_viability: 3, net_risk: 4, proof_level: 3, optionality: 4 },
+      opt_main: {
+        strategic_value: 4,
+        context_fit: 3,
+        real_capacity: 3,
+        systemic_viability: 3,
+        net_risk: 3,
+        proof_level: 3,
+        optionality: 3,
+      },
+      opt_minimal: {
+        strategic_value: 4,
+        context_fit: 4,
+        real_capacity: 4,
+        systemic_viability: 3,
+        net_risk: 4,
+        proof_level: 4,
+        optionality: 4,
+      },
+      opt_opposite: {
+        strategic_value: 2,
+        context_fit: 3,
+        real_capacity: 5,
+        systemic_viability: 3,
+        net_risk: 4,
+        proof_level: 3,
+        optionality: 4,
+      },
     };
     const expected: Record<string, number> = { opt_main: 64, opt_minimal: 77, opt_opposite: 67 };
     for (const [oid, criteria] of Object.entries(scores)) {
-      const res = await api('PUT', `/api/decisions/${decisionId}/options/${oid}/score`, { criteria });
+      const res = await api('PUT', `/api/decisions/${decisionId}/options/${oid}/score`, {
+        criteria,
+      });
       expect(res.status).toBe(200);
       expect((await jsonOf(res)).raw_score).toBe(expected[oid]);
     }
@@ -172,7 +208,9 @@ describe('VERDICT API — full decision workflow', () => {
     const res = await api('POST', `/api/decisions/${decisionId}/audit`, {});
     const audit = await jsonOf(res);
     expect(audit.audit_status).toBe('BLOQUÉ');
-    expect(audit.blocking_errors).toContain('faire_forbidden_when_selected_option_proof_level_below_4');
+    expect(audit.blocking_errors).toContain(
+      'faire_forbidden_when_selected_option_proof_level_below_4',
+    );
   });
 
   it('returns the full decision bundle', async () => {
@@ -188,7 +226,9 @@ describe('VERDICT API — full decision workflow', () => {
 
   let suggestionId = '';
   it('runs the red team (offline facade) and stores a pending suggestion', async () => {
-    const res = await api('POST', `/api/decisions/${decisionId}/red-team/run`, { role: 'red_team_option' });
+    const res = await api('POST', `/api/decisions/${decisionId}/red-team/run`, {
+      role: 'red_team_option',
+    });
     expect(res.status).toBe(201);
     const s = await jsonOf(res);
     expect(s.model).toBe('facade'); // LLM disabled in tests
@@ -199,7 +239,9 @@ describe('VERDICT API — full decision workflow', () => {
   });
 
   it('lets the analyst accept the suggestion', async () => {
-    const res = await api('PATCH', `/api/decisions/${decisionId}/red-team/${suggestionId}`, { status: 'accepted' });
+    const res = await api('PATCH', `/api/decisions/${decisionId}/red-team/${suggestionId}`, {
+      status: 'accepted',
+    });
     expect(res.status).toBe(200);
     expect((await jsonOf(res)).status).toBe('accepted');
   });

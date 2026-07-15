@@ -209,7 +209,8 @@ export const api = {
     fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/perception-signals`).then(
       asJson<PerceptionSignalList>,
     ),
-  getStrategicFlows: () => fetch('/api/explore/strategic-flows').then(asJson<StrategicFlowUnitList>),
+  getStrategicFlows: () =>
+    fetch('/api/explore/strategic-flows').then(asJson<StrategicFlowUnitList>),
   getStrategicFlowFiche: (id: string) =>
     fetch(`/api/explore/strategic-flows/${encodeURIComponent(id)}/fiche`).then(asJson<SfuFicheOut>),
   getStrategicFlowVerdict: (id: string) =>

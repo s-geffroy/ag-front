@@ -94,7 +94,12 @@ describe('provenance survives validation', () => {
         source_refs: ['eia_world_oil_transit_chokepoints', 'acp_annual_report'],
         uncertainties: ['transhipment excluded'],
       },
-      menace: { score: 1, rationale: 'Low observed threat.', confidence: 'bas', source_refs: ['gdelt'] },
+      menace: {
+        score: 1,
+        rationale: 'Low observed threat.',
+        confidence: 'bas',
+        source_refs: ['gdelt'],
+      },
     },
     sources: ['eia_world_oil_transit_chokepoints'],
     uncertainties: ['schematic capacities'],

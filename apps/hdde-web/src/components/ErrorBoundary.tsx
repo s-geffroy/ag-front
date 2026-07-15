@@ -25,8 +25,8 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
       <div role="alert" style={{ maxWidth: 640, margin: '4rem auto', padding: '1.5rem' }}>
         <h1>Une erreur est survenue</h1>
         <p>
-          L’affichage a rencontré un problème inattendu. Vos données ne sont pas perdues — rechargez la
-          page pour reprendre.
+          L’affichage a rencontré un problème inattendu. Vos données ne sont pas perdues — rechargez
+          la page pour reprendre.
         </p>
         <button type="button" onClick={() => window.location.reload()}>
           Recharger

@@ -12,9 +12,8 @@ let deriveFlowVulnerability: (typeof import('../server/integrations/cvi'))['deri
 let fetchCorridorCvi: (typeof import('../server/integrations/cvi'))['fetchCorridorCvi'];
 
 beforeAll(async () => {
-  ({ suggestChokepoints, fetchCorridorEvidence, fetchCorridorContext } = await import(
-    '../server/integrations/chokepoints'
-  ));
+  ({ suggestChokepoints, fetchCorridorEvidence, fetchCorridorContext } =
+    await import('../server/integrations/chokepoints'));
   ({ deriveFlowVulnerability, fetchCorridorCvi } = await import('../server/integrations/cvi'));
 });
 
@@ -84,8 +83,20 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
     routeFetch({
       '/actors': () =>
         json([
-          { actor_id: 'a1', chokepoint_id: 'p0_x', actor_name: 'Marine X', control_type: 'physical', license_taint: false },
-          { actor_id: 'a2', chokepoint_id: 'p0_x', actor_name: 'Restricted', control_type: 'legal', license_taint: true },
+          {
+            actor_id: 'a1',
+            chokepoint_id: 'p0_x',
+            actor_name: 'Marine X',
+            control_type: 'physical',
+            license_taint: false,
+          },
+          {
+            actor_id: 'a2',
+            chokepoint_id: 'p0_x',
+            actor_name: 'Restricted',
+            control_type: 'legal',
+            license_taint: true,
+          },
         ]),
       '/event-signals': () =>
         json([{ chokepoint_id: 'p0_x', domain: 'security', weight: 0.8, event_key: 'e1' }]),
@@ -122,8 +133,16 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
               key: 'prediction_consensus',
               columns: ['signal_family', 'market_count', 'consensus_probability'],
               rows: [
-                { signal_family: 'disruption_expectation', market_count: 29, consensus_probability: 0.017 },
-                { signal_family: 'regime_change_expectation', market_count: 2, consensus_probability: 0.19 },
+                {
+                  signal_family: 'disruption_expectation',
+                  market_count: 29,
+                  consensus_probability: 0.017,
+                },
+                {
+                  signal_family: 'regime_change_expectation',
+                  market_count: 2,
+                  consensus_probability: 0.19,
+                },
               ],
             },
           ],
@@ -158,7 +177,9 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
 
   it('a 404 degrades quietly — an absent record is not a defect', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response('nope', { status: 404 }));
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async () => new Response('nope', { status: 404 }),
+    );
     const ev = await fetchCorridorEvidence('p0_missing');
     expect(ev.available).toBe(false);
     expect(spy).not.toHaveBeenCalled();
@@ -178,14 +199,25 @@ describe('fetchCorridorContext — episodes + analytics for the VERDICT packet (
   it('keeps only episodes whose (non-tainted) members include the corridor + maps analytics', async () => {
     routeFetch({
       '/analytics/results': () =>
-        json([{ id: 'r1', object_id: 'p0_x', result_type: 'criticality_score', score: 0.9, result_summary: 'flux critique' }]),
+        json([
+          {
+            id: 'r1',
+            object_id: 'p0_x',
+            result_type: 'criticality_score',
+            score: 0.9,
+            result_summary: 'flux critique',
+          },
+        ]),
       // getEpisode(:key) — matched before the list route by longer path; return per-key details.
       '/episodes/ep_match': () =>
         json({ episode_key: 'ep_match', name: 'Crise', members: [{ chokepoint_id: 'p0_x' }] }),
       '/episodes/ep_other': () =>
         json({ episode_key: 'ep_other', name: 'Autre', members: [{ chokepoint_id: 'p0_y' }] }),
       '/episodes': () =>
-        json([{ episode_key: 'ep_match', name: 'Crise' }, { episode_key: 'ep_other', name: 'Autre' }]),
+        json([
+          { episode_key: 'ep_match', name: 'Crise' },
+          { episode_key: 'ep_other', name: 'Autre' },
+        ]),
     });
     const ctx = await fetchCorridorContext('p0_x');
     expect(ctx.available).toBe(true);
@@ -211,9 +243,7 @@ describe('CVI enrichment (local, candidate only)', () => {
 describe('fetchCorridorCvi — remote CVI prefill guard (ADR 0035)', () => {
   it('returns null when the endpoint 404s (not yet shipped) — graceful degradation', async () => {
     // /chokepoints/{id}/cvi-assessment is not in the v0.2.0 contract yet; a 404 must NOT throw.
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('not found', { status: 404 }),
-    );
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('not found', { status: 404 }));
     expect(await fetchCorridorCvi('p0_ormuz')).toBeNull();
   });
 

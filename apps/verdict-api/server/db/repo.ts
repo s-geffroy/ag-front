@@ -83,7 +83,14 @@ export function createDecision(ownerId: string, input: DecisionInput): Row {
       `INSERT INTO decisions (id, owner_id, title, client_name, sector, situation)
        VALUES (?, ?, ?, ?, ?, ?)`,
     )
-    .run(id, ownerId, input.title, input.client_name ?? null, input.sector ?? '', input.situation ?? '');
+    .run(
+      id,
+      ownerId,
+      input.title,
+      input.client_name ?? null,
+      input.sector ?? '',
+      input.situation ?? '',
+    );
   return getDecision(id)!;
 }
 
@@ -101,18 +108,40 @@ export function listDecisions(ownerId: string, isAdmin: boolean): Row[] {
 
 // Whitelisted patchable columns (string/JSON/flag). JSON fields are passed as already-serialised TEXT.
 const DECISION_COLUMNS = new Set([
-  'title', 'client_name', 'sector', 'status', 'situation', 'proposed_verdict', 'final_verdict',
-  'selected_option_id', 'confidence', 'stop_threshold', 'review_date', 'human_validation',
-  'why_faire_not_tester', 'defer_reason', 'reopening_signal', 'abandonment_disposition',
-  'truth_test_json', 'weight_profile_json', 'red_flags_json', 'graph_json', 'hdde_case_ref',
-  'source_packet_id', 'source_pack_hash', 'ingested_at', 'cvi_json',
+  'title',
+  'client_name',
+  'sector',
+  'status',
+  'situation',
+  'proposed_verdict',
+  'final_verdict',
+  'selected_option_id',
+  'confidence',
+  'stop_threshold',
+  'review_date',
+  'human_validation',
+  'why_faire_not_tester',
+  'defer_reason',
+  'reopening_signal',
+  'abandonment_disposition',
+  'truth_test_json',
+  'weight_profile_json',
+  'red_flags_json',
+  'graph_json',
+  'hdde_case_ref',
+  'source_packet_id',
+  'source_pack_hash',
+  'ingested_at',
+  'cvi_json',
 ]);
 
 export function patchDecision(id: string, patch: Record<string, unknown>): Row | undefined {
   const entries = Object.entries(patch).filter(([k]) => DECISION_COLUMNS.has(k));
   if (entries.length === 0) return getDecision(id);
   const sets = entries.map(([k]) => `${k} = ?`).join(', ');
-  const values = entries.map(([, v]) => (typeof v === 'boolean' ? (v ? 1 : 0) : (v as unknown as string)));
+  const values = entries.map(([, v]) =>
+    typeof v === 'boolean' ? (v ? 1 : 0) : (v as unknown as string),
+  );
   db()
     .prepare(`UPDATE decisions SET ${sets}, updated_at = datetime('now') WHERE id = ?`)
     .run(...values, id);
@@ -227,7 +256,9 @@ export function upsertScore(decisionId: string, input: ScoreInput): Row {
 }
 
 export function listScores(decisionId: string): Row[] {
-  return db().prepare('SELECT * FROM decision_scores WHERE decision_id = ?').all(decisionId) as Row[];
+  return db()
+    .prepare('SELECT * FROM decision_scores WHERE decision_id = ?')
+    .all(decisionId) as Row[];
 }
 
 // ---------------------------------------------------------------- PESTEL + SWOT (candidate rows)
@@ -249,15 +280,25 @@ export function createPestel(decisionId: string, input: PestelInput): Row {
          (id, decision_id, category, statement, decisional_impact, uncertainty, source_kind, source_ref, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
-    .run(id, decisionId, input.category, input.statement, input.decisional_impact ?? '',
-      input.uncertainty ?? '', input.source_kind ?? 'manual', input.source_ref ?? null,
-      input.status ?? 'candidate');
+    .run(
+      id,
+      decisionId,
+      input.category,
+      input.statement,
+      input.decisional_impact ?? '',
+      input.uncertainty ?? '',
+      input.source_kind ?? 'manual',
+      input.source_ref ?? null,
+      input.status ?? 'candidate',
+    );
   touchDecision(decisionId);
   return db().prepare('SELECT * FROM pestel_factors WHERE id = ?').get(id) as Row;
 }
 
 export function listPestel(decisionId: string): Row[] {
-  return db().prepare('SELECT * FROM pestel_factors WHERE decision_id = ? ORDER BY created_at').all(decisionId) as Row[];
+  return db()
+    .prepare('SELECT * FROM pestel_factors WHERE decision_id = ? ORDER BY created_at')
+    .all(decisionId) as Row[];
 }
 
 export interface SwotInput {
@@ -277,18 +318,33 @@ export function createSwot(decisionId: string, input: SwotInput): Row {
          (id, decision_id, quadrant, statement, is_hypothesis, source_kind, source_ref, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     )
-    .run(id, decisionId, input.quadrant, input.statement, input.is_hypothesis ? 1 : 0,
-      input.source_kind ?? 'manual', input.source_ref ?? null, input.status ?? 'candidate');
+    .run(
+      id,
+      decisionId,
+      input.quadrant,
+      input.statement,
+      input.is_hypothesis ? 1 : 0,
+      input.source_kind ?? 'manual',
+      input.source_ref ?? null,
+      input.status ?? 'candidate',
+    );
   touchDecision(decisionId);
   return db().prepare('SELECT * FROM swot_items WHERE id = ?').get(id) as Row;
 }
 
 export function listSwot(decisionId: string): Row[] {
-  return db().prepare('SELECT * FROM swot_items WHERE decision_id = ? ORDER BY created_at').all(decisionId) as Row[];
+  return db()
+    .prepare('SELECT * FROM swot_items WHERE decision_id = ? ORDER BY created_at')
+    .all(decisionId) as Row[];
 }
 
 /** Flip the candidate status of a pestel/swot row (validate/reject). Returns the updated row. */
-export function setItemStatus(table: 'pestel_factors' | 'swot_items', decisionId: string, itemId: string, status: string): Row | undefined {
+export function setItemStatus(
+  table: 'pestel_factors' | 'swot_items',
+  decisionId: string,
+  itemId: string,
+  status: string,
+): Row | undefined {
   const res = db()
     .prepare(`UPDATE ${table} SET status = ? WHERE id = ? AND decision_id = ?`)
     .run(status, itemId, decisionId);
@@ -297,8 +353,14 @@ export function setItemStatus(table: 'pestel_factors' | 'swot_items', decisionId
   return db().prepare(`SELECT * FROM ${table} WHERE id = ?`).get(itemId) as Row;
 }
 
-export function deleteItem(table: 'pestel_factors' | 'swot_items', decisionId: string, itemId: string): boolean {
-  const res = db().prepare(`DELETE FROM ${table} WHERE id = ? AND decision_id = ?`).run(itemId, decisionId);
+export function deleteItem(
+  table: 'pestel_factors' | 'swot_items',
+  decisionId: string,
+  itemId: string,
+): boolean {
+  const res = db()
+    .prepare(`DELETE FROM ${table} WHERE id = ? AND decision_id = ?`)
+    .run(itemId, decisionId);
   if (res.changes > 0) touchDecision(decisionId);
   return res.changes > 0;
 }
@@ -307,38 +369,60 @@ export function deleteItem(table: 'pestel_factors' | 'swot_items', decisionId: s
 export function createSuggestion(decisionId: string, role: string, suggestion: unknown): Row {
   const id = newId();
   db()
-    .prepare('INSERT INTO redteam_suggestions (id, decision_id, role, suggestion_json) VALUES (?, ?, ?, ?)')
+    .prepare(
+      'INSERT INTO redteam_suggestions (id, decision_id, role, suggestion_json) VALUES (?, ?, ?, ?)',
+    )
     .run(id, decisionId, role, JSON.stringify(suggestion));
   return db().prepare('SELECT * FROM redteam_suggestions WHERE id = ?').get(id) as Row;
 }
 
 export function listSuggestions(decisionId: string): Row[] {
-  return db().prepare('SELECT * FROM redteam_suggestions WHERE decision_id = ? ORDER BY created_at DESC').all(decisionId) as Row[];
+  return db()
+    .prepare('SELECT * FROM redteam_suggestions WHERE decision_id = ? ORDER BY created_at DESC')
+    .all(decisionId) as Row[];
 }
 
-export function reviewSuggestion(decisionId: string, id: string, status: string, userId: string): Row | undefined {
+export function reviewSuggestion(
+  decisionId: string,
+  id: string,
+  status: string,
+  userId: string,
+): Row | undefined {
   const res = db()
-    .prepare(`UPDATE redteam_suggestions SET status = ?, reviewed_by = ?, reviewed_at = datetime('now') WHERE id = ? AND decision_id = ?`)
+    .prepare(
+      `UPDATE redteam_suggestions SET status = ?, reviewed_by = ?, reviewed_at = datetime('now') WHERE id = ? AND decision_id = ?`,
+    )
     .run(status, userId, id, decisionId);
   if (res.changes === 0) return undefined;
   return db().prepare('SELECT * FROM redteam_suggestions WHERE id = ?').get(id) as Row;
 }
 
 // ---------------------------------------------------------------- audit snapshots
-export function createAuditSnapshot(decisionId: string, result: { audit_status: string; blocking_errors: string[]; warnings: string[] }): Row {
+export function createAuditSnapshot(
+  decisionId: string,
+  result: { audit_status: string; blocking_errors: string[]; warnings: string[] },
+): Row {
   const id = newId();
   db()
     .prepare(
       `INSERT INTO audit_snapshots (id, decision_id, audit_status, blocking_errors_json, warnings_json, result_json)
        VALUES (?, ?, ?, ?, ?, ?)`,
     )
-    .run(id, decisionId, result.audit_status, JSON.stringify(result.blocking_errors),
-      JSON.stringify(result.warnings), JSON.stringify(result));
+    .run(
+      id,
+      decisionId,
+      result.audit_status,
+      JSON.stringify(result.blocking_errors),
+      JSON.stringify(result.warnings),
+      JSON.stringify(result),
+    );
   return db().prepare('SELECT * FROM audit_snapshots WHERE id = ?').get(id) as Row;
 }
 
 export function latestAudit(decisionId: string): Row | undefined {
-  return db().prepare('SELECT * FROM audit_snapshots WHERE decision_id = ? ORDER BY created_at DESC LIMIT 1').get(decisionId) as Row | undefined;
+  return db()
+    .prepare('SELECT * FROM audit_snapshots WHERE decision_id = ? ORDER BY created_at DESC LIMIT 1')
+    .get(decisionId) as Row | undefined;
 }
 
 // ---------------------------------------------------------------- bulk pre-fill ingestion
@@ -376,7 +460,11 @@ export function buildAuditInput(decisionId: string): AuditInput | undefined {
   }));
 
   const scores = {
-    weight_profile: safeJson<Record<string, unknown>>(decision.weight_profile_json, {}, 'weight_profile'),
+    weight_profile: safeJson<Record<string, unknown>>(
+      decision.weight_profile_json,
+      {},
+      'weight_profile',
+    ),
     scores: listScores(decisionId).map((s) => ({
       option_id: s.option_id as string,
       criteria: safeJson<Record<string, number>>(s.criteria_json, {}, 'criteria'),
@@ -421,11 +509,22 @@ export function recordLlmUsage(u: LlmUsageInput): void {
       `INSERT INTO llm_usage (id, decision_id, user_id, kind, model, prompt_tokens, completion_tokens, total_tokens, cost_usd)
        VALUES (?, ?, ?, 'red_team', ?, ?, ?, ?, ?)`,
     )
-    .run(newId(), u.decisionId, u.userId, u.model, u.promptTokens, u.completionTokens,
-      u.promptTokens + u.completionTokens, u.costUsd);
+    .run(
+      newId(),
+      u.decisionId,
+      u.userId,
+      u.model,
+      u.promptTokens,
+      u.completionTokens,
+      u.promptTokens + u.completionTokens,
+      u.costUsd,
+    );
 }
 
-export function usageSinceForUser(userId: string, boundaryIso: string): { calls: number; costUsd: number } {
+export function usageSinceForUser(
+  userId: string,
+  boundaryIso: string,
+): { calls: number; costUsd: number } {
   const row = db()
     .prepare(
       `SELECT COUNT(*) AS calls, COALESCE(SUM(cost_usd), 0) AS cost

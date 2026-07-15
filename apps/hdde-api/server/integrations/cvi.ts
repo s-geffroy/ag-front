@@ -47,7 +47,10 @@ export async function fetchCorridorCvi(chokepointId: string): Promise<CviAssessm
     // A 404 means no assessment has been computed for this corridor — expected, degrade quietly.
     // Anything else (403 wrong scope, 5xx, network) is a defect and must not pass for "no CVI".
     if (!(err instanceof ChokepointsApiError) || err.status !== 404) {
-      console.error(`[hdde] CVI assessment for ${chokepointId} failed — this is not "no CVI":`, err);
+      console.error(
+        `[hdde] CVI assessment for ${chokepointId} failed — this is not "no CVI":`,
+        err,
+      );
     }
     return null;
   }

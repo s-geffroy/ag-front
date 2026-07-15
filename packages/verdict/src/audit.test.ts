@@ -64,21 +64,45 @@ function validInput(): AuditInput {
       scores: [
         {
           option_id: 'opt_main',
-          criteria: { strategic_value: 4, context_fit: 3, real_capacity: 3, systemic_viability: 3, net_risk: 3, proof_level: 3, optionality: 3 },
+          criteria: {
+            strategic_value: 4,
+            context_fit: 3,
+            real_capacity: 3,
+            systemic_viability: 3,
+            net_risk: 3,
+            proof_level: 3,
+            optionality: 3,
+          },
           raw_score: 64,
           adjusted_score: 62,
           adjustment_reasons: ['preuve niveau 3'],
         },
         {
           option_id: 'opt_minimal',
-          criteria: { strategic_value: 4, context_fit: 4, real_capacity: 4, systemic_viability: 3, net_risk: 4, proof_level: 4, optionality: 4 },
+          criteria: {
+            strategic_value: 4,
+            context_fit: 4,
+            real_capacity: 4,
+            systemic_viability: 3,
+            net_risk: 4,
+            proof_level: 4,
+            optionality: 4,
+          },
           raw_score: 77,
           adjusted_score: 78,
           adjustment_reasons: ['risque limité'],
         },
         {
           option_id: 'opt_opposite',
-          criteria: { strategic_value: 2, context_fit: 3, real_capacity: 5, systemic_viability: 3, net_risk: 4, proof_level: 3, optionality: 4 },
+          criteria: {
+            strategic_value: 2,
+            context_fit: 3,
+            real_capacity: 5,
+            systemic_viability: 3,
+            net_risk: 4,
+            proof_level: 3,
+            optionality: 4,
+          },
           raw_score: 67,
           adjusted_score: 64,
           adjustment_reasons: ['option sûre'],
@@ -142,7 +166,9 @@ describe('auditDecision — hard vetoes (mirror examples/invalid)', () => {
     const input = validInput();
     input.decision.final_verdict = 'FAIRE';
     input.decision.selected_option_id = 'opt_minimal'; // proof 4, so this is the *only* trip
-    input.decision.red_flags = [{ id: 'rf1', message: 'unproven', severity: 'blocking', resolved: false }];
+    input.decision.red_flags = [
+      { id: 'rf1', message: 'unproven', severity: 'blocking', resolved: false },
+    ];
     expectBlocked(input, 'faire_forbidden_with_unresolved_blocking_red_flag');
   });
 
@@ -187,7 +213,9 @@ describe('auditDecision — warnings only → À CORRIGER', () => {
     // No truth test needed; no stop_threshold required for DIFFÉRER.
     const r = auditDecision(input);
     expect(r.audit_status).toBe('À CORRIGER');
-    expect(r.warnings.some((w) => w.startsWith('differer_should_include_operational_defer_fields'))).toBe(true);
+    expect(
+      r.warnings.some((w) => w.startsWith('differer_should_include_operational_defer_fields')),
+    ).toBe(true);
     expect(r.blocking_errors).toEqual([]);
   });
 });

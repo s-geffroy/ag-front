@@ -171,8 +171,16 @@ describe('HDDE API e2e', () => {
     });
     const caseId = (await jsonOf(c)).id as string;
     for (const a of [
-      { question_id: 'critical_actor_replaceability_30d', block_id: 'critical_actor', normalized_answer: 'no' },
-      { question_id: 'hidden_tier2_visibility', block_id: 'hidden_dependencies', normalized_answer: 'no' },
+      {
+        question_id: 'critical_actor_replaceability_30d',
+        block_id: 'critical_actor',
+        normalized_answer: 'no',
+      },
+      {
+        question_id: 'hidden_tier2_visibility',
+        block_id: 'hidden_dependencies',
+        normalized_answer: 'no',
+      },
     ]) {
       await api('POST', `/api/cases/${caseId}/interview/answers`, {
         ...a,
@@ -224,7 +232,12 @@ describe('HDDE API e2e', () => {
     const aliceCookie = await loginAs('alice@example.com', 'alice-password-1234');
     const bobCookie = await loginAs('bob@example.com', 'bob-password-1234');
 
-    const withCookie = (method: string, path: string, c: string, body?: unknown): Promise<Response> =>
+    const withCookie = (
+      method: string,
+      path: string,
+      c: string,
+      body?: unknown,
+    ): Promise<Response> =>
       fetch(`${base}${path}`, {
         method,
         headers: { 'content-type': 'application/json', cookie: c },

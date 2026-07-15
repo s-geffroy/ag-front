@@ -17,9 +17,16 @@ import { Disclaimer, PanelTitle, humanize } from '@/components/chokepoints/panel
  */
 
 const verdictTone = (v?: string | null) =>
-  v === 'FAIRE' ? 'on_track' : v === 'ABANDONNER' ? 'blocked' : v === 'TESTER' ? 'at_risk' : 'neutral';
+  v === 'FAIRE'
+    ? 'on_track'
+    : v === 'ABANDONNER'
+      ? 'blocked'
+      : v === 'TESTER'
+        ? 'at_risk'
+        : 'neutral';
 
-const prioTone = (p?: string | null) => (p === 'P0' ? 'blocked' : p === 'P1' ? 'at_risk' : 'neutral');
+const prioTone = (p?: string | null) =>
+  p === 'P0' ? 'blocked' : p === 'P1' ? 'at_risk' : 'neutral';
 
 export function SfimPage() {
   const [items, setItems] = useState<StrategicFlowUnitSummary[] | null>(null);
@@ -56,7 +63,9 @@ export function SfimPage() {
 
       {error ? (
         <div className="rounded-md border border-status-at_risk/30 bg-status-at_risk/10 p-4 text-sm text-status-at_risk">
-          {error.includes('503') ? 'API chokepoints non configurée (token absent).' : `Erreur : ${error}`}
+          {error.includes('503')
+            ? 'API chokepoints non configurée (token absent).'
+            : `Erreur : ${error}`}
         </div>
       ) : null}
 
@@ -66,12 +75,13 @@ export function SfimPage() {
             <>
               Les {items.length} unités sont <strong>renseignées par le moteur</strong> (scoring
               partiel, dimensions déterministes uniquement) ; aucune n'a encore de verdict analyste.
-              Le remplissage machine n'est pas une validation : la couche attend une décision humaine.
+              Le remplissage machine n'est pas une validation : la couche attend une décision
+              humaine.
             </>
           ) : (
             <>
-              Les {items.length} unités n'ont ni scoring ni verdict. Le câblage est en place — c'est la
-              donnée qui manque côté producteur.
+              Les {items.length} unités n'ont ni scoring ni verdict. Le câblage est en place — c'est
+              la donnée qui manque côté producteur.
             </>
           )}
         </div>
@@ -132,7 +142,11 @@ export function SfimPage() {
 
       {disclaimer ? <Disclaimer text={disclaimer} /> : null}
 
-      <Sheet open={selected !== null} onOpenChange={(o) => !o && setSelected(null)} title="Unité de flux">
+      <Sheet
+        open={selected !== null}
+        onOpenChange={(o) => !o && setSelected(null)}
+        title="Unité de flux"
+      >
         {selected ? <SfuPanel key={selected} id={selected} /> : null}
       </Sheet>
     </div>
@@ -253,7 +267,9 @@ function VerdictBlock({ verdict }: { verdict: SfuFicheOut['verdict'] }) {
       {verdict.rationale ? <p className="text-sm">{verdict.rationale}</p> : null}
       {verdict.required_actions.length ? (
         <>
-          <div className="mt-1.5 text-[11px] uppercase tracking-wider text-muted">Actions requises</div>
+          <div className="mt-1.5 text-[11px] uppercase tracking-wider text-muted">
+            Actions requises
+          </div>
           <ul className="list-disc pl-4 text-sm">
             {verdict.required_actions.map((a, i) => (
               <li key={i}>{a}</li>
@@ -307,9 +323,7 @@ function ScoringBlock({
           <li key={d.dimension}>
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="font-medium">{humanize(d.dimension)}</span>
-              {d.effective_score != null ? (
-                <Badge tone="neutral">{d.effective_score}</Badge>
-              ) : null}
+              {d.effective_score != null ? <Badge tone="neutral">{d.effective_score}</Badge> : null}
               {d.origin ? <Badge tone="neutral">{originLabel(d.origin)}</Badge> : null}
               {d.confidence ? (
                 <span className="text-[11px] text-muted">confiance {d.confidence}</span>

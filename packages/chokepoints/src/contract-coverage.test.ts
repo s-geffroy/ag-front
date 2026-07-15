@@ -133,9 +133,10 @@ describe('contract coverage — paths', () => {
   it('every pinned contract path has a TS client method (COVERED_PATHS)', () => {
     const covered = new Set<string>(COVERED_PATHS);
     const missing = pinnedPaths().filter((p) => !covered.has(p));
-    expect(missing, `pinned contract paths with no TS client method: ${missing.join(', ')}`).toEqual(
-      [],
-    );
+    expect(
+      missing,
+      `pinned contract paths with no TS client method: ${missing.join(', ')}`,
+    ).toEqual([]);
   });
 
   it('COVERED_PATHS has no duplicates', () => {
@@ -189,7 +190,8 @@ describe('contract coverage — fields', () => {
       }
     }
     // Optional additions are backward-compatible by contract, so this is a signal, not a gate.
-    if (soft.length) console.warn(`[contract] optional fields not yet consumed: ${soft.join(', ')}`);
+    if (soft.length)
+      console.warn(`[contract] optional fields not yet consumed: ${soft.join(', ')}`);
     expect(true).toBe(true);
   });
 
@@ -218,8 +220,9 @@ describe('contract coverage — product consumers', () => {
   it('CONSUMERS only references paths that exist in the pin', () => {
     const pinned = new Set(pinnedPaths());
     const stale = Object.keys(CONSUMERS).filter((p) => !pinned.has(p));
-    expect(stale, `CONSUMERS entries not present in the pinned contract: ${stale.join(', ')}`).toEqual(
-      [],
-    );
+    expect(
+      stale,
+      `CONSUMERS entries not present in the pinned contract: ${stale.join(', ')}`,
+    ).toEqual([]);
   });
 });

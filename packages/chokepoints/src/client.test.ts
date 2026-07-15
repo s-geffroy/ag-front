@@ -212,7 +212,11 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
       fetchImpl: async () =>
         jsonResponse([
           // Unknown wording must NOT become `true` (it would wrongly mark the source redistributable).
-          { source_id: 's1', redistribution_allowed: 'restricted', attribution_required: 'prohibited' },
+          {
+            source_id: 's1',
+            redistribution_allowed: 'restricted',
+            attribution_required: 'prohibited',
+          },
           { source_id: 's2', redistribution_allowed: true, attribution_required: null },
         ]),
     });
@@ -370,7 +374,12 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
           name: 'SFU X',
           flow_type: 'containers',
           scoring: [
-            { dimension: 'substitution', effective_score: 2.5, confidence: 'moyen', origin: 'engine_auto' },
+            {
+              dimension: 'substitution',
+              effective_score: 2.5,
+              confidence: 'moyen',
+              origin: 'engine_auto',
+            },
           ],
           completeness: {
             dimensions_total: 10,
@@ -426,7 +435,8 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
     const client = createChokepointsClient({
       baseUrl: 'https://host/api',
       token: 't',
-      fetchImpl: async () => jsonResponse({ detail: "include_tainted requires the 'read_tainted' scope" }, 403),
+      fetchImpl: async () =>
+        jsonResponse({ detail: "include_tainted requires the 'read_tainted' scope" }, 403),
     });
 
     // The regression that motivated this: a `read` token hitting the unconditionally
@@ -445,7 +455,9 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
       token: 't',
       fetchImpl: async () => jsonResponse({ detail: 'Not Found' }, 404),
     });
-    const err = (await client.getChokepoint('nope').catch((e: unknown) => e)) as ChokepointsApiError;
+    const err = (await client
+      .getChokepoint('nope')
+      .catch((e: unknown) => e)) as ChokepointsApiError;
     expect(err.isNotFound).toBe(true);
     expect(err.isForbidden).toBe(false);
   });
@@ -459,7 +471,11 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
           chokepoint_id: 'p0_x',
           count: 1,
           consensus: [
-            { signal_family: 'disruption_expectation', market_count: 29, consensus_probability: 0.017 },
+            {
+              signal_family: 'disruption_expectation',
+              market_count: 29,
+              consensus_probability: 0.017,
+            },
           ],
           signals: [{ market_question: 'Q?', implied_probability: 0.002, liquidity: 4951.24 }],
         }),
@@ -497,7 +513,9 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
               sources: ['eia'],
             },
           ],
-          risks: [{ risk_type: 'congestion', assessment_status: 'assessed', risk_severity: 'elevated' }],
+          risks: [
+            { risk_type: 'congestion', assessment_status: 'assessed', risk_severity: 'elevated' },
+          ],
           alternatives: [
             {
               description: 'Cape route',

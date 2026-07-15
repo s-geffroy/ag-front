@@ -37,7 +37,9 @@ describe('HDDE internal API — token guard', () => {
   });
 
   it('reaches the handler with the right token (case_not_found for an unknown case)', async () => {
-    const res = await fetch(`${base}${path}`, { headers: { 'X-Internal-Token': 'test-internal-token' } });
+    const res = await fetch(`${base}${path}`, {
+      headers: { 'X-Internal-Token': 'test-internal-token' },
+    });
     expect(res.status).toBe(404);
     const body = (await res.json()) as { error?: string };
     expect(body.error).toBe('case_not_found');
@@ -55,11 +57,25 @@ describe('HDDE internal API — only human-validated packets are ingestible (ADR
   beforeAll(async () => {
     repo = await import('../server/db/repo');
     userId = repo.createUser('an@x.io', 'hash', 'analyst').id;
-    caseId = repo.createCase(userId, { title: 'C', sector: 's', business_function_at_risk: 'f' }).id;
+    caseId = repo.createCase(userId, {
+      title: 'C',
+      sector: 's',
+      business_function_at_risk: 'f',
+    }).id;
     // A freshly generated packet is status='draft' (createPacket hard-codes it).
     packetId = repo.createPacket(
       caseId,
-      { operational_verdict: 'act', confidence: 'medium', primary_diagnosis: 'd', scores: [], activated_patterns: [], red_flags: [], open_uncertainties: [], light_actions: [], matrix_rows: [] },
+      {
+        operational_verdict: 'act',
+        confidence: 'medium',
+        primary_diagnosis: 'd',
+        scores: [],
+        activated_patterns: [],
+        red_flags: [],
+        open_uncertainties: [],
+        light_actions: [],
+        matrix_rows: [],
+      },
       'sha256:test',
       {},
     ).id;
