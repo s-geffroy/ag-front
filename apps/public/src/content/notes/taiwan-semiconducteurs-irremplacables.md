@@ -7,8 +7,8 @@ summary: >-
 access: public
 corridor: Détroit de Taïwan
 signals:
-  - 'Capacité de fonderie avancée hors de Taïwan — seuil : trajectoire candidate 32 % (2023) → 59 % (2027), à surveiller année après année'
-  - 'Part de la flotte mondiale de porte-conteneurs transitant le détroit — seuil : candidat ≈ 48 % (AIS 2022)'
+  - 'Part de fonderie de Taïwan — seuil : recul candidat ≈ 46 % (2023) → ≈ 41 % (2027) selon TrendForce, > 70 % de la capacité avancée y restant fin 2024'
+  - 'Part de la flotte mondiale de porte-conteneurs transitant le détroit — seuil : candidat ≈ 48 % (Bloomberg 2022 ; ≈ 44 % selon CSIS)'
   - 'Inertie des nouvelles fabs — seuil : délai annoncé vs volume réellement qualifié (Arizona, Kumamoto ≈ 3-5 ans)'
 decision_implication: >-
   Un acheteur de composants avancés doit raisonner sur un horizon de plusieurs
@@ -33,9 +33,9 @@ draft: true
 ---
 
 Une part dominante de la capacité mondiale de puces de pointe est concentrée à Taïwan —
-de l’ordre de **80 % de la génération « EUV »** (candidat TrendForce, 2023), TSMC pesant à lui
-seul près des **deux tiers** de la fonderie sous contrat (candidat TrendForce, ≈ 68 % début
-2025). Cette concentration alimente une inquiétude géopolitique légitime. Mais elle masque une
+**plus de 90 % des puces les plus avancées** (candidat ; ≈ 70 % des puces sous 7 nm), TSMC pesant à
+lui seul près des **deux tiers** de la fonderie sous contrat (candidat TrendForce, ≈ 67 % fin
+2024). Cette concentration alimente une inquiétude géopolitique légitime. Mais elle masque une
 contrainte plus prosaïque et plus certaine : **relocaliser prend des années**, quel que soit le
 calendrier des tensions.
 
@@ -50,10 +50,11 @@ n’est donc pas un pari sur l’intention d’un acteur : c’est une propriét
 
 ## Trois signaux à suivre
 
-1. **Capacité avancée hors de Taïwan** — trajectoire candidate 32 % (2023) → 59 % (2027)
-   (projection TrendForce) ; c’est le rythme réel de diversification, à lire année après année.
-2. **Part de la flotte via le détroit** — candidat ≈ 48 % des porte-conteneurs mondiaux (AIS,
-   2022) : le nœud est aussi maritime, pas seulement industriel.
+1. **Part de fonderie de Taïwan** — recul candidat ≈ 46 % (2023) → ≈ 41 % (2027) (projection
+   TrendForce), plus de 70 % de la capacité avancée y restant fin 2024 : la diversification est
+   lente, à lire année après année.
+2. **Part de la flotte via le détroit** — candidat ≈ 48 % des porte-conteneurs mondiaux (Bloomberg,
+   2022 ; ≈ 44 % selon CSIS) : le nœud est aussi maritime, pas seulement industriel.
 3. **Inertie des nouvelles fabs** — l’écart entre le délai annoncé et le volume réellement
    qualifié est le meilleur indicateur de substituabilité.
 

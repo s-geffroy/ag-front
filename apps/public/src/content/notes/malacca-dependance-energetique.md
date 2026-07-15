@@ -7,7 +7,7 @@ summary: >-
 access: public
 corridor: Détroit de Malacca
 signals:
-  - 'Part du brut chinois transitant par Malacca — seuil : une baisse durable signalerait une substitution réelle (candidat EIA ≈ 48 % au 1S 2025)'
+  - 'Part des importations pétrolières chinoises passant par Malacca — seuil : une baisse durable signalerait une substitution réelle (candidat : de l’ordre de 80 %)'
   - 'Incidents de sécurité dans les détroits Malacca-Singapour — seuil : la série ReCAAP au-dessus de son plus-haut (candidat : 108 en 2025, +74 % sur un an)'
   - 'Montée en charge des contournements (Lombok, Sonde) et du pipeline Chine-Myanmar — seuil : le pipeline plafonne à ≈ 2 % du débit du détroit'
 decision_implication: >-
@@ -34,8 +34,9 @@ draft: true
 ---
 
 Au premier semestre 2025, de l’ordre de **23 Mb/j** de pétrole et de liquides auraient
-transité par le détroit de Malacca (estimation EIA, candidat) — de quoi en faire, devant
-Ormuz, le premier chokepoint pétrolier mondial. Pour une large part des importations
+transité par le détroit de Malacca (estimation EIA, candidat) — de quoi en faire, sur le total
+*pétrole brut + produits liquides*, le premier chokepoint pétrolier mondial devant Ormuz (qui reste
+en tête sur le brut seul). Pour une large part des importations
 asiatiques, tout le carburant passe par ce couloir de quelques kilomètres de large.
 
 Le problème n’est pas qu’il n’existe aucune alternative : c’est qu’aucune n’a la **capacité**
@@ -43,14 +44,16 @@ de le remplacer. Les détroits de la Sonde et de Lombok sont praticables — Lom
 même les plus gros pétroliers — mais le détour allonge les rotations et réduit le nombre de
 voyages annuels ; le surcoût chiffré, lui, n’est pas documenté publiquement. Le pipeline
 Chine-Myanmar, souvent cité comme la porte de sortie continentale, plafonne à une capacité
-nominale de l’ordre de **400 000 b/j** (candidat Reuters / Global Energy Monitor) — soit,
+nominale de l’ordre de **440 000 b/j** (≈ 22 Mt/an ; candidat Global Energy Monitor) — soit,
 rapporté aux ≈ 23 Mb/j du détroit, **environ 2 % de son débit**. La contrainte qui plafonne le
 report n’est donc pas le gabarit des navires : c’est l’effet de flotte.
 
 ## Trois signaux à suivre
 
-1. **Part du brut chinois via Malacca** — une baisse durable, et non ponctuelle, signalerait
-   une substitution réelle (candidat EIA ≈ 48 % au 1S 2025).
+1. **Part des importations chinoises via Malacca** — la Chine est le premier client du détroit
+   (≈ 7,9 Mb/j, soit ≈ 48 % de son débit au 1S 2025) et y ferait transiter de l’ordre de 80 % de
+   son pétrole importé ; une baisse durable de cette dépendance signalerait une substitution réelle
+   (candidats).
 2. **Sécurité dans les détroits Malacca-Singapour** — la série d’incidents ReCAAP a atteint un
    plus-haut (candidat : 108 en 2025, +74 % sur un an) ; son effet sur le calcul assurantiel
    est plausible mais n’est pas quantifié ici.
