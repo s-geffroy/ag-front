@@ -607,3 +607,127 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
     expect(await client.getDerivedRelationGraph()).toContain('# Betweenness');
   });
 });
+
+describe('chokepoints client — 0.9.0 / 0.10.0-0.11.0 additive surface (cvi-counterfactual + news)', () => {
+  it('getCviCounterfactual parses the live aggregate and passes the scope enum', async () => {
+    let url = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (u) => {
+        url = String(u);
+        return jsonResponse({
+          scope: 'core',
+          removed_dimension: 'concentration',
+          population: 305,
+          changent: 205,
+          critique_vers_bas: 5,
+          buckets: { '0-1': 12, '2': 3, '3': 40, '4-5': 250 },
+          scale: '0-5',
+          status: 'candidate',
+          method_note: 'Rejoue le CTE engines.cvi.level_bucket',
+          disclaimer: 'Derived candidate pending validation',
+        });
+      },
+    });
+    const cf = await client.getCviCounterfactual({ scope: 'core' });
+    expect(url).toContain('/analytics/cvi-counterfactual');
+    expect(url).toContain('scope=core');
+    expect(cf.population).toBe(305);
+    expect(cf.changent).toBe(205);
+    expect(cf.critique_vers_bas).toBe(5);
+    expect(cf.status).toBe('candidate');
+  });
+
+  it('listNews parses the feed and keeps run_notes + attribution intact', async () => {
+    let url = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (u) => {
+        url = String(u);
+        return jsonResponse({
+          count: 1,
+          run_id: 'aggregate_news@20260716T090347Z',
+          taint_class: 'cleared_only',
+          generated_at: '2026-07-16T09:03:47Z',
+          include_tainted: false,
+          run_notes: ['model coverage: 26/129 supplied articles were placed in a cluster'],
+          disclaimer: 'Media coverage is a candidate, never a confirmed incident',
+          attribution_notice: 'Attribute each article to its outlet',
+          items: [
+            {
+              cluster_id: '4fb9ff76-…',
+              headline: 'Media report a tanker seizure in the Strait of Hormuz',
+              summary_text: 'Several outlets report…',
+              event_category: 'security',
+              salience_score: 0.85,
+              article_count: 2,
+              source_domains: ['wsj.com', 'gcaptain.com'],
+              articles: [
+                {
+                  title: 'A',
+                  url: 'https://wsj.com/a',
+                  outlet: 'wsj.com',
+                  source_id: 'wsj_world',
+                  observed_on: '2026-07-16',
+                },
+              ],
+              affected_chokepoints: [
+                {
+                  chokepoint_id: 'p0_maritime_strait_strait_of_hormuz',
+                  canonical_name: 'Strait of Hormuz',
+                  relevance: 0.85,
+                },
+              ],
+              model: 'gpt-5.6-terra',
+              prompt_version: 'news-agg-0.2.0',
+              status: 'candidate',
+            },
+          ],
+        });
+      },
+    });
+    const feed = await client.listNews({ since: 7, category: 'security' });
+    expect(url).toContain('/news');
+    expect(url).toContain('since=7');
+    expect(url).toContain('category=security');
+    // run_notes must survive parsing — the UI is required to display it (sample vs summary).
+    expect(feed.run_notes[0]).toContain('model coverage');
+    // Server-recalculated fields are the reliable ones; attribution must be present.
+    expect(feed.items[0]!.articles[0]!.outlet).toBe('wsj.com');
+    expect(feed.items[0]!.affected_chokepoints[0]!.chokepoint_id).toBe(
+      'p0_maritime_strait_strait_of_hormuz',
+    );
+  });
+
+  it('an honest empty feed (count 0 WITH a run_id) parses without inventing clusters', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({ count: 0, run_id: 'aggregate_news@x', run_notes: [], items: [] }),
+    });
+    const feed = await client.listNews();
+    expect(feed.count).toBe(0);
+    expect(feed.items).toEqual([]);
+    expect(feed.run_id).toBe('aggregate_news@x'); // distinguishes "ran, empty" from "never ran"
+  });
+
+  it('getChokepointNews propagates the taint gate when opted in', async () => {
+    let url = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      includeTainted: true,
+      fetchImpl: async (u) => {
+        url = String(u);
+        return jsonResponse({ count: 0, run_id: 'r', items: [] });
+      },
+    });
+    await client.getChokepointNews('p0_ormuz', { since: 14 });
+    expect(url).toContain('/chokepoints/p0_ormuz/news');
+    expect(url).toContain('since=14');
+    expect(url).toContain('include_tainted=true');
+  });
+});

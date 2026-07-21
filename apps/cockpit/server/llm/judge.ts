@@ -12,6 +12,7 @@ import { JudgeAnalysis, judgeableMunichControls } from '@ag/schema/cockpit';
 import type { JudgeAnalysis as JudgeAnalysisT } from '@ag/schema/cockpit';
 import { config } from '../config';
 import { type TokenUsage } from './contradiction';
+import { sanitize } from './prompts';
 import { JUDGE_SYSTEM_PROMPT, buildJudgeUserPrompt, type JudgeContext } from './judge-prompts';
 
 export class JudgeError extends Error {}
@@ -27,7 +28,13 @@ export function judgeAvailable(): boolean {
 const JUDGE_JSON_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['analysis', 'gate_verdicts', 'do_not_conclude'],
+  required: [
+    'analysis',
+    'gate_verdicts',
+    'do_not_conclude',
+    'injection_detected',
+    'injection_evidence',
+  ],
   properties: {
     analysis: { type: 'string' },
     gate_verdicts: {
@@ -56,6 +63,9 @@ const JUDGE_JSON_SCHEMA = {
       },
     },
     do_not_conclude: { type: 'array', items: { type: 'string' } },
+    // Typed anti-injection signal (ADR 0068 amendment): a boolean a human/SELECT can read, not prose.
+    injection_detected: { type: 'boolean' },
+    injection_evidence: { type: 'string' },
   },
 } as const;
 
@@ -100,6 +110,8 @@ export function facade(ctx: JudgeContext): JudgeAnalysisT {
     do_not_conclude: [
       'Cette sortie est une façade hors-ligne — ne la traitez pas comme une pré-validation effectuée.',
     ],
+    injection_detected: false,
+    injection_evidence: '',
   });
 }
 
@@ -164,5 +176,8 @@ export async function runJudge(ctx: JudgeContext): Promise<JudgeRunResult> {
   if (!result.success) {
     throw new JudgeError(`OpenAI output failed schema validation: ${result.error.message}`);
   }
-  return { analysis: enforceJudgeableOnly(result.data), usage, model: config.openaiJudgeModel };
+  // `injection_evidence` describes an attack and may echo the attacker's forged fence markers — strip
+  // them before it is persisted/displayed (untrusted content, same fence hardening as the document).
+  const clean = { ...result.data, injection_evidence: sanitize(result.data.injection_evidence) };
+  return { analysis: enforceJudgeableOnly(clean), usage, model: config.openaiJudgeModel };
 }

@@ -163,8 +163,10 @@ const API_RESOURCES: { label: string; path: string; text?: boolean }[] = [
   { label: 'strategic-flows (SFIM)', path: 'strategic-flows' },
   { label: 'episodes', path: 'episodes' },
   { label: 'alerts', path: 'alerts' },
+  { label: 'news (actualité live — candidats, jamais un incident confirmé)', path: 'news' },
   { label: 'analytics / results', path: 'analytics/results' },
   { label: 'analytics / engine-runs', path: 'analytics/engine-runs' },
+  { label: 'analytics / cvi-counterfactual', path: 'analytics/cvi-counterfactual' },
   { label: 'chokepoint-analyses', path: 'chokepoint-analyses' },
   { label: 'derived / relation-graph', path: 'derived/relation-graph', text: true },
   { label: 'exports / geojson', path: 'exports/geojson' },
@@ -421,6 +423,7 @@ const CORRIDOR_RAW_ENDPOINTS: { label: string; sub: string }[] = [
   { label: 'fiche', sub: 'fiche' },
   { label: 'actors', sub: 'actors' },
   { label: 'event-signals', sub: 'event-signals' },
+  { label: 'news (candidats — jamais un incident)', sub: 'news' },
 ];
 
 /** Load one typed resource, distinguishing "not found" from a real failure. */

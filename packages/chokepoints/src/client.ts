@@ -32,6 +32,8 @@ import {
   SfuFicheOut,
   VocabulariesOut,
   DerivedRelationGraphOut,
+  CviCounterfactualOut,
+  NewsFeedOut,
 } from './schema';
 import type {
   FlowChokepointOut as FlowChokepointOutT,
@@ -61,6 +63,8 @@ import type {
   SfuFicheOut as SfuFicheOutT,
   VocabulariesOut as VocabulariesOutT,
   DerivedRelationGraphOut as DerivedRelationGraphOutT,
+  CviCounterfactualOut as CviCounterfactualOutT,
+  NewsFeedOut as NewsFeedOutT,
 } from './schema';
 
 /**
@@ -128,6 +132,17 @@ export type DerivedRelationParams = {
   from_object_id?: string;
   limit?: number;
 };
+/** `scope` is a bounded enum on the producer (`core` default; `bulk` → population 0, licit). */
+export type CviCounterfactualParams = { scope?: string };
+/** GET /news filters. `include_tainted` is NOT here — the client's taint gate sets it (ADR 0013). */
+export type NewsParams = {
+  since?: number;
+  limit?: number;
+  chokepoint_id?: string;
+  category?: string;
+};
+/** GET /chokepoints/{id}/news filters (no chokepoint_id/category — the path fixes the object). */
+export type ChokepointNewsParams = { since?: number; limit?: number };
 
 export type ChokepointsClient = {
   // --- 0.1.0 ---
@@ -179,6 +194,13 @@ export type ChokepointsClient = {
   listDerivedRelations(params?: DerivedRelationParams): Promise<DerivedRelationGraphOutT>;
   /** GET /derived/relation-graph — raw centrality/topology report. Opaque text; do not parse. */
   getDerivedRelationGraph(): Promise<string>;
+  // --- 0.9.0 / 0.10.0-0.11.0 additive ---
+  /** GET /analytics/cvi-counterfactual — CVI substitution slide as a live aggregate (ADR 0076). */
+  getCviCounterfactual(params?: CviCounterfactualParams): Promise<CviCounterfactualOutT>;
+  /** GET /news — readable news layer, clusters by event. Candidates, never confirmed incidents. */
+  listNews(params?: NewsParams): Promise<NewsFeedOutT>;
+  /** GET /chokepoints/{id}/news — clusters really linked to one object. */
+  getChokepointNews(id: string, params?: ChokepointNewsParams): Promise<NewsFeedOutT>;
 };
 
 /**
@@ -232,6 +254,11 @@ export const COVERED_PATHS = [
   // 0.6.0
   '/derived/relations',
   '/derived/relation-graph',
+  // 0.9.0
+  '/analytics/cvi-counterfactual',
+  // 0.10.0 / 0.11.0
+  '/news',
+  '/chokepoints/{chokepoint_id}/news',
 ] as const;
 
 /** A product surface that actually reads an endpoint. The client itself is NOT a consumer. */
@@ -287,6 +314,11 @@ export const CONSUMERS: Record<string, ConsumerSurface[]> = {
   '/derived/relation-graph': ['cockpit'],
   '/exports/geojson': ['public', 'cockpit'],
   '/exports/jsonl': ['cockpit'],
+  // News + counterfactual are cockpit-only: candidates pending validation, surfaced on the internal
+  // Tailscale-only Exploration console — never republished to the public site (ADR 0013).
+  '/analytics/cvi-counterfactual': ['cockpit'],
+  '/news': ['cockpit'],
+  '/chokepoints/{chokepoint_id}/news': ['cockpit'],
 };
 
 /**
@@ -489,6 +521,29 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
     },
     async getDerivedRelationGraph() {
       return getText('/derived/relation-graph');
+    },
+
+    // --- 0.9.0 / 0.10.0-0.11.0 additive endpoints ---
+    async getCviCounterfactual(params) {
+      return CviCounterfactualOut.parse(
+        await get(
+          '/analytics/cvi-counterfactual',
+          params as Record<string, string | number | undefined>,
+        ),
+      );
+    },
+    async listNews(params) {
+      return NewsFeedOut.parse(
+        await get('/news', params as Record<string, string | number | undefined>),
+      );
+    },
+    async getChokepointNews(id, params) {
+      return NewsFeedOut.parse(
+        await get(
+          `/chokepoints/${enc(id)}/news`,
+          params as Record<string, string | number | undefined>,
+        ),
+      );
     },
   };
 }

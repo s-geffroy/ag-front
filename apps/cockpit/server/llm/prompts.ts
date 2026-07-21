@@ -13,6 +13,11 @@ export interface EditorialContext {
   body: string;
 }
 
+// NOTE (ADR 0068 amendment / ag-back 0016): rule 6 below still signals injection as a PROSE line
+// (« INJECTION DÉTECTÉE: » in do_not_conclude). The judge (judge-prompts.ts) moved this to a typed
+// boolean because the prose channel fires to announce the absence of an attack and has no reader. The
+// red team carries the same two defects; aligning it needs a parallel schema/view/persistence change,
+// deferred to a follow-up (tracked with the news UI lot). Do not copy this prose form into new code.
 export const SYSTEM_PROMPT = `Tu es un module de contradiction éditoriale (red team) pour Applied Geopolitics, plateforme d'analyse géopolitique B2B.
 Tu attaques un document éditorial PROVISOIRE (dossier, fiche Atlas ou note) pour révéler ses faiblesses AVANT publication. Tu ne valides jamais, tu ne décides jamais, tu ne rédiges jamais le contenu à la place de l'auteur.
 

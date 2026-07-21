@@ -61,7 +61,32 @@ et **prépare** la décision humaine sans jamais la prendre.
 - **Défaut `uncertain`.** Le prompt impose : `pass` uniquement si un passage cité satisfait le gate, `fail`
   si un passage le contredit, sinon `uncertain` — **ne jamais deviner `pass`**.
 - **Anti-injection.** Le corps du document est encadré par le fence spotlighting (ADR 0063) ; toute tentative
-  de pilotage est neutralisée et remontée via `INJECTION DÉTECTÉE:`.
+  de pilotage est neutralisée et remontée par un **signal typé** (voir l'amendement 2026-07-21).
+
+## Amendement 2026-07-21 — le signal d'injection devient un champ typé
+
+Le protocole initial signalait une tentative d'injection par une **ligne en prose** (« INJECTION
+DÉTECTÉE: » en tête de `do_not_conclude`). ag-back, en portant notre protocole verbatim pour son
+agrégateur news, a rencontré et documenté deux défauts (leur handoff 0016, leur ADR 0075 §amendement),
+que **nous portions à l'identique** :
+
+1. **L'alarme se déclenchait pour dire qu'il n'y a pas d'alarme.** Une phrase ne peut pas
+   s'auto-contraindre ; le modèle écrivait « INJECTION DÉTECTÉE: aucune tentative trouvée ». Un booléen,
+   lui, se contraint. (Constaté aussi chez nous dans `data/contradictions.json`, module frère.)
+2. **Personne ne lisait le signal.** `grep INJECTION` ne trouvait que les prompts qui l'écrivent + des
+   tests vérifiant la *présence de la règle* — aucun code, aucune vue, aucun `SELECT` ne le consommait.
+   Une alarme sans sirène.
+
+**Correctif :** `JudgeAnalysis` porte désormais deux champs typés — `injection_detected: boolean` et
+`injection_evidence: string` (schéma strict OpenAI + zod, `.default(false)`/`''` pour la rétro-compat des
+rapports antérieurs). La règle 6 du prompt pose les deux champs au lieu d'écrire de la prose. Le serveur
+`sanitize()` l'`injection_evidence` avant persistance (contenu non fiable). Le `JudgePanel` **lit** le
+booléen et affiche une bannière dédiée, distincte du rappel « candidat » — un signal qui a enfin un
+lecteur. Le fence spotlighting (ADR 0063) n'a jamais été en cause et n'a pas bougé.
+
+**Report noté, non fait :** le red team frère (`contradiction.ts`/`prompts.ts`, ADR 0039) porte les deux
+mêmes défauts en prose. Son alignement (schéma/vue/persistance parallèles) est **différé** au lot UI news
+et signalé par un commentaire de code ; sa règle prose reste en place d'ici là (aucune régression).
 
 ## Conséquences
 

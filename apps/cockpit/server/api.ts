@@ -204,6 +204,25 @@ export function createApiRouter(): Router {
     '/analytics/system-resilience',
     proxy((c) => c.getSystemResilience()),
   );
+  // CVI "substitution slide" as a live aggregate count (ADR 0076). `scope` is a bounded enum (`core`
+  // default); the producer returns population 0 for `bulk`. Derived candidate, never a fact.
+  explore.get(
+    '/analytics/cvi-counterfactual',
+    proxy((c, req) => c.getCviCounterfactual({ scope: str(req.query.scope) })),
+  );
+  // Live chokepoint news, clusters grouped by event (ADR 0076). Candidates, NEVER confirmed incidents:
+  // media coverage is capped at `stress` and never proves a closure. `run_notes` MUST be surfaced.
+  explore.get(
+    '/news',
+    proxy((c, req) =>
+      c.listNews({
+        since: num(req.query.since),
+        limit: num(req.query.limit),
+        chokepoint_id: str(req.query.chokepoint_id),
+        category: str(req.query.category),
+      }),
+    ),
+  );
   // SFIM prescription layer (ADR 0054). The SFUs are authored in the ag-back workbench, not computed.
   explore.get(
     '/strategic-flows',
@@ -281,6 +300,16 @@ export function createApiRouter(): Router {
   explore.get(
     '/chokepoints/:id/perception-signals',
     proxy((c, req) => c.getChokepointPerceptionSignals(req.params.id, 100)),
+  );
+  // Clusters really linked to one object (ADR 0076). 404 on unknown/tainted-unauthorised, like siblings.
+  explore.get(
+    '/chokepoints/:id/news',
+    proxy((c, req) =>
+      c.getChokepointNews(req.params.id, {
+        since: num(req.query.since),
+        limit: num(req.query.limit),
+      }),
+    ),
   );
   // 8 named 0–5 dimensions; a dimension with no engine input is omitted, never fabricated. The 0–100
   // aggregate is gated on a documented methodology and is never served (ADR 0049).

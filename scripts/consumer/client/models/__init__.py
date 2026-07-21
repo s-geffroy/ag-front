@@ -17,6 +17,11 @@ from .cvi_assessment_dimensions import CviAssessmentDimensions
 from .cvi_assessment_global_level_type_0 import CviAssessmentGlobalLevelType0
 from .cvi_assessment_scale import CviAssessmentScale
 from .cvi_assessment_status import CviAssessmentStatus
+from .cvi_counterfactual_out import CviCounterfactualOut
+from .cvi_counterfactual_out_buckets import CviCounterfactualOutBuckets
+from .cvi_counterfactual_out_scale import CviCounterfactualOutScale
+from .cvi_counterfactual_out_scope import CviCounterfactualOutScope
+from .cvi_counterfactual_out_status import CviCounterfactualOutStatus
 from .derived_relation_graph_out import DerivedRelationGraphOut
 from .derived_relation_out import DerivedRelationOut
 from .dimension_score import DimensionScore
@@ -29,11 +34,17 @@ from .event_signal_out import EventSignalOut
 from .flow_chokepoint_out import FlowChokepointOut
 from .flow_out import FlowOut
 from .geometry_out import GeometryOut
+from .get_cvi_counterfactual_analytics_cvi_counterfactual_get_scope import GetCviCounterfactualAnalyticsCviCounterfactualGetScope
 from .health_health_get_response_health_health_get import HealthHealthGetResponseHealthHealthGet
 from .http_validation_error import HTTPValidationError
 from .list_chokepoint_analyses_chokepoint_analyses_get_priority_class_type_0 import ListChokepointAnalysesChokepointAnalysesGetPriorityClassType0
 from .list_chokepoints_chokepoints_get_priority_class_type_0 import ListChokepointsChokepointsGetPriorityClassType0
 from .metric_out import MetricOut
+from .news_cluster_chokepoint import NewsClusterChokepoint
+from .news_cluster_out import NewsClusterOut
+from .news_cluster_out_status import NewsClusterOutStatus
+from .news_feed_out import NewsFeedOut
+from .news_source_ref import NewsSourceRef
 from .perception_consensus_out import PerceptionConsensusOut
 from .perception_signal_list import PerceptionSignalList
 from .perception_signal_out import PerceptionSignalOut
@@ -74,6 +85,11 @@ __all__ = (
     "CviAssessmentGlobalLevelType0",
     "CviAssessmentScale",
     "CviAssessmentStatus",
+    "CviCounterfactualOut",
+    "CviCounterfactualOutBuckets",
+    "CviCounterfactualOutScale",
+    "CviCounterfactualOutScope",
+    "CviCounterfactualOutStatus",
     "DerivedRelationGraphOut",
     "DerivedRelationOut",
     "DimensionScore",
@@ -86,11 +102,17 @@ __all__ = (
     "FlowChokepointOut",
     "FlowOut",
     "GeometryOut",
+    "GetCviCounterfactualAnalyticsCviCounterfactualGetScope",
     "HealthHealthGetResponseHealthHealthGet",
     "HTTPValidationError",
     "ListChokepointAnalysesChokepointAnalysesGetPriorityClassType0",
     "ListChokepointsChokepointsGetPriorityClassType0",
     "MetricOut",
+    "NewsClusterChokepoint",
+    "NewsClusterOut",
+    "NewsClusterOutStatus",
+    "NewsFeedOut",
+    "NewsSourceRef",
     "PerceptionConsensusOut",
     "PerceptionSignalList",
     "PerceptionSignalOut",

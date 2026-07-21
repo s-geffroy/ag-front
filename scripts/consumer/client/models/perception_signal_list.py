@@ -11,8 +11,8 @@ from typing import cast
 from typing import Union
 
 if TYPE_CHECKING:
-  from ..models.perception_consensus_out import PerceptionConsensusOut
   from ..models.perception_signal_out import PerceptionSignalOut
+  from ..models.perception_consensus_out import PerceptionConsensusOut
 
 
 
@@ -44,8 +44,8 @@ class PerceptionSignalList:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.perception_consensus_out import PerceptionConsensusOut
         from ..models.perception_signal_out import PerceptionSignalOut
+        from ..models.perception_consensus_out import PerceptionConsensusOut
         chokepoint_id = self.chokepoint_id
 
         count = self.count
@@ -90,8 +90,8 @@ class PerceptionSignalList:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.perception_consensus_out import PerceptionConsensusOut
         from ..models.perception_signal_out import PerceptionSignalOut
+        from ..models.perception_consensus_out import PerceptionConsensusOut
         d = dict(src_dict)
         chokepoint_id = d.pop("chokepoint_id")
 

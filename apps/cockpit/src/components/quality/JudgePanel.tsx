@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Bot, Check, GitCompareArrows, Loader2, Scale } from 'lucide-react';
+import {
+  AlertTriangle,
+  Bot,
+  Check,
+  GitCompareArrows,
+  Loader2,
+  Scale,
+  ShieldAlert,
+} from 'lucide-react';
 import type { GateVerdict, JudgeGateVerdict, JudgeReport } from '@ag/schema/cockpit';
 import { api } from '@/lib/api';
 import { useCockpit } from '@/store';
@@ -174,6 +182,23 @@ export function JudgePanel({ contentType, slug }: { contentType: string; slug: s
                   <strong>Désaccord juge / red team.</strong> {contested.size} gate(s) jugé(s) «
                   satisfait » alors que le red team a levé une faille de sévérité élevée sur ce
                   document. À arbitrer en priorité avant toute validation.
+                </span>
+              </p>
+            ) : null}
+
+            {report.injection_detected ? (
+              <p className="flex items-start gap-2 rounded-md border border-status-blocked/40 bg-status-blocked/10 px-3 py-2 text-xs text-status-blocked">
+                <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>
+                  <strong>Tentative de pilotage détectée (injection).</strong> Le document contient
+                  un contenu qui a cherché à orienter le juge. Les verdicts de cette passe sont à
+                  traiter avec prudence.
+                  {report.injection_evidence ? (
+                    <>
+                      {' '}
+                      <span className="text-muted">— {report.injection_evidence}</span>
+                    </>
+                  ) : null}
                 </span>
               </p>
             ) : null}

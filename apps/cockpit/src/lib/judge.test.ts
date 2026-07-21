@@ -32,6 +32,8 @@ function judgeReport(verdicts: JudgeGateVerdict[]): JudgeReport {
     analysis: '',
     gate_verdicts: verdicts,
     do_not_conclude: [],
+    injection_detected: false,
+    injection_evidence: '',
     doc_id: 'atlas/x',
     content_type: 'atlas',
     slug: 'x',

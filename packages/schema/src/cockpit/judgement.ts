@@ -41,6 +41,18 @@ export const JudgeAnalysis = z.object({
   gate_verdicts: z.array(JudgeGateVerdict).default([]),
   /** Restatements that this output is a candidate and must be validated by a human. */
   do_not_conclude: z.array(z.string()).default([]),
+  /**
+   * Did the fenced (untrusted) document try to steer the judge (prompt injection, LLM01)? A TYPED
+   * signal, not prose: the old design pushed an « INJECTION DÉTECTÉE: » line into `do_not_conclude`,
+   * which (a) can't self-constrain — the model raised the alarm to announce the ABSENCE of an alarm —
+   * and (b) had no reader (grep found only the prompts that write it). ag-back hit both defects in
+   * production and moved to a boolean; we mirror it (their ADR 0075 amendment / our ADR 0068). A
+   * `SELECT` (or a UI banner) can now answer "did anything try to steer the judge?". `.default(false)`
+   * keeps older reports parseable. */
+  injection_detected: z.boolean().default(false),
+  /** Short description of the steering attempt when `injection_detected` — itself untrusted content,
+   * so the server sanitises it (strips fence markers) before persisting. Empty when none. */
+  injection_evidence: z.string().default(''),
 });
 export type JudgeAnalysis = z.infer<typeof JudgeAnalysis>;
 

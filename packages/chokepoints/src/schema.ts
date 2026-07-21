@@ -825,3 +825,115 @@ export const SfuFicheOut = z
   })
   .passthrough();
 export type SfuFicheOut = z.infer<typeof SfuFicheOut>;
+
+// --- 0.9.0 additive: /analytics/cvi-counterfactual (ADR 0076 answer to our 0012) -----------------
+
+/**
+ * GET /analytics/cvi-counterfactual → the CVI "substitution slide" as a LIVE aggregate count, not a
+ * deposited SELECT. `population` is the cohort never examined for substitution; `changent` is how many
+ * see their `global_level` slide when `concentration` is removed; `critique_vers_bas` those falling
+ * `critique → bas`. `buckets` names the 4 engine thresholds (`0–1|2|3|4–5`). Derived candidate pending
+ * validation, never a fact — replaying it against the base is how we verify the producer. `scope` is a
+ * bounded enum (`core` default; `bulk` has no CVI scores → population 0, licit).
+ */
+export const CviCounterfactualOut = z
+  .object({
+    scope: z.string(),
+    removed_dimension: z.string(),
+    population: z.number(),
+    changent: z.number(),
+    critique_vers_bas: z.number(),
+    buckets: z.record(z.string(), z.unknown()),
+    scale: z.string().nullish(),
+    status: z.string().nullish(),
+    method_note: z.string(),
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type CviCounterfactualOut = z.infer<typeof CviCounterfactualOut>;
+
+// --- 0.10.0/0.11.0 additive: /news + /chokepoints/{id}/news (ADR 0076/0077) ---------------------
+
+/**
+ * One media article inside a news cluster. THE TRUST BOUNDARY: `articles[]` is recalculated
+ * server-side from real collected signals — reliable, unlike the model prose on the parent cluster.
+ * Attribution is REQUIRED when displaying: show `outlet` and link `url`. `source_id` distinguishes the
+ * audited slate from `gdelt_gkg` (the web-wide long tail) — never present them as equivalents.
+ */
+export const NewsSourceRef = z
+  .object({
+    title: z.string().nullish(),
+    url: z.string().nullish(),
+    outlet: z.string().nullish(),
+    source_id: z.string().nullish(),
+    observed_on: z.string().nullish(),
+  })
+  .passthrough();
+export type NewsSourceRef = z.infer<typeof NewsSourceRef>;
+
+/** A chokepoint a cluster is REALLY linked to — server-recalculated (reliable), not model-invented. */
+export const NewsClusterChokepoint = z
+  .object({
+    chokepoint_id: z.string(),
+    canonical_name: z.string().nullish(),
+    relevance: z.number().nullish(),
+  })
+  .passthrough();
+export type NewsClusterChokepoint = z.infer<typeof NewsClusterChokepoint>;
+
+/**
+ * One event (not one article). CANDIDATE, NEVER A CONFIRMED INCIDENT: a news cluster reports what
+ * media SAY, capped at `stress` by the regime engine (ADR 0042) — it never proves a closure. The model
+ * writes `headline`/`summary_text`/`event_category`/`geographic_scope`/`salience_score`, and THEY CAN
+ * BE WRONG; everything else (`article_count`, `source_domains`, `articles[]`, `first/last_seen`,
+ * `affected_chokepoints[]`) is server-recalculated and reliable — believe the articles on conflict.
+ * `cluster_id` is NOT durable across runs (snapshot, not history): track events by `articles[].url`.
+ * Narrow beam (Hormuz-heavy today): counts reflect the news cycle, NOT object importance — never rank
+ * objects on `gdelt_gkg` counts.
+ */
+export const NewsClusterOut = z
+  .object({
+    cluster_id: z.string(),
+    headline: z.string().nullish(),
+    summary_text: z.string().nullish(),
+    event_category: z.string().nullish(),
+    geographic_scope: z.string().nullish(),
+    salience_score: z.number().nullish(),
+    article_count: z.number().nullish(),
+    source_domains: z.array(z.string()).default([]),
+    articles: z.array(NewsSourceRef).default([]),
+    affected_chokepoints: z.array(NewsClusterChokepoint).default([]),
+    first_seen: z.string().nullish(),
+    last_seen: z.string().nullish(),
+    model: z.string().nullish(),
+    prompt_version: z.string().nullish(),
+    offline_facade: z.boolean().nullish(),
+    license_taint: z.boolean().nullish(),
+    status: z.string().nullish(),
+    generated_at: z.string().nullish(),
+  })
+  .passthrough();
+export type NewsClusterOut = z.infer<typeof NewsClusterOut>;
+
+/**
+ * GET /news (and /chokepoints/{id}/news) → the readable news layer, clusters grouped by event.
+ * `run_notes` MUST be displayed: it reports the run's own limits (sample-vs-summary, a truncation cap,
+ * model coverage). Without it a tidy cluster list *looks like* the period's news when it is a sample.
+ * Taint PARTITIONS, it does not filter: `taint_class` says which pass you read (`cleared_only` XOR
+ * `all_sources`); the two never cumulate. `count: 0` WITH a `run_id` is an honest empty feed;
+ * `count: 0` WITHOUT one means no aggregation ever ran.
+ */
+export const NewsFeedOut = z
+  .object({
+    count: z.number(),
+    run_id: z.string().nullish(),
+    taint_class: z.string().nullish(),
+    generated_at: z.string().nullish(),
+    include_tainted: z.boolean().nullish(),
+    items: z.array(NewsClusterOut).default([]),
+    run_notes: z.array(z.string()).default([]),
+    disclaimer: z.string().nullish(),
+    attribution_notice: z.string().nullish(),
+  })
+  .passthrough();
+export type NewsFeedOut = z.infer<typeof NewsFeedOut>;
