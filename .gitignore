@@ -28,9 +28,11 @@ apps/cockpit/data/contradictions.json
 apps/cockpit/data/judgements.json
 
 # One-click publish runtime markers (ADR 0069): the cockpit touches `.publish-pending`, the host
-# rebuild watcher writes `.last-build`. Host state, never tracked.
+# rebuild watcher writes `.last-build`. The signal-refresh cron (ADR 0071) writes `.last-signal-build`.
+# Host state, never tracked.
 apps/public/.publish-pending
 apps/public/.last-build
+apps/public/.last-signal-build
 
 # Host rebuild-watcher log (scripts/redeploy-public.sh --if-pending).
 scripts/redeploy-public.log

@@ -24,6 +24,10 @@ services:
       # build (Atlas omits the chokepoints section). The token is NEVER shipped to the client.
       CHOKEPOINTS_API_URL: ${CHOKEPOINTS_API_URL:-https://srv1305127.tail880531.ts.net/api}
       CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN:-}
+      # Go-live gate for the public derived-Polymarket-consensus block (ADR 0071). Empty/unset = dark
+      # (the block never renders even though the data path is wired). Set to '1' in docker/.env ONLY
+      # after ag-back confirms the derived aggregate is redistributable on the open internet.
+      ATLAS_CONSENSUS_PUBLIC: ${ATLAS_CONSENSUS_PUBLIC:-}
     ports:
       - '127.0.0.1:5173:5173' # apps/cockpit dev server (Vite) — Phase 2
       - '127.0.0.1:4321:4321' # apps/public dev server (Astro) — Phase 3
