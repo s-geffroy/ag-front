@@ -44,6 +44,11 @@ export function toPromotedItem(
   cluster: NewsClusterOut,
   opts: { promotedBy: string; promotedAt: string },
 ): PromotedNewsItemT {
+  // Defence-in-depth: the route's resolvePromoteFromFeed already refuses a tainted cluster, but keep the
+  // "cleared_only stamp ⇒ actually clear" invariant LOCAL so this exported projector is safe on its own.
+  if (cluster.license_taint) {
+    throw new Error('refusing to promote a tainted cluster (ADR 0013)');
+  }
   return PromotedNewsItem.parse({
     articles: (cluster.articles ?? [])
       .filter((a) => isHttp(a.url))

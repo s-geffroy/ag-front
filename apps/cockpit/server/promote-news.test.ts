@@ -71,6 +71,15 @@ describe('promote-news — toPromotedItem', () => {
     expect(item.headline).toContain('&#x2013;');
   });
 
+  it('throws on a tainted cluster (local invariant, ADR 0013)', () => {
+    expect(() =>
+      toPromotedItem(cluster({ license_taint: true }), {
+        promotedBy: 'op',
+        promotedAt: '2026-07-25T10:00:00Z',
+      }),
+    ).toThrow(/tainted/);
+  });
+
   it('drops non-http article URLs (defence-in-depth against javascript:/data:)', () => {
     const item = toPromotedItem(
       cluster({
