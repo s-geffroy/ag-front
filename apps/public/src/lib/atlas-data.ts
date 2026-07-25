@@ -4,6 +4,8 @@ import {
   type ChokepointSummary,
   type GeoJsonFeatureCollection,
 } from '@ag/chokepoints';
+import { PromotedNewsItem, type PromotedNewsItem as PromotedNewsItemT } from '@ag/schema/content';
+import promotedNewsRaw from '../data/promoted-news.json';
 
 export type AtlasChokepoint = {
   id: string;
@@ -96,6 +98,84 @@ export async function loadChokepointDetail(id: string): Promise<ChokepointDetail
     console.warn(`[atlas] détail chokepoint ${id} injoignable :`, String(e));
     return null;
   }
+}
+
+// --- Derived Polymarket consensus (public, live-ish; ADR 0071) ------------------------------------
+
+/** One signal-family consensus row, public-safe view (no raw market question/odds/action). */
+export type AtlasConsensusFamily = {
+  signalFamily: string;
+  /** Liquidity-weighted consensus probability, 0..1. */
+  probability: number;
+  /** Max 24 h probability move across the family's markets (points, 0..1), when present. */
+  change24h?: number;
+  marketCount?: number;
+  totalLiquidity?: number;
+};
+
+export type AtlasConsensus = {
+  families: AtlasConsensusFamily[];
+  /** ISO timestamp of the consensus window end, for an honest "consensus au <date>" label. */
+  observedAt?: string;
+};
+
+/**
+ * Build-time load of the derived Polymarket consensus for one corridor (the `prediction_consensus`
+ * engine of `/analysis`, via the narrow `getChokepointConsensus` projection). **Graceful**: returns
+ * `null` when the API is unconfigured/unreachable OR the corridor has no market — the page then omits
+ * the block rather than showing a stale/empty figure. `read` scope, clear-only, never tainted.
+ */
+export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus | null> {
+  const cfg = config();
+  if (!cfg) return null;
+  try {
+    const rows = await createChokepointsClient(cfg).getChokepointConsensus(id);
+    const families: AtlasConsensusFamily[] = rows
+      .filter(
+        (r) =>
+          typeof r.signal_family === 'string' &&
+          r.signal_family.length > 0 &&
+          typeof r.consensus_probability === 'number' &&
+          Number.isFinite(r.consensus_probability),
+      )
+      .map((r) => ({
+        signalFamily: r.signal_family as string,
+        probability: r.consensus_probability as number,
+        change24h:
+          typeof r.max_probability_change_24h === 'number' &&
+          Number.isFinite(r.max_probability_change_24h)
+            ? r.max_probability_change_24h
+            : undefined,
+        marketCount: typeof r.market_count === 'number' ? r.market_count : undefined,
+        totalLiquidity: typeof r.total_liquidity === 'number' ? r.total_liquidity : undefined,
+      }));
+    if (families.length === 0) return null;
+    const observedAt = rows
+      .map((r) => r.observed_window_end)
+      .find((s): s is string => typeof s === 'string' && s.length > 0);
+    return { families, observedAt: observedAt ?? undefined };
+  } catch (e) {
+    console.warn(`[atlas] consensus ${id} injoignable :`, String(e));
+    return null;
+  }
+}
+
+// --- Promoted media coverage (public, human-promoted; ADR 0071) -----------------------------------
+
+/**
+ * Human-promoted news clusters for one corridor, from the repo-committed store
+ * `src/data/promoted-news.json` (written by the cockpit under gates + journal). No API, no token — works
+ * even when the chokepoints API is unconfigured. Parses PER ITEM so one malformed entry drops to nothing
+ * instead of nuking the corridor's whole list, and enforces `taint_class === 'cleared_only'` as
+ * defence-in-depth (the writer already refuses anything else).
+ */
+export function loadCorridorPromotedNews(id: string): PromotedNewsItemT[] {
+  const bucket = (promotedNewsRaw as Record<string, unknown>)[id];
+  if (!Array.isArray(bucket)) return [];
+  return bucket
+    .map((x) => PromotedNewsItem.safeParse(x))
+    .flatMap((r) => (r.success ? [r.data] : []))
+    .filter((it) => it.taint_class === 'cleared_only');
 }
 
 // --- Strategic systems (public, conservative: canonical structure, no derived scores) ------------

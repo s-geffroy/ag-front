@@ -8,10 +8,18 @@ import { JudgeGateVerdict } from './judgement';
 // of a validation). Git-tracked — it is the durable audit trail, not a regenerable candidate.
 
 /**
- * What was validated: a deliverable gate boolean, a Munich control, the CVI justification, or a
- * `publication` (the final candidate → public crossing — flipping the frontmatter flag, ADR 0069).
+ * What was validated: a deliverable gate boolean, a Munich control, the CVI justification, a
+ * `publication` (the final candidate → public crossing — flipping the frontmatter flag, ADR 0069), or a
+ * `news_promotion` (promoting a media-coverage cluster to the public Atlas — ADR 0071; same doctrine:
+ * candidate → fact only by a nominative click, never by the model).
  */
-export const ValidationTargetKind = z.enum(['gate', 'munich', 'cvi', 'publication']);
+export const ValidationTargetKind = z.enum([
+  'gate',
+  'munich',
+  'cvi',
+  'publication',
+  'news_promotion',
+]);
 export type ValidationTargetKind = z.infer<typeof ValidationTargetKind>;
 
 /** Snapshot of a target's value — a boolean (gate/cvi/publication) or a Munich status ('ok'|'todo'|'na'). */
