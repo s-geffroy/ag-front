@@ -162,8 +162,16 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
               title: 'Prediction consensus',
               columns: ['signal_family', 'market_count', 'consensus_probability'],
               rows: [
-                { signal_family: 'conflict_escalation_expectation', market_count: 3, consensus_probability: 0.46 },
-                { signal_family: 'disruption_expectation', market_count: 2, consensus_probability: 0.04 },
+                {
+                  signal_family: 'conflict_escalation_expectation',
+                  market_count: 3,
+                  consensus_probability: 0.46,
+                },
+                {
+                  signal_family: 'disruption_expectation',
+                  market_count: 2,
+                  consensus_probability: 0.04,
+                },
               ],
             },
           ],

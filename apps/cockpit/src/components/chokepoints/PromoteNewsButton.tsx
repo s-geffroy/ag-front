@@ -8,7 +8,13 @@ import { api } from '@/lib/api';
 // server re-fetches the feed, refuses a tainted cluster, and journals it. This button only sends the
 // cluster identity + the operator; the server owns the trust boundary. Going live still needs the host
 // rebuild (~2 min watcher). Shown only in the per-corridor panel (a promotion needs a corridor).
-export function PromoteNewsButton({ corridorId, cluster }: { corridorId: string; cluster: NewsClusterOut }) {
+export function PromoteNewsButton({
+  corridorId,
+  cluster,
+}: {
+  corridorId: string;
+  cluster: NewsClusterOut;
+}) {
   const { state } = useCockpit();
   const operator = state?.config.operator ?? '';
   const [status, setStatus] = useState<'idle' | 'busy' | 'done' | 'error'>('idle');
@@ -21,7 +27,8 @@ export function PromoteNewsButton({ corridorId, cluster }: { corridorId: string;
       setMessage('Configurez « operator » (acte nominatif, ADR 0046).');
       return;
     }
-    if (!window.confirm('Promouvoir ce cluster sur l’Atlas public ? Acte nominatif et journalisé.')) return;
+    if (!window.confirm('Promouvoir ce cluster sur l’Atlas public ? Acte nominatif et journalisé.'))
+      return;
     setStatus('busy');
     setMessage(null);
     try {
@@ -55,10 +62,16 @@ export function PromoteNewsButton({ corridorId, cluster }: { corridorId: string;
         className="inline-flex items-center gap-1 rounded border border-line px-1.5 py-0.5 text-[11px] text-muted hover:border-accent hover:text-accent disabled:opacity-60"
       >
         {status === 'done' ? <Check className="h-3 w-3" /> : <Megaphone className="h-3 w-3" />}
-        {status === 'done' ? 'Promu' : status === 'busy' ? 'Promotion…' : 'Promouvoir sur l’Atlas public'}
+        {status === 'done'
+          ? 'Promu'
+          : status === 'busy'
+            ? 'Promotion…'
+            : 'Promouvoir sur l’Atlas public'}
       </button>
       {message ? (
-        <p className={`mt-0.5 text-[11px] ${status === 'error' ? 'text-status-at_risk' : 'text-muted'}`}>
+        <p
+          className={`mt-0.5 text-[11px] ${status === 'error' ? 'text-status-at_risk' : 'text-muted'}`}
+        >
           {message}
         </p>
       ) : null}

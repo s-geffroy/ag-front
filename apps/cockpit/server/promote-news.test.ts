@@ -12,8 +12,20 @@ function cluster(overrides: Partial<NewsClusterOut> = {}): NewsClusterOut {
     article_count: 2,
     source_domains: [],
     articles: [
-      { title: 'A', url: 'https://ex.com/a', outlet: 'Ex', source_id: 'gdelt_gkg', observed_on: '2026-07-20' },
-      { title: 'B', url: 'https://ex.com/b', outlet: 'Ex2', source_id: 'reuters', observed_on: '2026-07-20' },
+      {
+        title: 'A',
+        url: 'https://ex.com/a',
+        outlet: 'Ex',
+        source_id: 'gdelt_gkg',
+        observed_on: '2026-07-20',
+      },
+      {
+        title: 'B',
+        url: 'https://ex.com/b',
+        outlet: 'Ex2',
+        source_id: 'reuters',
+        observed_on: '2026-07-20',
+      },
     ],
     affected_chokepoints: [{ chokepoint_id: 'p0_x', canonical_name: 'X', relevance: 0.9 }],
     first_seen: '2026-07-19',
@@ -46,7 +58,9 @@ describe('promote-news — resolvePromoteFromFeed', () => {
   });
 
   it('REFUSES a tainted cluster (ADR 0013 belt)', () => {
-    const r = resolvePromoteFromFeed(feed([cluster({ license_taint: true })]), { cluster_id: 'c1' });
+    const r = resolvePromoteFromFeed(feed([cluster({ license_taint: true })]), {
+      cluster_id: 'c1',
+    });
     expect(r).toMatchObject({ ok: false, status: 409, error: 'cluster_tainted' });
   });
 
@@ -61,7 +75,10 @@ describe('promote-news — resolvePromoteFromFeed', () => {
 
 describe('promote-news — toPromotedItem', () => {
   it('projects the public-safe subset, forces cleared_only, stamps who/when', () => {
-    const item = toPromotedItem(cluster(), { promotedBy: 'sylvain', promotedAt: '2026-07-25T10:00:00Z' });
+    const item = toPromotedItem(cluster(), {
+      promotedBy: 'sylvain',
+      promotedAt: '2026-07-25T10:00:00Z',
+    });
     expect(item.taint_class).toBe('cleared_only');
     expect(item.promoted_by).toBe('sylvain');
     expect(item.promoted_at).toBe('2026-07-25T10:00:00Z');
@@ -85,7 +102,13 @@ describe('promote-news — toPromotedItem', () => {
       cluster({
         articles: [
           { title: 'ok', url: 'https://ex.com/ok', outlet: 'Ex', source_id: 's', observed_on: '' },
-          { title: 'evil', url: 'javascript:alert(1)', outlet: 'X', source_id: 's', observed_on: '' },
+          {
+            title: 'evil',
+            url: 'javascript:alert(1)',
+            outlet: 'X',
+            source_id: 's',
+            observed_on: '',
+          },
           { title: 'data', url: 'data:text/html,x', outlet: 'X', source_id: 's', observed_on: '' },
         ],
       }),
