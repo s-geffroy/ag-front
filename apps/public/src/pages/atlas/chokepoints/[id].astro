@@ -3,7 +3,15 @@ import Base from '../../../layouts/Base.astro';
 import Section from '../../../components/Section.astro';
 import Pill from '../../../components/Pill.astro';
 import { humanize, priorityTone } from '../../../lib/labels';
-import { loadChokepoints, loadChokepointDetail, type AtlasChokepoint } from '../../../lib/atlas-data';
+import {
+  loadChokepoints,
+  loadChokepointDetail,
+  loadCorridorConsensus,
+  loadCorridorPromotedNews,
+  type AtlasChokepoint,
+} from '../../../lib/atlas-data';
+import ConsensusBlock from '../../../components/atlas/ConsensusBlock.astro';
+import PromotedNewsBlock from '../../../components/atlas/PromotedNewsBlock.astro';
 
 export async function getStaticPaths() {
   const { items } = await loadChokepoints();
@@ -15,6 +23,8 @@ interface Props {
 }
 const { summary } = Astro.props;
 const detail = await loadChokepointDetail(summary.id);
+const consensus = await loadCorridorConsensus(summary.id);
+const promotedNews = loadCorridorPromotedNews(summary.id);
 ---
 
 <Base title={summary.name} description={`Chokepoint — ${humanize(summary.family)}`} type="article">
@@ -143,12 +153,21 @@ const detail = await loadChokepointDetail(summary.id);
       )
     }
 
+    {
+      consensus || promotedNews.length ? (
+        <div class="mt-10 space-y-10">
+          {consensus ? <ConsensusBlock consensus={consensus} /> : null}
+          {promotedNews.length ? <PromotedNewsBlock items={promotedNews} /> : null}
+        </div>
+      ) : null
+    }
+
     <div class="mt-12 border border-line bg-subtle p-4 text-xs leading-relaxed text-muted">
       Données canoniques issues de la base <strong>chokepoints</strong> (lecture seule).{' '}
       {detail?.geometry_disclaimer ??
         'Géométrie schématique, sans valeur navigationnelle ou juridique.'}{' '}
-      Les résultats analytiques dérivés sont des candidats en attente de validation humaine et ne
-      constituent ni une prédiction ni un conseil engageant.
+      Les résultats analytiques dérivés — consensus de marché, couverture média — sont des candidats en
+      attente de validation humaine et ne constituent ni une prédiction ni un conseil engageant.
     </div>
   </Section>
 </Base>

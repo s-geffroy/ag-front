@@ -71,6 +71,10 @@ const atlas = defineCollection({
     updated: z.coerce.date(),
     confidence,
     cvi_level: z.enum(['bas', 'modere', 'eleve', 'critique']).optional(),
+    // Optional join key to the chokepoints DB node (ADR 0071). When set, the editorial fiche also
+    // renders the live derived-consensus + promoted-news blocks for that corridor. Absent → the fiche
+    // renders as pure editorial content, unchanged.
+    chokepoint_id: z.string().optional(),
     map: corridorMap.optional(),
     // Publication guardrail: a fiche reaches the public site ONLY when published === true.
     // Default false — an unreviewed candidate stays off-public and is read internally via the

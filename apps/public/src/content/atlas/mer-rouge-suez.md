@@ -18,6 +18,7 @@ corrections: []
 updated: 2026-07-14
 confidence: moyen
 cvi_level: eleve
+chokepoint_id: p0_maritime_strait_bab_el_mandeb_strait
 map:
   caption: Corridor Méditerranée → Bab el-Mandeb et contournement par le Cap
   waypoints:

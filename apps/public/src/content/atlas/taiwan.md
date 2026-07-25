@@ -16,6 +16,7 @@ corrections: []
 updated: 2026-07-14
 confidence: moyen
 cvi_level: critique
+chokepoint_id: p0_maritime_strait_taiwan_strait
 map:
   caption: Détroit de Taïwan et contournement maritime par l'est de l'île (façade Pacifique)
   waypoints:

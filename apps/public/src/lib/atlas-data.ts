@@ -126,6 +126,11 @@ export type AtlasConsensus = {
  * the block rather than showing a stale/empty figure. `read` scope, clear-only, never tainted.
  */
 export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus | null> {
+  // Go-live gate (ADR 0071): publishing the derived Polymarket consensus on the open internet awaits
+  // ag-back's explicit redistribution confirmation (deposit cf9303ef). Until `ATLAS_CONSENSUS_PUBLIC=1`
+  // is set for the public build, the block is dark even though the code + data path are fully wired —
+  // flip the env, rebuild, and it appears. Reversible by unsetting the flag.
+  if (process.env.ATLAS_CONSENSUS_PUBLIC !== '1') return null;
   const cfg = config();
   if (!cfg) return null;
   try {

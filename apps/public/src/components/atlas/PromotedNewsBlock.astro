@@ -1,0 +1,103 @@
+---
+import { humanize } from '../../lib/labels';
+import type { PromotedNewsItem } from '@ag/schema/content';
+
+// Human-promoted media coverage, public-safe (ADR 0071). Only clusters an operator promoted from the
+// cockpit reach here. Model prose (headline/summary) is a CANDIDATE, framed as such and capped at
+// "coverage" — never a confirmed incident (ADR 0042). Article links are the reliable, attributed anchor.
+
+interface Props {
+  items: PromotedNewsItem[];
+}
+const { items } = Astro.props;
+
+// Decode HTML entities to plain TEXT (ag-back 0017: GKG titles carry undecoded &#x2013; etc.). Output is
+// a normal string that Astro then re-escapes on render — we never emit raw HTML.
+const NAMED: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+  rsquo: '’',
+  lsquo: '‘',
+  rdquo: '”',
+  ldquo: '“',
+  ndash: '–',
+  mdash: '—',
+  hellip: '…',
+};
+function decodeEntities(s: string): string {
+  return s.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, body) => {
+    if (body[0] === '#') {
+      const cp = body[1]?.toLowerCase() === 'x' ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
+      return Number.isFinite(cp) && cp > 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : m;
+    }
+    return NAMED[body.toLowerCase()] ?? m;
+  });
+}
+/** Defence-in-depth: only http(s) links render (the store schema already rejects others at parse). */
+function isHttp(u: string): boolean {
+  return /^https?:\/\//i.test(u);
+}
+function promotedLabel(iso: string): string | null {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+---
+
+<section>
+  <div class="section-rule"><span class="label">Couverture média</span></div>
+  <p class="mb-3 text-xs text-muted">
+    Sélection éditoriale de regroupements d'articles liés à ce corridor. Un candidat retenu à la main —
+    jamais un incident confirmé. Le volume d'articles reflète le cycle médiatique, pas l'importance de
+    l'événement.
+  </p>
+  <ul class="space-y-5">
+    {
+      items.map((it) => {
+        const headline = decodeEntities(it.headline).trim();
+        const category = humanize(it.event_category);
+        const articles = it.articles.filter((a) => isHttp(a.url));
+        const promoted = promotedLabel(it.promoted_at);
+        return (
+          <li>
+            {headline ? <p class="text-sm font-medium">{headline}</p> : null}
+            {category ? (
+              <p class="mt-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">{category}</p>
+            ) : null}
+            {articles.length ? (
+              <ul class="mt-1.5 space-y-1 text-sm">
+                {articles.map((a) => (
+                  <li>
+                    <a
+                      href={a.url}
+                      rel="noreferrer nofollow"
+                      target="_blank"
+                      class="text-accent hover:underline"
+                    >
+                      {decodeEntities(a.title).trim() || a.outlet || a.url}
+                    </a>
+                    {a.outlet ? <span class="text-muted"> · {a.outlet}</span> : null}
+                    {a.source_id === 'gdelt_gkg' ? (
+                      <span class="ml-1 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
+                        [gdelt]
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {promoted ? (
+              <p class="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+                Promu le {promoted}
+              </p>
+            ) : null}
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>

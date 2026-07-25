@@ -18,6 +18,7 @@ corrections: []
 updated: 2026-07-14
 confidence: moyen
 cvi_level: eleve
+chokepoint_id: p0_maritime_strait_strait_of_malacca
 map:
   caption: Océan Indien → détroit de Malacca → mer de Chine méridionale, contournement par Lombok
   waypoints:
