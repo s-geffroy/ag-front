@@ -565,6 +565,30 @@ export const PerceptionConsensusOut = z
   .passthrough();
 export type PerceptionConsensusOut = z.infer<typeof PerceptionConsensusOut>;
 
+/**
+ * The `engines[]` key under which `/chokepoints/{id}/analysis` serves the derived Polymarket consensus
+ * — engine `title: "Prediction consensus"`, `description: "Polymarket P3 perception consensus (uncleared
+ * source)."`. Confirmed live on API 0.12.0: this derived engine is served to the plain `read` (clear)
+ * token, UNLIKE raw `/perception-signals` (403 without `read_tainted`). Its `rows` match
+ * `PerceptionConsensusOut` (the engine omits `observed_window_end`). This is the sole consensus surface a
+ * `read`-scope consumer (HDDE, public site) can reach (ADR 0013 / 0035 / 0071).
+ */
+export const PREDICTION_CONSENSUS_ENGINE_KEY = 'prediction_consensus';
+
+/**
+ * Pull the derived consensus rows out of a parsed `ChokepointAnalysis`. Pure + total: returns `[]` when
+ * the corridor has no market (engine absent) or the rows do not validate — it never throws, so a
+ * malformed engine degrades to "no consensus block" instead of breaking a static build. The engine's
+ * `rows` are `unknown` in the pinned contract; this is where they gain their `PerceptionConsensusOut`
+ * type. Filtering to a public-safe view (finite probabilities, etc.) is the caller's job.
+ */
+export function extractPredictionConsensus(analysis: ChokepointAnalysis): PerceptionConsensusOut[] {
+  const engine = analysis.engines.find((e) => e.key === PREDICTION_CONSENSUS_ENGINE_KEY);
+  if (!engine) return [];
+  const parsed = z.array(PerceptionConsensusOut).safeParse(engine.rows);
+  return parsed.success ? parsed.data : [];
+}
+
 /** One raw prediction-market observation. Crowd ANTICIPATION, never event evidence. */
 export const PerceptionSignalOut = z
   .object({

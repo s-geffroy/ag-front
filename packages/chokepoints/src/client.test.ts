@@ -146,6 +146,56 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     expect(a.engines[0]!.key).toBe('criticality_score');
   });
 
+  it('getChokepointConsensus projects ONLY the prediction_consensus engine rows', async () => {
+    let calledUrl = '';
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async (url) => {
+        calledUrl = String(url);
+        return jsonResponse({
+          chokepoint_id: 'p0_taiwan',
+          engines: [
+            { key: 'criticality_score', columns: ['a'], rows: [[1]] },
+            {
+              key: 'prediction_consensus',
+              title: 'Prediction consensus',
+              columns: ['signal_family', 'market_count', 'consensus_probability'],
+              rows: [
+                { signal_family: 'conflict_escalation_expectation', market_count: 3, consensus_probability: 0.46 },
+                { signal_family: 'disruption_expectation', market_count: 2, consensus_probability: 0.04 },
+              ],
+            },
+          ],
+          relations: [{ some: 'thing' }],
+          claims: [{ any: 'claim' }],
+        });
+      },
+    });
+    const consensus = await client.getChokepointConsensus('p0_taiwan');
+    // reads /analysis under the hood…
+    expect(calledUrl).toContain('/chokepoints/p0_taiwan/analysis');
+    // …but hands back only the two consensus rows, typed — never engines/relations/claims.
+    expect(consensus).toHaveLength(2);
+    expect(consensus[0]!.signal_family).toBe('conflict_escalation_expectation');
+    expect(consensus[1]!.consensus_probability).toBe(0.04);
+  });
+
+  it('getChokepointConsensus returns [] when the corridor has no market (engine absent)', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_no_market',
+          engines: [{ key: 'criticality_score', columns: ['a'], rows: [[1]] }],
+          relations: [],
+          claims: [],
+        }),
+    });
+    expect(await client.getChokepointConsensus('p0_no_market')).toEqual([]);
+  });
+
   it('propagates the taint gate to a new endpoint when opted in', async () => {
     let calledUrl = '';
     const client = createChokepointsClient({
