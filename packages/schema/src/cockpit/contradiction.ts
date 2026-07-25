@@ -45,6 +45,15 @@ export const ContradictionAnalysis = z.object({
   open_questions: z.array(z.string()).default([]),
   /** Restatements that this output is not evidence and must be validated. */
   do_not_conclude: z.array(z.string()).default([]),
+  /**
+   * Did the fenced (untrusted) document try to steer the red team (prompt injection, LLM01)? A TYPED
+   * signal, not prose — same fix as the judge (see `@ag/schema/cockpit` judgement.ts, ADR 0068
+   * §amendment / ag-back 0016): the old « INJECTION DÉTECTÉE: » line in `do_not_conclude` fired to
+   * announce the absence of an attack and had no reader. `.default(false)` keeps older reports parseable. */
+  injection_detected: z.boolean().default(false),
+  /** Short description of the steering attempt when `injection_detected` — itself untrusted, so the
+   * server sanitises it before persisting. Empty when none. */
+  injection_evidence: z.string().default(''),
 });
 export type ContradictionAnalysis = z.infer<typeof ContradictionAnalysis>;
 

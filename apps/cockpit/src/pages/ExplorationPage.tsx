@@ -5,13 +5,16 @@ import { api } from '@/lib/api';
 import { Badge, Button, inputClass, Separator, Sheet } from '@/components/ui';
 import { PageHeader } from '@/components/common';
 import {
+  AlertsPanel,
   AlternativesPanel,
+  CviCounterfactualPanel,
   CviPanel,
   DerivedRelationsPanel,
   EngineBlocks,
   FlowsPanel,
   GeometriesPanel,
   MetricsPanel,
+  NewsPanel,
   PerceptionPanel,
   RisksPanel,
   SystemResiliencePanel,
@@ -162,11 +165,9 @@ const API_RESOURCES: { label: string; path: string; text?: boolean }[] = [
   { label: 'strategic-systems', path: 'strategic-systems' },
   { label: 'strategic-flows (SFIM)', path: 'strategic-flows' },
   { label: 'episodes', path: 'episodes' },
-  { label: 'alerts', path: 'alerts' },
-  { label: 'news (actualité live — candidats, jamais un incident confirmé)', path: 'news' },
+  // alerts, news, cvi-counterfactual are rendered as TYPED panels above (not raw JSON here).
   { label: 'analytics / results', path: 'analytics/results' },
   { label: 'analytics / engine-runs', path: 'analytics/engine-runs' },
-  { label: 'analytics / cvi-counterfactual', path: 'analytics/cvi-counterfactual' },
   { label: 'chokepoint-analyses', path: 'chokepoint-analyses' },
   { label: 'derived / relation-graph', path: 'derived/relation-graph', text: true },
   { label: 'exports / geojson', path: 'exports/geojson' },
@@ -235,6 +236,24 @@ function ResourceExplorer() {
         absent="Aucune relation dérivée."
       >
         {(g) => <DerivedRelationsPanel g={g} />}
+      </GlobalResource>
+
+      <Separator />
+      <GlobalResource load={() => api.getNews()} absent="Aucune actualité.">
+        {(feed) => <NewsPanel feed={feed} />}
+      </GlobalResource>
+
+      <Separator />
+      <GlobalResource load={api.getAlerts} absent="Aucune alerte.">
+        {(alerts) => <AlertsPanel alerts={alerts} />}
+      </GlobalResource>
+
+      <Separator />
+      <GlobalResource
+        load={() => api.getCviCounterfactual('core')}
+        absent="Contrefactuel CVI : non calculé."
+      >
+        {(data) => <CviCounterfactualPanel data={data} />}
       </GlobalResource>
 
       <Separator />
@@ -423,7 +442,7 @@ const CORRIDOR_RAW_ENDPOINTS: { label: string; sub: string }[] = [
   { label: 'fiche', sub: 'fiche' },
   { label: 'actors', sub: 'actors' },
   { label: 'event-signals', sub: 'event-signals' },
-  { label: 'news (candidats — jamais un incident)', sub: 'news' },
+  // news is rendered as a TYPED panel in CorridorApiPanel (not raw JSON here).
 ];
 
 /** Load one typed resource, distinguishing "not found" from a real failure. */
@@ -515,6 +534,11 @@ function CorridorApiPanel({ id }: { id: string }) {
         absent="Perception : aucun signal pour ce corridor."
       >
         {(p) => <PerceptionPanel p={p} />}
+      </Resource>
+
+      <Separator />
+      <Resource id={id} load={api.getCorridorNews} absent="News : aucun cluster pour ce corridor.">
+        {(feed) => <NewsPanel feed={feed} />}
       </Resource>
 
       <Separator />

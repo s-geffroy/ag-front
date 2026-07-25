@@ -14,6 +14,9 @@ describe('contradiction facade', () => {
     expect(a.summary.toLowerCase()).toContain('façade');
     // The reasoning field (ADR 0063) is present even offline.
     expect(a.analysis).toBeTruthy();
+    // Typed anti-injection signal off in a clean offline run (never a false positive).
+    expect(a.injection_detected).toBe(false);
+    expect(a.injection_evidence).toBe('');
   });
 
   it('is unavailable without an explicit key + flag (offline by default)', () => {
@@ -26,8 +29,10 @@ describe('contradiction prompt', () => {
   it('forbids inventing facts, forces French output, and defends against prompt injection', () => {
     expect(SYSTEM_PROMPT).toMatch(/N'invente aucun fait/);
     expect(SYSTEM_PROMPT).toMatch(/DÉFENSE ANTI-INJECTION/);
-    // A detected injection must be surfaced with a deterministic, reviewer-visible marker.
-    expect(SYSTEM_PROMPT).toMatch(/INJECTION DÉTECTÉE:/);
+    // A detected injection is surfaced by a TYPED boolean, not prose (ADR 0068 amendment): the prompt
+    // must ask for `injection_detected` and must NOT reintroduce the old « INJECTION DÉTECTÉE: » line.
+    expect(SYSTEM_PROMPT).toMatch(/injection_detected/);
+    expect(SYSTEM_PROMPT).not.toMatch(/INJECTION DÉTECTÉE:/);
     expect(SYSTEM_PROMPT).toMatch(/en français/);
     expect(SYSTEM_PROMPT).toMatch(/BARRE DE QUALITÉ/);
   });

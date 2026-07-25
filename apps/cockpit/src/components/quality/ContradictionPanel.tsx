@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Bot, Check, GitFork, Loader2, ShieldQuestion, Swords } from 'lucide-react';
+import {
+  AlertTriangle,
+  Bot,
+  Check,
+  GitFork,
+  Loader2,
+  ShieldAlert,
+  ShieldQuestion,
+  Swords,
+} from 'lucide-react';
 import type { ContradictionBasis, ContradictionReport, Deliverable } from '@ag/schema/cockpit';
 import { api } from '@/lib/api';
 import { useCockpit } from '@/store';
@@ -111,6 +120,23 @@ export function ContradictionPanel({ contentType, slug }: { contentType: string;
               </Badge>
               <span>· {formatDate(report.generated_at)}</span>
             </div>
+
+            {report.injection_detected ? (
+              <p className="flex items-start gap-2 rounded-md border border-status-blocked/40 bg-status-blocked/10 px-3 py-2 text-xs text-status-blocked">
+                <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>
+                  <strong>Tentative de pilotage détectée (injection).</strong> Le document contient
+                  un contenu qui a cherché à orienter le red team. Traitez cette passe avec
+                  prudence.
+                  {report.injection_evidence ? (
+                    <>
+                      {' '}
+                      <span className="text-muted">— {report.injection_evidence}</span>
+                    </>
+                  ) : null}
+                </span>
+              </p>
+            ) : null}
 
             <div>
               <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">

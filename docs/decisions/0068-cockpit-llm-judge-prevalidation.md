@@ -84,9 +84,11 @@ rapports antérieurs). La règle 6 du prompt pose les deux champs au lieu d'écr
 booléen et affiche une bannière dédiée, distincte du rappel « candidat » — un signal qui a enfin un
 lecteur. Le fence spotlighting (ADR 0063) n'a jamais été en cause et n'a pas bougé.
 
-**Report noté, non fait :** le red team frère (`contradiction.ts`/`prompts.ts`, ADR 0039) porte les deux
-mêmes défauts en prose. Son alignement (schéma/vue/persistance parallèles) est **différé** au lot UI news
-et signalé par un commentaire de code ; sa règle prose reste en place d'ici là (aucune régression).
+**Red team frère aligné (2026-07-21, avec le lot UI news) :** le red team (`contradiction.ts`/`prompts.ts`,
+ADR 0039) portait les deux mêmes défauts en prose. Il est désormais corrigé à l'identique —
+`ContradictionAnalysis` porte `injection_detected`/`injection_evidence`, la règle 6 du prompt pose les
+champs typés, `sanitize()` avant persistance, et le `ContradictionPanel` affiche la bannière. Un seul
+protocole anti-injection, deux modules, plus de prose.
 
 ## Conséquences
 

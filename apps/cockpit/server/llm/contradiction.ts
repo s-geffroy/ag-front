@@ -7,7 +7,7 @@ import OpenAI from 'openai';
 import { ContradictionAnalysis } from '@ag/schema/cockpit';
 import type { ContradictionAnalysis as ContradictionAnalysisT } from '@ag/schema/cockpit';
 import { config } from '../config';
-import { SYSTEM_PROMPT, buildUserPrompt, type EditorialContext } from './prompts';
+import { SYSTEM_PROMPT, buildUserPrompt, sanitize, type EditorialContext } from './prompts';
 
 export class ContradictionError extends Error {}
 
@@ -19,7 +19,15 @@ const CONTRADICTION_JSON_SCHEMA = {
   additionalProperties: false,
   // Order matters: `analysis` first so the model reasons before it concludes (CoT), the `summary`
   // last so it follows from the detailed findings (ADR 0063).
-  required: ['analysis', 'findings', 'open_questions', 'summary', 'do_not_conclude'],
+  required: [
+    'analysis',
+    'findings',
+    'open_questions',
+    'summary',
+    'do_not_conclude',
+    'injection_detected',
+    'injection_evidence',
+  ],
   properties: {
     analysis: { type: 'string' },
     findings: {
@@ -49,6 +57,9 @@ const CONTRADICTION_JSON_SCHEMA = {
     open_questions: { type: 'array', items: { type: 'string' } },
     summary: { type: 'string' },
     do_not_conclude: { type: 'array', items: { type: 'string' } },
+    // Typed anti-injection signal (ADR 0068 amendment): a boolean a human/SELECT reads, not prose.
+    injection_detected: { type: 'boolean' },
+    injection_evidence: { type: 'string' },
   },
 } as const;
 
@@ -73,6 +84,8 @@ export function facade(): ContradictionAnalysisT {
     do_not_conclude: [
       'Cette sortie est une façade hors-ligne — ne la traitez pas comme une revue effectuée.',
     ],
+    injection_detected: false,
+    injection_evidence: '',
   });
 }
 
@@ -145,5 +158,8 @@ export async function runContradiction(ctx: EditorialContext): Promise<Contradic
   if (!result.success) {
     throw new ContradictionError(`OpenAI output failed schema validation: ${result.error.message}`);
   }
-  return { analysis: result.data, usage, model: config.openaiModel };
+  // `injection_evidence` describes an attack and may echo the attacker's forged fence markers — strip
+  // them before it is persisted/displayed (untrusted content, same fence hardening as the document).
+  const clean = { ...result.data, injection_evidence: sanitize(result.data.injection_evidence) };
+  return { analysis: clean, usage, model: config.openaiModel };
 }

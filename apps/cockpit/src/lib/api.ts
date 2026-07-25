@@ -9,11 +9,14 @@ import type {
   ValidationEntry,
 } from '@ag/schema/cockpit';
 import type {
+  AlertOut,
   ChokepointAnalysis,
   ChokepointDetail,
   ChokepointList,
   CviAssessmentOut,
+  CviCounterfactualOut,
   DerivedRelationGraphOut,
+  NewsFeedOut,
   PerceptionSignalList,
   StrategicFlowUnitList,
   SfuFicheOut,
@@ -218,6 +221,16 @@ export const api = {
       asJson<SfuVerdictOut | null>,
     ),
   getVocabularies: () => fetch('/api/explore/vocabularies').then(asJson<VocabulariesOut>),
+  // Live chokepoint news (ADR 0070). Candidates, never confirmed incidents. `run_notes` must be shown.
+  getNews: (params = 'since=7&limit=50') =>
+    fetch(`/api/explore/news?${params}`).then(asJson<NewsFeedOut>),
+  getCorridorNews: (id: string) =>
+    fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/news`).then(asJson<NewsFeedOut>),
+  getCviCounterfactual: (scope = 'core') =>
+    fetch(`/api/explore/analytics/cvi-counterfactual?scope=${encodeURIComponent(scope)}`).then(
+      asJson<CviCounterfactualOut>,
+    ),
+  getAlerts: () => fetch('/api/explore/alerts').then(asJson<AlertOut[]>),
   exploreText: (path: string) =>
     fetch(`/api/explore/${path}`).then((r) =>
       r.ok ? r.text() : Promise.reject(new Error(`${r.status} ${r.statusText}`)),

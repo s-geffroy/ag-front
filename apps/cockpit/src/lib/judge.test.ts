@@ -62,6 +62,8 @@ function contradiction(maxSev: number): ContradictionReport {
         : [],
     open_questions: [],
     do_not_conclude: [],
+    injection_detected: false,
+    injection_evidence: '',
     doc_id: 'atlas/x',
     content_type: 'atlas',
     slug: 'x',

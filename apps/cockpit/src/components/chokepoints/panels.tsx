@@ -1,16 +1,21 @@
 import type {
+  AlertOut,
   AlternativeOut,
   ChokepointAnalysis,
   CviAssessmentOut,
+  CviCounterfactualOut,
   DerivedRelationGraphOut,
   FlowOut,
   GeometryOut,
   MetricOut,
+  NewsClusterOut,
+  NewsFeedOut,
   PerceptionSignalList,
   RiskOut,
   SystemResilienceOut,
 } from '@ag/chokepoints';
 import { Badge, Separator } from '@/components/ui';
+import { decodeHtmlEntities } from '@/lib/display';
 
 /**
  * Typed renderers for the Chokepoints Read API. These replace the raw `<pre>{JSON}</pre>` dumps: a
@@ -475,6 +480,199 @@ export function EngineBlocks({ analysis }: { analysis: ChokepointAnalysis }) {
         {analysis.relations.length} relations · {analysis.claims.length} claims.
       </p>
       <Disclaimer text={analysis.disclaimer} />
+    </div>
+  );
+}
+
+/* ---- News (ADR 0070) ----------------------------------------------------- */
+
+/** One event cluster. The model prose can be wrong; `articles[]` + `affected_chokepoints[]` are
+ *  server-recalculated and reliable — believe the articles on conflict. Never a confirmed incident. */
+function NewsCluster({ c }: { c: NewsClusterOut }) {
+  return (
+    <li className="rounded-md border border-line px-2.5 py-2">
+      <div className="flex flex-wrap items-baseline gap-1.5">
+        <span className="text-sm font-medium">
+          {decodeHtmlEntities(c.headline) || '(sans titre)'}
+        </span>
+        {c.event_category ? <Badge tone="neutral">{humanize(c.event_category)}</Badge> : null}
+        {/* salience is coverage intensity, never a severity — keep a neutral tone. */}
+        {c.salience_score != null ? (
+          <Badge tone="neutral">saillance {c.salience_score.toFixed(2)}</Badge>
+        ) : null}
+      </div>
+      {c.summary_text ? (
+        <p className="mt-1 text-xs text-muted">{decodeHtmlEntities(c.summary_text)}</p>
+      ) : null}
+      {c.affected_chokepoints.length ? (
+        <div className="mt-1 text-[11px] text-muted">
+          Objets liés :{' '}
+          {c.affected_chokepoints
+            .map(
+              (a) =>
+                `${a.canonical_name ?? a.chokepoint_id}${a.relevance != null ? ` (${a.relevance.toFixed(2)})` : ''}`,
+            )
+            .join(' · ')}
+        </div>
+      ) : null}
+      {c.articles.length ? (
+        <ul className="mt-1 space-y-0.5 text-[11px]">
+          {c.articles.slice(0, 8).map((a, i) => (
+            <li key={i} className="text-muted">
+              {a.url ? (
+                <a href={a.url} target="_blank" rel="noreferrer" className="underline">
+                  {decodeHtmlEntities(a.title) || a.url}
+                </a>
+              ) : (
+                decodeHtmlEntities(a.title) || '(article)'
+              )}
+              {a.outlet ? <span> — {a.outlet}</span> : null}
+              {/* GKG is the web-wide long tail, not an audited outlet — flag it, don't equate it. */}
+              {a.source_id === 'gdelt_gkg' ? (
+                <span className="ml-1 opacity-70">[gdelt]</span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+}
+
+/** GET /news → readable news layer. Candidate coverage, NEVER a confirmed incident (capped at
+ *  `stress`, ADR 0042). `run_notes` is shown up top: a tidy list is a SAMPLE, not the period's news. */
+export function NewsPanel({ feed }: { feed: NewsFeedOut }) {
+  return (
+    <div>
+      <div className="mb-1 flex flex-wrap items-center gap-1.5">
+        <PanelTitle>Actualité (couverture média)</PanelTitle>
+        <Badge tone="neutral">{feed.count} événement(s)</Badge>
+        {feed.taint_class ? <Badge tone="neutral">{humanize(feed.taint_class)}</Badge> : null}
+      </div>
+      <p className="mb-1.5 text-[11px] text-muted">
+        Couverture média = <strong>candidat à valider, jamais un incident confirmé</strong>. La
+        prose du modèle peut être fausse ; les articles et objets liés sont recalculés serveur — en
+        cas de doute, croyez les articles. Compteurs à ne pas comparer entre objets (cycle d'actu ≠
+        importance).
+      </p>
+
+      {/* run_notes FIRST and visible: it reports the run's own limits (sample vs summary, caps). */}
+      {feed.run_notes.length ? (
+        <ul className="mb-2 space-y-0.5 rounded-md border border-status-at_risk/30 bg-status-at_risk/10 px-2.5 py-1.5 text-[11px] text-status-at_risk">
+          {feed.run_notes.map((n, i) => (
+            <li key={i}>{n}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      {feed.items.length ? (
+        <ul className="space-y-2">
+          {feed.items.map((c) => (
+            <NewsCluster key={c.cluster_id} c={c} />
+          ))}
+        </ul>
+      ) : feed.run_id ? (
+        <Empty what="événement" reason="feed honnête, aucun cluster sur la période" />
+      ) : (
+        <Empty what="agrégation" reason="aucune n'a encore tourné" />
+      )}
+
+      <Disclaimer text={feed.attribution_notice} />
+      <Disclaimer text={feed.disclaimer} />
+    </div>
+  );
+}
+
+/* ---- CVI counterfactual (ADR 0070) --------------------------------------- */
+
+/** GET /analytics/cvi-counterfactual → how many objects' CVI level slides when `concentration` is
+ *  removed. A live aggregate count, derived candidate — replay it against the base to verify. */
+export function CviCounterfactualPanel({ data }: { data: CviCounterfactualOut }) {
+  const buckets = Object.entries(data.buckets ?? {});
+  return (
+    <div>
+      <div className="mb-1 flex flex-wrap items-center gap-1.5">
+        <PanelTitle>Contrefactuel CVI (retrait « {humanize(data.removed_dimension)} »)</PanelTitle>
+        <Badge tone="neutral">scope {data.scope}</Badge>
+        {data.status ? <Badge tone="neutral">{data.status}</Badge> : null}
+      </div>
+      <dl className="grid grid-cols-3 gap-2 text-sm">
+        <div>
+          <dt className="text-[11px] text-muted">Population</dt>
+          <dd className="tabular-nums">{num(data.population)}</dd>
+        </div>
+        <div>
+          <dt className="text-[11px] text-muted">Glissent</dt>
+          <dd className="tabular-nums">{num(data.changent)}</dd>
+        </div>
+        <div>
+          <dt className="text-[11px] text-muted">Critique → bas</dt>
+          <dd className="tabular-nums">{num(data.critique_vers_bas)}</dd>
+        </div>
+      </dl>
+      {buckets.length ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {buckets.map(([k, v]) => (
+            <Badge key={k} tone="neutral">
+              {humanize(k)} : {num(v)}
+            </Badge>
+          ))}
+        </div>
+      ) : null}
+      {data.method_note ? (
+        <p className="mt-1 text-xs italic text-muted">{data.method_note}</p>
+      ) : null}
+      <Disclaimer text={data.disclaimer} />
+    </div>
+  );
+}
+
+/* ---- Alerts (ADR 0077 — media_attention_spike is NOT a disruption) -------- */
+
+/** GET /alerts → review triggers, never conclusions. `media_attention_spike` answers "something to
+ *  watch?", NOT "is there a disruption?" — kept in a distinct section, never styled as an incident. */
+export function AlertsPanel({ alerts }: { alerts: AlertOut[] }) {
+  const media = alerts.filter((a) => a.alert_type === 'media_attention_spike');
+  const rest = alerts.filter((a) => a.alert_type !== 'media_attention_spike');
+  const row = (a: AlertOut, i: number) => (
+    <li key={a.id ?? i} className="rounded-md border border-line px-2.5 py-1.5">
+      <div className="flex flex-wrap items-baseline gap-1.5">
+        <span className="text-sm">{a.canonical_name ?? a.chokepoint_id ?? '—'}</span>
+        <Badge tone="neutral">{humanize(a.alert_type)}</Badge>
+        {a.level ? <Badge tone="neutral">{humanize(a.level)}</Badge> : null}
+        {a.review_status ? (
+          <span className="text-[11px] text-muted">{humanize(a.review_status)}</span>
+        ) : null}
+      </div>
+      {a.trigger_summary ? (
+        <p className="mt-0.5 text-[11px] text-muted">{a.trigger_summary}</p>
+      ) : null}
+      <Disclaimer text={a.disclaimer} />
+    </li>
+  );
+  return (
+    <div className="space-y-3">
+      <div>
+        <PanelTitle>À regarder — volume médiatique</PanelTitle>
+        <p className="mb-1.5 text-[11px] text-muted">
+          <strong>Coverage volume only, NOT evidence of disruption.</strong> Une demande d'attention
+          (revue humaine), jamais une disruption, une confirmation ni un incident.
+        </p>
+        {media.length ? (
+          <ul className="space-y-1.5">{media.map(row)}</ul>
+        ) : (
+          <Empty what="pic d'attention" reason="aucun signalé" />
+        )}
+      </div>
+      <Separator />
+      <div>
+        <PanelTitle>Autres alertes (déclencheurs de revue)</PanelTitle>
+        {rest.length ? (
+          <ul className="space-y-1.5">{rest.map(row)}</ul>
+        ) : (
+          <Empty what="alerte" reason="aucune" />
+        )}
+      </div>
     </div>
   );
 }

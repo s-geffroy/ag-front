@@ -90,6 +90,38 @@ export function daysUntil(iso: string, now = new Date()): number {
   return Math.round((new Date(iso).getTime() - now.getTime()) / 86_400_000);
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+};
+
+/**
+ * Decode the HTML entities that leak into some /news cluster text (ag-back 0017: ~6 titles in 118
+ * carried an undecoded `&#x2013;` from the GKG raw feed). Display-only — never persist the result.
+ * Handles numeric (`&#8211;` / `&#x2013;`) and the common named entities; leaves anything unknown
+ * verbatim rather than guessing.
+ */
+export function decodeHtmlEntities(input?: string | null): string {
+  if (!input) return '';
+  return String(input).replace(
+    /&(#[xX][0-9a-fA-F]+|#\d+|[a-zA-Z][a-zA-Z0-9]*);/g,
+    (match, code: string) => {
+      if (code[0] === '#') {
+        const cp =
+          code[1] === 'x' || code[1] === 'X'
+            ? Number.parseInt(code.slice(2), 16)
+            : Number.parseInt(code.slice(1), 10);
+        return Number.isFinite(cp) && cp > 0 ? String.fromCodePoint(cp) : match;
+      }
+      return NAMED_ENTITIES[code.toLowerCase()] ?? match;
+    },
+  );
+}
+
 /**
  * Derive a readable content reference ({type, slug}) from a deliverable's links — a public-site URL
  * like `/atlas/mer-rouge-suez` maps to the content folder `atlas` and slug `mer-rouge-suez`. Returns
