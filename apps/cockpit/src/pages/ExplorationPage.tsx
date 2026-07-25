@@ -538,7 +538,7 @@ function CorridorApiPanel({ id }: { id: string }) {
 
       <Separator />
       <Resource id={id} load={api.getCorridorNews} absent="News : aucun cluster pour ce corridor.">
-        {(feed) => <NewsPanel feed={feed} />}
+        {(feed) => <NewsPanel feed={feed} corridorId={id} />}
       </Resource>
 
       <Separator />

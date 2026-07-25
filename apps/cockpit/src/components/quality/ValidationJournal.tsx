@@ -15,6 +15,7 @@ const targetKindLabel: Record<ValidationEntry['target_kind'], string> = {
   munich: 'Munich',
   cvi: 'CVI',
   publication: 'Publication',
+  news_promotion: 'Promotion actu',
 };
 
 /**

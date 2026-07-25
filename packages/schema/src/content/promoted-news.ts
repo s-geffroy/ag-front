@@ -28,7 +28,8 @@ export type PromotedArticle = z.infer<typeof PromotedArticle>;
 export const PromotedAffectedChokepoint = z.object({
   chokepoint_id: z.string(),
   canonical_name: z.string().default(''),
-  relevance: z.string().default(''),
+  /** Server-recalculated relevance score (matches the producer's numeric field). */
+  relevance: z.number().nullish(),
 });
 export type PromotedAffectedChokepoint = z.infer<typeof PromotedAffectedChokepoint>;
 

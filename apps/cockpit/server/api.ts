@@ -32,6 +32,12 @@ import { JudgeError, runJudge } from './llm/judge';
 import { resolveGateValidation } from './validate';
 import { resolvePublish, touchPublishPending, writePublishFlag } from './publish';
 import {
+  resolvePromoteFromFeed,
+  toPromotedItem,
+  writePromotedNews,
+  unpromoteNews,
+} from './promote-news';
+import {
   addUploads,
   getUpload,
   listUploads,
@@ -742,6 +748,123 @@ export function createApiRouter(): Router {
       next(err);
     }
   });
+
+  // --- Promote a news cluster to the public Atlas (ADR 0071) --------------------------------------
+  // Human promotion of ONE cluster from the cockpit-only /news feed to the public store. Nominative
+  // (validated_by), journalled (target_kind 'news_promotion'), and gated on two hard rules: the cluster
+  // must be CLEARED (not license_taint) and its reliable fields come from a FRESH server re-fetch, never
+  // the client body. Touches the publish sentinel so the host watcher ships it. Never runs the build.
+  const CORRIDOR_ID_RE = /^[a-z0-9_]+$/i;
+  r.post('/promote-news/:corridorId', async (req: Request, res: Response, next: NextFunction) => {
+    const { corridorId } = req.params;
+    if (!CORRIDOR_ID_RE.test(corridorId)) {
+      res.status(400).json({ error: 'invalid corridor id' });
+      return;
+    }
+    const body = z
+      .object({
+        cluster_id: z.string().optional(),
+        article_urls: z.array(z.string()).optional(),
+        validated_by: z.string().min(1),
+        reserve: z.string().optional(),
+      })
+      .refine((b) => b.cluster_id || (b.article_urls && b.article_urls.length > 0), {
+        message: 'cluster_id or article_urls required',
+      })
+      .safeParse(req.body);
+    if (!body.success) {
+      res.status(400).json({ error: 'validation', issues: body.error.issues });
+      return;
+    }
+    const client = chokepointsClient();
+    if (!client) {
+      res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+      return;
+    }
+    try {
+      // Re-fetch the feed server-side — the reliable fields are taken from THIS, not the client's copy.
+      const feed = await client.getChokepointNews(corridorId, { limit: 200 });
+      const resolved = resolvePromoteFromFeed(feed, {
+        cluster_id: body.data.cluster_id,
+        article_urls: body.data.article_urls,
+      });
+      if (!resolved.ok) {
+        res.status(resolved.status).json({ error: resolved.error });
+        return;
+      }
+      const item = toPromotedItem(resolved.cluster, {
+        promotedBy: body.data.validated_by,
+        promotedAt: new Date().toISOString(),
+      });
+      await writePromotedNews(corridorId, item);
+      const entry = ValidationEntry.parse({
+        id: `val_${randomUUID()}`,
+        deliverable_id: `news/${corridorId}`,
+        target_kind: 'news_promotion',
+        target_id: item.cluster_id || `news/${corridorId}`,
+        decision: 'validated',
+        reserve: body.data.reserve ?? '',
+        before: false,
+        after: true,
+        validated_by: body.data.validated_by,
+        validated_at: new Date().toISOString(),
+      });
+      await mutateCollection('validation_journal', (list) => {
+        const arr = list as z.infer<typeof ValidationEntry>[];
+        return [...arr, entry];
+      });
+      res.status(201).json({ promoted: item, entry, pending_rebuild: true });
+    } catch (err) {
+      const status = err instanceof ChokepointsApiError ? err.status : 0;
+      if (status === 404) {
+        res.status(404).json({ error: 'corridor_not_found' });
+        return;
+      }
+      next(err);
+    }
+  });
+
+  // Unpromote (always allowed — you can always pull something offline). `key` is the itemKey.
+  r.delete(
+    '/promote-news/:corridorId/:key',
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { corridorId, key } = req.params;
+      if (!CORRIDOR_ID_RE.test(corridorId)) {
+        res.status(400).json({ error: 'invalid corridor id' });
+        return;
+      }
+      const body = z.object({ validated_by: z.string().min(1) }).safeParse(req.body);
+      if (!body.success) {
+        res.status(400).json({ error: 'validation', issues: body.error.issues });
+        return;
+      }
+      try {
+        const removed = await unpromoteNews(corridorId, key);
+        if (!removed) {
+          res.status(404).json({ error: 'not_promoted' });
+          return;
+        }
+        const entry = ValidationEntry.parse({
+          id: `val_${randomUUID()}`,
+          deliverable_id: `news/${corridorId}`,
+          target_kind: 'news_promotion',
+          target_id: key,
+          decision: 'rejected',
+          before: true,
+          after: false,
+          validated_by: body.data.validated_by,
+          validated_at: new Date().toISOString(),
+        });
+        await mutateCollection('validation_journal', (list) => {
+          const arr = list as z.infer<typeof ValidationEntry>[];
+          return [...arr, entry];
+        });
+        res.status(200).json({ unpromoted: true, entry, pending_rebuild: true });
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
 
   // --- Source deposits (uploaded evidence files) --------------------------------------------------
   r.post('/uploads', (req: Request, res: Response, next: NextFunction) => {

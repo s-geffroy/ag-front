@@ -18,7 +18,7 @@ export const PUBLISHED_GATES = [
 ] as const;
 
 /** apps/public — the site root whose `dist` Caddy serves. CONTENT_DIR is apps/public/src/content. */
-const PUBLIC_DIR = resolve(CONTENT_DIR, '../..');
+export const PUBLIC_DIR = resolve(CONTENT_DIR, '../..');
 /** Sentinel the watcher polls: touched on every publish/unpublish. Git-ignored (ADR 0069). */
 export const PUBLISH_PENDING = resolve(PUBLIC_DIR, '.publish-pending');
 

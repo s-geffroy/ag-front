@@ -190,6 +190,27 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),
     }).then(asJson<{ published: boolean; entry: ValidationEntry; pending_rebuild: boolean }>),
+  // Promote / unpromote a news cluster to the public Atlas (ADR 0071). The server re-fetches the feed
+  // and takes the reliable fields from THAT, refuses a tainted cluster, journals the nominative act, and
+  // touches the host rebuild sentinel. Going live still needs the host rebuild (watcher, ~2 min).
+  promoteNews: (
+    corridorId: string,
+    payload: { cluster_id?: string; article_urls?: string[]; validated_by: string; reserve?: string },
+  ) =>
+    fetch(`/api/promote-news/${encodeURIComponent(corridorId)}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(asJson<{ promoted: unknown; entry: ValidationEntry; pending_rebuild: boolean }>),
+  unpromoteNews: (corridorId: string, key: string, validated_by: string) =>
+    fetch(
+      `/api/promote-news/${encodeURIComponent(corridorId)}/${encodeURIComponent(key)}`,
+      {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ validated_by }),
+      },
+    ).then(asJson<{ unpromoted: boolean; entry: ValidationEntry; pending_rebuild: boolean }>),
   // --- Read-API Explorateur (server-side proxy over the full Chokepoints read surface) ---
   // `path` is a pre-built relative path (e.g. "actors", "chokepoints/p0_x/fiche"); callers assemble
   // it from the resource registry. Returns parsed JSON, or raw text for the JSONL export.

@@ -16,6 +16,7 @@ import type {
 } from '@ag/chokepoints';
 import { Badge, Separator } from '@/components/ui';
 import { decodeHtmlEntities } from '@/lib/display';
+import { PromoteNewsButton } from './PromoteNewsButton';
 
 /**
  * Typed renderers for the Chokepoints Read API. These replace the raw `<pre>{JSON}</pre>` dumps: a
@@ -488,7 +489,7 @@ export function EngineBlocks({ analysis }: { analysis: ChokepointAnalysis }) {
 
 /** One event cluster. The model prose can be wrong; `articles[]` + `affected_chokepoints[]` are
  *  server-recalculated and reliable — believe the articles on conflict. Never a confirmed incident. */
-function NewsCluster({ c }: { c: NewsClusterOut }) {
+function NewsCluster({ c, corridorId }: { c: NewsClusterOut; corridorId?: string }) {
   return (
     <li className="rounded-md border border-line px-2.5 py-2">
       <div className="flex flex-wrap items-baseline gap-1.5">
@@ -535,13 +536,15 @@ function NewsCluster({ c }: { c: NewsClusterOut }) {
           ))}
         </ul>
       ) : null}
+      {/* Promotion to the public Atlas is a per-corridor act (ADR 0071) — only when we know the corridor. */}
+      {corridorId ? <PromoteNewsButton corridorId={corridorId} cluster={c} /> : null}
     </li>
   );
 }
 
 /** GET /news → readable news layer. Candidate coverage, NEVER a confirmed incident (capped at
  *  `stress`, ADR 0042). `run_notes` is shown up top: a tidy list is a SAMPLE, not the period's news. */
-export function NewsPanel({ feed }: { feed: NewsFeedOut }) {
+export function NewsPanel({ feed, corridorId }: { feed: NewsFeedOut; corridorId?: string }) {
   return (
     <div>
       <div className="mb-1 flex flex-wrap items-center gap-1.5">
@@ -568,7 +571,7 @@ export function NewsPanel({ feed }: { feed: NewsFeedOut }) {
       {feed.items.length ? (
         <ul className="space-y-2">
           {feed.items.map((c) => (
-            <NewsCluster key={c.cluster_id} c={c} />
+            <NewsCluster key={c.cluster_id} c={c} corridorId={corridorId} />
           ))}
         </ul>
       ) : feed.run_id ? (
