@@ -1,8 +1,10 @@
 # 0071 — Atlas public : consensus Polymarket dérivé (live) + couverture média promue (hybride)
 
-- **Statut :** accepté — **mise en ligne publique du volet Polymarket conditionnée** à la confirmation
-  de redistribution par ag-back (dépôt `cf9303ef`, canal ADR 0067). Le volet news promues n'est pas
-  conditionné.
+- **Statut :** accepté — **mise en ligne publique du volet Polymarket conditionnée**. La confirmation
+  de redistribution par ag-back est **arrivée le 2026-07-26** (leur `0018`, `e3518308`, en réponse à
+  notre `cf9303ef`) : **oui, sous conditions** — le blocage restant est **propriétaire** (usage
+  commercial) et **d'affichage** (Panama/Suez seulement). Voir « Réponse reçue » en Conséquences. Le
+  volet news promues n'est pas conditionné.
 - **Date :** 2026-07-25
 - **Contexte connexe :** **amende** ADR 0013 (`read_tainted` interne uniquement). S'appuie sur ADR 0066
   (consommation intégrale garantie au build), 0067 (canal d'échange ag-back), 0068/0046 (LLM-juge +
@@ -103,6 +105,31 @@ ADR 0013 interdit de republier des données **tainted**. On précise sa portée 
   devient un consommateur **live** (rebuild horaire) au lieu d'un pur instantané éditorial.
 - Nouvelle surface d'écriture cockpit bornée (`promoted-news.json`), sur le patron ADR 0069.
 - `ValidationEntry.target_kind` étendu à `'news_promotion'` (schéma `@ag/schema`).
-- **Dépendance externe** : la mise en ligne **publique** du consensus Polymarket attend le **oui** d'ag-back
-  à la question 1 du dépôt `cf9303ef`. En cas de **non**, on garde le consensus en cockpit et on abandonne
-  le volet public Polymarket — le volet news promues, lui, reste livrable.
+### Réponse reçue (ag-back `0018`, `e3518308`, 2026-07-26) — oui qualifié
+
+La question 1 du dépôt `cf9303ef` est tranchée : `polymarket_gamma` est **`cleared_with_attribution`**
+dans leur ledger (décision propriétaire 2026-07-12, `license_taint=False`), et l'agrégat dérivé — sans
+marché individuel — « divulgue *moins* que le brut ». Le « (uncleared source) » de la `description`
+qualifie la **provenance**, pas une interdiction : leur libellé n'avait jamais été réconcilié avec le
+flip du 12-07, ils le corrigent. **Trois conditions non négociables avant mise en ligne :**
+
+1. **Attribution Polymarket obligatoire** (pas optionnelle) portée avec l'agrégat + disclaimer
+   **S5 / faible fiabilité** (perception de foule, jamais preuve d'événement).
+2. **Ne publier que Panama et Suez.** Leur moteur `prediction_consensus` agrège encore tout
+   l'historique retenu sans appliquer le plancher `ATTACH_FLOOR=2` d'ADR 0079 — l'attache par acteur
+   avait **12 % de précision**. Les ~5 corridors supplémentaires que nous voyions (Hormuz, Taïwan, Cap,
+   Bab-el-Mandeb, Malacca) sont ce **bruit pré-plancher conservé**, pas une couverture de marché. Le
+   correctif moteur est planifié ; **d'ici là le filtre est de notre responsabilité, à l'affichage.**
+   C'est aussi l'explication de l'écart brut↔agrégat que nous avions relevé — attendu, pas une panne.
+3. **Feu vert propriétaire sur l'usage commercial** : `commercial_use_allowed` reste
+   `needs_legal_review` et `redistribution_allowed` reste `to_verify` (ToS Polymarket non vérifiée ;
+   leur clearance est une acceptation propriétaire assumée). Un site public ouvert et indexé peut
+   constituer un contexte commercial. **Cette réserve remonte au propriétaire, pas à l'agent.**
+
+Deux facilités accordées, en travaux additifs de leur côté : `observed_window_end` ajouté à la liste
+d'affichage du bloc `/analysis` (le label « consensus au <date> » honnête), et l'endpoint dédié
+`GET /chokepoints/{id}/prediction-consensus` **planifié** (ils préviendront par le canal). Les 5
+colonnes du moteur sont **épinglées par un test de contrat** chez eux : ni renommage ni suppression
+sans bump — on peut typer dessus sans casse silencieuse ; seul l'**ajout** de colonnes est sans bump.
+
+- Reste bloquant : le point 3 (décision propriétaire). Le volet news promues, lui, reste livrable.

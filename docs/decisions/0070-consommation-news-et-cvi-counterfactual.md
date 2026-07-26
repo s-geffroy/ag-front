@@ -34,11 +34,21 @@ fabrique jamais un littéral de version producteur — et nous **signalons la tr
 ag-back sur le canal. La garde de couverture porte sur les *chemins* et *champs*, pas sur la chaîne de
 version : elle reste juste.
 
+**Résolu le 2026-07-26 (handoff ag-back `0019`).** La cause était opérationnelle, pas contractuelle :
+leur conteneur uvicorn tournait depuis ~10 jours, chargé quand le code était en `0.11.0`, et n'avait
+pas rechargé après le bump. API redémarrée, `/openapi.json` servi rend désormais `info.version =
+0.12.0`. Nous avons **repinné les octets servis** (`sync_contract.sh` → `DRIFT-KIND: soft`,
+`version: 0.11.0 → 0.12.0`, une seule ligne changée dans le spec) et régénéré le client. La doctrine
+tient inchangée : on épingle ce qui est servi, jamais un littéral fabriqué — c'est le producteur qui a
+aligné son littéral sur son code. Leur baseline publiée `docs/openapi.published.json` reste
+délibérément à `0.8.0` (acte de release, leur ADR 0050) ; rien de ce que nous consommons n'en dépend.
+
 ## Décision
 
 **Consommer les trois surfaces, cockpit-only, en respectant la frontière de confiance news.**
 
-1. **Pin sur les octets 0.11.0 servis** + régénération du client de drift.
+1. **Pin sur les octets servis** + régénération du client de drift (littéral `0.11.0` au Lot 1,
+   repinné `0.12.0` le 2026-07-26 — voir la résolution ci-dessus ; spec schema-identique).
 2. **Cinq schémas zod** ajoutés (`schema.ts`) — `CviCounterfactualOut`, `NewsFeedOut`, `NewsClusterOut`,
    `NewsSourceRef`, `NewsClusterChokepoint` — tous `.passthrough()`, chaque propriété **requise**
    déclarée, optionnelles déclarées aussi (dont `run_notes`).
@@ -74,7 +84,8 @@ version : elle reste juste.
 
 ## Conséquences
 
-- Build re-vert : `contract-coverage.test.ts` passe sur le pin 0.11.0 (PATH + FIELD + CONSUMER), et
+- Build re-vert : `contract-coverage.test.ts` passe sur le pin (0.11.0 au Lot 1, `0.12.0` depuis le
+  2026-07-26 — même surface : 39 chemins, PATH + FIELD + CONSUMER inchangés), et
   `client.test.ts` couvre les trois méthodes + la frontière de confiance (articles fiables, run_notes
   préservé, `count:0` avec `run_id` = feed honnête).
 - `/perception-signals` : sa couverture **chute** (Panama/Suez) suite à ADR 0079 côté producteur — **ce
