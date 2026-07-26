@@ -133,3 +133,30 @@ colonnes du moteur sont **épinglées par un test de contrat** chez eux : ni ren
 sans bump — on peut typer dessus sans casse silencieuse ; seul l'**ajout** de colonnes est sans bump.
 
 - Reste bloquant : le point 3 (décision propriétaire). Le volet news promues, lui, reste livrable.
+
+### Conditions 1 et 2 implémentées (2026-07-26)
+
+- **Liste blanche** `CONSENSUS_PUBLIC_ALLOWLIST` (`apps/public/src/lib/atlas-data.ts`) = exactement
+  `p0_maritime_canal_panama_canal` + `p0_maritime_canal_suez_canal`. Testée contre l'API réelle : sur
+  les **12** objets dont l'`id` contient `panama` ou `suez` (catalogue de 2 218), **ces deux-là seuls**
+  portent le moteur `prediction_consensus` — les systèmes agrégés et les 9 atterrages de câbles ne
+  l'ont pas. Le filtre est posé **avant l'appel réseau**, dans l'unique chemin de chargement que
+  traversent les deux couches de l'Atlas : un corridor qu'on n'a pas le droit de publier n'est même
+  pas lu. Il **échoue fermé** (un `id` inconnu ne rend rien).
+- **Attribution + S5** portés **dans le même bloc que les chiffres** (`ConsensusBlock.astro`), rendus
+  inconditionnellement, depuis `CONSENSUS_ATTRIBUTION` / `CONSENSUS_RELIABILITY` : pastille
+  « Fiabilité S5 », mention « anticipation de la foule […] ni une preuve d'événement ni un conseil »,
+  et pied de bloc « Source : Polymarket […] agrégat dérivé […] redistribué avec attribution
+  obligatoire » + lien. Le crédit ne peut pas dériver loin de ce qu'il licencie.
+- **10 tests** (`atlas-data.test.ts`) gardent les deux conditions : un corridor hors liste renvoie
+  `null` **et** ne déclenche aucun appel API, la liste vaut exactement Panama+Suez (l'élargir est une
+  décision ag-back annoncée sur le canal, pas la nôtre), l'attribution nomme Polymarket, le disclaimer
+  porte S5/faible. Vérifié en rendu réel (dev, flag forcé à `1`) : Panama et Suez rendent le bloc avec
+  pastille + attribution + lien, Hormuz ne rend rien.
+- **Conséquence à connaître** : aucune fiche éditoriale n'a aujourd'hui un `chokepoint_id` de la liste
+  (malacca, taïwan, bab-el-mandeb) — au go-live, le bloc consensus n'apparaîtra donc que sur les
+  **pages BDD** de Panama et de Suez. Rien à corriger : c'est la couverture honnête.
+- **Retrait du filtre** : quand ag-back appliquera le plancher `attachment_rule` à l'agrégat (correctif
+  moteur annoncé), la liste blanche perd sa raison d'être et se supprime en une ligne. Ne pas la
+  retirer avant l'annonce sur le canal.
+- **Le flag `ATLAS_CONSENSUS_PUBLIC` reste à 0** : la condition 3 (usage commercial) n'est pas levée.

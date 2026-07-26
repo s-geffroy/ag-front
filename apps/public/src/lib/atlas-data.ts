@@ -120,6 +120,52 @@ export type AtlasConsensus = {
 };
 
 /**
+ * Corridors whose derived consensus may be PUBLISHED — **exactly two** (ag-back handoff 0018,
+ * `e3518308`; ADR 0071 § « Réponse reçue »).
+ *
+ * The producer's `prediction_consensus` engine still aggregates its whole retained history WITHOUT
+ * applying the `ATTACH_FLOOR=2` floor introduced by their ADR 0079. Attachment by actor (« NATO x
+ * Russia » landing on Hormuz, Bab-el-Mandeb, Malacca, Taiwan…) was measured at **12 % precision**, so
+ * the ~5 extra corridors the API happily serves are retained pre-floor NOISE, not market coverage.
+ * Their honest go-forward coverage is Panama and Suez. Until their engine-side fix ships, **the filter
+ * is our responsibility, at display time** — which is why it lives here, at the single load path both
+ * Atlas layers go through, and why we do not even call the API for a corridor we may not publish.
+ *
+ * Widening this list is ag-back's call announced on the channel (ADR 0067), never ours.
+ */
+export const CONSENSUS_PUBLIC_ALLOWLIST: readonly string[] = [
+  'p0_maritime_canal_panama_canal',
+  'p0_maritime_canal_suez_canal',
+];
+
+/**
+ * Mandatory attribution carried WITH the aggregate (ag-back 0018 §1: « attribution Polymarket
+ * obligatoire (pas optionnelle) »). `polymarket_gamma` is `cleared_with_attribution` in their
+ * clearance ledger — the clearance IS the attribution; dropping the credit voids it.
+ */
+export const CONSENSUS_ATTRIBUTION = {
+  source: 'Polymarket',
+  url: 'https://polymarket.com',
+  text:
+    'Source : Polymarket (marchés de prédiction). Agrégat dérivé, pondéré par la liquidité et ' +
+    'regroupé par famille de signal — aucun marché individuel, aucune cote brute, aucune action ' +
+    'proposée. Redistribué avec attribution obligatoire.',
+} as const;
+
+/**
+ * S5 / low-reliability disclaimer required alongside the attribution (ag-back 0018 §1). S5 is our
+ * internal source scale's press/private-firm rung — a crowd anticipation is never event evidence
+ * (ADR 0042 caps media-grade signal at attention, and this is weaker still).
+ */
+export const CONSENSUS_RELIABILITY = {
+  grade: 'S5',
+  label: 'Fiabilité S5',
+  text:
+    'Fiabilité S5 (faible) : anticipation de la foule sur un marché de paris, ni une preuve ' +
+    "d'événement ni un conseil. Candidat en attente de validation humaine.",
+} as const;
+
+/**
  * Build-time load of the derived Polymarket consensus for one corridor (the `prediction_consensus`
  * engine of `/analysis`, via the narrow `getChokepointConsensus` projection). **Graceful**: returns
  * `null` when the API is unconfigured/unreachable OR the corridor has no market — the page then omits
@@ -131,6 +177,9 @@ export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus 
   // is set for the public build, the block is dark even though the code + data path are fully wired —
   // flip the env, rebuild, and it appears. Reversible by unsetting the flag.
   if (process.env.ATLAS_CONSENSUS_PUBLIC !== '1') return null;
+  // Honesty filter (ag-back 0018 §1): publish Panama and Suez only. Checked BEFORE the fetch — a
+  // corridor we may not publish is a corridor we have no business reading for a public page.
+  if (!CONSENSUS_PUBLIC_ALLOWLIST.includes(id)) return null;
   const cfg = config();
   if (!cfg) return null;
   try {

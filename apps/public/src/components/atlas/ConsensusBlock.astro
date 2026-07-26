@@ -1,10 +1,20 @@
 ---
 import { humanize } from '../../lib/labels';
-import type { AtlasConsensus } from '../../lib/atlas-data';
+import Pill from '../Pill.astro';
+import {
+  CONSENSUS_ATTRIBUTION,
+  CONSENSUS_RELIABILITY,
+  type AtlasConsensus,
+} from '../../lib/atlas-data';
 
 // Derived Polymarket consensus, public-safe (ADR 0071). Renders ONLY the per-family aggregate — never a
 // raw market question, individual odds, or a "proposed action". A prediction market is crowd
 // ANTICIPATION, never event evidence: framed here as a candidate, capped at attention (ADR 0042).
+//
+// Attribution + S5 disclaimer are NOT decoration: ag-back's handoff 0018 makes them the condition of
+// redistribution (`polymarket_gamma` = `cleared_with_attribution`). Both are rendered unconditionally,
+// inside the same block as the figures, so the credit can never drift away from what it licenses.
+// Which corridors reach this component at all is decided upstream, in CONSENSUS_PUBLIC_ALLOWLIST.
 
 interface Props {
   consensus: AtlasConsensus;
@@ -43,11 +53,13 @@ const families = [...consensus.families].sort((a, b) => b.probability - a.probab
 ---
 
 <section>
-  <div class="section-rule"><span class="label">Consensus de marché</span></div>
+  <div class="section-rule">
+    <span class="label">Consensus de marché</span>
+    <Pill tone="risk" class="ml-2">{CONSENSUS_RELIABILITY.label}</Pill>
+  </div>
   <p class="mb-3 text-xs text-muted">
-    Probabilité de consensus des marchés de prédiction (Polymarket), pondérée par la liquidité et
-    agrégée par famille de signal. C'est une <em>anticipation de la foule</em>, ni une preuve d'événement
-    ni un conseil. Candidat en attente de validation humaine.
+    Probabilité de consensus des marchés de prédiction <strong>{CONSENSUS_ATTRIBUTION.source}</strong>,
+    pondérée par la liquidité et agrégée par famille de signal. {CONSENSUS_RELIABILITY.text}
   </p>
   <ul class="space-y-2.5 text-sm">
     {
@@ -74,4 +86,13 @@ const families = [...consensus.families].sort((a, b) => b.probability - a.probab
       </p>
     ) : null
   }
+  <p class="mt-3 border-t border-line pt-2 text-[11px] leading-relaxed text-muted">
+    {CONSENSUS_ATTRIBUTION.text}{' '}
+    <a
+      href={CONSENSUS_ATTRIBUTION.url}
+      class="underline hover:text-ink"
+      rel="nofollow noopener"
+      target="_blank">{CONSENSUS_ATTRIBUTION.source}</a
+    >
+  </p>
 </section>
