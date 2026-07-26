@@ -21,8 +21,8 @@ import {
   CviAssessmentOut,
   EventSignalOut,
   ChokepointAnalysis,
-  extractPredictionConsensus,
   PerceptionSignalList,
+  PredictionConsensusList,
   ChokepointAnalysisList,
   ChokepointAnalysisDetail,
   HealthOut,
@@ -53,8 +53,8 @@ import type {
   CviAssessmentOut as CviAssessmentOutT,
   EventSignalOut as EventSignalOutT,
   ChokepointAnalysis as ChokepointAnalysisT,
-  PerceptionConsensusOut as PerceptionConsensusOutT,
   PerceptionSignalList as PerceptionSignalListT,
+  PredictionConsensusList as PredictionConsensusListT,
   ChokepointAnalysisList as ChokepointAnalysisListT,
   ChokepointAnalysisDetail as ChokepointAnalysisDetailT,
   HealthOut as HealthOutT,
@@ -160,14 +160,6 @@ export type ChokepointsClient = {
   chokepointsByRisk(riskType: string): Promise<RiskChokepointOutT[]>;
   chokepointsBySystem(systemId: string): Promise<ChokepointList['items']>;
   getChokepointAnalysis(id: string): Promise<ChokepointAnalysisT>;
-  /**
-   * GET /chokepoints/{id}/analysis, projected to ONLY the derived Polymarket consensus (the
-   * `prediction_consensus` engine rows). The single public-facing read of `/analysis` (ADR 0071): the
-   * full engine/relations/claims payload never crosses into a `read`-scope consumer. Returns `[]` when
-   * the corridor has no market. Clear/read-scope; raw markets stay cockpit-only via
-   * `getChokepointPerceptionSignals` (read_tainted, 403 here).
-   */
-  getChokepointConsensus(id: string): Promise<PerceptionConsensusOutT[]>;
   getChokepointActors(id: string): Promise<ActorControlOutT[]>;
   getChokepointEventSignals(id: string, limit?: number): Promise<EventSignalOutT[]>;
   getChokepointPerceptionSignals(id: string, limit?: number): Promise<PerceptionSignalListT>;
@@ -211,6 +203,15 @@ export type ChokepointsClient = {
   listNews(params?: NewsParams): Promise<NewsFeedOutT>;
   /** GET /chokepoints/{id}/news — clusters really linked to one object. */
   getChokepointNews(id: string, params?: ChokepointNewsParams): Promise<NewsFeedOutT>;
+  // --- 0.15.0 ---
+  /**
+   * GET /chokepoints/{id}/prediction-consensus — the derived Polymarket consensus as its own narrow,
+   * clear/`read`-scope surface (ADR 0071). Replaces the interim `/analysis` projection: the public site
+   * no longer touches engines/relations/claims to reach the one block it may publish. `consensus: []`
+   * means **no honest market coverage** (ADR 0079 floor, server-side since 0.13.0) — not an error.
+   * Publishing it obliges Polymarket attribution + the S5 low-reliability disclaimer.
+   */
+  getChokepointPredictionConsensus(id: string): Promise<PredictionConsensusListT>;
 };
 
 /**
@@ -269,6 +270,8 @@ export const COVERED_PATHS = [
   // 0.10.0 / 0.11.0
   '/news',
   '/chokepoints/{chokepoint_id}/news',
+  // 0.15.0
+  '/chokepoints/{chokepoint_id}/prediction-consensus',
 ] as const;
 
 /** A product surface that actually reads an endpoint. The client itself is NOT a consumer. */
@@ -287,10 +290,12 @@ export type ConsumerSurface = 'public' | 'cockpit' | 'hdde' | 'verdict';
  * it unconditionally on `read_tainted`, and HDDE holds a `read` token by design (ADR 0035), so it
  * reads the derived `prediction_consensus` block of `/analysis` instead.
  *
- * `/chokepoints/{id}/analysis` is `public` too (ADR 0071), but the public build reads it ONLY through
- * the narrow `getChokepointConsensus` projection (derived Polymarket consensus, clear/read-scope) — not
- * the engines/relations/claims. Public go-live of that block awaits ag-back's explicit confirmation that
- * the derived aggregate is redistributable on the open internet (deposit `cf9303ef…`, canal ADR 0067).
+ * `/chokepoints/{id}/analysis` is NO LONGER `public`. It was, briefly, read through a narrow
+ * `getChokepointConsensus` projection — the reversible interim of ADR 0071 while the derived consensus
+ * had no surface of its own. ag-back shipped the dedicated
+ * `/chokepoints/{id}/prediction-consensus` (0.15.0, clear `read`), so the public build reads THAT and
+ * the wide analysis payload stops crossing into a public consumer at all. That is the point of the
+ * ledger: an interim widening must be visible, and it must be taken back once the reason lapses.
  */
 export const CONSUMERS: Record<string, ConsumerSurface[]> = {
   '/health': ['cockpit'],
@@ -302,7 +307,7 @@ export const CONSUMERS: Record<string, ConsumerSurface[]> = {
   '/chokepoints/by-flow/{flow_type}': ['cockpit', 'hdde'],
   '/chokepoints/by-risk/{risk_type}': ['public', 'cockpit'],
   '/chokepoints/by-system/{system_id}': ['public', 'cockpit'],
-  '/chokepoints/{chokepoint_id}/analysis': ['public', 'cockpit', 'hdde'],
+  '/chokepoints/{chokepoint_id}/analysis': ['cockpit', 'hdde'],
   '/chokepoints/{chokepoint_id}/actors': ['cockpit', 'hdde'],
   '/chokepoints/{chokepoint_id}/event-signals': ['cockpit', 'hdde'],
   '/chokepoints/{chokepoint_id}/perception-signals': ['cockpit'],
@@ -334,6 +339,9 @@ export const CONSUMERS: Record<string, ConsumerSurface[]> = {
   '/analytics/cvi-counterfactual': ['cockpit'],
   '/news': ['cockpit'],
   '/chokepoints/{chokepoint_id}/news': ['cockpit'],
+  // The ONE derived surface that reaches the open internet (ADR 0071): narrow, clear-scope, floored
+  // server-side on ADR 0079, and publishable only WITH Polymarket attribution + the S5 disclaimer.
+  '/chokepoints/{chokepoint_id}/prediction-consensus': ['public'],
 };
 
 /**
@@ -442,12 +450,13 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
     async getChokepointAnalysis(id) {
       return ChokepointAnalysis.parse(await get(`/chokepoints/${enc(id)}/analysis`));
     },
-    async getChokepointConsensus(id) {
-      // Read the full analysis, then hand back ONLY the derived consensus rows. Nothing else from
-      // /analysis (engines, relations, claims) is exposed to the caller — a public consumer must not
-      // widen its surface just because it reached this endpoint (ADR 0071).
-      const analysis = ChokepointAnalysis.parse(await get(`/chokepoints/${enc(id)}/analysis`));
-      return extractPredictionConsensus(analysis);
+    async getChokepointPredictionConsensus(id) {
+      // The narrow surface ag-back shipped at our request (0.15.0): no projection needed, and a
+      // `read`-scope consumer never has to touch engines/relations/claims to reach the one block it
+      // may publish. Empty `consensus` = no honest market coverage, not a failure (ADR 0079 floor).
+      return PredictionConsensusList.parse(
+        await get(`/chokepoints/${enc(id)}/prediction-consensus`),
+      );
     },
     async getChokepointActors(id) {
       return z.array(ActorControlOut).parse(await get(`/chokepoints/${enc(id)}/actors`));

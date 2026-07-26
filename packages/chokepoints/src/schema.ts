@@ -566,12 +566,33 @@ export const PerceptionConsensusOut = z
 export type PerceptionConsensusOut = z.infer<typeof PerceptionConsensusOut>;
 
 /**
- * The `engines[]` key under which `/chokepoints/{id}/analysis` serves the derived Polymarket consensus
- * — engine `title: "Prediction consensus"`, `description: "Polymarket P3 perception consensus (uncleared
- * source)."`. Confirmed live on API 0.12.0: this derived engine is served to the plain `read` (clear)
- * token, UNLIKE raw `/perception-signals` (403 without `read_tainted`). Its `rows` match
- * `PerceptionConsensusOut` (the engine omits `observed_window_end`). This is the sole consensus surface a
- * `read`-scope consumer (HDDE, public site) can reach (ADR 0013 / 0035 / 0071).
+ * /chokepoints/{id}/prediction-consensus (API 0.15.0) → the derived Polymarket consensus as its own
+ * narrow surface, served to the CLEAR `read` token. This is what a public/`read`-scope consumer should
+ * read: no engines, no relations, no claims — just the one block that is redistributable (with
+ * Polymarket attribution + S5 low-reliability disclaimer, ag-back handoff 0018/0021).
+ *
+ * **`consensus: []` means "no honest market coverage", never an error.** Since their 0.13.0 the ADR 0079
+ * attachment floor is applied server-side: only objects a market NAMES or IMPLIES carry rows, so Hormuz
+ * & co. answer `200` with an empty list rather than the pre-floor noise (12 % precision). A 404 here is a
+ * genuinely unknown — or tainted-and-not-permitted — object, as everywhere else.
+ */
+export const PredictionConsensusList = z
+  .object({
+    chokepoint_id: z.string(),
+    consensus: z.array(PerceptionConsensusOut).default([]),
+    /** Producer-authored EN disclaimer. Public surfaces carry their own equivalent copy. */
+    disclaimer: z.string().nullish(),
+  })
+  .passthrough();
+export type PredictionConsensusList = z.infer<typeof PredictionConsensusList>;
+
+/**
+ * The `engines[]` key under which `/chokepoints/{id}/analysis` ALSO serves the derived consensus —
+ * engine `title: "Prediction consensus"`. Kept for the cockpit/HDDE reads of the full analysis payload;
+ * the public site now uses the dedicated endpoint above instead (ADR 0071, since 0.15.0). Confirmed
+ * live: this derived engine is served to the plain `read` (clear) token, UNLIKE raw
+ * `/perception-signals` (403 without `read_tainted`), and since 0.13.0 it too is floored — the engine is
+ * simply ABSENT for an object with no honest coverage (ADR 0013 / 0035 / 0071).
  */
 export const PREDICTION_CONSENSUS_ENGINE_KEY = 'prediction_consensus';
 

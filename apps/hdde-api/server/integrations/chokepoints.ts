@@ -2,7 +2,11 @@
 // The client is created with includeTainted:false, and we additionally drop any record that still
 // carries license_taint=true as a defence-in-depth guard so no restricted data can reach the public
 // client. Suggestions are CANDIDATES pending analyst validation, never facts.
-import { createChokepointsClient, ChokepointsApiError } from '@ag/chokepoints';
+import {
+  createChokepointsClient,
+  ChokepointsApiError,
+  extractPredictionConsensus,
+} from '@ag/chokepoints';
 import type { PacketPayload } from '@ag/schema/hdde';
 import { config } from '../config';
 
@@ -205,13 +209,16 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
   const perception = await client
     .getChokepointAnalysis(chokepointId)
     .then((a) => {
-      const block = a.engines.find((e) => e.key === 'prediction_consensus');
-      if (!block?.rows.length) return null;
-      const families = (block.rows as PerceptionFamily[]).map((r) => ({
-        signal_family: r.signal_family,
-        market_count: r.market_count,
-        consensus_probability: r.consensus_probability,
-        total_liquidity: r.total_liquidity,
+      // Shared extractor rather than a blind `rows as PerceptionFamily[]` cast: same block, typed and
+      // validated once. Since the producer's 0.13.0 the block is floored server-side (ADR 0079), so
+      // "engine absent" now means "no honest market coverage" — still just an empty perception here.
+      const rows = extractPredictionConsensus(a);
+      if (!rows.length) return null;
+      const families: PerceptionFamily[] = rows.map((r) => ({
+        signal_family: r.signal_family ?? undefined,
+        market_count: r.market_count ?? undefined,
+        consensus_probability: r.consensus_probability ?? undefined,
+        total_liquidity: r.total_liquidity ?? undefined,
       }));
       return { count: families.length, families, disclaimer: a.disclaimer ?? undefined };
     })

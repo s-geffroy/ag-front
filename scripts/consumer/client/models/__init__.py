@@ -48,6 +48,7 @@ from .news_source_ref import NewsSourceRef
 from .perception_consensus_out import PerceptionConsensusOut
 from .perception_signal_list import PerceptionSignalList
 from .perception_signal_out import PerceptionSignalOut
+from .prediction_consensus_list import PredictionConsensusList
 from .relation_out import RelationOut
 from .reroute_delta_out import RerouteDeltaOut
 from .risk_chokepoint_out import RiskChokepointOut
@@ -116,6 +117,7 @@ __all__ = (
     "PerceptionConsensusOut",
     "PerceptionSignalList",
     "PerceptionSignalOut",
+    "PredictionConsensusList",
     "RelationOut",
     "RerouteDeltaOut",
     "RiskChokepointOut",

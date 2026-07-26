@@ -146,7 +146,10 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     expect(a.engines[0]!.key).toBe('criticality_score');
   });
 
-  it('getChokepointConsensus projects ONLY the prediction_consensus engine rows', async () => {
+  // 0.15.0 — the dedicated consensus endpoint replaces the /analysis projection (ADR 0071). It is the
+  // narrow, redistributable surface: a `read`-scope consumer no longer has to fetch engines/relations/
+  // claims to reach the one block it may publish.
+  it('getChokepointPredictionConsensus reads the dedicated endpoint, not /analysis', async () => {
     let calledUrl = '';
     const client = createChokepointsClient({
       baseUrl: 'https://host/api',
@@ -154,54 +157,53 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
       fetchImpl: async (url) => {
         calledUrl = String(url);
         return jsonResponse({
-          chokepoint_id: 'p0_taiwan',
-          engines: [
-            { key: 'criticality_score', columns: ['a'], rows: [[1]] },
+          chokepoint_id: 'p0_maritime_canal_suez_canal',
+          consensus: [
             {
-              key: 'prediction_consensus',
-              title: 'Prediction consensus',
-              columns: ['signal_family', 'market_count', 'consensus_probability'],
-              rows: [
-                {
-                  signal_family: 'conflict_escalation_expectation',
-                  market_count: 3,
-                  consensus_probability: 0.46,
-                },
-                {
-                  signal_family: 'disruption_expectation',
-                  market_count: 2,
-                  consensus_probability: 0.04,
-                },
-              ],
+              signal_family: 'disruption_expectation',
+              market_count: 1,
+              consensus_probability: 0.0135,
+              max_probability_change_24h: -0.0225,
+              total_liquidity: 2112.38,
+              observed_window_end: '2026-07-26T06:00:18Z',
             },
           ],
-          relations: [{ some: 'thing' }],
-          claims: [{ any: 'claim' }],
+          disclaimer: 'liquidity-weighted crowd anticipation, NOT event evidence…',
         });
       },
     });
-    const consensus = await client.getChokepointConsensus('p0_taiwan');
-    // reads /analysis under the hood…
-    expect(calledUrl).toContain('/chokepoints/p0_taiwan/analysis');
-    // …but hands back only the two consensus rows, typed — never engines/relations/claims.
-    expect(consensus).toHaveLength(2);
-    expect(consensus[0]!.signal_family).toBe('conflict_escalation_expectation');
-    expect(consensus[1]!.consensus_probability).toBe(0.04);
+    const res = await client.getChokepointPredictionConsensus('p0_maritime_canal_suez_canal');
+    expect(calledUrl).toContain('/chokepoints/p0_maritime_canal_suez_canal/prediction-consensus');
+    expect(calledUrl).not.toContain('/analysis');
+    expect(res.consensus).toHaveLength(1);
+    expect(res.consensus[0]!.signal_family).toBe('disruption_expectation');
+    // 0.14.0 additive column — the honest "consensus au <date>" label.
+    expect(res.consensus[0]!.observed_window_end).toBe('2026-07-26T06:00:18Z');
   });
 
-  it('getChokepointConsensus returns [] when the corridor has no market (engine absent)', async () => {
+  // ADR 0079 floor, applied server-side since 0.13.0: an object no market names or implies yields an
+  // EMPTY list with a 200 — "no market coverage", never an error and never a zero to display.
+  it('getChokepointPredictionConsensus returns an empty list (not a 404) with no coverage', async () => {
     const client = createChokepointsClient({
       baseUrl: 'https://host/api',
       token: 't',
       fetchImpl: async () =>
-        jsonResponse({
-          chokepoint_id: 'p0_no_market',
-          engines: [{ key: 'criticality_score', columns: ['a'], rows: [[1]] }],
-          relations: [],
-          claims: [],
-        }),
+        jsonResponse({ chokepoint_id: 'p0_maritime_strait_strait_of_hormuz', consensus: [] }),
     });
-    expect(await client.getChokepointConsensus('p0_no_market')).toEqual([]);
+    const res = await client.getChokepointPredictionConsensus(
+      'p0_maritime_strait_strait_of_hormuz',
+    );
+    expect(res.consensus).toEqual([]);
+    expect(res.chokepoint_id).toBe('p0_maritime_strait_strait_of_hormuz');
+  });
+
+  it('getChokepointPredictionConsensus tolerates the omitted `consensus` key', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () => jsonResponse({ chokepoint_id: 'p0_x' }),
+    });
+    expect((await client.getChokepointPredictionConsensus('p0_x')).consensus).toEqual([]);
   });
 
   it('propagates the taint gate to a new endpoint when opted in', async () => {

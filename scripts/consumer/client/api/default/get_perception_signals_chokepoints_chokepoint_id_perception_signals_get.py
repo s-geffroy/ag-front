@@ -82,8 +82,9 @@ def sync_detailed(
 
      Polymarket P3 perception signals for a chokepoint (ADR 0037) — anticipation, not evidence.
 
-    The source (`polymarket_gamma`) is uncleared (high license risk), so this endpoint is gated on
-    the `read_tainted` scope unconditionally; a plain `read` key gets 403.
+    The raw signals are low-reliability (S5) and internal-only, so this endpoint is gated on the
+    `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
+    is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
 
     Args:
         chokepoint_id (str):
@@ -121,8 +122,9 @@ def sync(
 
      Polymarket P3 perception signals for a chokepoint (ADR 0037) — anticipation, not evidence.
 
-    The source (`polymarket_gamma`) is uncleared (high license risk), so this endpoint is gated on
-    the `read_tainted` scope unconditionally; a plain `read` key gets 403.
+    The raw signals are low-reliability (S5) and internal-only, so this endpoint is gated on the
+    `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
+    is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
 
     Args:
         chokepoint_id (str):
@@ -155,8 +157,9 @@ async def asyncio_detailed(
 
      Polymarket P3 perception signals for a chokepoint (ADR 0037) — anticipation, not evidence.
 
-    The source (`polymarket_gamma`) is uncleared (high license risk), so this endpoint is gated on
-    the `read_tainted` scope unconditionally; a plain `read` key gets 403.
+    The raw signals are low-reliability (S5) and internal-only, so this endpoint is gated on the
+    `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
+    is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
 
     Args:
         chokepoint_id (str):
@@ -194,8 +197,9 @@ async def asyncio(
 
      Polymarket P3 perception signals for a chokepoint (ADR 0037) — anticipation, not evidence.
 
-    The source (`polymarket_gamma`) is uncleared (high license risk), so this endpoint is gated on
-    the `read_tainted` scope unconditionally; a plain `read` key gets 403.
+    The raw signals are low-reliability (S5) and internal-only, so this endpoint is gated on the
+    `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
+    is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
 
     Args:
         chokepoint_id (str):

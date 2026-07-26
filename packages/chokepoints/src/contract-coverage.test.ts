@@ -84,6 +84,7 @@ const SCHEMA_MAP: Record<string, z.ZodTypeAny> = {
   NewsSourceRef: schemas.NewsSourceRef,
   PerceptionConsensusOut: schemas.PerceptionConsensusOut,
   PerceptionSignalList: schemas.PerceptionSignalList,
+  PredictionConsensusList: schemas.PredictionConsensusList,
   PerceptionSignalOut: schemas.PerceptionSignalOut,
   RelationOut: schemas.RelationOut,
   RerouteDeltaOut: schemas.RerouteDeltaOut,

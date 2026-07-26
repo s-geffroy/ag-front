@@ -12,45 +12,38 @@ from typing import Union
 
 if TYPE_CHECKING:
   from ..models.perception_consensus_out import PerceptionConsensusOut
-  from ..models.perception_signal_out import PerceptionSignalOut
 
 
 
 
 
-T = TypeVar("T", bound="PerceptionSignalList")
+T = TypeVar("T", bound="PredictionConsensusList")
 
 
 
 @_attrs_define
-class PerceptionSignalList:
-    """ 
+class PredictionConsensusList:
+    """ The derived Polymarket consensus for one object, served at the clear `read` token (the narrow,
+    redistributable surface). `consensus` is empty when the object has no named/implied coverage.
+
         Attributes:
             chokepoint_id (str):
-            count (int):
             consensus (Union[Unset, list['PerceptionConsensusOut']]):
-            signals (Union[Unset, list['PerceptionSignalOut']]):
-            disclaimer (Union[Unset, str]):  Default: "P3 perception signals from prediction markets (Polymarket, ADR 0037):
-                crowd anticipation, NOT event evidence. The raw signals are low-reliability (S5) and internal-only; this
-                endpoint requires the 'read_tainted' scope. The DERIVED consensus aggregate is redistributable with Polymarket
-                attribution — see GET /chokepoints/{id}/prediction-consensus. Data never enters canonical without human
-                validation.".
+            disclaimer (Union[Unset, str]):  Default: 'Polymarket P3 perception consensus (ADR 0037/0079): liquidity-
+                weighted crowd anticipation, NOT event evidence. Derived candidate (not human-validated). Redistributable WITH
+                Polymarket attribution; S5 low-reliability. Floored on named/implied attachment — an object with no honest
+                market coverage returns an empty list.'.
      """
 
     chokepoint_id: str
-    count: int
     consensus: Union[Unset, list['PerceptionConsensusOut']] = UNSET
-    signals: Union[Unset, list['PerceptionSignalOut']] = UNSET
-    disclaimer: Union[Unset, str] = "P3 perception signals from prediction markets (Polymarket, ADR 0037): crowd anticipation, NOT event evidence. The raw signals are low-reliability (S5) and internal-only; this endpoint requires the 'read_tainted' scope. The DERIVED consensus aggregate is redistributable with Polymarket attribution — see GET /chokepoints/{id}/prediction-consensus. Data never enters canonical without human validation."
+    disclaimer: Union[Unset, str] = 'Polymarket P3 perception consensus (ADR 0037/0079): liquidity-weighted crowd anticipation, NOT event evidence. Derived candidate (not human-validated). Redistributable WITH Polymarket attribution; S5 low-reliability. Floored on named/implied attachment — an object with no honest market coverage returns an empty list.'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.perception_consensus_out import PerceptionConsensusOut
-        from ..models.perception_signal_out import PerceptionSignalOut
         chokepoint_id = self.chokepoint_id
-
-        count = self.count
 
         consensus: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.consensus, Unset):
@@ -61,15 +54,6 @@ class PerceptionSignalList:
 
 
 
-        signals: Union[Unset, list[dict[str, Any]]] = UNSET
-        if not isinstance(self.signals, Unset):
-            signals = []
-            for signals_item_data in self.signals:
-                signals_item = signals_item_data.to_dict()
-                signals.append(signals_item)
-
-
-
         disclaimer = self.disclaimer
 
 
@@ -77,12 +61,9 @@ class PerceptionSignalList:
         field_dict.update(self.additional_properties)
         field_dict.update({
             "chokepoint_id": chokepoint_id,
-            "count": count,
         })
         if consensus is not UNSET:
             field_dict["consensus"] = consensus
-        if signals is not UNSET:
-            field_dict["signals"] = signals
         if disclaimer is not UNSET:
             field_dict["disclaimer"] = disclaimer
 
@@ -93,11 +74,8 @@ class PerceptionSignalList:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.perception_consensus_out import PerceptionConsensusOut
-        from ..models.perception_signal_out import PerceptionSignalOut
         d = dict(src_dict)
         chokepoint_id = d.pop("chokepoint_id")
-
-        count = d.pop("count")
 
         consensus = []
         _consensus = d.pop("consensus", UNSET)
@@ -109,29 +87,17 @@ class PerceptionSignalList:
             consensus.append(consensus_item)
 
 
-        signals = []
-        _signals = d.pop("signals", UNSET)
-        for signals_item_data in (_signals or []):
-            signals_item = PerceptionSignalOut.from_dict(signals_item_data)
-
-
-
-            signals.append(signals_item)
-
-
         disclaimer = d.pop("disclaimer", UNSET)
 
-        perception_signal_list = cls(
+        prediction_consensus_list = cls(
             chokepoint_id=chokepoint_id,
-            count=count,
             consensus=consensus,
-            signals=signals,
             disclaimer=disclaimer,
         )
 
 
-        perception_signal_list.additional_properties = d
-        return perception_signal_list
+        prediction_consensus_list.additional_properties = d
+        return prediction_consensus_list
 
     @property
     def additional_keys(self) -> list[str]:

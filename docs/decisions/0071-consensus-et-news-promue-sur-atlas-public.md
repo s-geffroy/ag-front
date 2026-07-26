@@ -58,7 +58,9 @@ ADR 0013 interdit de republier des données **tainted**. On précise sa portée 
 
 - `CONSUMERS['/chokepoints/{id}/analysis']` passe à `['public', 'cockpit', 'hdde']`, mais le build public
   ne lit `/analysis` **que** via la projection étroite `getChokepointConsensus` (les seules `rows` du
-  moteur consensus ; jamais engines/relations/claims). `/news` et `/perception-signals` **restent
+  moteur consensus ; jamais engines/relations/claims). — **Repris le 2026-07-26** : retour à
+  `['cockpit', 'hdde']` et projection supprimée, l'endpoint dédié 0.15.0 l'ayant rendue inutile (voir
+  la section « migration » en Conséquences). `/news` et `/perception-signals` **restent
   `['cockpit']`** — aucun changement de contrat pour les news.
 - **Handoff producteur idéal (non bloquant)** : un endpoint clair dédié
   `GET /chokepoints/{id}/prediction-consensus` permettrait de n'ouvrir au public qu'une surface étroite au
@@ -160,3 +162,42 @@ sans bump — on peut typer dessus sans casse silencieuse ; seul l'**ajout** de 
   moteur annoncé), la liste blanche perd sa raison d'être et se supprime en une ligne. Ne pas la
   retirer avant l'annonce sur le canal.
 - **Le flag `ATLAS_CONSENSUS_PUBLIC` reste à 0** : la condition 3 (usage commercial) n'est pas levée.
+
+### Tout s'est débloqué le même jour — migration sur l'endpoint dédié (2026-07-26, ag-back `0020`/`0021`)
+
+ag-back a livré, en quelques heures, ce que leur `0018` annonçait comme « planifié », et leur
+propriétaire a tranché la réserve d'usage commercial (leur **ADR 0083** : accepté, avec attribution +
+S5). **Le nôtre a tranché dans le même sens.** Réponse de fond déposée (`14bd88c9d606`).
+
+| Livraison | Effet chez nous |
+| --- | --- |
+| **0.13.0** — plancher ADR 0079 appliqué **côté serveur** | notre liste blanche d'affichage devient redondante |
+| **0.14.0** — colonne `observed_window_end` | le label « Consensus au \<date\> » s'affiche enfin |
+| **0.15.0** — `GET /chokepoints/{id}/prediction-consensus` (clair, `PredictionConsensusList`) | la projection intérimaire sur `/analysis` est retirée |
+
+Séquence exécutée, dans cet ordre :
+
+1. **Pin `0.12.0` → `0.15.0`** (octets servis) + client de drift régénéré. Dérive **structurelle**
+   cette fois — un chemin ajouté, un schéma ajouté ; `PerceptionSignalList` n'a bougé que par sa
+   description (libellé « uncleared » corrigé).
+2. **Consommation du nouvel endpoint** : zod `PredictionConsensusList`, méthode
+   `getChokepointPredictionConsensus`, entrées `COVERED_PATHS` / `CONSUMERS` / `SCHEMA_MAP`. La garde
+   ADR 0066 a fait exactement son travail : rouge au repin (composant non modélisé), verte une fois
+   consommé.
+3. **`'public'` retiré de `CONSUMERS['/chokepoints/{id}/analysis']`** → `['cockpit', 'hdde']`. La
+   projection `getChokepointConsensus` est **supprimée** : elle était l'intérim réversible, la reprise
+   est le point du registre. Le payload large ne traverse plus vers un consommateur public.
+4. **`CONSENSUS_PUBLIC_ALLOWLIST` supprimée** — le plancher serveur la remplace. Ce qu'on garde, c'est
+   la **lecture du vide** : `consensus: []` = *pas de couverture de marché*, jamais une erreur, jamais
+   un zéro rendu (testé).
+5. *(non fait)* Activation du flag = mise en ligne publique — décision d'exploitation distincte.
+
+Effet de bord utile : `extractPredictionConsensus` n'ayant plus de client, HDDE l'utilise désormais au
+lieu d'un `rows as PerceptionFamily[]` aveugle — un cast de moins, un extracteur partagé de plus.
+
+Vérifié en rendu réel contre l'API `0.15.0` (dev, flag forcé) : Panama et Suez rendent le bloc +
+pastille S5 + attribution + lien + « Consensus au 26 juillet 2026 » ; **Hormuz et Taïwan ne rendent
+rien** — c'est le plancher serveur, plus notre filtre. Suite complète verte, `typecheck` 0 erreur.
+
+**Piste laissée ouverte** : HDDE lit toujours le bloc consensus via `/analysis`. L'endpoint dédié étant
+`read` clair, l'y basculer réduirait sa surface de la même façon — travail distinct (ADR 0035).

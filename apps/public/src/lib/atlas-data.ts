@@ -120,25 +120,6 @@ export type AtlasConsensus = {
 };
 
 /**
- * Corridors whose derived consensus may be PUBLISHED — **exactly two** (ag-back handoff 0018,
- * `e3518308`; ADR 0071 § « Réponse reçue »).
- *
- * The producer's `prediction_consensus` engine still aggregates its whole retained history WITHOUT
- * applying the `ATTACH_FLOOR=2` floor introduced by their ADR 0079. Attachment by actor (« NATO x
- * Russia » landing on Hormuz, Bab-el-Mandeb, Malacca, Taiwan…) was measured at **12 % precision**, so
- * the ~5 extra corridors the API happily serves are retained pre-floor NOISE, not market coverage.
- * Their honest go-forward coverage is Panama and Suez. Until their engine-side fix ships, **the filter
- * is our responsibility, at display time** — which is why it lives here, at the single load path both
- * Atlas layers go through, and why we do not even call the API for a corridor we may not publish.
- *
- * Widening this list is ag-back's call announced on the channel (ADR 0067), never ours.
- */
-export const CONSENSUS_PUBLIC_ALLOWLIST: readonly string[] = [
-  'p0_maritime_canal_panama_canal',
-  'p0_maritime_canal_suez_canal',
-];
-
-/**
  * Mandatory attribution carried WITH the aggregate (ag-back 0018 §1: « attribution Polymarket
  * obligatoire (pas optionnelle) »). `polymarket_gamma` is `cleared_with_attribution` in their
  * clearance ledger — the clearance IS the attribution; dropping the credit voids it.
@@ -166,24 +147,26 @@ export const CONSENSUS_RELIABILITY = {
 } as const;
 
 /**
- * Build-time load of the derived Polymarket consensus for one corridor (the `prediction_consensus`
- * engine of `/analysis`, via the narrow `getChokepointConsensus` projection). **Graceful**: returns
- * `null` when the API is unconfigured/unreachable OR the corridor has no market — the page then omits
- * the block rather than showing a stale/empty figure. `read` scope, clear-only, never tainted.
+ * Build-time load of the derived Polymarket consensus for one corridor, from the dedicated
+ * `/chokepoints/{id}/prediction-consensus` endpoint (API 0.15.0, clear `read` scope) — never from the
+ * wide `/analysis` payload. **Graceful**: returns `null` when the API is unconfigured/unreachable OR
+ * the producer reports no market coverage, so the page omits the block rather than showing a hole.
+ *
+ * **An empty `consensus` is an answer, not a failure.** ag-back applies the ADR 0079 attachment floor
+ * server-side (0.13.0): only objects a market names or implies carry rows, everything else answers
+ * `200` with `[]`. We render nothing in that case — no zero, no flat line, no "aucune donnée" that a
+ * reader could mistake for calm. Coverage is theirs to decide; ours is only to not misreport it.
  */
 export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus | null> {
-  // Go-live gate (ADR 0071): publishing the derived Polymarket consensus on the open internet awaits
-  // ag-back's explicit redistribution confirmation (deposit cf9303ef). Until `ATLAS_CONSENSUS_PUBLIC=1`
-  // is set for the public build, the block is dark even though the code + data path are fully wired —
-  // flip the env, rebuild, and it appears. Reversible by unsetting the flag.
+  // Go-live gate (ADR 0071): both owners have now cleared public redistribution (their ADR 0083; ours
+  // 2026-07-26), so this flag is the last switch — the block is dark until `ATLAS_CONSENSUS_PUBLIC=1`
+  // is set for the public build. Flip the env, rebuild, and it appears. Reversible by unsetting it.
   if (process.env.ATLAS_CONSENSUS_PUBLIC !== '1') return null;
-  // Honesty filter (ag-back 0018 §1): publish Panama and Suez only. Checked BEFORE the fetch — a
-  // corridor we may not publish is a corridor we have no business reading for a public page.
-  if (!CONSENSUS_PUBLIC_ALLOWLIST.includes(id)) return null;
   const cfg = config();
   if (!cfg) return null;
   try {
-    const rows = await createChokepointsClient(cfg).getChokepointConsensus(id);
+    const { consensus: rows } =
+      await createChokepointsClient(cfg).getChokepointPredictionConsensus(id);
     const families: AtlasConsensusFamily[] = rows
       .filter(
         (r) =>
