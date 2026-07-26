@@ -2,11 +2,7 @@
 // The client is created with includeTainted:false, and we additionally drop any record that still
 // carries license_taint=true as a defence-in-depth guard so no restricted data can reach the public
 // client. Suggestions are CANDIDATES pending analyst validation, never facts.
-import {
-  createChokepointsClient,
-  ChokepointsApiError,
-  extractPredictionConsensus,
-} from '@ag/chokepoints';
+import { createChokepointsClient, ChokepointsApiError } from '@ag/chokepoints';
 import type { PacketPayload } from '@ag/schema/hdde';
 import { config } from '../config';
 
@@ -160,9 +156,11 @@ function degrade<T>(label: string, fallback: T): (err: unknown) => T {
  * 403 — which the previous `.catch(() => null)` reported as "no perception signals". Granting HDDE a
  * tainted token is forbidden (ADR 0013/0035: HDDE is on the public Internet behind app auth).
  *
- * Instead we read the DERIVED `prediction_consensus` block of `/analysis`, which the producer serves
- * under plain `read`: the raw uncleared observations stay restricted, while their liquidity-weighted
- * consensus — the part that is actually decision-relevant — is cleared for redistribution.
+ * Instead we read the DERIVED consensus, which the producer serves under plain `read`: the raw
+ * observations stay restricted, while their liquidity-weighted consensus — the part that is actually
+ * decision-relevant — is cleared for redistribution. Since API 0.15.0 that consensus has its own narrow
+ * endpoint, so this no longer pulls the whole `/analysis` payload (engines, relations, claims) to reach
+ * one block: less surface for the same evidence (ADR 0035 / 0071).
  */
 export async function fetchCorridorEvidence(chokepointId: string): Promise<CorridorEvidence> {
   const empty: CorridorEvidence = {
@@ -207,22 +205,20 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
     .catch(degrade('event-signals', [] as CorridorEvidence['event_signals']));
 
   const perception = await client
-    .getChokepointAnalysis(chokepointId)
-    .then((a) => {
-      // Shared extractor rather than a blind `rows as PerceptionFamily[]` cast: same block, typed and
-      // validated once. Since the producer's 0.13.0 the block is floored server-side (ADR 0079), so
-      // "engine absent" now means "no honest market coverage" — still just an empty perception here.
-      const rows = extractPredictionConsensus(a);
-      if (!rows.length) return null;
-      const families: PerceptionFamily[] = rows.map((r) => ({
+    .getChokepointPredictionConsensus(chokepointId)
+    .then((res) => {
+      // Empty = no honest market coverage (ADR 0079 floor, server-side since 0.13.0) → absence of
+      // evidence, not a fetch that failed. Nothing to log, nothing to report as degraded.
+      if (!res.consensus.length) return null;
+      const families: PerceptionFamily[] = res.consensus.map((r) => ({
         signal_family: r.signal_family ?? undefined,
         market_count: r.market_count ?? undefined,
         consensus_probability: r.consensus_probability ?? undefined,
         total_liquidity: r.total_liquidity ?? undefined,
       }));
-      return { count: families.length, families, disclaimer: a.disclaimer ?? undefined };
+      return { count: families.length, families, disclaimer: res.disclaimer ?? undefined };
     })
-    .catch(degrade('analysis/prediction_consensus', null));
+    .catch(degrade('prediction-consensus', null));
 
   const available = actors.length > 0 || event_signals.length > 0 || (perception?.count ?? 0) > 0;
   return {

@@ -199,5 +199,10 @@ Vérifié en rendu réel contre l'API `0.15.0` (dev, flag forcé) : Panama et Su
 pastille S5 + attribution + lien + « Consensus au 26 juillet 2026 » ; **Hormuz et Taïwan ne rendent
 rien** — c'est le plancher serveur, plus notre filtre. Suite complète verte, `typecheck` 0 erreur.
 
-**Piste laissée ouverte** : HDDE lit toujours le bloc consensus via `/analysis`. L'endpoint dédié étant
-`read` clair, l'y basculer réduirait sa surface de la même façon — travail distinct (ADR 0035).
+**Fait dans la foulée** : HDDE lit désormais le consensus par l'endpoint dédié, plus par `/analysis`
+(ADR 0035 — même preuve, moins de surface : il ne tire plus engines/relations/claims pour un seul bloc).
+`CONSUMERS['/chokepoints/{id}/prediction-consensus'] = ['public', 'hdde']` ; `/analysis` garde
+`['cockpit', 'hdde']`, HDDE le lisant encore par `fetchCorridorAnalysis` (vue moteurs). Plus aucun
+consommateur typé ne passant par le moteur de `/analysis`, `extractPredictionConsensus` est **supprimé** :
+une seconde porte d'entrée serait une seconde chose à mettre au plancher. Un `consensus: []` devient chez
+HDDE une **absence de preuve**, jamais une récupération en échec (testé).

@@ -586,29 +586,10 @@ export const PredictionConsensusList = z
   .passthrough();
 export type PredictionConsensusList = z.infer<typeof PredictionConsensusList>;
 
-/**
- * The `engines[]` key under which `/chokepoints/{id}/analysis` ALSO serves the derived consensus —
- * engine `title: "Prediction consensus"`. Kept for the cockpit/HDDE reads of the full analysis payload;
- * the public site now uses the dedicated endpoint above instead (ADR 0071, since 0.15.0). Confirmed
- * live: this derived engine is served to the plain `read` (clear) token, UNLIKE raw
- * `/perception-signals` (403 without `read_tainted`), and since 0.13.0 it too is floored — the engine is
- * simply ABSENT for an object with no honest coverage (ADR 0013 / 0035 / 0071).
- */
-export const PREDICTION_CONSENSUS_ENGINE_KEY = 'prediction_consensus';
-
-/**
- * Pull the derived consensus rows out of a parsed `ChokepointAnalysis`. Pure + total: returns `[]` when
- * the corridor has no market (engine absent) or the rows do not validate — it never throws, so a
- * malformed engine degrades to "no consensus block" instead of breaking a static build. The engine's
- * `rows` are `unknown` in the pinned contract; this is where they gain their `PerceptionConsensusOut`
- * type. Filtering to a public-safe view (finite probabilities, etc.) is the caller's job.
- */
-export function extractPredictionConsensus(analysis: ChokepointAnalysis): PerceptionConsensusOut[] {
-  const engine = analysis.engines.find((e) => e.key === PREDICTION_CONSENSUS_ENGINE_KEY);
-  if (!engine) return [];
-  const parsed = z.array(PerceptionConsensusOut).safeParse(engine.rows);
-  return parsed.success ? parsed.data : [];
-}
+// NOTE — `/analysis` still carries the same consensus under `engines[key="prediction_consensus"]`, and
+// the cockpit sees it there in its raw engine view. We deliberately keep NO extractor for it: every
+// typed consumer now reads the dedicated endpoint above, and a second way in would be a second thing to
+// keep floored (ADR 0071, since 0.15.0).
 
 /** One raw prediction-market observation. Crowd ANTICIPATION, never event evidence. */
 export const PerceptionSignalOut = z

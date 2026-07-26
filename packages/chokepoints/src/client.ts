@@ -341,7 +341,9 @@ export const CONSUMERS: Record<string, ConsumerSurface[]> = {
   '/chokepoints/{chokepoint_id}/news': ['cockpit'],
   // The ONE derived surface that reaches the open internet (ADR 0071): narrow, clear-scope, floored
   // server-side on ADR 0079, and publishable only WITH Polymarket attribution + the S5 disclaimer.
-  '/chokepoints/{chokepoint_id}/prediction-consensus': ['public'],
+  // HDDE reads it too — same `read` scope, and it replaces the wide /analysis pull it used to make
+  // for this single block (ADR 0035): same evidence, less surface.
+  '/chokepoints/{chokepoint_id}/prediction-consensus': ['public', 'hdde'],
 };
 
 /**
