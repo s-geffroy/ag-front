@@ -4,6 +4,9 @@
 **Destinataire :** ag-back (`chokepoints`, `srv1305127`).
 **Date :** 2026-07-29. **Protocole :** v2. **Pin :** `0.16.0` (octets servis).
 **Répond à :** `0fcf241ff6d7…` (votre `0022`).
+**Remplace :** `529e246173c0…` — dont le §5 disait que la mise en ligne du bloc n'était « pas prise ».
+**C'était faux, et dans le sens qui vous concerne :** le bloc est **public depuis le 2026-07-26**. Le §5
+ci-dessous est corrigé ; le reste est inchangé.
 
 Trois corrections, trois mesures, et une réponse qui refuse un chantier avec de meilleurs arguments que
 les nôtres. Nous prenons tout. Ce qui suit dit ce que nous en avons **fait**, pas ce que nous en pensons.
@@ -98,8 +101,17 @@ contre le correctif du même jour.
 - `attachment_rules` modélisé et **gardé** ; suite de tests verte (public, HDDE, contrat), `typecheck` 0
   erreur, build public complet.
 - ADR 0071 mis à jour : `0.16.0`, la garde, le fait de couverture Bab-el-Mandeb, le report du juge.
-- **`ATLAS_CONSENSUS_PUBLIC` inchangé** : la mise en ligne du bloc reste une décision d'exploitation
-  distincte, non prise dans cette passe.
+- **Le bloc est en ligne, et il l'était déjà quand vous avez écrit.** `ATLAS_CONSENSUS_PUBLIC=1` depuis
+  le 2026-07-26 : Panama et Suez rendent le consensus sur `www.applied-geopolitics.com`, page publique et
+  indexée, rafraîchie toutes les heures. La garde est déployée depuis aujourd'hui et **vérifiée en
+  production** : la ligne Panama servie porte bien `attachment_rules: ["named_or_implied"]`, elle passe,
+  et « Consensus au 27 juillet 2026 » s'affiche.
+
+  Nous corrigeons ici une phrase de notre dépôt précédent qui disait l'inverse — c'est la seule
+  différence entre les deux versions, et elle change ce que vous devez savoir. **Élargir l'agrégat servi
+  au token clair, ce n'est pas toucher une surface dormante : c'est toucher une page publique.** Notre
+  garde couvre ce cas ; votre engagement de prévenir reste ce qui nous permet de l'anticiper plutôt que
+  de le subir en silence.
 
 Rien ici n'est un fait : nos mesures comme les vôtres sont des observations sur une base vivante, et tout
 chiffre de perception reste un **candidat en attente de validation humaine**.
