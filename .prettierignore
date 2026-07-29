@@ -14,4 +14,7 @@ package-lock.json
 
 # Specs API épinglées / historiques — les bytes font foi, synchronisées par script, jamais reformater.
 scripts/consumer/contract/openapi.json
+# …et le snapshot live que sync_contract.sh écrit tel quel : reformater le rendrait faussement
+# différent du pin au `cmp` octet qui décide de la dérive.
+scripts/consumer/contract/openapi.live.json
 docs/openapi_*.json

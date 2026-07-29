@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createChokepointsClient, ChokepointsApiError } from './client';
-import { SfuCompletenessOut } from './schema';
+import { SfuCompletenessOut, consensusRowIsPublishable } from './schema';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return { ok: status < 400, status, json: async () => body } as unknown as Response;
@@ -195,6 +195,42 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     );
     expect(res.consensus).toEqual([]);
     expect(res.chokepoint_id).toBe('p0_maritime_strait_strait_of_hormuz');
+  });
+
+  // 0.16.0 — `attachment_rules` is an array_agg over the rows actually summed, so it can be CHECKED.
+  // The gate is fail-closed: only `named_or_implied` may become a number a reader sees.
+  it('consensusRowIsPublishable accepts named_or_implied and refuses anything else', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          consensus: [
+            { signal_family: 'ok', attachment_rules: ['named_or_implied'] },
+            { signal_family: 'llm', attachment_rules: ['llm_implied'] },
+            { signal_family: 'mixed', attachment_rules: ['named_or_implied', 'llm_implied'] },
+            { signal_family: 'history', attachment_rules: ['full_text'] },
+            { signal_family: 'unknown_future_rule', attachment_rules: ['whatever_comes_next'] },
+          ],
+        }),
+    });
+    const { consensus } = await client.getChokepointPredictionConsensus('p0_x');
+    expect(consensus.filter(consensusRowIsPublishable).map((r) => r.signal_family)).toEqual(['ok']);
+  });
+
+  // Back-compat with 0.15.0 payloads: the producer did not report the rule at all, and the ADR 0079
+  // floor has been server-side since 0.13.0. Absent ≠ disqualifying — but it is not evidence either.
+  it('consensusRowIsPublishable tolerates a row that omits attachment_rules', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({ chokepoint_id: 'p0_x', consensus: [{ signal_family: 'legacy' }] }),
+    });
+    const { consensus } = await client.getChokepointPredictionConsensus('p0_x');
+    expect(consensus[0]!.attachment_rules).toEqual([]);
+    expect(consensus.every(consensusRowIsPublishable)).toBe(true);
   });
 
   it('getChokepointPredictionConsensus tolerates the omitted `consensus` key', async () => {

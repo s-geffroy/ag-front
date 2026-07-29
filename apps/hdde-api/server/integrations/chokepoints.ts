@@ -2,7 +2,11 @@
 // The client is created with includeTainted:false, and we additionally drop any record that still
 // carries license_taint=true as a defence-in-depth guard so no restricted data can reach the public
 // client. Suggestions are CANDIDATES pending analyst validation, never facts.
-import { createChokepointsClient, ChokepointsApiError } from '@ag/chokepoints';
+import {
+  createChokepointsClient,
+  ChokepointsApiError,
+  consensusRowIsPublishable,
+} from '@ag/chokepoints';
 import type { PacketPayload } from '@ag/schema/hdde';
 import { config } from '../config';
 
@@ -209,8 +213,13 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
     .then((res) => {
       // Empty = no honest market coverage (ADR 0079 floor, server-side since 0.13.0) → absence of
       // evidence, not a fetch that failed. Nothing to log, nothing to report as degraded.
-      if (!res.consensus.length) return null;
-      const families: PerceptionFamily[] = res.consensus.map((r) => ({
+      //
+      // Same fail-closed gate as the public Atlas (0.16.0 `attachment_rules`): a row summed under any
+      // rule other than `named_or_implied` never reaches a diagnostic packet — and from there VERDICT,
+      // where a crowd anticipation already sits at the very edge of what may inform a decision.
+      const publishable = res.consensus.filter(consensusRowIsPublishable);
+      if (!publishable.length) return null;
+      const families: PerceptionFamily[] = publishable.map((r) => ({
         signal_family: r.signal_family ?? undefined,
         market_count: r.market_count ?? undefined,
         consensus_probability: r.consensus_probability ?? undefined,

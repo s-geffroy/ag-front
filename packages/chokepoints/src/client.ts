@@ -210,6 +210,10 @@ export type ChokepointsClient = {
    * no longer touches engines/relations/claims to reach the one block it may publish. `consensus: []`
    * means **no honest market coverage** (ADR 0079 floor, server-side since 0.13.0) — not an error.
    * Publishing it obliges Polymarket attribution + the S5 low-reliability disclaimer.
+   *
+   * Since 0.16.0 each row carries `attachment_rules`, the measured aggregate of the rules its summed
+   * rows actually used. Consumers gate on it (`consensusRowIsPublishable`) instead of assuming the
+   * floor held — an aggregate can be checked, the engine constant it replaced could not.
    */
   getChokepointPredictionConsensus(id: string): Promise<PredictionConsensusListT>;
 };
@@ -288,7 +292,9 @@ export type ConsumerSurface = 'public' | 'cockpit' | 'hdde' | 'verdict';
  * VERDICT never appears here: it must never call the Read API directly (ADR 0042) — it consumes the
  * HDDE diagnostic packet. `/chokepoints/{id}/perception-signals` is cockpit-only: the producer gates
  * it unconditionally on `read_tainted`, and HDDE holds a `read` token by design (ADR 0035), so it
- * reads the derived `prediction_consensus` block of `/analysis` instead.
+ * reads the dedicated `/chokepoints/{id}/prediction-consensus` instead. (That surface still serves the
+ * unfloored `full_text` history, ~98 % noise — ag-back handoff 0022 §6 leaves it open deliberately, and
+ * it costs us nothing: we never read it.)
  *
  * `/chokepoints/{id}/analysis` is NO LONGER `public`. It was, briefly, read through a narrow
  * `getChokepointConsensus` projection — the reversible interim of ADR 0071 while the derived consensus

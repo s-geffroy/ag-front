@@ -193,6 +193,37 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
     expect(spy).not.toHaveBeenCalled(); // nothing to log: an empty list is an answer
   });
 
+  /**
+   * API 0.16.0 `attachment_rules` (ag-back handoff 0022 §4). A row summed under any rule other than
+   * `named_or_implied` must not reach a diagnostic packet — and from there VERDICT, where a crowd
+   * anticipation is already at the edge of what may inform a decision. Same gate as the public Atlas.
+   */
+  it('drops a consensus row not summed under named_or_implied', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+      const u = String(url);
+      if (u.includes('/prediction-consensus'))
+        return json({
+          chokepoint_id: 'p0_x',
+          consensus: [
+            {
+              signal_family: 'kept',
+              consensus_probability: 0.02,
+              attachment_rules: ['named_or_implied'],
+            },
+            {
+              signal_family: 'dropped',
+              consensus_probability: 0.5,
+              attachment_rules: ['llm_implied'],
+            },
+          ],
+        });
+      return json([]);
+    });
+    const ev = await fetchCorridorEvidence('p0_x');
+    expect(ev.perception?.count).toBe(1);
+    expect(ev.perception?.families.map((f) => f.signal_family)).toEqual(['kept']);
+  });
+
   it('a 403 is logged loudly, never silently rendered as an empty dataset', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(globalThis, 'fetch').mockImplementation(async () =>

@@ -32,6 +32,7 @@ class PerceptionConsensusOut:
             max_probability_change_24h (Union[None, Unset, float]):
             total_liquidity (Union[None, Unset, float]):
             observed_window_end (Union[None, Unset, datetime.datetime]):
+            attachment_rules (Union[Unset, list[str]]):
      """
 
     signal_family: Union[None, Unset, str] = UNSET
@@ -40,6 +41,7 @@ class PerceptionConsensusOut:
     max_probability_change_24h: Union[None, Unset, float] = UNSET
     total_liquidity: Union[None, Unset, float] = UNSET
     observed_window_end: Union[None, Unset, datetime.datetime] = UNSET
+    attachment_rules: Union[Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -82,6 +84,12 @@ class PerceptionConsensusOut:
         else:
             observed_window_end = self.observed_window_end
 
+        attachment_rules: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.attachment_rules, Unset):
+            attachment_rules = self.attachment_rules
+
+
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -99,6 +107,8 @@ class PerceptionConsensusOut:
             field_dict["total_liquidity"] = total_liquidity
         if observed_window_end is not UNSET:
             field_dict["observed_window_end"] = observed_window_end
+        if attachment_rules is not UNSET:
+            field_dict["attachment_rules"] = attachment_rules
 
         return field_dict
 
@@ -177,6 +187,9 @@ class PerceptionConsensusOut:
         observed_window_end = _parse_observed_window_end(d.pop("observed_window_end", UNSET))
 
 
+        attachment_rules = cast(list[str], d.pop("attachment_rules", UNSET))
+
+
         perception_consensus_out = cls(
             signal_family=signal_family,
             market_count=market_count,
@@ -184,6 +197,7 @@ class PerceptionConsensusOut:
             max_probability_change_24h=max_probability_change_24h,
             total_liquidity=total_liquidity,
             observed_window_end=observed_window_end,
+            attachment_rules=attachment_rules,
         )
 
 

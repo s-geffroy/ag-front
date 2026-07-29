@@ -90,6 +90,40 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
     expect(c?.families[0]!.signalFamily).toBe('regime_change_expectation');
   });
 
+  // 0.16.0 `attachment_rules` (ag-back 0022 §4). They committed to warning us before `llm_implied`
+  // enters the served aggregate; this pins that the page does not depend on the warning arriving.
+  it('refuses a row not summed under named_or_implied, and its observed-at stamp with it', async () => {
+    stubFetch({
+      chokepoint_id: PANAMA,
+      consensus: [
+        {
+          signal_family: 'disruption_expectation',
+          consensus_probability: 0.42,
+          observed_window_end: '2026-08-01T06:00:00Z',
+          attachment_rules: ['llm_implied'],
+        },
+      ],
+    });
+    expect(await loadCorridorConsensus(PANAMA)).toBeNull();
+  });
+
+  it('publishes a row that states named_or_implied', async () => {
+    stubFetch({
+      chokepoint_id: PANAMA,
+      consensus: [
+        {
+          signal_family: 'infrastructure_capacity_expectation',
+          consensus_probability: 0.038,
+          observed_window_end: '2026-07-26T06:00:00Z',
+          attachment_rules: ['named_or_implied'],
+        },
+      ],
+    });
+    const c = await loadCorridorConsensus(PANAMA);
+    expect(c?.families).toHaveLength(1);
+    expect(c?.observedAt).toBe('2026-07-26T06:00:00Z');
+  });
+
   it('stays dark when the go-live flag is unset', async () => {
     delete process.env.ATLAS_CONSENSUS_PUBLIC;
     expect(await loadCorridorConsensus(PANAMA)).toBeNull();

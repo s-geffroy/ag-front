@@ -206,3 +206,70 @@ rien** — c'est le plancher serveur, plus notre filtre. Suite complète verte, 
 consommateur typé ne passant par le moteur de `/analysis`, `extractPredictionConsensus` est **supprimé** :
 une seconde porte d'entrée serait une seconde chose à mettre au plancher. Un `consensus: []` devient chez
 HDDE une **absence de preuve**, jamais une récupération en échec (testé).
+
+### `0.16.0` — la règle d'attachement devient lisible, donc vérifiable (2026-07-29, ag-back `0022`)
+
+Nous avions demandé (`0019` §5) à **lire** la règle sous laquelle une ligne a été agrégée. Livré, et
+livré mieux que demandé : `attachment_rules` est un `array_agg(DISTINCT attachment_rule)` sur les lignes
+réellement sommées — **un agrégat mesuré, pas la constante du moteur réimprimée**. La distinction est
+tout l'objet : un littéral redit l'intention du code, un agrégat dit ce qui s'est passé. C'est
+exactement la leçon de leur `info.version` figé dix jours (notre `0017`).
+
+Conséquence chez nous : le champ n'est **pas affiché**, il est **appliqué**.
+`consensusRowIsPublishable()` (`packages/chokepoints/src/schema.ts`) écarte, en *fail-closed*, toute
+ligne dont les règles ne se réduisent pas à `named_or_implied` — y compris une règle que nous ne
+connaissons pas encore. Le tableau vide est toléré (rétro-compat `0.15.0`), sans être tenu pour une
+preuve. Les deux consommateurs passent la garde : `loadCorridorConsensus` (public) et
+`fetchCorridorEvidence` (HDDE, donc le packet diagnostic, donc VERDICT). ag-back s'engage à **prévenir
+par le canal avant** de faire entrer `llm_implied` dans l'agrégat servi au token clair ; ce filtre est
+ce qui rend l'engagement inutile plutôt que porteur.
+
+Pin `0.15.0` → `0.16.0`, dérive **structurelle** mais minuscule : une propriété ajoutée, aux trois
+endroits où elle apparaît (`PerceptionConsensusOut` et les deux enveloppes qui l'embarquent), 40 chemins
+des deux côtés. À noter : la garde ADR 0066 ne vérifie que les propriétés **requises**, et celle-ci ne
+l'est pas — le repin n'aurait rien cassé. Le champ est consommé par **décision**, pas par contrainte du
+build ; c'est précisément le cas que la garde ne peut pas attraper.
+
+### Bab-el-Mandeb : « pas de couverture » est désormais un fait de couverture
+
+Notre `0019` posait trois lectures possibles du `[]` de Bab-el-Mandeb. Leur mesure (`0022` §1) en valide
+**deux** :
+
+- le terme `Houthi` n'existait en base qu'en `actor_term` — la décision propriétaire du 2026-07-16 (leur
+  ADR 0079) n'était **jamais entrée en production**, onze jours durant, sans que rien ne le signale.
+  Corrigé, plus un garde `--check` non bloquant sur seed↔base ;
+- **et** aucun marché ne porte l'objet : **0 des 820 questions distinctes** du corpus (46 302 lignes,
+  2026-06-23 → 2026-07-27) ne contient `houthi`, `red sea`, `yemen` ni `mandeb`.
+
+La lecture 2 (historique `named_or_implied` à débloquer) est réfutée : les 1 239 lignes de l'objet
+portent toutes `full_text`.
+
+**Donc le `[]` était la bonne réponse pour la mauvaise raison, et reste la bonne pour la bonne.** Nous
+l'inscrivons ici pour qu'un futur lecteur ne rouvre pas une enquête close : un vide sur Bab-el-Mandeb est
+une affirmation sur la couverture Polymarket, plus sur le déploiement d'ag-back. Le signal qui justifierait
+d'y revenir n'est pas un taux de résidu, c'est **l'apparition d'un marché qui porte l'objet sans le
+nommer** — leur mesure, pas notre estimation.
+
+Corollaire pour nous : **rien à promouvoir en gazetteer.** Les candidats que nous citions y sont déjà
+(`Red Sea shipping` est un `context_alias` de Bab-el-Mandeb, `tanker seizure` un `disruption_term` de
+Hormuz) ; aucun marché vivant ne les porte. Et promouvoir `Russia` ou `missile` rouvrirait la porte que
+le plancher a fermée — `Russia` rattacherait les marchés « NATO × Russia » aux Détroits turcs, soit 15
+des 17 rattachements de la mesure à 12 % de précision.
+
+### Juge LLM de rattachement : différé, sur notre propre argument
+
+Nos garde-fous (`0019` §4) sont acceptés **tels qu'écrits** — monde fermé, `evidence_span` vérifié à la
+machine, `llm_implied` jamais fondu dans `named_or_implied`, signal d'injection typé, fail-closed, cache
+et traçabilité. Mais ag-back a mesuré l'ensemble sur lequel il tournerait : **35 marchés sur 820, dont
+aucun ne porte sur un chokepoint**. Le rappel attendu est donc nul, et notre jeu d'évaluation ne mesure
+rien — son unique cas positif, `evt_bab_001`, est une **fixture de test** de leur dépôt, pas un marché
+vivant. Nous retirons le jeu en l'état.
+
+Ce n'est pas un argument contre la conception du juge, c'est un argument sur sa **mesurabilité** : un juge
+dont tous les refus sont corrects par construction ne prouve rien sur ses acceptations. L'obstacle réel
+n'est pas leur matcher — c'est la couverture de Polymarket, que nul étage de rattachement ne fabrique.
+
+Reste ouvert chez eux, et sans effet chez nous : `/perception-signals` ne filtre pas `attachment_rule`
+(~98 % d'historique `full_text`) — surface `read_tainted` que nous ne lisons pas ; leur loader reste
+additif (retirer un terme du seed ne le retire pas de la production) ; les pluriels irréguliers ne sont
+pas matchés.

@@ -552,6 +552,13 @@ export const ChokepointAnalysis = z
   .passthrough();
 export type ChokepointAnalysis = z.infer<typeof ChokepointAnalysis>;
 
+/**
+ * The one attachment rule we accept as a basis for a public number: the market NAMES the object, or
+ * implies it under the ADR 0079 floor. Anything else — `full_text` history, a future `llm_implied` —
+ * is refused by `consensusRowIsPublishable()` below (ag-back handoff 0022 §4).
+ */
+export const PUBLISHABLE_ATTACHMENT_RULE = 'named_or_implied';
+
 /** Liquidity-weighted odds per signal_family, from the consensus engine. */
 export const PerceptionConsensusOut = z
   .object({
@@ -561,9 +568,36 @@ export const PerceptionConsensusOut = z
     max_probability_change_24h: z.number().nullish(),
     total_liquidity: z.number().nullish(),
     observed_window_end: z.string().nullish(),
+    /**
+     * API 0.16.0 — which attachment rules the summed rows actually carried. It is an
+     * `array_agg(DISTINCT attachment_rule)` over those rows, **not** the engine's constant reprinted:
+     * a literal restates the code's intention, an aggregate states what happened. That distinction is
+     * the whole point — their `info.version` literal drifted from its own behaviour for ten days
+     * (our handoff `0017`), which is exactly what a literal cannot catch and an aggregate can.
+     *
+     * Today it is `["named_or_implied"]`. ag-back committed to warning us through the channel *before*
+     * `llm_implied` ever enters the aggregate served to the clear `read` token — we take the
+     * commitment, and still filter on it, so we do not have to depend on it.
+     */
+    attachment_rules: z.array(z.string()).default([]),
   })
   .passthrough();
 export type PerceptionConsensusOut = z.infer<typeof PerceptionConsensusOut>;
+
+/**
+ * May this consensus row become a number a reader sees? Fail-closed: any rule we do not explicitly
+ * recognise disqualifies the row, so a rule that appears before we have decided what it means shows
+ * nothing rather than something we cannot defend.
+ *
+ * An EMPTY array is tolerated, and it is NOT evidence: before 0.16.0 the producer did not report the
+ * rule at all, and the ADR 0079 floor has been applied server-side since 0.13.0. So an empty array
+ * means "not told", we fall back to trusting the floor — which is precisely the trust this field
+ * exists to make unnecessary once every served row carries it.
+ */
+export function consensusRowIsPublishable(row: PerceptionConsensusOut): boolean {
+  const rules = row.attachment_rules ?? [];
+  return rules.every((r) => r === PUBLISHABLE_ATTACHMENT_RULE);
+}
 
 /**
  * /chokepoints/{id}/prediction-consensus (API 0.15.0) → the derived Polymarket consensus as its own
@@ -575,6 +609,9 @@ export type PerceptionConsensusOut = z.infer<typeof PerceptionConsensusOut>;
  * attachment floor is applied server-side: only objects a market NAMES or IMPLIES carry rows, so Hormuz
  * & co. answer `200` with an empty list rather than the pre-floor noise (12 % precision). A 404 here is a
  * genuinely unknown — or tainted-and-not-permitted — object, as everywhere else.
+ *
+ * Since 0.16.0 each row also states the rule it was summed under (`attachment_rules`); we gate on it
+ * with `consensusRowIsPublishable()` rather than assume the floor stayed where it was.
  */
 export const PredictionConsensusList = z
   .object({

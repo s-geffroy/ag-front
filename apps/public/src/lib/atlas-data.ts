@@ -1,5 +1,6 @@
 import {
   createChokepointsClient,
+  consensusRowIsPublishable,
   type ChokepointDetail,
   type ChokepointSummary,
   type GeoJsonFeatureCollection,
@@ -156,6 +157,12 @@ export const CONSENSUS_RELIABILITY = {
  * server-side (0.13.0): only objects a market names or implies carry rows, everything else answers
  * `200` with `[]`. We render nothing in that case — no zero, no flat line, no "aucune donnée" that a
  * reader could mistake for calm. Coverage is theirs to decide; ours is only to not misreport it.
+ *
+ * **And we check the floor rather than assume it.** Since 0.16.0 every row states the attachment rules
+ * it was actually summed under, so `consensusRowIsPublishable` drops anything that is not
+ * `named_or_implied` before a number can reach a page. ag-back committed to warning us before widening
+ * that aggregate (handoff 0022 §4); this filter is what makes the commitment unnecessary rather than
+ * load-bearing.
  */
 export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus | null> {
   // Go-live gate (ADR 0071): both owners have now cleared public redistribution (their ADR 0083; ours
@@ -165,8 +172,11 @@ export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus 
   const cfg = config();
   if (!cfg) return null;
   try {
-    const { consensus: rows } =
+    const { consensus: all } =
       await createChokepointsClient(cfg).getChokepointPredictionConsensus(id);
+    // Fail-closed on the attachment rule FIRST: everything downstream — the families, and the
+    // "observé le" stamp — must describe only rows we are willing to publish.
+    const rows = all.filter(consensusRowIsPublishable);
     const families: AtlasConsensusFamily[] = rows
       .filter(
         (r) =>
