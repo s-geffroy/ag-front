@@ -14,7 +14,7 @@ interface Props {
   title?: string;
   description?: string;
   type?: string;
-  /** Absolute-or-relative social preview image. When set, cards upgrade to large-image. */
+  /** Absolute-or-relative social preview image. Defaults to the site card; every page has one. */
   image?: string;
   /** When present, emit Article structured data (long-form pages). */
   article?: { publishedTime?: string; modifiedTime?: string; section?: string };
@@ -22,7 +22,10 @@ interface Props {
 const { title, description = site.positioning, type = 'website', image, article } = Astro.props;
 const fullTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.baseline}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
-const ogImage = image ? new URL(image, site.url).href : undefined;
+// Default to the site card rather than leaving it undefined: an unset og:image is not a neutral
+// choice, it is a bare grey box on every LinkedIn share of every page. Pages may still override.
+// Regenerate with `npm --workspace @ag/public run build:brand` (scripts/build-brand-assets.mjs).
+const ogImage = new URL(image ?? '/og.png', site.url).href;
 
 // Structured data (JSON-LD). Organization + WebSite sitewide; Article on long-form pages.
 const orgId = `${site.url}/#organization`;
@@ -78,13 +81,19 @@ if (article) {
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="fr_FR" />
-    {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+    <meta property="og:image" content={ogImage} />
+    {/* Declared dimensions let the crawler reserve the card before it has fetched the file. */}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name} — ${site.baseline}`} />
     {article?.publishedTime ? <meta property="article:published_time" content={article.publishedTime} /> : null}
     {article?.modifiedTime ? <meta property="article:modified_time" content={article.modifiedTime} /> : null}
-    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
-    {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     {jsonLd.map((node) => (
       <script type="application/ld+json" set:html={JSON.stringify(node)} />
     ))}

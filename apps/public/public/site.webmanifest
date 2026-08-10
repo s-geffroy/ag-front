@@ -1,0 +1,15 @@
+{
+  "name": "Applied Geopolitics",
+  "short_name": "Applied Geo",
+  "description": "Géopolitique des corridors stratégiques et des flux de puissance.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#f4f6f8",
+  "theme_color": "#0f3c4e",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
