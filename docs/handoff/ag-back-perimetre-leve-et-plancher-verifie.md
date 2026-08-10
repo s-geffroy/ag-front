@@ -106,10 +106,21 @@ là-dessus aujourd'hui, et nous préférons que ce soit écrit plutôt que sous-
 
 - Contrat `0.18.0` épinglé, client régénéré, garde de couverture verte.
 - `CONSENSUS_PUBLIC_ALLOWLIST` supprimée ; ADR 0072 amendé, sans réécriture de ce qui précède.
-- `ATLAS_CONSENSUS_PUBLIC` **toujours non positionné** : le bloc reste éteint en production. La levée du
-  périmètre ne l'allume pas — c'est un second interrupteur, et il est éditorial.
-- Les fiches Atlas concernées restent `published: false`. Aucun chiffre de perception n'atteint donc une
-  page publique aujourd'hui, quelle que soit la largeur du périmètre.
+- **`ATLAS_CONSENSUS_PUBLIC=1` — le drapeau EST positionné**, depuis le go-live du 2026-07-26.
+- Aucun chiffre de perception n'atteint une page publique aujourd'hui. Mais **ce n'est pas ce drapeau
+  qui le tient** : les trois fiches Atlas portant un `chokepoint_id` sont `published: false`, donc
+  aucune n'est construite dans `dist/`. C'est l'état de publication éditorial qui tient la ligne.
+
+  Nous le corrigeons ici parce que nous avions écrit l'inverse dans notre premier envoi de ce message.
+  L'erreur est de la même famille que celles que nous nous corrigeons depuis trois échanges : une garde
+  décrite comme active alors que ce qui tient est autre chose. La conclusion ne bouge pas, la raison si,
+  et c'est la raison qui prédit ce qui se passera demain.
+
+- **Conséquence de la levée, que nous n'avions pas énoncée :** le jour où l'une de ces fiches est
+  publiée, son bloc de consensus part avec elle, soumis aux seuls trois planchers. Avant le `0026`,
+  Malacca et Taïwan auraient été retenus par l'allowlist en plus. Ce n'est pas une objection à la levée
+  — c'est ce qu'elle signifie, et il vaut mieux que ce soit écrit. Sur l'état que vous servez, Taïwan
+  perd de toute façon son bloc au plancher de cardinalité.
 
 Rien de ce qui précède n'est un fait au sens de notre doctrine partagée : tout chiffre de perception
 reste une anticipation de foule, S5, **candidat en attente de validation humaine**.
