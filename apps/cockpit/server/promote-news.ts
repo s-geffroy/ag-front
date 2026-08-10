@@ -161,3 +161,148 @@ export async function unpromoteNews(corridorId: string, key: string): Promise<bo
   await touchPublishPending();
   return true;
 }
+
+// --- P2 : refus de la paraphrase (ADR 0074, arbitré le 2026-08-10) ---------------------------------
+//
+// L'ADR 0074 exige une phrase du promoteur parce que juger un cluster sur son titre était le défaut
+// retiré. Rien n'empêchait jusqu'ici de RECOPIER le titre dans ce champ, ce qui satisfait la lettre
+// de la règle en la vidant. On ne peut pas prouver qu'un humain a lu ; on peut refuser qu'il se
+// contente de redire.
+//
+// POURQUOI PAS `questionFingerprint` DE @ag/chokepoints : son lexique d'arrêts est anglais, et il
+// sert une garde en service (l'indépendance des marchés, sur des questions en anglais). Nos notes et
+// les `headline` du modèle sont en français : sans « de / la / les / des », deux phrases françaises
+// sans rapport partagent déjà assez de jetons pour franchir un seuil. On garde la même idée de
+// normalisation, avec le lexique de la bonne langue.
+const NOTE_STOPWORDS = new Set([
+  'le',
+  'la',
+  'les',
+  'un',
+  'une',
+  'des',
+  'du',
+  'de',
+  'au',
+  'aux',
+  'et',
+  'ou',
+  'en',
+  'dans',
+  'sur',
+  'pour',
+  'par',
+  'que',
+  'qui',
+  'quoi',
+  'dont',
+  'avec',
+  'sans',
+  'ne',
+  'pas',
+  'plus',
+  'est',
+  'sont',
+  'ete',
+  'etre',
+  'a',
+  'ce',
+  'ces',
+  'cet',
+  'cette',
+  'son',
+  'sa',
+  'ses',
+  'leur',
+  'leurs',
+  'il',
+  'elle',
+  'ils',
+  'elles',
+  'on',
+  'se',
+  'y',
+  'the',
+  'of',
+  'to',
+  'in',
+  'and',
+  'for',
+  'on',
+  'as',
+  'is',
+  'are',
+]);
+
+/** Jetons discriminants d'une phrase : minuscules, sans accents ni ponctuation, mots-outils ôtés. */
+export function noteFingerprint(text: string): string[] {
+  return [
+    ...new Set(
+      (text ?? '')
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter((w) => w.length > 1 && !NOTE_STOPWORDS.has(w)),
+    ),
+  ].sort();
+}
+
+/**
+ * Taux de RECOUVREMENT (et non Jaccard) : |A ∩ B| / |A|, la part de la note déjà présente dans le
+ * texte candidat.
+ *
+ * Jaccard pénalise l'écart de longueur, donc une note brève entièrement recopiée d'un titre long y
+ * obtiendrait un score bas et passerait — exactement le cas à attraper. Le recouvrement mesure ce qui
+ * compte : « cette phrase apporte-t-elle des mots qui ne sont pas déjà là ? ». C'est aussi ce qui
+ * rend la règle compatible avec la consigne « une note courte mais juste est publiée » : une note
+ * brève et pertinente porte des mots neufs — son analyse — donc son recouvrement reste bas.
+ */
+export function containment(note: string[], candidate: string[]): number {
+  if (note.length === 0) return 0;
+  const set = new Set(candidate);
+  return note.filter((t) => set.has(t)).length / note.length;
+}
+
+/** Au-delà, la note ne dit rien que le texte candidat ne disait déjà. */
+export const PARAPHRASE_CONTAINMENT = 0.8;
+
+export interface ParaphraseHit {
+  /** Le texte que la note recopie (titre d'article, ou prose du modèle). */
+  source: string;
+  score: number;
+}
+
+/**
+ * La note est-elle une quasi-copie de l'un des textes candidats ?
+ *
+ * Limite assumée, à dire plutôt qu'à masquer : la comparaison est lexicale, donc une note française
+ * paraphrasant un titre ANGLAIS ne sera pas attrapée. Le cas dominant l'est, lui : le `headline` du
+ * modèle est en français et c'est précisément ce que le promoteur a sous les yeux — c'est là que
+ * l'ADR 0074 avait quelque chose à perdre.
+ */
+export function findParaphrase(
+  note: string,
+  candidates: (string | null | undefined)[],
+  threshold = PARAPHRASE_CONTAINMENT,
+): ParaphraseHit | null {
+  const fp = noteFingerprint(note);
+  if (fp.length === 0) return null;
+  let worst: ParaphraseHit | null = null;
+  for (const c of candidates) {
+    if (!c || !c.trim()) continue;
+    const score = containment(fp, noteFingerprint(c));
+    if (score >= threshold && (!worst || score > worst.score)) worst = { source: c, score };
+  }
+  return worst;
+}
+
+/** Les textes qu'une note ne doit pas se contenter de redire : titres des articles + prose du modèle. */
+export function paraphraseCandidates(cluster: NewsClusterOut): string[] {
+  return [
+    cluster.headline ?? '',
+    cluster.summary_text ?? '',
+    ...(cluster.articles ?? []).map((a) => a.title ?? ''),
+  ].filter((s) => s.trim().length > 0);
+}

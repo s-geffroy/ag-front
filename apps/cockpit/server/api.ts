@@ -43,6 +43,8 @@ import {
   toPromotedItem,
   writePromotedNews,
   unpromoteNews,
+  findParaphrase,
+  paraphraseCandidates,
 } from './promote-news';
 import {
   addUploads,
@@ -882,6 +884,20 @@ export function createApiRouter(): Router {
         res.status(resolved.status).json({ error: resolved.error });
         return;
       }
+      // P2 — la note doit ajouter quelque chose (ADR 0074). Recopier le titre satisfaisait la lettre
+      // de la règle en la vidant : la porte exigeait une phrase, pas une phrase de plus.
+      const echo = findParaphrase(body.data.editorial_note, paraphraseCandidates(resolved.cluster));
+      if (echo) {
+        res.status(422).json({
+          error: 'editorial_note_paraphrase',
+          message:
+            'Votre phrase reprend un texte déjà présent — dites ce que cette couverture change pour un décideur.',
+          echoes: echo.source,
+          score: Number(echo.score.toFixed(2)),
+        });
+        return;
+      }
+
       const item = toPromotedItem(resolved.cluster, {
         promotedBy: body.data.validated_by,
         promotedAt: new Date().toISOString(),
