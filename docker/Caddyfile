@@ -18,6 +18,24 @@ www.applied-geopolitics.com {
 		reverse_proxy lead:8080
 	}
 
+	# Cookieless audience measurement (ADR 0076), proxied first-party under /p/*.
+	#
+	# Two reasons not to point at a plausible.* subdomain: it would need a new DNS record, and a
+	# third-party analytics host is on every blocker list — a tracker blocked for a third of visitors
+	# does not measure a third less, it measures a biased two-thirds. Under /p/* on the canonical
+	# origin there is nothing to block and no third party involved.
+	#
+	# `/p/event` deliberately avoids `/api/*`, which already belongs to the lead service above.
+	handle /p/script.js {
+		rewrite * /js/script.js
+		header Cache-Control "public, max-age=86400"
+		reverse_proxy plausible:8000
+	}
+	handle /p/event {
+		rewrite * /api/event
+		reverse_proxy plausible:8000
+	}
+
 	# Everything else: the static site.
 	handle {
 		file_server

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!--
+  Matching user-profile limits. `log_queries` off is the other half of removing the *_log tables in
+  config.xml: the tables are gone, so writing to them must be off too, or ClickHouse recreates them.
+
+  The `default` user is declared EXPLICITLY. Dropping a file into `users.d/` that carries only a
+  <profiles> section displaces the image's implicit default user, and ClickHouse then answers every
+  connection with `AUTHENTICATION_FAILED (516)` — which reads like a wrong password rather than a
+  missing user, and cost a debugging round here.
+
+  No password: this server publishes no port and is reachable only from the `plausible` container on
+  the internal Docker network. A credential that never crosses a host boundary would add ceremony,
+  not security — and it would have to live somewhere.
+-->
+<clickhouse>
+  <profiles>
+    <default>
+      <log_queries>0</log_queries>
+      <log_query_threads>0</log_query_threads>
+      <max_memory_usage>1000000000</max_memory_usage>
+      <max_threads>4</max_threads>
+    </default>
+  </profiles>
+
+  <users>
+    <default>
+      <password />
+      <profile>default</profile>
+      <quota>default</quota>
+      <networks>
+        <ip>::/0</ip>
+      </networks>
+      <access_management>0</access_management>
+    </default>
+  </users>
+
+  <quotas>
+    <default />
+  </quotas>
+</clickhouse>

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+  ClickHouse tuned down for a shared 8 GB VPS with NO SWAP.
+
+  Stock ClickHouse assumes it owns the machine: it reserves a large mark cache, keeps several verbose
+  system logs and will happily grow. Here it is a guest next to five production services, and an OOM
+  kill would take the site down to count page views — an unacceptable trade. Every setting below
+  trades analytics headroom for the safety of its neighbours.
+-->
+<clickhouse>
+  <logger>
+    <level>warning</level>
+    <console>true</console>
+  </logger>
+
+  <!-- The system.*_log tables are the main source of unbounded growth on a small instance, and we
+       never read them: Plausible queries its own tables only. -->
+  <asynchronous_metric_log remove="remove" />
+  <metric_log remove="remove" />
+  <query_thread_log remove="remove" />
+  <query_log remove="remove" />
+  <text_log remove="remove" />
+  <trace_log remove="remove" />
+  <session_log remove="remove" />
+  <part_log remove="remove" />
+
+  <!-- Hard ceiling well under the free memory, so a runaway query fails instead of the kernel
+       choosing which production container to kill. -->
+  <max_server_memory_usage>1500000000</max_server_memory_usage>
+  <mark_cache_size>268435456</mark_cache_size>
+  <uncompressed_cache_size>0</uncompressed_cache_size>
+  <max_concurrent_queries>32</max_concurrent_queries>
+</clickhouse>

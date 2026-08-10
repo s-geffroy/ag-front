@@ -151,6 +151,19 @@ published to the public internet. `apps/hdde-api` + `apps/hdde-web` → `hdde.ap
 (public-Internet **behind app auth**, fronted by Caddy; `hdde` service on host loopback). Seed the
 first account via `npm --workspace @ag/hdde-api run seed:user -- <email> <password> owner_admin`.
 
+**Audience measurement (ADR 0076):** self-hosted **Plausible** (+ PostgreSQL + ClickHouse). Cookieless,
+so no consent banner. The tracking endpoints are proxied **first-party** by Caddy as `/p/script.js` and
+`/p/event` (never a third-party host — blockers would bias the sample); the **dashboard is tailnet-only**
+at `https://srv1100990.tail880531.ts.net:8443`. ClickHouse is memory-capped in `docker/clickhouse/` —
+it shares an 8 GB box with **no swap**, so do not lift those limits casually.
+
+**Backups (ADR 0076 neighbours):** `scripts/backup.sh`, nightly at 03:30, into `/home/deploy/backups`
+(14 kept, archives `0600` — they contain `docker/.env` and client data). **YOU MUST NOT back up the
+SQLite files with `cp`:** both run in WAL mode and the `.sqlite` is ~4 KB while its `-wal` holds
+everything, so a copy yields a plausible, openable, nearly **empty** database. `scripts/backup-sqlite.mjs`
+uses the online-backup API and re-opens each snapshot to check `integrity_check` and table count. A
+weekly drill (`--verify-only`, Mon 04:10) restores the newest archive and opens both databases.
+
 **Redeploying the cockpit after a change — YOU MUST run `scripts/redeploy-cockpit.sh`.** The cockpit
 runs as the `app-geo-cockpit-1` compose service via `tsx server/index.ts` (**no watch**), serving the
 built `apps/cockpit/dist` statically. So a code change is **not** live until you redeploy, and the two

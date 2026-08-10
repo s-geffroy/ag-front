@@ -136,7 +136,7 @@ export const legalPages: readonly LegalPage[] = [
           'Une seule collecte a lieu sur ce site : le formulaire de contact. Aucune donnée personnelle n’est collectée lors de la simple consultation des pages.',
           'Les données transmises par le formulaire sont : votre nom, votre adresse électronique, le cas échéant votre organisation, le sujet choisi, et le message libre que vous rédigez.',
           'La date et l’heure de réception sont enregistrées, ainsi que la trace horodatée de votre consentement.',
-          'Votre adresse IP est utilisée de manière transitoire pour limiter le nombre de soumissions par minute (protection anti-abus). Elle n’est pas conservée avec votre message : elle réside en mémoire vive le temps d’une fenêtre d’une minute, puis disparaît.',
+          'Votre adresse IP est utilisée de manière transitoire, à deux endroits, et n’est stockée dans aucun des deux : pour limiter le nombre de soumissions par minute du formulaire (protection anti-abus), où elle réside en mémoire vive le temps d’une fenêtre d’une minute ; et par la mesure d’audience décrite plus bas, qui la combine à votre navigateur et à un sel renouvelé chaque jour pour produire une empreinte anonyme, sans jamais conserver l’adresse elle-même.',
         ],
       },
       {
@@ -178,7 +178,7 @@ export const legalPages: readonly LegalPage[] = [
         body: [
           'Ce site ne dépose aucun cookie publicitaire et ne pratique aucun suivi entre sites.',
           'Un unique élément est enregistré localement dans votre navigateur (`localStorage`) : votre préférence de thème clair ou sombre. Il ne quitte jamais votre appareil, ne permet pas de vous identifier, et relève des traceurs strictement nécessaires exemptés de consentement.',
-          `Mesure d’audience : ${TO_COMPLETE} — indiquer « aucune » si aucun outil n’est déployé, ou le nom de l’outil, son hébergement et l’absence de cookie le cas échéant.`,
+          'Mesure d’audience : nous utilisons Plausible Analytics, installé sur notre propre serveur en France. Il ne dépose aucun cookie, n’enregistre aucun identifiant permettant de vous suivre d’un site à l’autre, et ne conserve aucune donnée personnelle : chaque visite est comptée à partir d’une empreinte anonyme, renouvelée chaque jour et jamais stockée. Aucune donnée n’est transmise à un tiers. C’est pourquoi ce site n’affiche pas de bandeau de consentement : il n’a rien à vous demander.',
         ],
       },
       {

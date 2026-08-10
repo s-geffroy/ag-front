@@ -95,6 +95,18 @@ ${COMPOSE} run --rm -v "${work}:/backup" tools \
   node scripts/backup-sqlite.mjs "/backup/app-geo-${STAMP}" \
   || fail "snapshot SQLite en échec — voir la sortie ci-dessus"
 
+echo "▸ Base Plausible (audience) …"
+# pg_dump from inside the container: the Postgres data directory is a named volume, and copying a
+# live PGDATA is no safer than copying a live SQLite file. Non-fatal — losing audience history is
+# annoying, losing the run that also backs up client data would be worse.
+if docker inspect app-geo-plausible_db-1 >/dev/null 2>&1; then
+  if ! ${COMPOSE} exec -T plausible_db pg_dump -U plausible -d plausible --clean --if-exists \
+    > "${snap}/plausible.sql" 2>/dev/null; then
+    echo "warn: pg_dump Plausible échoué — sauvegarde poursuivie sans l'audience" >&2
+    rm -f "${snap}/plausible.sql"
+  fi
+fi
+
 echo "▸ Données non régénérables…"
 # Exports = what clients already received. Cockpit JSON + lead ledger = the commercial pipeline.
 for src in \

@@ -97,6 +97,25 @@ if (article) {
     {jsonLd.map((node) => (
       <script type="application/ld+json" set:html={JSON.stringify(node)} />
     ))}
+    {/*
+      Audience measurement — self-hosted Plausible, cookieless (ADR 0076). No cookie, no
+      cross-site identifier, no personal data stored, so no consent banner is owed and the
+      `localStorage` theme key remains the only thing this site puts in a browser.
+
+      Served first-party from /p/* (Caddy proxies to the plausible container) rather than from a
+      third-party host, so blockers have nothing to match on and the sample stays unbiased.
+
+      `import.meta.env.PROD` is false under `astro dev`, which keeps local browsing out of the
+      figures without needing an env var anyone could forget to set.
+    */}
+    {import.meta.env.PROD && (
+      <script
+        defer
+        data-domain="www.applied-geopolitics.com"
+        data-api="/p/event"
+        src="/p/script.js"
+      />
+    )}
     <script is:inline>
       // Apply theme before first paint: saved choice, else system preference. Avoids a flash.
       (function () {
