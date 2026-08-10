@@ -882,20 +882,20 @@
   },
   {
     "id": "deliv_atlas_ormuz_contexte",
-    "title": "Ormuz : une crise de cinq mois invisible sur nos pages publiques",
-    "description": "La page chokepoint Ormuz sert des flux EIA 2024 en tête et relègue « 2,5 transits/jour · 2026-08 » parmi les métriques, sans dire qu'il s'agit d'un effondrement. Décider si l'Atlas-base doit contextualiser, ou assumer de ne pas.",
+    "title": "Fiche Atlas — Détroit d’Ormuz",
+    "description": "Fiche éditoriale sur la crise d'Ormuz : effondrement du trafic, non-substituabilité, passage sous autorisation, et articulation avec la campagne houthie en mer Rouge.",
     "type": "atlas_fiche",
     "pillar": "production",
-    "status": "framing",
+    "status": "review",
     "priority": "P0",
-    "progress": 15,
+    "progress": 70,
     "deadline": "2026-08-31",
     "impact": "atlas",
     "offer": "public",
     "quality_gate_status": "at_risk",
     "gates": {
       "sources_ok": true,
-      "llm_draft_done": false,
+      "llm_draft_done": true,
       "contradiction_done": false,
       "compliance_done": false,
       "human_review_done": false
@@ -912,11 +912,15 @@
       "9": "todo",
       "10": "todo"
     },
-    "blocker": "Décision de doctrine en attente : ces pages sont délibérément non éditoriales (l'Atlas sert la base telle quelle). Contextualiser Ormuz, c'est ouvrir la question pour toutes les strates.",
-    "next_action": "Trancher entre (a) encart de contexte automatique quand une métrique récente s'écarte fortement de sa base, (b) fiche Atlas éditoriale Ormuz, (c) statu quo assumé. Preuves et mesures comparées : docs/evidence/audit-fraicheur-2026-08-10.md",
+    "blocker": "Fiche rédigée en candidat le 2026-08-10 : reste la chaîne normale (contradiction ADR 0039, conformité Munich, validation humaine, justification CVI `critique`). Trois grandeurs manquent et sont nommées plutôt que comblées : ampleur du report vers les pipelines, trajectoire des primes, durée.",
+    "next_action": "Passer la contradiction LLM, puis les portes humaines. Vérifier en revue deux points que j'ai délibérément laissés ouverts : (a) le `cvi_level: critique` — Ormuz est non-substituable, ce qui le distingue de Mer Rouge (`eleve`, contournable par le Cap), mais le niveau doit être justifié et non hérité ; (b) l'articulation avec la campagne houthie, où le texte dit que la convergence des méthodes est observable et la chaîne de commandement non établie — vérifier que cette réserve tient au mot près.",
     "links": [
       {
-        "label": "Page publique Ormuz",
+        "label": "Brouillon (draft, hors-ligne)",
+        "url": "/atlas/ormuz"
+      },
+      {
+        "label": "Page chokepoint (base)",
         "url": "/atlas/chokepoints/p0_maritime_strait_strait_of_hormuz"
       }
     ],
