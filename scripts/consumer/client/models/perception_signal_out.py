@@ -26,6 +26,7 @@ T = TypeVar("T", bound="PerceptionSignalOut")
 class PerceptionSignalOut:
     """ 
         Attributes:
+            attachment_rule (str):
             market_question (Union[None, Unset, str]):
             signal_family (Union[None, Unset, str]):
             classification (Union[None, Unset, str]):
@@ -36,9 +37,9 @@ class PerceptionSignalOut:
             perception_signal_score (Union[None, Unset, int]):
             proposed_action (Union[None, Unset, str]):
             observed_at (Union[None, Unset, datetime.datetime]):
-            attachment_rule (Union[None, Unset, str]):
      """
 
+    attachment_rule: str
     market_question: Union[None, Unset, str] = UNSET
     signal_family: Union[None, Unset, str] = UNSET
     classification: Union[None, Unset, str] = UNSET
@@ -49,11 +50,12 @@ class PerceptionSignalOut:
     perception_signal_score: Union[None, Unset, int] = UNSET
     proposed_action: Union[None, Unset, str] = UNSET
     observed_at: Union[None, Unset, datetime.datetime] = UNSET
-    attachment_rule: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
     def to_dict(self) -> dict[str, Any]:
+        attachment_rule = self.attachment_rule
+
         market_question: Union[None, Unset, str]
         if isinstance(self.market_question, Unset):
             market_question = UNSET
@@ -116,16 +118,11 @@ class PerceptionSignalOut:
         else:
             observed_at = self.observed_at
 
-        attachment_rule: Union[None, Unset, str]
-        if isinstance(self.attachment_rule, Unset):
-            attachment_rule = UNSET
-        else:
-            attachment_rule = self.attachment_rule
-
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({
+            "attachment_rule": attachment_rule,
         })
         if market_question is not UNSET:
             field_dict["market_question"] = market_question
@@ -147,8 +144,6 @@ class PerceptionSignalOut:
             field_dict["proposed_action"] = proposed_action
         if observed_at is not UNSET:
             field_dict["observed_at"] = observed_at
-        if attachment_rule is not UNSET:
-            field_dict["attachment_rule"] = attachment_rule
 
         return field_dict
 
@@ -157,6 +152,8 @@ class PerceptionSignalOut:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        attachment_rule = d.pop("attachment_rule")
+
         def _parse_market_question(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -267,17 +264,8 @@ class PerceptionSignalOut:
         observed_at = _parse_observed_at(d.pop("observed_at", UNSET))
 
 
-        def _parse_attachment_rule(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        attachment_rule = _parse_attachment_rule(d.pop("attachment_rule", UNSET))
-
-
         perception_signal_out = cls(
+            attachment_rule=attachment_rule,
             market_question=market_question,
             signal_family=signal_family,
             classification=classification,
@@ -288,7 +276,6 @@ class PerceptionSignalOut:
             perception_signal_score=perception_signal_score,
             proposed_action=proposed_action,
             observed_at=observed_at,
-            attachment_rule=attachment_rule,
         )
 
 

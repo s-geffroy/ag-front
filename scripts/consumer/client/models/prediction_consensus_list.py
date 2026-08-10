@@ -24,26 +24,33 @@ T = TypeVar("T", bound="PredictionConsensusList")
 @_attrs_define
 class PredictionConsensusList:
     """ The derived Polymarket consensus for one object, served at the clear `read` token (the narrow,
-    redistributable surface). `consensus` is empty when the object has no named/implied coverage.
+    redistributable surface). `consensus` is empty when the object has no named/implied coverage, or
+    when every family it does have rests on fewer than `minimum_market_count` markets.
 
         Attributes:
             chokepoint_id (str):
+            minimum_market_count (int):
             consensus (Union[Unset, list['PerceptionConsensusOut']]):
             disclaimer (Union[Unset, str]):  Default: 'Polymarket P3 perception consensus (ADR 0037/0079): liquidity-
                 weighted crowd anticipation, NOT event evidence. Derived candidate (not human-validated). Redistributable WITH
                 Polymarket attribution; S5 low-reliability. Floored on named/implied attachment — an object with no honest
-                market coverage returns an empty list.'.
+                market coverage returns an empty list. Floored on cardinality too (ADR 0087): a family resting on fewer than 2
+                markets is NOT served here, because one quotation under a plural noun is not a consensus; see
+                `minimum_market_count`. The refused rows stay visible on the internal read_tainted surface.'.
      """
 
     chokepoint_id: str
+    minimum_market_count: int
     consensus: Union[Unset, list['PerceptionConsensusOut']] = UNSET
-    disclaimer: Union[Unset, str] = 'Polymarket P3 perception consensus (ADR 0037/0079): liquidity-weighted crowd anticipation, NOT event evidence. Derived candidate (not human-validated). Redistributable WITH Polymarket attribution; S5 low-reliability. Floored on named/implied attachment — an object with no honest market coverage returns an empty list.'
+    disclaimer: Union[Unset, str] = 'Polymarket P3 perception consensus (ADR 0037/0079): liquidity-weighted crowd anticipation, NOT event evidence. Derived candidate (not human-validated). Redistributable WITH Polymarket attribution; S5 low-reliability. Floored on named/implied attachment — an object with no honest market coverage returns an empty list. Floored on cardinality too (ADR 0087): a family resting on fewer than 2 markets is NOT served here, because one quotation under a plural noun is not a consensus; see `minimum_market_count`. The refused rows stay visible on the internal read_tainted surface.'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.perception_consensus_out import PerceptionConsensusOut
         chokepoint_id = self.chokepoint_id
+
+        minimum_market_count = self.minimum_market_count
 
         consensus: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.consensus, Unset):
@@ -61,6 +68,7 @@ class PredictionConsensusList:
         field_dict.update(self.additional_properties)
         field_dict.update({
             "chokepoint_id": chokepoint_id,
+            "minimum_market_count": minimum_market_count,
         })
         if consensus is not UNSET:
             field_dict["consensus"] = consensus
@@ -77,6 +85,8 @@ class PredictionConsensusList:
         d = dict(src_dict)
         chokepoint_id = d.pop("chokepoint_id")
 
+        minimum_market_count = d.pop("minimum_market_count")
+
         consensus = []
         _consensus = d.pop("consensus", UNSET)
         for consensus_item_data in (_consensus or []):
@@ -91,6 +101,7 @@ class PredictionConsensusList:
 
         prediction_consensus_list = cls(
             chokepoint_id=chokepoint_id,
+            minimum_market_count=minimum_market_count,
             consensus=consensus,
             disclaimer=disclaimer,
         )

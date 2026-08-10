@@ -26,37 +26,37 @@ T = TypeVar("T", bound="PerceptionConsensusOut")
 class PerceptionConsensusOut:
     """ 
         Attributes:
+            market_count (int):
+            attachment_rules (list[str]):
             signal_family (Union[None, Unset, str]):
-            market_count (Union[None, Unset, int]):
             consensus_probability (Union[None, Unset, float]):
             max_probability_change_24h (Union[None, Unset, float]):
             total_liquidity (Union[None, Unset, float]):
             observed_window_end (Union[None, Unset, datetime.datetime]):
-            attachment_rules (Union[Unset, list[str]]):
      """
 
+    market_count: int
+    attachment_rules: list[str]
     signal_family: Union[None, Unset, str] = UNSET
-    market_count: Union[None, Unset, int] = UNSET
     consensus_probability: Union[None, Unset, float] = UNSET
     max_probability_change_24h: Union[None, Unset, float] = UNSET
     total_liquidity: Union[None, Unset, float] = UNSET
     observed_window_end: Union[None, Unset, datetime.datetime] = UNSET
-    attachment_rules: Union[Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
     def to_dict(self) -> dict[str, Any]:
+        market_count = self.market_count
+
+        attachment_rules = self.attachment_rules
+
+
+
         signal_family: Union[None, Unset, str]
         if isinstance(self.signal_family, Unset):
             signal_family = UNSET
         else:
             signal_family = self.signal_family
-
-        market_count: Union[None, Unset, int]
-        if isinstance(self.market_count, Unset):
-            market_count = UNSET
-        else:
-            market_count = self.market_count
 
         consensus_probability: Union[None, Unset, float]
         if isinstance(self.consensus_probability, Unset):
@@ -84,21 +84,15 @@ class PerceptionConsensusOut:
         else:
             observed_window_end = self.observed_window_end
 
-        attachment_rules: Union[Unset, list[str]] = UNSET
-        if not isinstance(self.attachment_rules, Unset):
-            attachment_rules = self.attachment_rules
-
-
-
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({
+            "market_count": market_count,
+            "attachment_rules": attachment_rules,
         })
         if signal_family is not UNSET:
             field_dict["signal_family"] = signal_family
-        if market_count is not UNSET:
-            field_dict["market_count"] = market_count
         if consensus_probability is not UNSET:
             field_dict["consensus_probability"] = consensus_probability
         if max_probability_change_24h is not UNSET:
@@ -107,8 +101,6 @@ class PerceptionConsensusOut:
             field_dict["total_liquidity"] = total_liquidity
         if observed_window_end is not UNSET:
             field_dict["observed_window_end"] = observed_window_end
-        if attachment_rules is not UNSET:
-            field_dict["attachment_rules"] = attachment_rules
 
         return field_dict
 
@@ -117,6 +109,11 @@ class PerceptionConsensusOut:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        market_count = d.pop("market_count")
+
+        attachment_rules = cast(list[str], d.pop("attachment_rules"))
+
+
         def _parse_signal_family(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -125,16 +122,6 @@ class PerceptionConsensusOut:
             return cast(Union[None, Unset, str], data)
 
         signal_family = _parse_signal_family(d.pop("signal_family", UNSET))
-
-
-        def _parse_market_count(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        market_count = _parse_market_count(d.pop("market_count", UNSET))
 
 
         def _parse_consensus_probability(data: object) -> Union[None, Unset, float]:
@@ -187,17 +174,14 @@ class PerceptionConsensusOut:
         observed_window_end = _parse_observed_window_end(d.pop("observed_window_end", UNSET))
 
 
-        attachment_rules = cast(list[str], d.pop("attachment_rules", UNSET))
-
-
         perception_consensus_out = cls(
-            signal_family=signal_family,
             market_count=market_count,
+            attachment_rules=attachment_rules,
+            signal_family=signal_family,
             consensus_probability=consensus_probability,
             max_probability_change_24h=max_probability_change_24h,
             total_liquidity=total_liquidity,
             observed_window_end=observed_window_end,
-            attachment_rules=attachment_rules,
         )
 
 

@@ -673,11 +673,41 @@ export const PredictionConsensusList = z
   .object({
     chokepoint_id: z.string(),
     consensus: z.array(PerceptionConsensusOut).default([]),
+    /**
+     * API 0.18.0 — the cardinality floor the PRODUCER applied before serving (ADR 0087 their side,
+     * 0072 ours). Required, with no default, and present even when `consensus` is empty, so an empty
+     * list can be told apart from coverage that was refused.
+     *
+     * It answers a question no aggregate over the served rows could: *what did you decline to send?*
+     * `attachment_rules` is measurable because it sums rows that are PRESENT; a floor is about rows
+     * that are ABSENT, so it has to be declared rather than derived.
+     *
+     * We read it to CHECK them, not to obey them — see `consensusFloorDisagreement()`.
+     */
+    minimum_market_count: z.number(),
     /** Producer-authored EN disclaimer. Public surfaces carry their own equivalent copy. */
     disclaimer: z.string().nullish(),
   })
   .passthrough();
 export type PredictionConsensusList = z.infer<typeof PredictionConsensusList>;
+
+/**
+ * Does the producer's declared floor sit below the one we require?
+ *
+ * Returns `null` when their floor is at least as strict as ours — the normal case — and the served
+ * value otherwise. Our own row-level filter (`consensusRowMeetsCardinalityFloor`) already refuses the
+ * rows either way, so this is not a safety net: it is the difference between a filter that silently
+ * does nothing and one that can say WHY it had nothing to do.
+ *
+ * Deliberately not fail-closed and not thrown: a weaker server floor is not an emergency, it is a
+ * disagreement about a threshold, and the two of us agreeing on 2 is a fact we should be able to
+ * observe rather than assume. If it ever fires, it belongs in a handoff, not in a stack trace.
+ */
+export function consensusFloorDisagreement(list: PredictionConsensusList): number | null {
+  const served = list.minimum_market_count;
+  if (typeof served !== 'number' || !Number.isFinite(served)) return null;
+  return served < PUBLISHABLE_MIN_MARKET_COUNT ? served : null;
+}
 
 // NOTE — `/analysis` still carries the same consensus under `engines[key="prediction_consensus"]`, and
 // the cockpit sees it there in its raw engine view. We deliberately keep NO extractor for it: every

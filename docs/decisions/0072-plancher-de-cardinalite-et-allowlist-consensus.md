@@ -112,3 +112,50 @@ une page qui ne se reconstruit pas.
 - Rien de ce qui précède ne change le statut des chiffres : un consensus de marché reste une
   **anticipation de foule**, S5, **candidat en attente de validation humaine** — jamais une preuve
   d'événement.
+
+---
+
+## Amendement du 2026-08-10 — l'allowlist de corridors est levée (contrat `0.18.0`)
+
+Ajouté après coup, sans réécrire ce qui précède : l'allowlist a existé, elle a servi, et la trace de
+pourquoi elle a été posée vaut plus que la propreté du document.
+
+**Ce qui change.** `CONSENSUS_PUBLIC_ALLOWLIST` est **supprimée**. ag-back lève la condition 2 par
+écrit (leur handoff `0026` §3) et refuse délibérément de nous fournir une liste nommée de remplacement.
+Leur argument est celui que nous leur avions opposé au §1b de notre `0022` : un périmètre qui vit à deux
+endroits finit par ne vivre à aucun — le nôtre s'était réduit à un commentaire citant une constante que
+personne n'avait écrite, et il n'a tenu douze jours que parce que leur donnée était vide.
+
+Le périmètre est désormais **les planchers**, qui sont du code et qui sont testés :
+
+| garde | où | ce qu'elle refuse |
+| --- | --- | --- |
+| rattachement | `consensusRowIsPublishable` | tout ce qui n'est pas `named_or_implied` |
+| cardinalité | `consensusRowMeetsCardinalityFloor` | N < 2, **et l'absence de compte** |
+| famille | `CONSENSUS_FAMILY_LABELS` | toute famille sans libellé décidé — **liste close, entièrement nôtre** |
+
+La troisième ligne est la seule qui tienne réellement `perception_watch` d'Ormuz (0,725 sur la surface
+servie, la plus haute probabilité de tout l'ensemble) : le plancher de cardinalité d'ag-back ne l'a
+retirée **que par accident de sa cardinalité**, comme ils l'écrivent eux-mêmes. Une garde qui attrape la
+bonne ligne pour la mauvaise raison n'est pas la garde de cette ligne.
+
+**Ce que nous consommons en plus.** Le contrat `0.18.0` rend requis et non nullables `attachment_rules`
+et `market_count` (`PerceptionConsensusOut`), `attachment_rule` (`PerceptionSignalOut`, `EventSignalOut`),
+et ajoute `minimum_market_count` sur `PredictionConsensusList` — le plancher que le producteur déclare
+avoir appliqué. Nous le lisons pour **les vérifier**, pas pour leur obéir : `consensusFloorDisagreement()`
+signale un plancher servi inférieur au nôtre. Nos lignes seraient filtrées de toute façon ; ce que la
+fonction préserve, c'est la capacité à dire que les deux planchers **coïncident** au lieu de le supposer.
+
+`minimum_market_count` est déclaré **non optionnel** en zod. Un payload qui ne le porte pas ne parse pas,
+donc le bloc disparaît. C'est le bon sens de l'échec : une liste vide sans plancher déclaré et une liste
+vide avec un plancher à 2 ne disent pas la même chose — « rien à signaler » contre « couverture
+écartée » — et un payload incapable de distinguer les deux n'est pas exploitable.
+
+**Ce que la levée n'emporte pas.** Le juge de rattachement (leur ADR 0086) est hors service,
+`llm_implied` compte zéro ligne, et ils s'engagent à écrire sur le canal avant que quoi que ce soit du
+genre n'entre dans l'agrégat clair. Lever le périmètre ne lève pas cet engagement — et notre garde
+fail-closed sur toute règle inconnue est ce qui le rend superflu plutôt que porteur.
+
+**Ce que cette version ne corrige toujours pas**, de leur aveu et du nôtre : le plancher porte sur la
+**cardinalité, pas sur l'indépendance** — deux marchés du même auteur sur des questions quasi identiques
+le franchissent. Compter n'est pas corroborer, et nous n'avons pas de correctif à annoncer.

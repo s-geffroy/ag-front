@@ -11,13 +11,17 @@ import { CONSENSUS_ATTRIBUTION, CONSENSUS_RELIABILITY, loadCorridorConsensus } f
 
 const PANAMA = 'p0_maritime_canal_panama_canal';
 const SUEZ = 'p0_maritime_canal_suez_canal';
-// Real corridor, real page, and NOT on the publication allowlist: ag-back's 0018 condition 2 ("publish
-// Panama and Suez only") has never been lifted in writing. Since their 2026-07-29 sweep it is no longer
-// an empty list either — it serves four families, one of them a 72,5 % on a single market.
+// Real corridor, real page. It used to be the corridor the publication allowlist held back; ag-back's
+// 0026 §3 lifted that condition in writing, so it is now published on the same terms as any other —
+// the floors, not a named list. It serves four families, one of them a 72,5 % on a single market,
+// which is precisely what those floors have to catch.
 const HORMUZ = 'p0_maritime_strait_strait_of_hormuz';
 
 const CONSENSUS_PAYLOAD = {
   chokepoint_id: PANAMA,
+  // Contract 0.18.0 — required, and present even on an empty list, so "nothing to report" can be told
+  // apart from "coverage refused".
+  minimum_market_count: 2,
   consensus: [
     {
       signal_family: 'infrastructure_capacity_expectation',
@@ -75,7 +79,11 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
   });
 
   it('renders NOTHING when the producer reports no honest coverage (200 + [])', async () => {
-    stubFetch({ chokepoint_id: SUEZ, consensus: [] });
+    stubFetch({
+      chokepoint_id: SUEZ,
+      minimum_market_count: 2,
+      consensus: [],
+    });
     // An empty list is an answer, not a failure: no block, no zero, no flat line.
     expect(await loadCorridorConsensus(SUEZ)).toBeNull();
   });
@@ -83,6 +91,7 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
   it('drops a row whose probability is unusable rather than rendering a hole', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
+      minimum_market_count: 2,
       consensus: [
         { signal_family: 'disruption_expectation', market_count: 4, consensus_probability: null },
         {
@@ -102,6 +111,7 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
   it('refuses a row not summed under named_or_implied, and its observed-at stamp with it', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
+      minimum_market_count: 2,
       consensus: [
         {
           signal_family: 'disruption_expectation',
@@ -118,6 +128,7 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
   it('publishes a row that states named_or_implied', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
+      minimum_market_count: 2,
       consensus: [
         {
           signal_family: 'infrastructure_capacity_expectation',
@@ -145,20 +156,39 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
   });
 });
 
-// ADR 0072 — what protects the page once the producer's coverage widens. Until 2026-07-29 these two
-// guards were held by the DATA (every other corridor answered `[]`), not by the code. ag-back's sweep
-// ended that: Hormuz, Bab-el-Mandeb and Taïwan now carry rows, and the next rebuild would have shipped
-// them without review. A guard held by accident is not a guard.
-describe('publication allowlist (ag-back 0018 condition 2, never lifted in writing)', () => {
-  it('publishes an allowlisted corridor', async () => {
+// ADR 0072, as amended by ag-back's 0026 §3 — the corridor allowlist is gone, lifted in writing. What
+// replaces it is not another list: it is the floors, which are code and are tested. These cases pin
+// that the perimeter really did move, rather than quietly disappearing.
+describe('perimeter after the allowlist was lifted (ag-back 0026 §3)', () => {
+  it('publishes any corridor whose rows clear the floors — including the once-excluded one', async () => {
     expect(await loadCorridorConsensus(PANAMA)).not.toBeNull();
     expect(await loadCorridorConsensus(SUEZ)).not.toBeNull();
+    // Hormuz was the corridor condition 2 held back. It is now on the same terms as the others.
+    expect(await loadCorridorConsensus(HORMUZ)).not.toBeNull();
+    expect(fetchCalls).toHaveLength(3);
   });
 
-  it('refuses a corridor outside the allowlist WITHOUT calling the API', async () => {
-    // Not "renders nothing": does not even ask. The refusal is editorial, so it precedes the request.
+  it('still refuses an unlabelled family, on any corridor — that list is ours and it stays closed', async () => {
+    // Hormuz's real 72,5 % is `perception_watch`. ag-back's floor only caught it by accident of its
+    // cardinality, as they say themselves; what actually holds it is CONSENSUS_FAMILY_LABELS.
+    stubFetch({
+      chokepoint_id: HORMUZ,
+      minimum_market_count: 2,
+      consensus: [
+        {
+          signal_family: 'perception_watch',
+          market_count: 12,
+          consensus_probability: 0.725,
+          attachment_rules: ['named_or_implied'],
+        },
+      ],
+    });
     expect(await loadCorridorConsensus(HORMUZ)).toBeNull();
-    expect(fetchCalls).toEqual([]);
+  });
+
+  it('refuses a payload that declares no floor at all — contract 0.18.0 guarantees the field', async () => {
+    stubFetch({ chokepoint_id: PANAMA, consensus: [] });
+    expect(await loadCorridorConsensus(PANAMA)).toBeNull();
   });
 });
 
@@ -166,6 +196,7 @@ describe('cardinality floor N=2 (ADR 0072, arbitrating ag-back 0024 §2 / 0025 �
   it('refuses a single-market row — "consensus" must not title one quotation', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
+      minimum_market_count: 2,
       consensus: [
         {
           signal_family: 'infrastructure_capacity_expectation',
@@ -182,6 +213,7 @@ describe('cardinality floor N=2 (ADR 0072, arbitrating ag-back 0024 §2 / 0025 �
   it('refuses a row that omits market_count — silence is not a count', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
+      minimum_market_count: 2,
       consensus: [
         { signal_family: 'disruption_expectation', consensus_probability: 0.42 },
         { signal_family: 'regime_change_expectation', consensus_probability: 0.1 },
@@ -193,6 +225,7 @@ describe('cardinality floor N=2 (ADR 0072, arbitrating ag-back 0024 §2 / 0025 �
   it('keeps the aggregated families and drops only the thin ones', async () => {
     stubFetch({
       chokepoint_id: SUEZ,
+      minimum_market_count: 2,
       consensus: [
         {
           signal_family: 'infrastructure_capacity_expectation',
@@ -219,6 +252,7 @@ describe('closed list of publishable families', () => {
   it('refuses a family we have no French label for', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
+      minimum_market_count: 2,
       consensus: [
         {
           signal_family: 'perception_watch',
@@ -238,6 +272,7 @@ describe('freshness stamp = the OLDEST window kept (never a promise of freshness
   it('dates the block by its stalest published row, whatever the serving order', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
+      minimum_market_count: 2,
       consensus: [
         {
           signal_family: 'infrastructure_capacity_expectation',

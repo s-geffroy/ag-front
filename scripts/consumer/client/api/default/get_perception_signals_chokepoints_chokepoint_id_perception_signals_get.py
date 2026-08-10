@@ -86,6 +86,10 @@ def sync_detailed(
     `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
     is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
 
+    The `consensus` block here is deliberately NOT floored on cardinality (ADR 0087): this is the
+    internal surface where the residue a public reader never sees must stay countable. Read
+    `market_count` per row — single-market families appear here and only here.
+
     Args:
         chokepoint_id (str):
         limit (Union[Unset, int]):  Default: 200.
@@ -126,6 +130,10 @@ def sync(
     `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
     is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
 
+    The `consensus` block here is deliberately NOT floored on cardinality (ADR 0087): this is the
+    internal surface where the residue a public reader never sees must stay countable. Read
+    `market_count` per row — single-market families appear here and only here.
+
     Args:
         chokepoint_id (str):
         limit (Union[Unset, int]):  Default: 200.
@@ -160,6 +168,10 @@ async def asyncio_detailed(
     The raw signals are low-reliability (S5) and internal-only, so this endpoint is gated on the
     `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
     is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
+
+    The `consensus` block here is deliberately NOT floored on cardinality (ADR 0087): this is the
+    internal surface where the residue a public reader never sees must stay countable. Read
+    `market_count` per row — single-market families appear here and only here.
 
     Args:
         chokepoint_id (str):
@@ -200,6 +212,10 @@ async def asyncio(
     The raw signals are low-reliability (S5) and internal-only, so this endpoint is gated on the
     `read_tainted` scope unconditionally; a plain `read` key gets 403. The DERIVED consensus aggregate
     is served clear at `/chokepoints/{id}/prediction-consensus` (ADR 0083).
+
+    The `consensus` block here is deliberately NOT floored on cardinality (ADR 0087): this is the
+    internal surface where the residue a public reader never sees must stay countable. Read
+    `market_count` per row — single-market families appear here and only here.
 
     Args:
         chokepoint_id (str):

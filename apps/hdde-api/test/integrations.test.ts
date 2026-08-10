@@ -130,6 +130,7 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
       if (u.includes('/prediction-consensus')) {
         return json({
           chokepoint_id: 'p0_x',
+          minimum_market_count: 2,
           consensus: [
             {
               signal_family: 'disruption_expectation',
@@ -174,7 +175,7 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
       const u = String(url);
       if (u.includes('/prediction-consensus'))
-        return json({ chokepoint_id: 'p0_hormuz', consensus: [] });
+        return json({ chokepoint_id: 'p0_hormuz', minimum_market_count: 2, consensus: [] });
       if (u.includes('/actors'))
         return json([
           {
@@ -204,6 +205,7 @@ describe('fetchCorridorEvidence — per-corridor actors + signals (ADR 0035)', (
       if (u.includes('/prediction-consensus'))
         return json({
           chokepoint_id: 'p0_x',
+          minimum_market_count: 2,
           consensus: [
             {
               signal_family: 'kept',

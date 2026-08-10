@@ -14,8 +14,10 @@ import {
 // Attribution + S5 disclaimer are NOT decoration: ag-back's handoff 0018 makes them the condition of
 // redistribution (`polymarket_gamma` = `cleared_with_attribution`). Both are rendered unconditionally,
 // inside the same block as the figures, so the credit can never drift away from what it licenses.
-// Which corridors reach this component at all is decided upstream, in CONSENSUS_PUBLIC_ALLOWLIST —
-// as is which families and which cardinalities (ADR 0072). This component renders, it does not filter.
+// Which families and which cardinalities reach this component is decided upstream, in
+// `loadCorridorConsensus` (ADR 0072). There is no longer a corridor allowlist above it — ag-back's
+// `0026` §3 lifted that condition, and the perimeter is now the floors themselves. This component
+// renders, it does not filter.
 
 interface Props {
   consensus: AtlasConsensus;

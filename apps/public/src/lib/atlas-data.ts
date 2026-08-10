@@ -1,7 +1,9 @@
 import {
   createChokepointsClient,
+  consensusFloorDisagreement,
   consensusRowIsPublishable,
   consensusRowMeetsCardinalityFloor,
+  PUBLISHABLE_MIN_MARKET_COUNT,
   type ChokepointDetail,
   type ChokepointSummary,
   type GeoJsonFeatureCollection,
@@ -149,21 +151,30 @@ export const CONSENSUS_RELIABILITY = {
 } as const;
 
 /**
- * Which corridors may carry a public consensus block (ADR 0072).
+ * The corridor allowlist is GONE — ag-back's handoff `0026` §3 lifted condition 2 in writing.
  *
- * This materialises ag-back's handoff `0018` condition 2 — « ne publier que Panama et Suez » — which
- * has **never been lifted in writing**. Until 2026-07-29 it was held by the DATA: their collector read
- * 4 % of Polymarket's open events, so every other corridor answered `[]` and the restriction cost us
- * nothing. Their full sweep (`0024`) ended that — Hormuz, Bab-el-Mandeb and Taïwan now carry rows, all
- * legitimately `named_or_implied` — and the next rebuild would have published three new corridors with
- * no review. A guard held by accident is not a guard.
+ * It existed because their `0018` §1 said « ne publie que Panama et Suez », and the reason was
+ * precise: pre-floor attachment noise, 12 % precision. That reason has since disappeared twice — the
+ * engine filters `attachment_rule = 'named_or_implied'`, and word boundaries (their ADR 0084) emptied
+ * the residue underneath. They deliberately refused to hand us a replacement named list, on the
+ * grounds that a perimeter living in two places is the defect we reported to them: ours had decayed
+ * into a comment citing a constant nobody had written, and it only held for twelve days because their
+ * data happened to be empty.
  *
- * Widening this list is an editorial act gated on their written answer, not on their cron.
+ * So the perimeter is now the FLOORS, which are code and are tested — on both sides:
+ *
+ *   - attachment  — `consensusRowIsPublishable`, refuses anything but `named_or_implied`;
+ *   - cardinality — `consensusRowMeetsCardinalityFloor`, N ≥ 2, fail-closed on absence;
+ *   - family      — `CONSENSUS_FAMILY_LABELS` below, a CLOSED list. This one is entirely ours, and it
+ *                   is what holds `perception_watch`; their floor only caught it by accident of its
+ *                   cardinality, as they say themselves.
+ *
+ * What has NOT changed and is not implied by this: `llm_implied` counts zero rows in all their tables,
+ * the attachment judge (their ADR 0086) is out of service, and they committed to a message on this
+ * channel before anything of the sort enters the clear aggregate. Lifting the perimeter does not lift
+ * that commitment — and `consensusRowIsPublishable` is what makes it unnecessary rather than
+ * load-bearing.
  */
-export const CONSENSUS_PUBLIC_ALLOWLIST: readonly string[] = [
-  'p0_maritime_canal_panama_canal',
-  'p0_maritime_canal_suez_canal',
-];
 
 /**
  * The families we are willing to publish, and their French labels — a CLOSED list, consumed by
@@ -204,14 +215,22 @@ export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus 
   // 2026-07-26), so this flag is the last switch — the block is dark until `ATLAS_CONSENSUS_PUBLIC=1`
   // is set for the public build. Flip the env, rebuild, and it appears. Reversible by unsetting it.
   if (process.env.ATLAS_CONSENSUS_PUBLIC !== '1') return null;
-  // Editorial gate (ADR 0072) — BEFORE the request, not after: a corridor we are not allowed to
-  // publish is not a corridor whose numbers we need to fetch.
-  if (!CONSENSUS_PUBLIC_ALLOWLIST.includes(id)) return null;
   const cfg = config();
   if (!cfg) return null;
   try {
-    const { consensus: all } =
-      await createChokepointsClient(cfg).getChokepointPredictionConsensus(id);
+    const payload = await createChokepointsClient(cfg).getChokepointPredictionConsensus(id);
+    const { consensus: all } = payload;
+
+    // Contract 0.18.0 states the floor the producer applied. We check it against ours rather than
+    // trust it: the rows are filtered below either way, so this cannot change what is published — it
+    // only decides whether we are still able to SAY the two floors agree. A disagreement is a handoff.
+    const weaker = consensusFloorDisagreement(payload);
+    if (weaker !== null) {
+      console.warn(
+        `[atlas] ${id} : plancher serveur ${weaker} < notre plancher ${PUBLISHABLE_MIN_MARKET_COUNT} — ` +
+          `notre filtre tient, mais les deux planchers ont divergé : à signaler à ag-back.`,
+      );
+    }
     // Fail-closed FIRST, on both floors: everything downstream — the families, and the "observé le"
     // stamp — must describe only rows we are willing to publish. Order matters for the stamp: a row
     // dropped here must not be able to date the block.

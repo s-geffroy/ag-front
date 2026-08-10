@@ -69,9 +69,15 @@ def sync_detailed(
     """ Get Prediction Consensus
 
      Derived Polymarket P3 consensus for one chokepoint at the CLEAR `read` token — the narrow,
-    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored on ADR 0079:
-    only objects a market names/implies return rows, so an object with no honest coverage yields an
-    empty list (200, not 404). Raw markets stay at `/perception-signals` (read_tainted).
+    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored twice, and both
+    floors are readable in the payload: on attachment (ADR 0079 — only objects a market names/implies
+    return rows, reported per row in `attachment_rules`) and on cardinality (ADR 0087 — a family below
+    `minimum_market_count` markets is not served, because one quotation under a plural noun is not a
+    consensus). Either way an object with nothing left yields an empty list (200, not 404).
+
+    The cardinality floor is applied HERE and not in the engine: the rows it refuses keep being written
+    and keep being served on `/perception-signals` (read_tainted), so a row withheld from publication
+    stays countable by a human (ADR 0083's posture — derived public, raw internal).
 
     Args:
         chokepoint_id (str):
@@ -105,9 +111,15 @@ def sync(
     """ Get Prediction Consensus
 
      Derived Polymarket P3 consensus for one chokepoint at the CLEAR `read` token — the narrow,
-    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored on ADR 0079:
-    only objects a market names/implies return rows, so an object with no honest coverage yields an
-    empty list (200, not 404). Raw markets stay at `/perception-signals` (read_tainted).
+    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored twice, and both
+    floors are readable in the payload: on attachment (ADR 0079 — only objects a market names/implies
+    return rows, reported per row in `attachment_rules`) and on cardinality (ADR 0087 — a family below
+    `minimum_market_count` markets is not served, because one quotation under a plural noun is not a
+    consensus). Either way an object with nothing left yields an empty list (200, not 404).
+
+    The cardinality floor is applied HERE and not in the engine: the rows it refuses keep being written
+    and keep being served on `/perception-signals` (read_tainted), so a row withheld from publication
+    stays countable by a human (ADR 0083's posture — derived public, raw internal).
 
     Args:
         chokepoint_id (str):
@@ -136,9 +148,15 @@ async def asyncio_detailed(
     """ Get Prediction Consensus
 
      Derived Polymarket P3 consensus for one chokepoint at the CLEAR `read` token — the narrow,
-    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored on ADR 0079:
-    only objects a market names/implies return rows, so an object with no honest coverage yields an
-    empty list (200, not 404). Raw markets stay at `/perception-signals` (read_tainted).
+    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored twice, and both
+    floors are readable in the payload: on attachment (ADR 0079 — only objects a market names/implies
+    return rows, reported per row in `attachment_rules`) and on cardinality (ADR 0087 — a family below
+    `minimum_market_count` markets is not served, because one quotation under a plural noun is not a
+    consensus). Either way an object with nothing left yields an empty list (200, not 404).
+
+    The cardinality floor is applied HERE and not in the engine: the rows it refuses keep being written
+    and keep being served on `/perception-signals` (read_tainted), so a row withheld from publication
+    stays countable by a human (ADR 0083's posture — derived public, raw internal).
 
     Args:
         chokepoint_id (str):
@@ -172,9 +190,15 @@ async def asyncio(
     """ Get Prediction Consensus
 
      Derived Polymarket P3 consensus for one chokepoint at the CLEAR `read` token — the narrow,
-    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored on ADR 0079:
-    only objects a market names/implies return rows, so an object with no honest coverage yields an
-    empty list (200, not 404). Raw markets stay at `/perception-signals` (read_tainted).
+    redistributable surface (with Polymarket attribution, S5 low-reliability). Floored twice, and both
+    floors are readable in the payload: on attachment (ADR 0079 — only objects a market names/implies
+    return rows, reported per row in `attachment_rules`) and on cardinality (ADR 0087 — a family below
+    `minimum_market_count` markets is not served, because one quotation under a plural noun is not a
+    consensus). Either way an object with nothing left yields an empty list (200, not 404).
+
+    The cardinality floor is applied HERE and not in the engine: the rows it refuses keep being written
+    and keep being served on `/perception-signals` (read_tainted), so a row withheld from publication
+    stays countable by a human (ADR 0083's posture — derived public, raw internal).
 
     Args:
         chokepoint_id (str):

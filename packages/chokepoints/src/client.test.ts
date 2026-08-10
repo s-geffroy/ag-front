@@ -3,6 +3,7 @@ import { createChokepointsClient, ChokepointsApiError } from './client';
 import {
   SfuCompletenessOut,
   consensusRowIsPublishable,
+  consensusFloorDisagreement,
   consensusRowMeetsCardinalityFloor,
   signalAttachmentRuleIsReviewed,
 } from './schema';
@@ -163,6 +164,7 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
         calledUrl = String(url);
         return jsonResponse({
           chokepoint_id: 'p0_maritime_canal_suez_canal',
+          minimum_market_count: 2,
           consensus: [
             {
               signal_family: 'disruption_expectation',
@@ -193,7 +195,11 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
       baseUrl: 'https://host/api',
       token: 't',
       fetchImpl: async () =>
-        jsonResponse({ chokepoint_id: 'p0_maritime_strait_strait_of_hormuz', consensus: [] }),
+        jsonResponse({
+          chokepoint_id: 'p0_maritime_strait_strait_of_hormuz',
+          minimum_market_count: 2,
+          consensus: [],
+        }),
     });
     const res = await client.getChokepointPredictionConsensus(
       'p0_maritime_strait_strait_of_hormuz',
@@ -211,6 +217,7 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
       fetchImpl: async () =>
         jsonResponse({
           chokepoint_id: 'p0_x',
+          minimum_market_count: 2,
           consensus: [
             { signal_family: 'ok', attachment_rules: ['named_or_implied'] },
             { signal_family: 'llm', attachment_rules: ['llm_implied'] },
@@ -231,7 +238,11 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
       baseUrl: 'https://host/api',
       token: 't',
       fetchImpl: async () =>
-        jsonResponse({ chokepoint_id: 'p0_x', consensus: [{ signal_family: 'legacy' }] }),
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          minimum_market_count: 2,
+          consensus: [{ signal_family: 'legacy' }],
+        }),
     });
     const { consensus } = await client.getChokepointPredictionConsensus('p0_x');
     expect(consensus[0]!.attachment_rules).toEqual([]);
@@ -250,6 +261,7 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
       fetchImpl: async () =>
         jsonResponse({
           chokepoint_id: 'p0_x',
+          minimum_market_count: 2,
           consensus: [
             { signal_family: 'single', market_count: 1 },
             { signal_family: 'pair', market_count: 2 },
@@ -274,6 +286,7 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
       fetchImpl: async () =>
         jsonResponse({
           chokepoint_id: 'p0_x',
+          minimum_market_count: 2,
           consensus: [{ signal_family: 'silent' }, { signal_family: 'null', market_count: null }],
         }),
     });
@@ -310,9 +323,40 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     const client = createChokepointsClient({
       baseUrl: 'https://host/api',
       token: 't',
-      fetchImpl: async () => jsonResponse({ chokepoint_id: 'p0_x' }),
+      fetchImpl: async () => jsonResponse({ chokepoint_id: 'p0_x', minimum_market_count: 2 }),
     });
     expect((await client.getChokepointPredictionConsensus('p0_x')).consensus).toEqual([]);
+  });
+
+  it('getChokepointPredictionConsensus REFUSES a payload with no declared floor', async () => {
+    // The mirror image of the test above, and the reason the field is non-optional in zod: an empty
+    // list with no floor and an empty list with a floor of 2 mean different things — "nothing to
+    // report" versus "coverage refused" — and a payload that cannot say which is not usable. Since
+    // contract 0.18.0 the producer guarantees the field, so its absence is a genuine contract break,
+    // and failing to parse makes the block disappear rather than appear on an unstated basis.
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () => jsonResponse({ chokepoint_id: 'p0_x', consensus: [] }),
+    });
+    await expect(client.getChokepointPredictionConsensus('p0_x')).rejects.toThrow();
+  });
+
+  it('consensusFloorDisagreement is silent when they are at least as strict as us', () => {
+    expect(
+      consensusFloorDisagreement({ chokepoint_id: 'p0_x', consensus: [], minimum_market_count: 2 }),
+    ).toBeNull();
+    expect(
+      consensusFloorDisagreement({ chokepoint_id: 'p0_x', consensus: [], minimum_market_count: 3 }),
+    ).toBeNull();
+  });
+
+  it('consensusFloorDisagreement reports a server floor weaker than ours', () => {
+    // Our row filter would still drop the single-market rows; what this reports is that we can no
+    // longer say the two floors agree — which is a handoff, not an exception.
+    expect(
+      consensusFloorDisagreement({ chokepoint_id: 'p0_x', consensus: [], minimum_market_count: 1 }),
+    ).toBe(1);
   });
 
   it('propagates the taint gate to a new endpoint when opted in', async () => {
@@ -639,6 +683,7 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
         jsonResponse({
           chokepoint_id: 'p0_x',
           count: 1,
+          minimum_market_count: 2,
           consensus: [
             {
               signal_family: 'disruption_expectation',
