@@ -25,7 +25,7 @@
     "expected_proof": "Atlas visible avec cas principal et cas secondaire.",
     "success_metric": "3 fiches publiées.",
     "next_action": "Mer Rouge : matériaux de revue prêts (docs/evidence/mer-rouge-suez-gates-review.md) ; restent compliance_done, cvi_justified, human_review_done. Malacca et Taïwan : rapports de contradiction encore `pending` à traiter, puis mêmes portes. Aucune n'est bloquée par le code — toutes passent déjà la garde machine (munich-check).",
-    "blocker": "Fiche Mer Rouge : réécriture candidate déposée, décision éditoriale en attente. Malacca et Taïwan : fraîcheur NON vérifiée — même contrôle à faire avant publication."
+    "blocker": "Fiche Mer Rouge : réécriture candidate déposée, décision éditoriale en attente (verdict / CVI / confiance). Malacca et Taïwan : fraîcheur VÉRIFIÉE le 2026-08-10, aucune affirmation contredite — restent leurs rapports de contradiction `pending`."
   },
   {
     "id": "milestone_50_contacts",

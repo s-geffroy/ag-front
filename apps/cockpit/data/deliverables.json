@@ -99,7 +99,7 @@
     "priority": "P0",
     "progress": 80,
     "deadline": "2026-09-05",
-    "next_action": "Fiche P0 complète et sourcée : candidats Perplexity injectés (EIA 23,2 Mb/j, MPA 41,12 M EVP / 94 301 navires, ReCAAP 108 incidents SOMS, pipeline Chine-Myanmar) avec statut FAIT/ESTIMATION — cf. malacca.md + docs/evidence/malacca-candidates.md. Contradiction ADR 0039 tournée x2 (rapport candidat, status pending) : finding capacité sev 4 levé, nuance dépendance/atténuation ajoutée ; findings résiduels = lacunes publiques assumées. Reste jugement humain : marquer rapport reviewed → contradiction_done ; valider candidats → sources_ok ; revue Munich (2/6/7/8/9/10) → compliance_done ; cvi_justified ; puis human_review_done → published. Reste dépubliée (published:false).",
+    "next_action": "Fiche P0 complète et sourcée : candidats Perplexity injectés (EIA 23,2 Mb/j, MPA 41,12 M EVP / 94 301 navires, ReCAAP 108 incidents SOMS, pipeline Chine-Myanmar) avec statut FAIT/ESTIMATION — cf. malacca.md + docs/evidence/malacca-candidates.md. Contradiction ADR 0039 tournée x2 (rapport candidat, status pending) : finding capacité sev 4 levé, nuance dépendance/atténuation ajoutée ; findings résiduels = lacunes publiques assumées. Reste jugement humain : marquer rapport reviewed → contradiction_done ; valider candidats → sources_ok ; revue Munich (2/6/7/8/9/10) → compliance_done ; cvi_justified ; puis human_review_done → published. Reste dépubliée (published:false). — Contrôle de fraîcheur passé le 2026-08-10 : AUCUNE affirmation contredite (docs/evidence/audit-fraicheur-2026-08-10.md). ReCAAP juil. 2026 confirme le profil CAT 4 décrit. Reste : rapport de contradiction `pending` à traiter, puis portes humaines.",
     "impact": "atlas",
     "offer": "basic",
     "quality_gate_status": "at_risk",
@@ -141,7 +141,7 @@
     "priority": "P0",
     "progress": 80,
     "deadline": "2026-09-20",
-    "next_action": "Fiche P0 complète et sourcée : candidats Perplexity injectés (mix TSMC Q4 2024 = fait ; 67,6 % fonderie, ~68 %/80 % capacité avancée/EUV, ~48 % flotte détroit, Kaohsiung 9,3 M EVP, cap. hors Taïwan 32→59 % 2027) avec statut FAIT/ESTIMATION/DÉDUCTION — cf. taiwan.md + docs/evidence/taiwan-candidates.md. Contradiction ADR 0039 tournée x1 (rapport candidat, status pending) : 3 findings = zones déjà marquées estimation/déduction/non documenté (prod par pays, coût blocus scénarisé, surcoût reroutage). Reste jugement humain : marquer rapport reviewed → contradiction_done ; valider candidats → sources_ok ; revue Munich (1/2/3/4/6/7/8/9/10) → compliance_done ; cvi_justified ; puis human_review_done → published. Reste dépubliée (published:false).",
+    "next_action": "Fiche P0 complète et sourcée : candidats Perplexity injectés (mix TSMC Q4 2024 = fait ; 67,6 % fonderie, ~68 %/80 % capacité avancée/EUV, ~48 % flotte détroit, Kaohsiung 9,3 M EVP, cap. hors Taïwan 32→59 % 2027) avec statut FAIT/ESTIMATION/DÉDUCTION — cf. taiwan.md + docs/evidence/taiwan-candidates.md. Contradiction ADR 0039 tournée x1 (rapport candidat, status pending) : 3 findings = zones déjà marquées estimation/déduction/non documenté (prod par pays, coût blocus scénarisé, surcoût reroutage). Reste jugement humain : marquer rapport reviewed → contradiction_done ; valider candidats → sources_ok ; revue Munich (1/2/3/4/6/7/8/9/10) → compliance_done ; cvi_justified ; puis human_review_done → published. Reste dépubliée (published:false). — Contrôle de fraîcheur passé le 2026-08-10 : AUCUNE affirmation contredite (docs/evidence/audit-fraicheur-2026-08-10.md). Le chiffre TSMC 67,6 % (T1 2025) sous-estime désormais la concentration réelle (~70,4 % au T4 2025) : daté et attribué, donc non faux, et l'écart va dans le sens prudent. Reste : rapport de contradiction `pending` à traiter, puis portes humaines.",
     "impact": "atlas",
     "offer": "basic",
     "quality_gate_status": "at_risk",
@@ -879,5 +879,47 @@
       }
     ],
     "internal_notes": "Base.astro acceptait une prop `image` depuis le début et aucune page ne la passait : chaque partage LinkedIn rendait une vignette grise. Le head pointait aussi vers un apple-touch-icon et un manifeste inexistants — créés dans le même geste."
+  },
+  {
+    "id": "deliv_atlas_ormuz_contexte",
+    "title": "Ormuz : une crise de cinq mois invisible sur nos pages publiques",
+    "description": "La page chokepoint Ormuz sert des flux EIA 2024 en tête et relègue « 2,5 transits/jour · 2026-08 » parmi les métriques, sans dire qu'il s'agit d'un effondrement. Décider si l'Atlas-base doit contextualiser, ou assumer de ne pas.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P0",
+    "progress": 15,
+    "deadline": "2026-08-31",
+    "impact": "atlas",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "blocker": "Décision de doctrine en attente : ces pages sont délibérément non éditoriales (l'Atlas sert la base telle quelle). Contextualiser Ormuz, c'est ouvrir la question pour toutes les strates.",
+    "next_action": "Trancher entre (a) encart de contexte automatique quand une métrique récente s'écarte fortement de sa base, (b) fiche Atlas éditoriale Ormuz, (c) statu quo assumé. Preuves et mesures comparées : docs/evidence/audit-fraicheur-2026-08-10.md",
+    "links": [
+      {
+        "label": "Page publique Ormuz",
+        "url": "/atlas/chokepoints/p0_maritime_strait_strait_of_hormuz"
+      }
+    ],
+    "internal_notes": "Mesure relevée sur nos propres pages, même métrique PortWatch, même mois 2026-08 : Ormuz 2,5 transits/j contre Suez 36,5, Malacca 230,5, Taïwan 248. Deux ordres de grandeur. Recoupé hors site : trafic restreint de plus de 90 %, Reuters compte 33 navires du lundi au jeudi la semaine du 7 août. Un chiffre d'effondrement servi sans contexte donne l'apparence de la couverture sans l'information — c'est ce qui en fait un P0 et non une amélioration."
   }
 ]
