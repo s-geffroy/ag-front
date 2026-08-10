@@ -3,6 +3,7 @@ import {
   consensusFloorDisagreement,
   consensusRowIsPublishable,
   consensusRowMeetsCardinalityFloor,
+  isFixtureRecord,
   PUBLISHABLE_MIN_MARKET_COUNT,
   type ChokepointDetail,
   type ChokepointSummary,
@@ -70,7 +71,10 @@ export async function loadChokepoints(): Promise<ChokepointsLoad> {
     });
     cache = {
       ok: true,
-      items: list.items.map(toAtlas),
+      // Producer fixtures (e.g. `cp_alpha` / "Alpha Strait") are dropped here rather than in the page
+      // template: this is the single list every Atlas surface derives from — detail pages, the index,
+      // `loadChokepointPageIds`, the sitemap — so filtering once covers all of them.
+      items: list.items.filter((c) => !isFixtureRecord(c.id)).map(toAtlas),
       attributionNotice: list.attribution_notice,
     };
   } catch (e) {
@@ -94,6 +98,9 @@ export async function loadGeoJson(): Promise<GeoJsonFeatureCollection> {
 }
 
 export async function loadChokepointDetail(id: string): Promise<ChokepointDetail | null> {
+  // Defence in depth: no page should ask for a fixture (getStaticPaths already excludes them), but a
+  // direct caller must not be able to resurrect one.
+  if (isFixtureRecord(id)) return null;
   const cfg = config();
   if (!cfg) return null;
   try {

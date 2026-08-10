@@ -189,18 +189,47 @@ export const PUBLIC_FEATURE_PROPS = [
   'required_attributions',
 ] as const;
 
-/** Project every feature onto the public-safe property allowlist (see PUBLIC_FEATURE_PROPS). */
+/**
+ * Demo/fixture records the producer serves alongside real ones. They are NOT corridors, and they must
+ * never reach a public surface: `cp_alpha` ("Alpha Strait") was live at `/atlas/chokepoints/cp_alpha/`,
+ * in the sitemap and in the GeoJSON export until 2026-08-10.
+ *
+ * We filter on our side rather than wait for the producer to clean their dataset — a fixture we drop
+ * costs us one page, a fixture we publish costs credibility on an Atlas that sells rigour. Reported
+ * upstream via the exchange channel (ADR 0067); keep the entry even once they remove it, since the
+ * cost of a stale denylist entry is zero.
+ *
+ * Real records follow `p<tier>_<family>_<slug>`; this list stays explicit rather than a pattern match,
+ * so a naming change upstream can never silently drop a genuine corridor.
+ */
+export const FIXTURE_RECORD_IDS: readonly string[] = ['cp_alpha'];
+
+const FIXTURE_ID_SET = new Set(FIXTURE_RECORD_IDS);
+
+/** True when `id` is a producer fixture that must be excluded from every public surface. */
+export function isFixtureRecord(id: string | null | undefined): boolean {
+  return typeof id === 'string' && FIXTURE_ID_SET.has(id);
+}
+
+/**
+ * Project every feature onto the public-safe property allowlist (see PUBLIC_FEATURE_PROPS), dropping
+ * producer fixtures entirely.
+ */
 export function toPublicFeatureCollection(fc: GeoJsonFeatureCollection): GeoJsonFeatureCollection {
   return {
     ...fc,
-    features: fc.features.map((f) => {
-      const props = (f.properties ?? {}) as Record<string, unknown>;
-      const safe: Record<string, unknown> = {};
-      for (const k of PUBLIC_FEATURE_PROPS) {
-        if (k in props) safe[k] = props[k];
-      }
-      return { ...f, properties: safe };
-    }),
+    features: fc.features
+      .filter(
+        (f) => !isFixtureRecord((f.properties as Record<string, unknown> | null)?.id as string),
+      )
+      .map((f) => {
+        const props = (f.properties ?? {}) as Record<string, unknown>;
+        const safe: Record<string, unknown> = {};
+        for (const k of PUBLIC_FEATURE_PROPS) {
+          if (k in props) safe[k] = props[k];
+        }
+        return { ...f, properties: safe };
+      }),
   };
 }
 
