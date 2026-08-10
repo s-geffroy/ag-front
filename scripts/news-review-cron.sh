@@ -86,9 +86,38 @@ fields="${fields}
 
 ${corridors}"
 
-if [ "$fresh" -gt 0 ] && [ "$promoted" -eq 0 ]; then
-  # The state this cron was written for: material waiting, nothing published.
-  slack_notify ":newspaper:" "$LABEL — ${fresh} cluster(s) en attente, 0 promu" "$fields" "$notes"
+title="$LABEL — ${fresh} cluster(s) frais"
+[ "$fresh" -gt 0 ] && [ "$promoted" -eq 0 ] && title="$LABEL — ${fresh} cluster(s) en attente, 0 promu"
+
+# With a bot token we post through the app itself, because only a message the app owns can carry
+# buttons whose clicks come back to it (the slackbot listens in Socket Mode). Without one, we fall
+# back to the webhook: the digest still arrives, just without the one-tap path.
+if [ -n "${SLACK_BOT_TOKEN:-}" ] && [ -n "${SLACK_CHANNEL_ID:-}" ]; then
+  buttons="$(printf '%s' "$json" | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+els=[]
+for cid,_n in d["corridors"][:5]:
+    # The label names the corridor, never a headline: the button must not become a place to judge.
+    short=cid.replace("p0_maritime_","").replace("p1_","").replace("_"," ")[:70]
+    els.append({"type":"button","action_id":"promote_corridor","value":cid,
+                "text":{"type":"plain_text","text":f"Promouvoir — {short}"[:75]}})
+print(json.dumps({"type":"actions","elements":els} if els else {}))
+')"
+  payload="$(python3 -c '
+import json,sys
+title,fields,notes,buttons=sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]
+blocks=[{"type":"header","text":{"type":"plain_text","text":":newspaper: "+title,"emoji":True}},
+        {"type":"section","text":{"type":"mrkdwn","text":fields}}]
+b=json.loads(buttons or "{}")
+if b: blocks.append(b)
+if notes.strip(): blocks.append({"type":"section","text":{"type":"mrkdwn","text":"```\n"+notes[:2500]+"\n```"}})
+print(json.dumps({"channel":sys.argv[5],"text":title,"blocks":blocks}))
+' "$title" "$fields" "$notes" "$buttons" "$SLACK_CHANNEL_ID")"
+  curl -sf -X POST https://slack.com/api/chat.postMessage \
+    -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
+    -H 'Content-Type: application/json; charset=utf-8' \
+    --data "$payload" >/dev/null || echo "warn: chat.postMessage a échoué" >&2
 else
-  slack_notify ":newspaper:" "$LABEL — ${fresh} cluster(s) frais" "$fields" "$notes"
+  slack_notify ":newspaper:" "$title" "$fields" "$notes"
 fi

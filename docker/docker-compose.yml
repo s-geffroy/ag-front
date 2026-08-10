@@ -258,6 +258,36 @@ services:
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/verdict-api', 'start']
 
+  # Slack listener, SOCKET MODE (ADR 0071/0074, P2). No published port and no Caddy rule on purpose:
+  # the process opens an OUTBOUND WebSocket to Slack, so promoting from a phone adds ZERO public
+  # surface. Classic interactivity would have required a public HTTPS endpoint that mutates the public
+  # Atlas — the opposite of how this deployment is built. Reaches the cockpit over the Docker network.
+  #
+  # Inert until SLACK_APP_TOKEN / SLACK_BOT_TOKEN / SLACK_CHANNEL_ID exist in docker/.env: it logs why
+  # and exits 0; the restart policy below is what keeps that from becoming a loop.
+  slackbot:
+    build:
+      context: ..
+      dockerfile: docker/tools.Dockerfile
+    image: app-geo-tools:local
+    user: '${UID:-1000}:${GID:-1000}'
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    depends_on:
+      - cockpit
+    environment:
+      SLACK_APP_TOKEN: '${SLACK_APP_TOKEN:-}'
+      SLACK_BOT_TOKEN: '${SLACK_BOT_TOKEN:-}'
+      SLACK_CHANNEL_ID: '${SLACK_CHANNEL_ID:-}'
+      SLACK_OPERATOR_NAME: '${SLACK_OPERATOR_NAME:-Sylvain Geffroy}'
+      COCKPIT_URL: 'http://cockpit:8787'
+    # `on-failure`, NOT `unless-stopped`: the latter restarts on ANY exit code, so the unconfigured
+    # service — which logs why and exits 0 on purpose — would restart every second for ever. Here a
+    # clean exit means "nothing to do", and only a crash is worth retrying.
+    restart: on-failure
+    command: ['npm', '--workspace', '@ag/slackbot', 'start']
+
   # ── Audience measurement: Plausible Community Edition (ADR 0076) ────────────────────────────────
   #
   # Cookieless by design, so no consent banner is required and the privacy policy stays short. Data
