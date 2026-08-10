@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ShieldAlert } from 'lucide-react';
 import type { ChokepointDetail, ChokepointSummary } from '@ag/chokepoints';
 import { api } from '@/lib/api';
+import { countLabel, readListAccount } from '@/lib/truncation';
 import { Badge, Button, inputClass, Separator, Sheet } from '@/components/ui';
 import { PageHeader } from '@/components/common';
 import {
@@ -335,12 +336,19 @@ function ResultView({
   error: string | null;
   result: unknown;
 }) {
-  const count = Array.isArray(result) ? result.length : null;
+  // What the response says about itself — bare array or envelope. Pure and tested in
+  // ../lib/truncation.ts, because the rule matters more than the markup around it.
+  const account = readListAccount(result);
+  const count = account.count;
+  const truncated = account.truncated;
+  const requested = account.requestedLimit;
   return (
     <div>
       <div className="mb-1 flex items-center gap-2">
         <span className="label text-[11px] uppercase tracking-wider text-muted">{title}</span>
-        {count !== null ? <Badge tone="neutral">{count}</Badge> : null}
+        {countLabel(account) ? (
+          <Badge tone={truncated ? 'at_risk' : 'neutral'}>{countLabel(account)}</Badge>
+        ) : null}
       </div>
       {busy ? <p className="text-sm text-muted">Chargement…</p> : null}
       {error ? (
@@ -352,6 +360,14 @@ function ResultView({
               : error.includes('404')
                 ? 'Introuvable (404) : rien de calculé pour cette ressource.'
                 : `Erreur : ${error}`}
+        </p>
+      ) : null}
+      {!busy && !error && truncated ? (
+        <p className="mb-1 rounded-[2px] border-l-2 border-l-status-at_risk bg-subtle px-2 py-1.5 text-[11px] leading-relaxed text-muted">
+          <span className="font-medium text-status-at_risk">Liste possiblement tronquée.</span>{' '}
+          {count} ligne(s) rendues pour une limite de {requested ?? '?'} : l’amont renvoie
+          exactement ce qu’on demande sans déclarer s’il coupe. Ne rien conclure d’exhaustif à
+          partir de cette liste (ADR 0077, handoff 0029).
         </p>
       ) : null}
       {!busy && !error && result !== null ? (
