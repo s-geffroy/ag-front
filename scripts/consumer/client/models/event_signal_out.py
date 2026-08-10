@@ -31,6 +31,7 @@ class EventSignalOut:
             weight (Union[None, Unset, float]):
             observed_on (Union[None, Unset, datetime.date]):
             event_key (Union[None, Unset, str]):
+            attachment_rule (Union[None, Unset, str]):
      """
 
     chokepoint_id: str
@@ -38,6 +39,7 @@ class EventSignalOut:
     weight: Union[None, Unset, float] = UNSET
     observed_on: Union[None, Unset, datetime.date] = UNSET
     event_key: Union[None, Unset, str] = UNSET
+    attachment_rule: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -66,6 +68,12 @@ class EventSignalOut:
         else:
             event_key = self.event_key
 
+        attachment_rule: Union[None, Unset, str]
+        if isinstance(self.attachment_rule, Unset):
+            attachment_rule = UNSET
+        else:
+            attachment_rule = self.attachment_rule
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -79,6 +87,8 @@ class EventSignalOut:
             field_dict["observed_on"] = observed_on
         if event_key is not UNSET:
             field_dict["event_key"] = event_key
+        if attachment_rule is not UNSET:
+            field_dict["attachment_rule"] = attachment_rule
 
         return field_dict
 
@@ -131,12 +141,23 @@ class EventSignalOut:
         event_key = _parse_event_key(d.pop("event_key", UNSET))
 
 
+        def _parse_attachment_rule(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        attachment_rule = _parse_attachment_rule(d.pop("attachment_rule", UNSET))
+
+
         event_signal_out = cls(
             chokepoint_id=chokepoint_id,
             domain=domain,
             weight=weight,
             observed_on=observed_on,
             event_key=event_key,
+            attachment_rule=attachment_rule,
         )
 
 

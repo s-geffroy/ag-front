@@ -524,9 +524,40 @@ export const EventSignalOut = z
     weight: z.number().nullish(),
     observed_on: z.string().nullish(),
     event_key: z.string().nullish(),
+    /**
+     * API 0.17.0 — which rule attached this row to the corridor. A SCALAR, not to be confused with
+     * the consensus's `attachment_rules` array.
+     *
+     * Why it exists, in their words (`0023` §4): `observations.event_signal` feeds the media-attention
+     * spike, whose thresholds were calibrated on ONE day of volume. A rule that recovers 30 % more
+     * rows on an object would read *exactly like that object entering a crisis*. The column is
+     * `NOT NULL` with no default on their side, so a collector that forgets to declare its rule fails
+     * at INSERT rather than silently widening a count.
+     */
+    attachment_rule: z.string().nullish(),
   })
   .passthrough();
 export type EventSignalOut = z.infer<typeof EventSignalOut>;
+
+/**
+ * The rule under which a RAW signal row (event or perception) is attached deterministically: the row
+ * names its object. Everything else — a future LLM judge above all — is an inference, and an inference
+ * counted next to a name-match silently changes what a volume curve means.
+ */
+export const DETERMINISTIC_SIGNAL_ATTACHMENT_RULE = 'name_match';
+
+/**
+ * Was this raw row attached by a rule we already know how to read?
+ *
+ * Unlike the consensus gate this does NOT filter — these rows land on internal, authenticated surfaces
+ * where hiding is worse than showing. It answers "does this deserve to be flagged to a human", which is
+ * the honest thing to do with a rule nobody has reviewed yet. A row that declares no rule at all is
+ * pre-0.17.0 history, not a violation.
+ */
+export function signalAttachmentRuleIsReviewed(row: { attachment_rule?: string | null }): boolean {
+  const rule = row.attachment_rule;
+  return rule == null || rule === DETERMINISTIC_SIGNAL_ATTACHMENT_RULE;
+}
 
 /** /chokepoints/{id}/analysis → full typed engine output + relations + claims. */
 export const ChokepointAnalysis = z
@@ -600,6 +631,31 @@ export function consensusRowIsPublishable(row: PerceptionConsensusOut): boolean 
 }
 
 /**
+ * How many markets a row must aggregate before the word "consensus" is honest about it (ADR 0072).
+ *
+ * Two is not a statistical threshold, it is a linguistic one: below it there is no aggregate at all,
+ * only a quotation with a plural noun on top. ag-back measured (their `0025` §4) that four of the ten
+ * rows they serve rest on a single market — including both of the lines we publish.
+ */
+export const PUBLISHABLE_MIN_MARKET_COUNT = 2;
+
+/**
+ * Does this row aggregate enough markets to be published as a consensus?
+ *
+ * A SEPARATE predicate from `consensusRowIsPublishable()` on purpose: an unrecognised attachment rule
+ * and a single quotation are two different refusals, and folding them makes a dropped row unable to
+ * say which one fired.
+ *
+ * **Fail-closed on absence**, and this is exactly where the floor differs from `attachment_rules`
+ * (whose empty array is tolerated, for a documented historical reason): a row that does not state its
+ * cardinality cannot clear a cardinality floor. Silence is not a count.
+ */
+export function consensusRowMeetsCardinalityFloor(row: PerceptionConsensusOut): boolean {
+  const n = row.market_count;
+  return typeof n === 'number' && Number.isFinite(n) && n >= PUBLISHABLE_MIN_MARKET_COUNT;
+}
+
+/**
  * /chokepoints/{id}/prediction-consensus (API 0.15.0) → the derived Polymarket consensus as its own
  * narrow surface, served to the CLEAR `read` token. This is what a public/`read`-scope consumer should
  * read: no engines, no relations, no claims — just the one block that is redistributable (with
@@ -641,6 +697,12 @@ export const PerceptionSignalOut = z
     perception_signal_score: z.number().nullish(),
     proposed_action: z.string().nullish(),
     observed_at: z.string().nullish(),
+    /**
+     * API 0.17.0 — the rule that attached this raw market to the corridor. This surface used to serve
+     * rows written under four incompatible rules and said so nowhere (ag-back `0023` §6); the field is
+     * the fix. `read_tainted` only, so in practice the cockpit is its only reader.
+     */
+    attachment_rule: z.string().nullish(),
   })
   .passthrough();
 export type PerceptionSignalOut = z.infer<typeof PerceptionSignalOut>;

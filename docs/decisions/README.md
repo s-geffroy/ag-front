@@ -49,3 +49,6 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0067](0067-canal-echange-ag-back.md) | ag-front ↔ ag-back file-exchange channel: content-addressed messages, verified reply correlation | Accepted |
 | [0068](0068-cockpit-llm-judge-prevalidation.md) | Cockpit: LLM judge pre-validation (per-gate candidate verdict) + nominative validation journal (ADR 0046) | Accepted |
 | [0069](0069-cockpit-one-click-publish.md) | Cockpit: one-click publish (guarded frontmatter flag flip + journalled) + host rebuild watcher | Accepted |
+| [0070](0070-consommation-news-et-cvi-counterfactual.md) | Consumption of `/news`, `/analytics/cvi-counterfactual` and the `media_attention_spike` alert | Accepted |
+| [0071](0071-consensus-et-news-promue-sur-atlas-public.md) | Market consensus + human-promoted news on the public Atlas (attribution + S5, fail-closed on attachment rule) | Accepted |
+| [0072](0072-plancher-de-cardinalite-et-allowlist-consensus.md) | Cardinality floor (`market_count >= 2`) + publication allowlist for the market-consensus block | Accepted |

@@ -15,8 +15,8 @@ from typing import Union
 import datetime
 
 if TYPE_CHECKING:
-  from ..models.news_source_ref import NewsSourceRef
   from ..models.news_cluster_chokepoint import NewsClusterChokepoint
+  from ..models.news_source_ref import NewsSourceRef
 
 
 
@@ -77,8 +77,8 @@ class NewsClusterOut:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.news_source_ref import NewsSourceRef
         from ..models.news_cluster_chokepoint import NewsClusterChokepoint
+        from ..models.news_source_ref import NewsSourceRef
         cluster_id = self.cluster_id
 
         headline: Union[None, Unset, str]
@@ -229,8 +229,8 @@ class NewsClusterOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.news_source_ref import NewsSourceRef
         from ..models.news_cluster_chokepoint import NewsClusterChokepoint
+        from ..models.news_source_ref import NewsSourceRef
         d = dict(src_dict)
         cluster_id = d.pop("cluster_id")
 

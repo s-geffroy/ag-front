@@ -10,7 +10,10 @@ import { CONSENSUS_ATTRIBUTION, CONSENSUS_RELIABILITY, loadCorridorConsensus } f
 // zero — which is what these tests pin.
 
 const PANAMA = 'p0_maritime_canal_panama_canal';
-// Real corridor, real page — and no honest market coverage: the API answers 200 + [].
+const SUEZ = 'p0_maritime_canal_suez_canal';
+// Real corridor, real page, and NOT on the publication allowlist: ag-back's 0018 condition 2 ("publish
+// Panama and Suez only") has never been lifted in writing. Since their 2026-07-29 sweep it is no longer
+// an empty list either — it serves four families, one of them a 72,5 % on a single market.
 const HORMUZ = 'p0_maritime_strait_strait_of_hormuz';
 
 const CONSENSUS_PAYLOAD = {
@@ -18,7 +21,7 @@ const CONSENSUS_PAYLOAD = {
   consensus: [
     {
       signal_family: 'infrastructure_capacity_expectation',
-      market_count: 1,
+      market_count: 29,
       consensus_probability: 0.038,
       max_probability_change_24h: -0.012,
       total_liquidity: 31803.22356,
@@ -72,17 +75,21 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
   });
 
   it('renders NOTHING when the producer reports no honest coverage (200 + [])', async () => {
-    stubFetch({ chokepoint_id: HORMUZ, consensus: [] });
+    stubFetch({ chokepoint_id: SUEZ, consensus: [] });
     // An empty list is an answer, not a failure: no block, no zero, no flat line.
-    expect(await loadCorridorConsensus(HORMUZ)).toBeNull();
+    expect(await loadCorridorConsensus(SUEZ)).toBeNull();
   });
 
   it('drops a row whose probability is unusable rather than rendering a hole', async () => {
     stubFetch({
       chokepoint_id: PANAMA,
       consensus: [
-        { signal_family: 'disruption_expectation', consensus_probability: null },
-        { signal_family: 'regime_change_expectation', consensus_probability: 0.0005 },
+        { signal_family: 'disruption_expectation', market_count: 4, consensus_probability: null },
+        {
+          signal_family: 'regime_change_expectation',
+          market_count: 4,
+          consensus_probability: 0.0005,
+        },
       ],
     });
     const c = await loadCorridorConsensus(PANAMA);
@@ -98,6 +105,7 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
       consensus: [
         {
           signal_family: 'disruption_expectation',
+          market_count: 42,
           consensus_probability: 0.42,
           observed_window_end: '2026-08-01T06:00:00Z',
           attachment_rules: ['llm_implied'],
@@ -113,6 +121,7 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
       consensus: [
         {
           signal_family: 'infrastructure_capacity_expectation',
+          market_count: 29,
           consensus_probability: 0.038,
           observed_window_end: '2026-07-26T06:00:00Z',
           attachment_rules: ['named_or_implied'],
@@ -133,6 +142,120 @@ describe('loadCorridorConsensus — dedicated 0.15.0 endpoint (ADR 0071, ag-back
   it('degrades gracefully when the API fails, without throwing', async () => {
     globalThis.fetch = (async () => new Response('nope', { status: 500 })) as typeof fetch;
     expect(await loadCorridorConsensus(PANAMA)).toBeNull();
+  });
+});
+
+// ADR 0072 — what protects the page once the producer's coverage widens. Until 2026-07-29 these two
+// guards were held by the DATA (every other corridor answered `[]`), not by the code. ag-back's sweep
+// ended that: Hormuz, Bab-el-Mandeb and Taïwan now carry rows, and the next rebuild would have shipped
+// them without review. A guard held by accident is not a guard.
+describe('publication allowlist (ag-back 0018 condition 2, never lifted in writing)', () => {
+  it('publishes an allowlisted corridor', async () => {
+    expect(await loadCorridorConsensus(PANAMA)).not.toBeNull();
+    expect(await loadCorridorConsensus(SUEZ)).not.toBeNull();
+  });
+
+  it('refuses a corridor outside the allowlist WITHOUT calling the API', async () => {
+    // Not "renders nothing": does not even ask. The refusal is editorial, so it precedes the request.
+    expect(await loadCorridorConsensus(HORMUZ)).toBeNull();
+    expect(fetchCalls).toEqual([]);
+  });
+});
+
+describe('cardinality floor N=2 (ADR 0072, arbitrating ag-back 0024 §2 / 0025 §4)', () => {
+  it('refuses a single-market row — "consensus" must not title one quotation', async () => {
+    stubFetch({
+      chokepoint_id: PANAMA,
+      consensus: [
+        {
+          signal_family: 'infrastructure_capacity_expectation',
+          market_count: 1,
+          consensus_probability: 0.032,
+          attachment_rules: ['named_or_implied'],
+        },
+      ],
+    });
+    // This is the live Panama row of 2026-08-10: its whole block goes away, and that is the point.
+    expect(await loadCorridorConsensus(PANAMA)).toBeNull();
+  });
+
+  it('refuses a row that omits market_count — silence is not a count', async () => {
+    stubFetch({
+      chokepoint_id: PANAMA,
+      consensus: [
+        { signal_family: 'disruption_expectation', consensus_probability: 0.42 },
+        { signal_family: 'regime_change_expectation', consensus_probability: 0.1 },
+      ],
+    });
+    expect(await loadCorridorConsensus(PANAMA)).toBeNull();
+  });
+
+  it('keeps the aggregated families and drops only the thin ones', async () => {
+    stubFetch({
+      chokepoint_id: SUEZ,
+      consensus: [
+        {
+          signal_family: 'infrastructure_capacity_expectation',
+          market_count: 29,
+          consensus_probability: 0.4627,
+          observed_window_end: '2026-08-10T06:04:24Z',
+        },
+        {
+          signal_family: 'disruption_expectation',
+          market_count: 1,
+          consensus_probability: 0.005,
+          observed_window_end: '2026-08-01T06:03:42Z',
+        },
+      ],
+    });
+    const c = await loadCorridorConsensus(SUEZ);
+    expect(c?.families.map((f) => f.signalFamily)).toEqual(['infrastructure_capacity_expectation']);
+    // The stamp follows the rows we kept — the dropped 2026-08-01 row must not date the block.
+    expect(c?.observedAt).toBe('2026-08-10T06:04:24Z');
+  });
+});
+
+describe('closed list of publishable families', () => {
+  it('refuses a family we have no French label for', async () => {
+    stubFetch({
+      chokepoint_id: PANAMA,
+      consensus: [
+        {
+          signal_family: 'perception_watch',
+          market_count: 12,
+          consensus_probability: 0.725,
+          attachment_rules: ['named_or_implied'],
+        },
+      ],
+    });
+    // Live on Hormuz today at 72,5 %. `humanize()` would have published it as "Perception watch": a
+    // family with no label is a family whose presentation we have not decided.
+    expect(await loadCorridorConsensus(PANAMA)).toBeNull();
+  });
+});
+
+describe('freshness stamp = the OLDEST window kept (never a promise of freshness)', () => {
+  it('dates the block by its stalest published row, whatever the serving order', async () => {
+    stubFetch({
+      chokepoint_id: PANAMA,
+      consensus: [
+        {
+          signal_family: 'infrastructure_capacity_expectation',
+          market_count: 30,
+          consensus_probability: 0.18,
+          observed_window_end: '2026-08-10T06:04:24Z',
+        },
+        {
+          signal_family: 'disruption_expectation',
+          market_count: 45,
+          consensus_probability: 0.17,
+          observed_window_end: '2026-08-01T06:03:42Z',
+        },
+      ],
+    });
+    const c = await loadCorridorConsensus(PANAMA);
+    expect(c?.families).toHaveLength(2);
+    expect(c?.observedAt).toBe('2026-08-01T06:03:42Z');
   });
 });
 

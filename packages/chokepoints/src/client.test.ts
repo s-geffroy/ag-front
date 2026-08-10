@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createChokepointsClient, ChokepointsApiError } from './client';
-import { SfuCompletenessOut, consensusRowIsPublishable } from './schema';
+import {
+  SfuCompletenessOut,
+  consensusRowIsPublishable,
+  consensusRowMeetsCardinalityFloor,
+  signalAttachmentRuleIsReviewed,
+} from './schema';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return { ok: status < 400, status, json: async () => body } as unknown as Response;
@@ -231,6 +236,74 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
     const { consensus } = await client.getChokepointPredictionConsensus('p0_x');
     expect(consensus[0]!.attachment_rules).toEqual([]);
     expect(consensus.every(consensusRowIsPublishable)).toBe(true);
+  });
+
+  // ADR 0072 — cardinality floor. ag-back measured (their 0025 §4) that four of the ten served rows
+  // rest on a SINGLE market, including both of our public lines: "consensus" titling one quote.
+  // Deliberately a SECOND predicate rather than a clause inside the first: an unrecognised attachment
+  // rule and a single quotation are two different refusals, and a reader of a dropped row must be able
+  // to tell which one fired.
+  it('consensusRowMeetsCardinalityFloor refuses a single-market row and keeps N ≥ 2', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          consensus: [
+            { signal_family: 'single', market_count: 1 },
+            { signal_family: 'pair', market_count: 2 },
+            { signal_family: 'many', market_count: 74 },
+            { signal_family: 'zero', market_count: 0 },
+          ],
+        }),
+    });
+    const { consensus } = await client.getChokepointPredictionConsensus('p0_x');
+    expect(consensus.filter(consensusRowMeetsCardinalityFloor).map((r) => r.signal_family)).toEqual(
+      ['pair', 'many'],
+    );
+  });
+
+  // Fail-closed, and this is where the floor DIFFERS from `attachment_rules` (tolerated when absent,
+  // for a documented historical reason): a row that does not state its cardinality cannot clear a
+  // cardinality floor. Silence is not a count.
+  it('consensusRowMeetsCardinalityFloor refuses a row that omits market_count', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          consensus: [{ signal_family: 'silent' }, { signal_family: 'null', market_count: null }],
+        }),
+    });
+    const { consensus } = await client.getChokepointPredictionConsensus('p0_x');
+    expect(consensus.some(consensusRowMeetsCardinalityFloor)).toBe(false);
+  });
+
+  // 0.17.0 — `attachment_rule` on the two RAW surfaces. Not a filter: these land on internal screens
+  // where a rule nobody has reviewed must be seen, not hidden (ag-back 0023 §4/§6).
+  it('signalAttachmentRuleIsReviewed flags an unreviewed rule and tolerates pre-0.17.0 silence', () => {
+    expect(signalAttachmentRuleIsReviewed({ attachment_rule: 'name_match' })).toBe(true);
+    expect(signalAttachmentRuleIsReviewed({})).toBe(true);
+    expect(signalAttachmentRuleIsReviewed({ attachment_rule: null })).toBe(true);
+    expect(signalAttachmentRuleIsReviewed({ attachment_rule: 'llm_implied' })).toBe(false);
+    expect(signalAttachmentRuleIsReviewed({ attachment_rule: 'whatever_comes_next' })).toBe(false);
+  });
+
+  it('parses attachment_rule on the raw event-signal surface (0.17.0)', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse([
+          { chokepoint_id: 'p0_x', domain: 'media', attachment_rule: 'name_match' },
+          { chokepoint_id: 'p0_x', domain: 'media' },
+        ]),
+    });
+    const rows = await client.getChokepointEventSignals('p0_x', 20);
+    expect(rows[0]!.attachment_rule).toBe('name_match');
+    expect(rows[1]!.attachment_rule ?? null).toBeNull();
   });
 
   it('getChokepointPredictionConsensus tolerates the omitted `consensus` key', async () => {

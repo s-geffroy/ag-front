@@ -1,8 +1,8 @@
 ---
-import { humanize } from '../../lib/labels';
 import Pill from '../Pill.astro';
 import {
   CONSENSUS_ATTRIBUTION,
+  CONSENSUS_FAMILY_LABELS,
   CONSENSUS_RELIABILITY,
   type AtlasConsensus,
 } from '../../lib/atlas-data';
@@ -14,20 +14,13 @@ import {
 // Attribution + S5 disclaimer are NOT decoration: ag-back's handoff 0018 makes them the condition of
 // redistribution (`polymarket_gamma` = `cleared_with_attribution`). Both are rendered unconditionally,
 // inside the same block as the figures, so the credit can never drift away from what it licenses.
-// Which corridors reach this component at all is decided upstream, in CONSENSUS_PUBLIC_ALLOWLIST.
+// Which corridors reach this component at all is decided upstream, in CONSENSUS_PUBLIC_ALLOWLIST —
+// as is which families and which cardinalities (ADR 0072). This component renders, it does not filter.
 
 interface Props {
   consensus: AtlasConsensus;
 }
 const { consensus } = Astro.props;
-
-// Human-readable French labels for the producer's signal families (humanize() as a safe fallback).
-const FAMILY_LABELS: Record<string, string> = {
-  infrastructure_capacity_expectation: "Capacité d'infrastructure",
-  disruption_expectation: 'Perturbation du trafic',
-  conflict_escalation_expectation: 'Escalade du conflit',
-  regime_change_expectation: 'Changement de régime',
-};
 
 /** 0..1 → "12,4 %"; guards tiny values so 0.0005 reads "< 0,1 %" rather than "0,1 %". */
 function pct(p: number): string {
@@ -65,7 +58,7 @@ const families = [...consensus.families].sort((a, b) => b.probability - a.probab
     {
       families.map((f) => (
         <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span class="font-medium">{FAMILY_LABELS[f.signalFamily] ?? humanize(f.signalFamily)}</span>
+          <span class="font-medium">{CONSENSUS_FAMILY_LABELS[f.signalFamily]}</span>
           <span class="font-mono tabular-nums text-accent">{pct(f.probability)}</span>
           {f.change24h != null && f.change24h !== 0 ? (
             <span class="font-mono text-[11px] text-muted">{delta(f.change24h)}</span>

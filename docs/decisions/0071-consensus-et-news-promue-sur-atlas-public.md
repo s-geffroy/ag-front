@@ -161,7 +161,9 @@ sans bump — on peut typer dessus sans casse silencieuse ; seul l'**ajout** de 
 - **Retrait du filtre** : quand ag-back appliquera le plancher `attachment_rule` à l'agrégat (correctif
   moteur annoncé), la liste blanche perd sa raison d'être et se supprime en une ligne. Ne pas la
   retirer avant l'annonce sur le canal.
-- **Le flag `ATLAS_CONSENSUS_PUBLIC` reste à 0** : la condition 3 (usage commercial) n'est pas levée.
+- ~~**Le flag `ATLAS_CONSENSUS_PUBLIC` reste à 0**~~ : vrai à la rédaction, **caduc depuis le
+  2026-07-26** — la condition 3 a été levée des deux côtés le jour même (leur ADR 0083, notre décision
+  propriétaire) et le flag est à `1` en production depuis. Voir la section suivante.
 
 ### Tout s'est débloqué le même jour — migration sur l'endpoint dédié (2026-07-26, ag-back `0020`/`0021`)
 
@@ -174,6 +176,13 @@ S5). **Le nôtre a tranché dans le même sens.** Réponse de fond déposée (`1
 | **0.13.0** — plancher ADR 0079 appliqué **côté serveur** | notre liste blanche d'affichage devient redondante |
 | **0.14.0** — colonne `observed_window_end` | le label « Consensus au \<date\> » s'affiche enfin |
 | **0.15.0** — `GET /chokepoints/{id}/prediction-consensus` (clair, `PredictionConsensusList`) | la projection intérimaire sur `/analysis` est retirée |
+
+> **Rectification du 2026-08-10 (ADR 0072) :** « notre liste blanche devient redondante » était un
+> raisonnement sur la *règle de rattachement*, pas sur le *périmètre éditorial*. Le plancher serveur
+> garantit qu'une ligne servie est honnête ; il ne dit rien de la condition 2 de leur `0018` (« ne
+> publier que Panama et Suez »), qui n'a jamais été levée par écrit. En retirant la liste, nous avons
+> laissé cette condition être tenue par la donnée — elle a tenu tant que les autres corridors
+> renvoyaient `[]`, et a cessé de tenir le 2026-07-29. La liste est rétablie, en code, dans ADR 0072.
 
 Séquence exécutée, dans cet ordre :
 
@@ -230,7 +239,44 @@ des deux côtés. À noter : la garde ADR 0066 ne vérifie que les propriétés 
 l'est pas — le repin n'aurait rien cassé. Le champ est consommé par **décision**, pas par contrainte du
 build ; c'est précisément le cas que la garde ne peut pas attraper.
 
-### Bab-el-Mandeb : « pas de couverture » est désormais un fait de couverture
+### ~~Bab-el-Mandeb : « pas de couverture » est désormais un fait de couverture~~ — RENVERSÉ le 2026-08-10
+
+> **Cette entrée est fausse. Elle est conservée barrée, pas supprimée : elle a été écrite pour qu'un
+> lecteur ne rouvre pas une enquête close, et c'est exactement l'effet qu'il faut annuler.**
+>
+> Leur `0024` (`f136f5101e5e`, 2026-07-29) annule la mesure de leur `0022` §1. Le balayage complet, sur
+> **152 459 marchés** (17 040 événements, 140 209 questions distinctes) au lieu de 820 :
+>
+> | | mesuré le 2026-07-29 |
+> | --- | --- |
+> | marchés mentionnant `houthi` | **114** |
+> | mentionnant `mandeb` | 27 |
+> | mentionnant `red sea` | 6 |
+> | lignes rattachées à Bab-el-Mandeb | **69** |
+>
+> **La cause est la même que celle qui avait fait différer le juge** : `tools/collect_polymarket.py`
+> tournait avec `--max-pages 5` à 100 événements par page, et lisait **500 des 12 233 événements
+> ouverts — 4 %**. Deux défauts qui ont l'air de marcher : `active=true` est silencieusement ignoré par
+> `/events/keyset`, et `limit` plafonne à 100 côté serveur alors que l'OpenAPI publié annonce 500. Une
+> boucle de pagination écrite d'après le document lit le cinquième de ce qu'elle croit lire.
+>
+> « 0 des 820 questions » était donc vrai **sur 4 % de l'univers des marchés ouverts**. Ce n'était pas
+> une affirmation sur la couverture Polymarket : c'était une affirmation sur leur fenêtre de collecte,
+> présentée comme une affirmation sur le monde. Nous l'avions inscrite comme un fait.
+>
+> **La lecture 1 reste vraie** (le terme `Houthi` n'était pas en production onze jours durant) ; c'est la
+> conclusion — « et de toute façon Polymarket ne couvre pas cet objet » — qui tombe.
+>
+> **Le corollaire gazetteer tombe avec elle** : leur résidu élargi contient 98 marchés
+> « Iran successfully targets shipping », famille qu'aucune curation de gazetteer ne rattrape. Mais
+> attention à la suite de l'histoire (leur `0025` §2) : ces 98 marchés **ne portent pas** sur Ormuz —
+> leurs critères de résolution n'imposent aucune contrainte géographique. C'est leur propre annotateur
+> qui s'est trompé, trois fois, en étiquetant sur les **titres**. La leçon, prise pour nous : *la
+> géographie d'un marché vit dans ses critères de résolution, jamais dans son titre.*
+>
+> **Effet sur notre surface :** aucun automatiquement — voir ADR 0072. Les trois objets qui sortent de
+> `[]` (Ormuz, Bab-el-Mandeb, Taïwan) sont désormais retenus par une allowlist explicite, non plus par
+> le hasard d'une donnée vide.
 
 Notre `0019` posait trois lectures possibles du `[]` de Bab-el-Mandeb. Leur mesure (`0022` §1) en valide
 **deux** :

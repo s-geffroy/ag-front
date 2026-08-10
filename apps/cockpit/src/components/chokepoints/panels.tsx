@@ -14,6 +14,7 @@ import type {
   RiskOut,
   SystemResilienceOut,
 } from '@ag/chokepoints';
+import { signalAttachmentRuleIsReviewed } from '@ag/chokepoints';
 import { Badge, Separator } from '@/components/ui';
 import { decodeHtmlEntities } from '@/lib/display';
 import { PromoteNewsButton } from './PromoteNewsButton';
@@ -376,6 +377,14 @@ export function PerceptionPanel({ p }: { p: PerceptionSignalList }) {
               {s.implied_probability != null
                 ? ` — ${(s.implied_probability * 100).toFixed(2)} %`
                 : ''}
+              {/* API 0.17.0 — this surface served rows written under four incompatible rules and said
+                  so nowhere (ag-back 0023 §6). We do not filter here: an internal reader must SEE a
+                  rule nobody has reviewed, not be protected from it. */}
+              {!signalAttachmentRuleIsReviewed(s) ? (
+                <Badge tone="at_risk" className="ml-1.5">
+                  règle {s.attachment_rule}
+                </Badge>
+              ) : null}
             </li>
           ))}
         </ul>

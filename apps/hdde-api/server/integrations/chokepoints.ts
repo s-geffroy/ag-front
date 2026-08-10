@@ -120,7 +120,18 @@ export interface CorridorEvidence {
   available: boolean;
   note: string;
   actors: { name: string; actor_type?: string; control_type?: string; basis?: string }[];
-  event_signals: { domain?: string; weight?: number; observed_on?: string; event_key?: string }[];
+  event_signals: {
+    domain?: string;
+    weight?: number;
+    observed_on?: string;
+    event_key?: string;
+    /**
+     * API 0.17.0 — which rule attached the row (`name_match` today). Carried into the packet rather
+     * than dropped: an evidence line whose provenance rule is unknown must be able to say so by the
+     * time it reaches a diagnostic, and from there VERDICT.
+     */
+    attachment_rule?: string;
+  }[];
   perception: { count: number; families: PerceptionFamily[]; disclaimer?: string } | null;
 }
 
@@ -204,6 +215,7 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
           weight: typeof r.weight === 'number' ? r.weight : undefined,
           observed_on: r.observed_on ?? undefined,
           event_key: r.event_key ?? undefined,
+          attachment_rule: r.attachment_rule ?? undefined,
         })),
     )
     .catch(degrade('event-signals', [] as CorridorEvidence['event_signals']));

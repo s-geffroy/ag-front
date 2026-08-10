@@ -1,6 +1,7 @@
 import {
   createChokepointsClient,
   consensusRowIsPublishable,
+  consensusRowMeetsCardinalityFloor,
   type ChokepointDetail,
   type ChokepointSummary,
   type GeoJsonFeatureCollection,
@@ -148,6 +149,38 @@ export const CONSENSUS_RELIABILITY = {
 } as const;
 
 /**
+ * Which corridors may carry a public consensus block (ADR 0072).
+ *
+ * This materialises ag-back's handoff `0018` condition 2 — « ne publier que Panama et Suez » — which
+ * has **never been lifted in writing**. Until 2026-07-29 it was held by the DATA: their collector read
+ * 4 % of Polymarket's open events, so every other corridor answered `[]` and the restriction cost us
+ * nothing. Their full sweep (`0024`) ended that — Hormuz, Bab-el-Mandeb and Taïwan now carry rows, all
+ * legitimately `named_or_implied` — and the next rebuild would have published three new corridors with
+ * no review. A guard held by accident is not a guard.
+ *
+ * Widening this list is an editorial act gated on their written answer, not on their cron.
+ */
+export const CONSENSUS_PUBLIC_ALLOWLIST: readonly string[] = [
+  'p0_maritime_canal_panama_canal',
+  'p0_maritime_canal_suez_canal',
+];
+
+/**
+ * The families we are willing to publish, and their French labels — a CLOSED list, consumed by
+ * `ConsensusBlock.astro`.
+ *
+ * Closed on purpose: a family with no label is a family whose presentation we have not decided, and
+ * `humanize()` would happily ship it anyway. That is not hypothetical — Hormuz currently serves
+ * `perception_watch` at 72,5 %, which would have read "Perception watch" on a public page.
+ */
+export const CONSENSUS_FAMILY_LABELS: Record<string, string> = {
+  infrastructure_capacity_expectation: "Capacité d'infrastructure",
+  disruption_expectation: 'Perturbation du trafic',
+  conflict_escalation_expectation: 'Escalade du conflit',
+  regime_change_expectation: 'Changement de régime',
+};
+
+/**
  * Build-time load of the derived Polymarket consensus for one corridor, from the dedicated
  * `/chokepoints/{id}/prediction-consensus` endpoint (API 0.15.0, clear `read` scope) — never from the
  * wide `/analysis` payload. **Graceful**: returns `null` when the API is unconfigured/unreachable OR
@@ -162,45 +195,63 @@ export const CONSENSUS_RELIABILITY = {
  * it was actually summed under, so `consensusRowIsPublishable` drops anything that is not
  * `named_or_implied` before a number can reach a page. ag-back committed to warning us before widening
  * that aggregate (handoff 0022 §4); this filter is what makes the commitment unnecessary rather than
- * load-bearing.
+ * load-bearing. `consensusRowMeetsCardinalityFloor` applies the same doctrine to cardinality (ADR
+ * 0072): we asked them for a server-side floor and we still check it here, because a threshold we only
+ * assume is a threshold we cannot demonstrate.
  */
 export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus | null> {
   // Go-live gate (ADR 0071): both owners have now cleared public redistribution (their ADR 0083; ours
   // 2026-07-26), so this flag is the last switch — the block is dark until `ATLAS_CONSENSUS_PUBLIC=1`
   // is set for the public build. Flip the env, rebuild, and it appears. Reversible by unsetting it.
   if (process.env.ATLAS_CONSENSUS_PUBLIC !== '1') return null;
+  // Editorial gate (ADR 0072) — BEFORE the request, not after: a corridor we are not allowed to
+  // publish is not a corridor whose numbers we need to fetch.
+  if (!CONSENSUS_PUBLIC_ALLOWLIST.includes(id)) return null;
   const cfg = config();
   if (!cfg) return null;
   try {
     const { consensus: all } =
       await createChokepointsClient(cfg).getChokepointPredictionConsensus(id);
-    // Fail-closed on the attachment rule FIRST: everything downstream — the families, and the
-    // "observé le" stamp — must describe only rows we are willing to publish.
-    const rows = all.filter(consensusRowIsPublishable);
-    const families: AtlasConsensusFamily[] = rows
+    // Fail-closed FIRST, on both floors: everything downstream — the families, and the "observé le"
+    // stamp — must describe only rows we are willing to publish. Order matters for the stamp: a row
+    // dropped here must not be able to date the block.
+    const rows = all
+      .filter(consensusRowIsPublishable)
+      .filter(consensusRowMeetsCardinalityFloor)
       .filter(
         (r) =>
           typeof r.signal_family === 'string' &&
-          r.signal_family.length > 0 &&
+          r.signal_family in CONSENSUS_FAMILY_LABELS &&
           typeof r.consensus_probability === 'number' &&
           Number.isFinite(r.consensus_probability),
-      )
-      .map((r) => ({
-        signalFamily: r.signal_family as string,
-        probability: r.consensus_probability as number,
-        change24h:
-          typeof r.max_probability_change_24h === 'number' &&
-          Number.isFinite(r.max_probability_change_24h)
-            ? r.max_probability_change_24h
-            : undefined,
-        marketCount: typeof r.market_count === 'number' ? r.market_count : undefined,
-        totalLiquidity: typeof r.total_liquidity === 'number' ? r.total_liquidity : undefined,
-      }));
+      );
+    const families: AtlasConsensusFamily[] = rows.map((r) => ({
+      signalFamily: r.signal_family as string,
+      probability: r.consensus_probability as number,
+      change24h:
+        typeof r.max_probability_change_24h === 'number' &&
+        Number.isFinite(r.max_probability_change_24h)
+          ? r.max_probability_change_24h
+          : undefined,
+      marketCount: typeof r.market_count === 'number' ? r.market_count : undefined,
+      totalLiquidity: typeof r.total_liquidity === 'number' ? r.total_liquidity : undefined,
+    }));
     if (families.length === 0) return null;
+    // The OLDEST window among the rows we publish. "Consensus au <date>" must never promise more
+    // freshness than the stalest number under it — ag-back serves rows of different ages in one
+    // response (Suez, 2026-08-10: one row at 08-10, one at 08-01).
     const observedAt = rows
       .map((r) => r.observed_window_end)
-      .find((s): s is string => typeof s === 'string' && s.length > 0);
-    return { families, observedAt: observedAt ?? undefined };
+      .filter((s): s is string => typeof s === 'string' && s.length > 0)
+      .reduce<string | undefined>((oldest, s) => {
+        if (!oldest) return s;
+        const a = Date.parse(s);
+        const b = Date.parse(oldest);
+        if (Number.isNaN(a)) return oldest;
+        if (Number.isNaN(b)) return s;
+        return a < b ? s : oldest;
+      }, undefined);
+    return { families, observedAt };
   } catch (e) {
     console.warn(`[atlas] consensus ${id} injoignable :`, String(e));
     return null;
