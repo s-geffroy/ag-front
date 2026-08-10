@@ -13,6 +13,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCommercialDeck } from '../src/build-commercial';
+import { buildMethodeDeck } from '../src/build-methode';
 import { deckSitePaths } from '../src/model';
 import { unpublishablePaths } from '../src/publication';
 import { renderDeckToPptx } from '../src/render-pptx';
@@ -21,7 +22,8 @@ import type { Lang } from '../src/model';
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 const PRESENTATIONS = join(REPO_ROOT, 'presentations');
 
-const BUILDERS = { commercial: buildCommercialDeck } as const;
+/** Adding a plaquette family is an entry here plus a directory under presentations/ — nothing else. */
+const BUILDERS = { commercial: buildCommercialDeck, methode: buildMethodeDeck } as const;
 type Family = keyof typeof BUILDERS;
 
 interface Args {
@@ -36,6 +38,8 @@ function parseArgs(argv: string[]): Args {
     return i === -1 ? undefined : argv[i + 1];
   };
 
+  // One family per invocation: the family determines the output directory and its own manifest, so
+  // looping here would mean one CLI run writing two publication states. build-deck.sh does the loop.
   const family = (get('--deck') ?? 'commercial') as Family;
   if (!(family in BUILDERS)) {
     throw new Error(`unknown deck family '${family}' — known: ${Object.keys(BUILDERS).join(', ')}`);

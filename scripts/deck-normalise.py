@@ -19,6 +19,7 @@ Usage:  deck-normalise.py --date YYYY-MM-DD [--pptx FILE] [--pdf FILE]
 from __future__ import annotations
 
 import argparse
+import io
 import re
 import shutil
 import subprocess
@@ -30,7 +31,43 @@ from pathlib import Path
 CORE_XML = "docProps/core.xml"
 
 
+def _fix_core_dates(data: bytes, iso: str) -> bytes:
+    """Pin `dcterms:created` / `dcterms:modified` in an OOXML core.xml. Nothing else is touched."""
+    text = data.decode("utf-8")
+    text = re.sub(
+        r"(<dcterms:(?:created|modified)[^>]*>)[^<]*(</dcterms:(?:created|modified)>)",
+        rf"\g<1>{iso}\g<2>",
+        text,
+    )
+    return text.encode("utf-8")
+
+
+def _rewrite_zip(data: bytes, iso: str, zip_date: tuple[int, int, int, int, int, int]) -> bytes:
+    """Rebuild an OOXML zip with fixed entry timestamps and a pinned core.xml, order preserved."""
+    with zipfile.ZipFile(io.BytesIO(data)) as inner:
+        entries = [(i, inner.read(i.filename)) for i in inner.infolist()]
+
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as dst:
+        for info, payload in entries:
+            if info.filename == CORE_XML:
+                payload = _fix_core_dates(payload, iso)
+            fixed = zipfile.ZipInfo(info.filename, date_time=zip_date)
+            fixed.compress_type = info.compress_type
+            fixed.external_attr = info.external_attr
+            fixed.create_system = 3  # constant, rather than whatever host wrote the archive
+            dst.writestr(fixed, payload)
+    return out.getvalue()
+
+
 def normalise_pptx(path: Path, iso: str, zip_date: tuple[int, int, int, int, int, int]) -> None:
+    """Normalise the deck AND any OOXML package embedded inside it.
+
+    The recursion is not theoretical: a native pptxgenjs chart embeds its data as
+    `ppt/embeddings/*.xlsx`, a full OOXML package with its OWN docProps/core.xml and its own JSZip
+    entry dates. Normalising only the outer container leaves both, and the deck with a chart stays
+    non-reproducible while every other artifact is already stable — which is exactly how this surfaced.
+    """
     src = zipfile.ZipFile(path)
     entries = [(info, src.read(info.filename)) for info in src.infolist()]
     src.close()
@@ -38,19 +75,14 @@ def normalise_pptx(path: Path, iso: str, zip_date: tuple[int, int, int, int, int
     out = path.with_suffix(".pptx.tmp")
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as dst:
         for info, data in entries:
-            if info.filename == CORE_XML:
-                text = data.decode("utf-8")
-                # Only the two timestamp elements are touched; everything else in core.xml is content.
-                text = re.sub(
-                    r"(<dcterms:(?:created|modified)[^>]*>)[^<]*(</dcterms:(?:created|modified)>)",
-                    rf"\g<1>{iso}\g<2>",
-                    text,
-                )
-                data = text.encode("utf-8")
+            if info.filename.endswith((".xlsx", ".docx", ".pptx")):
+                data = _rewrite_zip(data, iso, zip_date)
+            elif info.filename == CORE_XML:
+                data = _fix_core_dates(data, iso)
             fixed = zipfile.ZipInfo(info.filename, date_time=zip_date)
             fixed.compress_type = info.compress_type
             fixed.external_attr = info.external_attr
-            fixed.create_system = 3  # constant, rather than whatever host wrote the archive
+            fixed.create_system = 3
             dst.writestr(fixed, data)
     out.replace(path)
 

@@ -24,6 +24,14 @@ export interface DeckCopy {
   docSubject: string;
   coverMeta: (date: string) => string;
 
+  /** The two dark act dividers that give the short deck its pulse. */
+  acts: {
+    ground: { numeral: string; title: string; lede: string };
+    offers: { numeral: string; title: string; lede: string };
+  };
+  /** The substrate figures slide — the credibility beat the short deck was missing. */
+  substrate: { eyebrow: string; title: string; labels: [string, string, string]; footnote: string };
+
   problem: { eyebrow: string; statement: string; support: string };
   chain: { eyebrow: string; title: string; footnote: string };
   hiddenDependency: { eyebrow: string; statement: string; support: string };

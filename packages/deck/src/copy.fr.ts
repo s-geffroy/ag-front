@@ -14,6 +14,27 @@ export const fr: DeckCopy = {
     'Géopolitique des corridors stratégiques : méthode CVI, HDDE, VERDICT et offres Basic / Standard / Premium.',
   coverMeta: (date) => `PLAQUETTE · FR · ${date}`,
 
+  acts: {
+    ground: {
+      numeral: 'I',
+      title: 'Ce sur quoi cela repose',
+      lede: 'Pas un cabinet qui recommence sa recherche à chaque dossier : une base de corridors que nous tenons, et des méthodes qui s’y appliquent.',
+    },
+    offers: {
+      numeral: 'II',
+      title: 'Trois niveaux de lecture',
+      lede: 'Informer, surveiller, arbitrer. Trois engagements différents, annoncés avec leurs plafonds.',
+    },
+  },
+
+  substrate: {
+    eyebrow: 'Le socle',
+    title: 'Une base de données, pas une veille',
+    labels: ['objets recensés', 'sources au registre', 'moteurs dérivés'],
+    footnote:
+      'Recensé n’est pas validé : la promotion en priorité P0 exige des preuves sourcées et une validation humaine. Le détail de la méthode fait l’objet d’une plaquette dédiée.',
+  },
+
   problem: {
     eyebrow: 'Le problème',
     statement:

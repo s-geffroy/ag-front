@@ -1,0 +1,17 @@
+{
+  "family": "methode",
+  "updated": "2026-08-10",
+  "published": false,
+  "languages": {
+    "fr": {
+      "slides": 29,
+      "pptx": "methode.fr.pptx",
+      "pdf": "methode.fr.pdf"
+    },
+    "en": {
+      "slides": 29,
+      "pptx": "methode.en.pptx",
+      "pdf": "methode.en.pdf"
+    }
+  }
+}

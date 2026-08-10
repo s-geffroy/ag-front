@@ -13,6 +13,8 @@
     "build:deck": "tsx bin/build-deck.ts"
   },
   "dependencies": {
+    "@ag/cvi": "*",
+    "@ag/verdict": "*",
     "pptxgenjs": "^3.12.0"
   },
   "devDependencies": {

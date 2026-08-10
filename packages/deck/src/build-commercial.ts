@@ -8,6 +8,7 @@
  */
 
 import { doctrineChain, offers, site } from '../../../apps/public/src/lib/site';
+import { backend } from './backend-facts';
 import type { DeckCopy } from './copy';
 import { en } from './copy.en';
 import { fr } from './copy.fr';
@@ -57,6 +58,17 @@ export function buildCommercialDeck(lang: Lang, date: string): Deck {
       statement: c.hiddenDependency.statement,
       support: c.hiddenDependency.support,
     },
+    { kind: 'section-break', ...c.acts.ground },
+    {
+      kind: 'stat-row',
+      eyebrow: c.substrate.eyebrow,
+      title: c.substrate.title,
+      stats: [backend.objects, backend.sources, backend.engines].map((value, i) => ({
+        value: String(value),
+        label: c.substrate.labels[i]!,
+      })),
+      footnote: c.substrate.footnote,
+    },
     {
       kind: 'cvi-ramp',
       eyebrow: c.cvi.eyebrow,
@@ -96,6 +108,7 @@ export function buildCommercialDeck(lang: Lang, date: string): Deck {
       statement: c.coverage.statement,
       support: c.coverage.support,
     },
+    { kind: 'section-break', ...c.acts.offers },
     {
       kind: 'three-columns',
       eyebrow: c.offersIntro.eyebrow,
@@ -109,16 +122,9 @@ export function buildCommercialDeck(lang: Lang, date: string): Deck {
       })),
       footnote: c.offersIntro.footnote,
     },
-    ...tiers.map(
-      (t): Slide => ({
-        kind: 'bullets',
-        eyebrow: `${c.offersIntro.eyebrow} · ${t.site.name}`,
-        title: `${t.copy.promise} — ${t.site.price}`,
-        bullets: t.copy.includes,
-        exclusions: t.copy.excludes,
-        footnote: t.copy.tagline,
-      }),
-    ),
+    // One slide per tier used to sit here. Dropped: the comparison table below says the same thing in
+    // a form a prospect can actually compare, and three near-identical bullet slides were the deck's
+    // flattest stretch. The per-tier detail lives on /offres, which is one click away.
     {
       kind: 'comparison-table',
       eyebrow: c.comparison.eyebrow,

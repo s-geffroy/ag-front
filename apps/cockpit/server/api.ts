@@ -769,8 +769,8 @@ export function createApiRouter(): Router {
     res.json(status);
   });
 
-  r.get('/plaquette/file/:lang/:file', (req: Request, res: Response) => {
-    const path = resolvePlaquetteArtifact(req.params.lang, req.params.file);
+  r.get('/plaquette/file/:family/:lang/:file', (req: Request, res: Response) => {
+    const path = resolvePlaquetteArtifact(req.params.family, req.params.lang, req.params.file);
     if (!path) {
       res.status(404).json({ error: 'unknown artifact' });
       return;
@@ -780,8 +780,8 @@ export function createApiRouter(): Router {
     res.sendFile(path, { headers: { 'Content-Disposition': 'inline' } });
   });
 
-  r.get('/plaquette/preview/:name', (req: Request, res: Response) => {
-    const path = resolvePlaquettePreviewImage(req.params.name);
+  r.get('/plaquette/preview/:family/:name', (req: Request, res: Response) => {
+    const path = resolvePlaquettePreviewImage(req.params.family, req.params.name);
     if (!path) {
       res.status(404).json({ error: 'unknown preview' });
       return;
@@ -789,7 +789,8 @@ export function createApiRouter(): Router {
     res.sendFile(path);
   });
 
-  r.post('/plaquette/publish', async (req: Request, res: Response, next: NextFunction) => {
+  r.post('/plaquette/:family/publish', async (req: Request, res: Response, next: NextFunction) => {
+    const { family } = req.params;
     const body = z
       .object({
         decision: z.enum(['publish', 'unpublish']),
@@ -803,20 +804,20 @@ export function createApiRouter(): Router {
     }
     try {
       const status = readPlaquetteStatus();
-      const resolved = resolvePlaquettePublish(status, body.data.decision);
+      const resolved = resolvePlaquettePublish(status, family, body.data.decision);
       if (!resolved.ok) {
         res.status(resolved.status).json({ error: resolved.error });
         return;
       }
       const publish = body.data.decision === 'publish';
-      const before = writePlaquettePublishedFlag(publish);
+      const before = writePlaquettePublishedFlag(family, publish);
       await touchPublishPending();
       const entry = ValidationEntry.parse({
         id: `val_${randomUUID()}`,
-        // No deliverable backs the plaquette; the target names itself so the trail stays readable.
-        deliverable_id: `plaquette/${status!.family}`,
+        // No deliverable backs a plaquette; the target names itself so the trail stays readable.
+        deliverable_id: `plaquette/${family}`,
         target_kind: 'publication',
-        target_id: `plaquette/${status!.family}`,
+        target_id: `plaquette/${family}`,
         decision: publish ? 'validated' : 'rejected',
         reserve: body.data.reserve ?? '',
         before,

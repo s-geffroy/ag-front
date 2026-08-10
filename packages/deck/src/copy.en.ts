@@ -10,6 +10,27 @@ export const en: DeckCopy = {
     'Geopolitics of strategic corridors: the CVI method, HDDE, VERDICT, and the Basic / Standard / Premium tiers.',
   coverMeta: (date) => `COMPANY DECK · EN · ${date}`,
 
+  acts: {
+    ground: {
+      numeral: 'I',
+      title: 'What this rests on',
+      lede: 'Not a consultancy restarting its research for every engagement: a corridor database we maintain, and methods that apply to it.',
+    },
+    offers: {
+      numeral: 'II',
+      title: 'Three levels of reading',
+      lede: 'Inform, monitor, arbitrate. Three different commitments, each stated with its ceilings.',
+    },
+  },
+
+  substrate: {
+    eyebrow: 'The substrate',
+    title: 'A database, not a news watch',
+    labels: ['catalogued objects', 'registered sources', 'derivation engines'],
+    footnote:
+      'Catalogued is not validated: promotion to P0 requires sourced evidence and human validation. The method itself has its own deck.',
+  },
+
   problem: {
     eyebrow: 'The problem',
     statement:

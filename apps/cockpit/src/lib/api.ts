@@ -97,14 +97,19 @@ export interface PlaquetteLanguageStatus {
   previews: string[];
   substitutionPreviews: string[];
 }
-export interface PlaquetteStatus {
+export interface PlaquetteFamilyStatus {
   family: string;
   updated: string;
   published: boolean;
+  languages: PlaquetteLanguageStatus[];
+}
+export interface PlaquetteStatus {
+  families: PlaquetteFamilyStatus[];
   pageBuilt: boolean;
   /** 'served' = live in dist, 'withheld' = built but gated, 'none' = site not rebuilt since the deck. */
   previewSource: 'served' | 'withheld' | 'none';
-  languages: PlaquetteLanguageStatus[];
+  /** Families the CURRENTLY BUILT public page contains — not the same as those published now. */
+  pageContains: string[];
 }
 
 /** Payload for a one-click publish / unpublish (mirrors the server, ADR 0069). */
@@ -212,8 +217,8 @@ export const api = {
   // Plaquette review (ADR 0073). The deck is produced by scripts/build-deck.sh; the cockpit only reads
   // its state, serves the artifacts for review, and records the publication decision.
   getPlaquette: () => fetch('/api/plaquette').then(asJson<PlaquetteStatus>),
-  publishPlaquette: (payload: PublishPayload) =>
-    fetch('/api/plaquette/publish', {
+  publishPlaquette: (family: string, payload: PublishPayload) =>
+    fetch(`/api/plaquette/${encodeURIComponent(family)}/publish`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),

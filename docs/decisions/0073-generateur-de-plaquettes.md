@@ -14,6 +14,14 @@ Un **générateur** (`packages/deck`, `@ag/deck`) plutôt qu'un document rédig�
 est rangée dans `presentations/` (versionnée), relue dans le cockpit, et publiée sur
 `https://www.applied-geopolitics.com/plaquette` sous garde.
 
+**Deux familles**, pas un document unique : `commercial` (16 slides — le problème, la doctrine, le
+socle en chiffres, les offres) et `methode` (29 slides — le backend, le CVI, HDDE, VERDICT, et une
+démonstration déroulée). Un prospect froid ne lit pas trente slides ; un prospect engagé ne se contente
+pas de seize. Chaque famille porte **son propre** `published` : `methode` peut être en ligne pendant
+que `commercial` ne l'est pas. Les familles sont **découvertes** par balayage de
+`presentations/*/manifest.json` — côté site comme côté cockpit — pour qu'ajouter une plaquette ne
+suppose pas de se souvenir d'un enregistrement ailleurs.
+
 La raison d'être du générateur tient en une ligne : le positionnement, la chaîne doctrinale et les
 **trois offres avec leurs prix** sont déjà canoniques dans `apps/public/src/lib/site.ts`. Une plaquette
 écrite à la main diverge du site à la première révision tarifaire ; une plaquette générée ne le peut
@@ -63,10 +71,51 @@ l'intégration **sort physiquement** `dist/plaquette/` de l'arbre servi et la ra
 non. Le sitemap est filtré au même endroit, et tout lien interne (`Footer.astro`, `offres.astro`) est
 gardé par `plaquetteIsPublic()`.
 
+## Le rythme, et les données montrées plutôt qu'affirmées
+
+Un deck où chaque page a la même densité et la même couleur se lit comme un formulaire. Trois leviers,
+tous portés par le modèle de slides plutôt que par des retouches page à page :
+
+- **Des respirations sombres** (`section-break`) entre les actes, avec leur numéro romain. Sans elles,
+  un lecteur ne sait jamais s'il entre dans un argument ou s'il en sort.
+- **Des instruments, pas des listes.** `stat-row` (un chiffre à 54pt), `distribution` (un histogramme
+  **natif** pptxgenjs, donc éditable chez le client — une image de graphique est précisément ce qu'un
+  destinataire ne peut pas corriger), `sequence` (grille numérotée), `weighted-bars` (le poids **est**
+  la barre : lire la forme d'un arbitrage ne doit pas exiger de lire des chiffres), `ladder` (l'échelle
+  de preuve, avec le barreau non recevable barré), `split` (texte + panneau d'instrument).
+- **Une démonstration déroulée**, trois slides sur Malacca.
+
+### La démonstration, et sa ligne rouge
+
+La fiche Atlas de Malacca est `published: false`. La démonstration n'utilise donc que ses **faits
+institutionnels sourcés** — EIA, MPA Singapore, ReCAAP, Reuters/GEM — et **ne publie aucun score CVI**.
+La slide la plus utile des trois est celle qui énonce ce qu'aucune source publique ne documente : la
+capacité résiduelle d'absorption en cas de fermeture.
+
+Deux gardes automatiques tiennent cette ligne (`publication.test.ts`) : chaque slide de démonstration
+doit porter la mention « pas un diagnostic publié » — **sur chacune**, parce qu'une slide se
+photographie et se transfère seule — et aucune ne doit contenir de bande CVI pour le corridor traité.
+
+## Ce que la plaquette dit du backend
+
+C'était l'argument le plus fort du dossier et il était absent. `backend-facts.ts` porte les
+mesures — 313 objets recensés en 8 familles, 190 sources au registre avec leur régime de licence,
+15 moteurs dérivés, 40 endpoints, 87 ADR — **avec la méthode de comptage de chacune**, parce que la
+personne qui les mettra à jour doit pouvoir reproduire le compte plutôt que le deviner. Un test vérifie
+la seule identité disponible sans interroger le backend : la ventilation par famille somme au total.
+
+Une distinction que le deck ne doit jamais brouiller : le corpus est **recensé**, pas **validé**.
+Écrire « 313 corridors analysés » serait exactement le genre de mensonge que la slide sur les limites
+du CVI promet qu'on ne fait pas.
+
 ## Relecture dans le cockpit — la fidélité comme exigence
 
-Page dédiée `/commercial/plaquette` (`apps/cockpit/src/pages/PlaquettePage.tsx`). Deux vues, choisies
-pour qu'il n'y ait rien à extrapoler :
+Page dédiée `/commercial/plaquette` (`apps/cockpit/src/pages/PlaquettePage.tsx`), organisée sur deux
+axes pour qu'aucun des deux ne se lise en faisant défiler : un **sélecteur de famille** (chacune
+publie indépendamment, avec son état affiché) et des **onglets** sur les quatre gestes du relecteur —
+Document, Page publique, Rendu dégradé, Décision.
+
+Deux vues, choisies pour qu'il n'y ait rien à extrapoler :
 
 1. **Le PDF dans le lecteur du navigateur.** Ce n'est pas une vue de l'artefact, c'est l'artefact.
 2. **La page publique construite, servie par le cockpit à son propre `/plaquette`.** `server/index.ts`
@@ -133,10 +182,20 @@ largeurs. Trois réponses, aucune magique :
   pour les notes), ce qu'une relecture humaine rate. Le générateur refuse aussi d'écrire le fichier :
   un fichier qui existe finit par être envoyé.
 
+## Deux règles qui doivent rester alignées
+
+La page `plaquette.astro` liste les familles **publiées**, ou **toutes** quand aucune ne l'est — ce
+build-là est retenu pour relecture, et une page de relecture aux liens morts ne sert à rien.
+`integrations/plaquette.mjs` doit copier **exactement le même ensemble**. Les avoir désalignées une
+fois a produit une prévisualisation retenue avec un `index.html` et zéro binaire.
+
 ## Conséquences
 
-- Un nouveau type de plaquette est un frère de `commercial/`, sans réorganisation.
-- Toute révision tarifaire sur `/offres` impose de régénérer la plaquette — sinon le site et le
+- Une nouvelle plaquette est un frère de `commercial/` plus une entrée dans `BUILDERS` — le site et le
+  cockpit la découvrent seuls.
+- Toute révision tarifaire sur `/offres` impose de régénérer `commercial` — sinon le site et le
   document divergent. Rien n'automatise ce rappel aujourd'hui.
+- Les mesures de `backend-facts.ts` sont datées et transcrites à la main. Elles vieillissent : le
+  corpus grossit, les ADR s'accumulent. Rien ne le signale non plus.
 - L'image `slides` doit être reconstruite si les polices changent ; le `fc-list` final échoue plutôt
   que de laisser LibreOffice substituer en silence.

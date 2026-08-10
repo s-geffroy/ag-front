@@ -1,19 +1,22 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { plaquette } from './integrations/plaquette.mjs';
 
 // Plaquette publication gate (ADR 0073), read at config time because @astrojs/sitemap needs it before
 // the build starts. The integration itself re-reads the manifest and is the authority; this only keeps
 // an unpublished /plaquette out of the sitemap.
-const plaquetteManifest = fileURLToPath(
-  new URL('../../presentations/commercial/manifest.json', import.meta.url),
-);
+const presentationsDir = fileURLToPath(new URL('../../presentations', import.meta.url));
 const plaquettePublished =
-  existsSync(plaquetteManifest) &&
-  JSON.parse(readFileSync(plaquetteManifest, 'utf-8')).published === true;
+  existsSync(presentationsDir) &&
+  readdirSync(presentationsDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => join(presentationsDir, d.name, 'manifest.json'))
+    .filter((f) => existsSync(f))
+    .some((f) => JSON.parse(readFileSync(f, 'utf-8')).published === true);
 
 // Workspace packages ship raw TS source; alias them so Astro/Vite transforms them as first-party.
 const pkg = (p) => fileURLToPath(new URL(`../../packages/${p}`, import.meta.url));

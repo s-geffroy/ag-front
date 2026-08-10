@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildCommercialDeck } from './build-commercial';
+import { buildMethodeDeck } from './build-methode';
 import { deckSitePaths, deckStrings } from './model';
 import { readContentEntries, unpublishablePaths } from './publication';
 
@@ -15,9 +16,12 @@ import { readContentEntries, unpublishablePaths } from './publication';
  * than as a fact of the moment: the day a fiche IS published, linking to it starts passing on its own.
  */
 describe('the deck never points at unpublished content', () => {
-  const decks = (['fr', 'en'] as const).map((lang) => buildCommercialDeck(lang, '2026-08-10'));
+  const decks = (['fr', 'en'] as const).flatMap((lang) => [
+    buildCommercialDeck(lang, '2026-08-10'),
+    buildMethodeDeck(lang, '2026-08-10'),
+  ]);
 
-  it.each(decks)('$lang deck emits no unpublishable site path', (deck) => {
+  it.each(decks)('$family/$lang emits no unpublishable site path', (deck) => {
     const offending = unpublishablePaths(deckSitePaths(deck));
     expect(offending).toEqual([]);
   });
@@ -29,11 +33,43 @@ describe('the deck never points at unpublished content', () => {
     expect(unpublishablePaths([unpublished[0]!.path])).toEqual([unpublished[0]!.path]);
   });
 
-  it.each(decks)('$lang deck carries no http link outside the official domain', (deck) => {
+  it.each(decks)('$family/$lang carries no http link outside the official domain', (deck) => {
     const foreign = deckStrings(deck)
       .flatMap((s) => s.match(/https?:\/\/[^\s)]+/g) ?? [])
       .filter((u) => !u.startsWith('https://www.applied-geopolitics.com'));
     expect(foreign).toEqual([]);
+  });
+});
+
+describe('the method walkthrough stays an illustration, not a diagnosis', () => {
+  /**
+   * The walkthrough runs on a corridor whose Atlas fiche is `published: false`. It is allowed to cite
+   * that corridor's PUBLIC, institutional figures; it is not allowed to publish a CVI verdict for it.
+   * The caveat must also ride on every walkthrough slide, because slides get forwarded one at a time.
+   */
+  it.each(['fr', 'en'] as const)('%s: every walkthrough slide carries the caveat', (lang) => {
+    const deck = buildMethodeDeck(lang, '2026-08-10');
+    const walkthrough = deck.slides.filter(
+      (s) => s.kind === 'split' && /1\/3|2\/3|3\/3/.test(s.eyebrow),
+    );
+    expect(walkthrough.length).toBe(3);
+    for (const s of walkthrough) {
+      expect(s.kind === 'split' && s.footnote).toMatch(
+        lang === 'fr' ? /pas un diagnostic publié/ : /not a published diagnosis/,
+      );
+    }
+  });
+
+  it.each(['fr', 'en'] as const)('%s: no CVI band is asserted for the worked corridor', (lang) => {
+    const deck = buildMethodeDeck(lang, '2026-08-10');
+    const walkthrough = deck.slides.filter(
+      (s) => s.kind === 'split' && /1\/3|2\/3|3\/3/.test(s.eyebrow),
+    );
+    // Publishing "Malacca: élevé" here would be publishing the unvalidated fiche's verdict.
+    const banded = deckStrings({ ...deck, slides: walkthrough }).filter((t) =>
+      /\b(critique|élevé|modéré|critical|high|moderate)\b/i.test(t),
+    );
+    expect(banded).toEqual([]);
   });
 });
 

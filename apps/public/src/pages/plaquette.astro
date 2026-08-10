@@ -1,98 +1,128 @@
 ---
 /**
- * /plaquette — the public download page for the commercial deck (ADR 0073).
+ * /plaquette — the public download page for the decks (ADR 0073).
  *
  * The binaries are NOT in this repo's `public/` directory: `integrations/plaquette.mjs` copies them
- * out of `presentations/commercial/` at build time, into this page's own dist directory. That same
- * integration withholds the whole page when the manifest is unpublished, so this file can assume that
- * if it renders at all, the deck has been validated in the cockpit.
+ * out of `presentations/<family>/` at build time, into this page's own dist directory. That same
+ * integration withholds the whole page when no family is published, so this file can assume that if
+ * it renders at all, at least one deck has been validated in the cockpit.
+ *
+ * Families are read from disk, not listed here — see `lib/plaquette.ts`.
  */
 import Base from '../layouts/Base.astro';
 import Section from '../components/Section.astro';
 import CorridorChain from '../components/CorridorChain.astro';
 import { doctrineChain, site } from '../lib/site';
-import { fileSize, readManifest, PLAQUETTE_BASE } from '../lib/plaquette';
+import { publishedFamilies, readFamilies, PLAQUETTE_BASE } from '../lib/plaquette';
 
-const manifest = readManifest();
-if (!manifest) {
+// What would ship if this page were published.
+//
+// When at least one family is cleared, the page lists exactly those — an unpublished family must not
+// leak onto a served page. When NONE is cleared, the page still renders, with everything: this build
+// gets parked in `.plaquette-preview/` for cockpit review rather than served, and a reviewer needs
+// something to review. Throwing here instead was tried and simply broke the site build.
+const cleared = publishedFamilies();
+const families = cleared.length > 0 ? cleared : readFamilies();
+if (families.length === 0) {
   throw new Error(
-    'presentations/commercial/manifest.json is missing — run scripts/build-deck.sh before building.',
+    'No plaquette manifest at all — run scripts/build-deck.sh before building the site.',
   );
 }
 
-const langLabel = { fr: 'Français', en: 'English' } as const;
-const rows = manifest.languages.map((l) => ({
-  ...l,
-  label: langLabel[l.lang],
-  pdfSize: fileSize(l.lang, l.pdf),
-  pptxSize: fileSize(l.lang, l.pptx),
-}));
+/** Editorial framing per family. A family with no entry still renders, with its raw key as a title. */
+const framing: Record<string, { title: string; blurb: string }> = {
+  commercial: {
+    title: 'La plaquette',
+    blurb:
+      'Le problème que nous traitons, la doctrine qui le structure, et les trois niveaux d’offre avec leurs tarifs. À lire en premier.',
+  },
+  methode: {
+    title: 'La méthode',
+    blurb:
+      'Sur quoi tout cela repose : la base de corridors et sa discipline de provenance, le CVI, le diagnostic HDDE, le protocole d’arbitrage VERDICT, et la méthode déroulée sur un corridor réel.',
+  },
+};
 
-const updated = new Date(`${manifest.updated}T00:00:00Z`).toLocaleDateString('fr-FR', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
+const langLabel = { fr: 'Français', en: 'English' } as const;
+
+const fmtDate = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
 ---
 
 <Base
-  title="Plaquette"
-  description="La plaquette Applied Geopolitics : doctrine des corridors, méthode CVI, HDDE et VERDICT, et les trois niveaux d’offre. PDF et PowerPoint, FR et EN."
+  title="Plaquettes"
+  description="Les documents de présentation d’Applied Geopolitics : la plaquette commerciale et la plaquette de méthode. PDF et PowerPoint, FR et EN."
 >
   <Section class="py-14">
-    <p class="eyebrow">Plaquette</p>
-    <h1 class="mt-4 font-serif text-title font-bold">Applied Geopolitics, en seize pages</h1>
+    <p class="eyebrow">Documents</p>
+    <h1 class="mt-4 font-serif text-title font-bold">Ce que nous faisons, et sur quoi cela repose</h1>
     <p class="mt-3 max-w-prose text-lg text-muted">{site.positioning}</p>
 
     <div class="mt-10 border-t border-line pt-8">
-      <p class="label">La doctrine qu’elle expose</p>
+      <p class="label">La doctrine qu’elles exposent</p>
       <CorridorChain steps={doctrineChain} class="mt-5" />
     </div>
 
-    <div class="mt-12">
-      <p class="label">Télécharger</p>
-      <p class="mt-3 max-w-prose text-sm text-muted">
-        Le <strong class="text-ink">PDF</strong> est la version de référence : sa mise en page et ses
-        polices sont embarquées, elle s’affiche partout à l’identique. Le
-        <strong class="text-ink">PowerPoint</strong> est la version éditable — sur un poste dépourvu des
-        polices de la maison, la substitution modifie légèrement la composition.
-      </p>
+    <p class="mt-12 max-w-prose text-sm text-muted">
+      Le <strong class="text-ink">PDF</strong> est la version de référence : sa mise en page et ses
+      polices sont embarquées, elle s’affiche partout à l’identique. Le
+      <strong class="text-ink">PowerPoint</strong> est la version éditable — sur un poste dépourvu des
+      polices de la maison, la substitution modifie légèrement la composition.
+    </p>
 
-      <div class="mt-6 grid gap-4 sm:grid-cols-2">
-        {
-          rows.map((r) => (
-            <div class="border border-line bg-surface p-5">
-              <div class="flex items-baseline justify-between gap-3">
-                <h2 class="font-serif text-xl font-bold">{r.label}</h2>
+    <div class="mt-8 space-y-6">
+      {
+        families.map((f) => {
+          const meta = framing[f.family] ?? { title: f.family, blurb: '' };
+          return (
+            <div class="border border-line bg-surface p-6">
+              <div class="flex flex-wrap items-baseline justify-between gap-3">
+                <h2 class="font-serif text-2xl font-bold">{meta.title}</h2>
                 <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
-                  {r.slides} slides
+                  Mise à jour : {fmtDate(f.updated)}
                 </span>
               </div>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <a href={`${PLAQUETTE_BASE}/${r.pdf}`} class="btn-primary" download>
-                  PDF{r.pdfSize ? ` · ${r.pdfSize}` : ''}
-                </a>
-                <a href={`${PLAQUETTE_BASE}/${r.pptx}`} class="btn-ghost" download>
-                  PowerPoint{r.pptxSize ? ` · ${r.pptxSize}` : ''}
-                </a>
+              {meta.blurb ? <p class="mt-2 max-w-prose text-sm text-muted">{meta.blurb}</p> : null}
+
+              <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                {f.languages.map((l) => (
+                  <div class="border border-line p-4">
+                    <div class="flex items-baseline justify-between gap-3">
+                      <h3 class="font-serif text-lg font-bold">{langLabel[l.lang]}</h3>
+                      <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+                        {l.slides} slides
+                      </span>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                      <a href={`${PLAQUETTE_BASE}/${l.pdf}`} class="btn-primary" download>
+                        PDF{l.pdfSize ? ` · ${l.pdfSize}` : ''}
+                      </a>
+                      <a href={`${PLAQUETTE_BASE}/${l.pptx}`} class="btn-ghost" download>
+                        PowerPoint{l.pptxSize ? ` · ${l.pptxSize}` : ''}
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))
-        }
-      </div>
-
-      <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
-        Mise à jour : {updated}
-      </p>
+          );
+        })
+      }
     </div>
 
     <div class="mt-12 border-t border-line pt-8">
       <p class="max-w-prose text-sm leading-relaxed text-muted">
-        La plaquette présente la méthode et les niveaux d’offre. Elle ne contient aucun score de
+        Ces documents exposent la méthode et les niveaux d’offre. Ils ne contiennent aucun score de
         vulnérabilité présenté comme un fait : les diagnostics de corridor sont publiés, un par un, dans
         l’<a href="/atlas" class="text-ink underline underline-offset-2">Atlas</a>, à mesure que leur
-        validation aboutit. Pour un pilote Premium, l’entretien de cadrage précède toute proposition —
+        validation aboutit. La démonstration de méthode qui figure dans la plaquette de méthode s’appuie
+        sur des sources publiques et n’est pas un diagnostic publié. Pour un pilote Premium, l’entretien
+        de cadrage précède toute proposition —
         <a href="/contact?sujet=pilote" class="text-ink underline underline-offset-2">demander un échange</a>.
       </p>
     </div>

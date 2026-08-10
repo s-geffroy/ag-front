@@ -1,79 +1,104 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+} from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
 /**
- * Astro integration: distribute the plaquette produced by `scripts/build-deck.sh`, and enforce its
+ * Astro integration: distribute the plaquettes produced by `scripts/build-deck.sh`, and enforce their
  * publication gate. ADR 0073.
  *
  * Two jobs, both at `astro:build:done`:
  *
- *  1. COPY the .pdf/.pptx from `presentations/commercial/<lang>/` into the built page's directory.
- *     They are NOT duplicated into `apps/public/public/`: two copies of a versioned binary in one repo
- *     is a guaranteed drift, and `presentations/` is the source of record.
+ *  1. COPY each PUBLISHED family's .pdf/.pptx from `presentations/<family>/<lang>/` into the built
+ *     page's directory. They are NOT duplicated into `apps/public/public/`: two copies of a versioned
+ *     binary in one repo is a guaranteed drift, and `presentations/` is the source of record.
  *
- *  2. GATE. When the manifest says `published: false`, the whole `dist/plaquette/` directory is moved
- *     out of the served tree into `.plaquette-preview/`. Astro has already written the page by this
- *     point, so hiding it means physically removing it — anything left in `dist/` is public, and the
- *     cockpit still needs the exact same bytes to review.
+ *  2. GATE, per family. A family whose manifest says `published: false` contributes nothing. When NO
+ *     family is published, the whole `dist/plaquette/` directory is moved out of the served tree into
+ *     `.plaquette-preview/` — Astro has already written the page by this point, so hiding it means
+ *     physically removing it. Anything left in `dist/` is public, and the cockpit still needs the
+ *     exact same bytes to review.
  *
  * Failing loudly is deliberate: a /plaquette page whose download links 404 is worse than a red build.
  */
 
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
-const FAMILY = 'commercial';
-const SRC_DIR = join(REPO_ROOT, 'presentations', FAMILY);
+const SRC_ROOT = join(REPO_ROOT, 'presentations');
 const PREVIEW_DIR = fileURLToPath(new URL('../.plaquette-preview', import.meta.url));
+
+function readManifests() {
+  if (!existsSync(SRC_ROOT)) return [];
+  return readdirSync(SRC_ROOT, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(join(SRC_ROOT, d.name, 'manifest.json')))
+    .map((d) => ({
+      dir: join(SRC_ROOT, d.name),
+      manifest: JSON.parse(readFileSync(join(SRC_ROOT, d.name, 'manifest.json'), 'utf-8')),
+    }));
+}
 
 export function plaquette() {
   return {
     name: 'ag:plaquette',
     hooks: {
       'astro:build:done': ({ dir, logger }) => {
-        const distRoot = fileURLToPath(dir);
-        const pageDir = join(distRoot, 'plaquette');
-        const manifestFile = join(SRC_DIR, 'manifest.json');
+        const pageDir = join(fileURLToPath(dir), 'plaquette');
+        const families = readManifests();
 
-        if (!existsSync(manifestFile)) {
+        if (families.length === 0) {
           throw new Error(
-            `[ag:plaquette] ${manifestFile} is missing — run scripts/build-deck.sh before building the site.`,
+            '[ag:plaquette] no presentations/<family>/manifest.json found — run scripts/build-deck.sh before building the site.',
           );
         }
-        const manifest = JSON.parse(readFileSync(manifestFile, 'utf-8'));
 
-        // The page renders download links straight from the manifest, so every file it names must
-        // exist. Checking here rather than trusting the generator covers the case that actually
-        // happens: a --pptx-only run, which leaves the PDFs stale or absent.
-        const wanted = Object.entries(manifest.languages ?? {}).flatMap(([lang, l]) =>
-          [l.pdf, l.pptx].map((file) => ({ lang, file })),
+        const published = families.filter((f) => f.manifest.published === true);
+
+        // MUST match the rule in src/pages/plaquette.astro: the page lists the cleared families, or
+        // all of them when none is cleared (that build is withheld for review, and a review page with
+        // dead download links is worthless). Copying a different set than the page renders is how the
+        // withheld preview ended up with an index.html and no binaries.
+        const rendered = published.length > 0 ? published : families;
+
+        // Every file the page will link to must exist. Checking here rather than trusting the
+        // generator covers the case that actually happens: a --pptx-only run, which leaves the PDFs
+        // stale or absent.
+        const wanted = rendered.flatMap((f) =>
+          Object.entries(f.manifest.languages ?? {}).flatMap(([lang, l]) =>
+            [l.pdf, l.pptx].map((file) => ({ family: f.manifest.family, dir: f.dir, lang, file })),
+          ),
         );
-        const missing = wanted.filter(({ lang, file }) => !existsSync(join(SRC_DIR, lang, file)));
+        const missing = wanted.filter((w) => !existsSync(join(w.dir, w.lang, w.file)));
         if (missing.length > 0) {
           throw new Error(
-            `[ag:plaquette] the manifest names files that do not exist: ${missing
-              .map((m) => `${m.lang}/${m.file}`)
+            `[ag:plaquette] manifests name files that do not exist: ${missing
+              .map((m) => `${m.family}/${m.lang}/${m.file}`)
               .join(', ')} — re-run scripts/build-deck.sh (without --pptx-only).`,
           );
         }
 
         mkdirSync(pageDir, { recursive: true });
-        for (const { lang, file } of wanted) {
-          copyFileSync(join(SRC_DIR, lang, file), join(pageDir, file));
-        }
+        for (const w of wanted) copyFileSync(join(w.dir, w.lang, w.file), join(pageDir, w.file));
 
-        if (manifest.published === true) {
+        if (published.length > 0) {
           rmSync(PREVIEW_DIR, { recursive: true, force: true });
-          logger.info(`published: ${wanted.length} files → dist/plaquette/`);
+          logger.info(
+            `published: ${published.map((f) => f.manifest.family).join(', ')} — ${wanted.length} files → dist/plaquette/`,
+          );
           return;
         }
 
-        // Not published: pull the page out of the served tree, but keep it byte-identical for the
+        // Nothing published: pull the page out of the served tree, but keep it byte-identical for the
         // cockpit reviewer. What they validate has to be what would ship, not an approximation.
         rmSync(PREVIEW_DIR, { recursive: true, force: true });
-        mkdirSync(join(PREVIEW_DIR, '..'), { recursive: true });
         renameSync(pageDir, PREVIEW_DIR);
         logger.warn(
-          'manifest.published is false → /plaquette withheld from dist and parked in ' +
+          'no family is published → /plaquette withheld from dist and parked in ' +
             'apps/public/.plaquette-preview for cockpit review.',
         );
       },

@@ -29,6 +29,81 @@ export interface StatementSlide {
   support?: string;
 }
 
+/**
+ * A dark full-bleed act divider. The deck's pulse: without these the reader has no idea whether they
+ * are at the start of an argument or the end of one, and every slide reads at the same pitch.
+ */
+export interface SectionBreakSlide {
+  kind: 'section-break';
+  /** Act number, set in mono — `II`, `III`. */
+  numeral: string;
+  title: string;
+  lede: string;
+}
+
+/** Two to four figures, set very large. Shows scale in the time it takes to glance. */
+export interface StatRowSlide {
+  kind: 'stat-row';
+  eyebrow: string;
+  title: string;
+  stats: { value: string; label: string; note?: string }[];
+  footnote?: string;
+}
+
+/**
+ * A horizontal distribution, rendered as a NATIVE PowerPoint chart so it stays editable in the .pptx
+ * rather than arriving as a picture the client cannot touch.
+ */
+export interface DistributionSlide {
+  kind: 'distribution';
+  eyebrow: string;
+  title: string;
+  unit: string;
+  bars: { label: string; value: number }[];
+  footnote?: string;
+}
+
+/** Numbered steps laid out as a grid — for sequences too long for the single-line `chain`. */
+export interface SequenceSlide {
+  kind: 'sequence';
+  eyebrow: string;
+  title: string;
+  /** `marker` is the step's own sigil: `01`, or a letter for V·E·R·D·I·C·T. */
+  steps: { marker: string; label: string; note: string }[];
+  columns?: 2 | 3 | 4;
+  footnote?: string;
+}
+
+/** Weighted criteria: the weight IS the bar, so the reader sees the arbitration's shape. */
+export interface WeightedBarsSlide {
+  kind: 'weighted-bars';
+  eyebrow: string;
+  title: string;
+  items: { label: string; weight: number; question: string }[];
+  footnote?: string;
+}
+
+/** A graduated scale, read bottom-up — the evidence ladder, and what it refuses to admit. */
+export interface LadderSlide {
+  kind: 'ladder';
+  eyebrow: string;
+  title: string;
+  /** Ordered from the strongest rung down. `admissible: false` is rendered struck through. */
+  rungs: { score: number; label: string; admissible: boolean }[];
+  footnote?: string;
+}
+
+/** Text on the left, an instrument panel of key/value rows on the right. */
+export interface SplitSlide {
+  kind: 'split';
+  eyebrow: string;
+  title: string;
+  body: string[];
+  panelTitle: string;
+  panel: { key: string; value: string }[];
+  footnote?: string;
+}
+
 export interface BulletsSlide {
   kind: 'bullets';
   eyebrow: string;
@@ -90,6 +165,13 @@ export interface ContactSlide {
 export type Slide =
   | CoverSlide
   | StatementSlide
+  | SectionBreakSlide
+  | StatRowSlide
+  | DistributionSlide
+  | SequenceSlide
+  | WeightedBarsSlide
+  | LadderSlide
+  | SplitSlide
   | BulletsSlide
   | ChainSlide
   | CviRampSlide

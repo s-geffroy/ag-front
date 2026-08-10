@@ -24,9 +24,16 @@ import type {
   CoverSlide,
   CviRampSlide,
   Deck,
+  DistributionSlide,
+  LadderSlide,
+  SectionBreakSlide,
+  SequenceSlide,
   Slide,
+  SplitSlide,
   StatementSlide,
+  StatRowSlide,
   ThreeColumnsSlide,
+  WeightedBarsSlide,
 } from './model';
 import { cviRamp, fonts, geometry as g, palette as p, type } from './theme';
 
@@ -82,9 +89,9 @@ function footnote(slide: Sl, text?: string): void {
   if (!text) return;
   slide.addText(text, {
     x: g.margin,
-    y: g.h - 1.06,
+    y: g.h - 1.14,
     w: g.contentW - 1.2,
-    h: 0.5,
+    h: 0.6, // two lines: walkthrough footnotes carry a disclaimer AND their sources
     fontFace: fonts.body,
     fontSize: type.caption,
     italic: true,
@@ -544,6 +551,431 @@ function renderComparisonTable(slide: Sl, s: ComparisonTableSlide): void {
   footnote(slide, s.footnote);
 }
 
+function renderSectionBreak(slide: Sl, s: SectionBreakSlide): void {
+  slide.background = { color: p.navy };
+  graticule(slide, p.canvas);
+
+  slide.addText(s.numeral, {
+    x: g.margin,
+    y: 2.32,
+    w: 2,
+    h: 0.4,
+    fontFace: fonts.mono,
+    fontSize: 13,
+    color: p.accent,
+    charSpacing: 3,
+    margin: 0,
+    valign: 'middle',
+  });
+
+  slide.addText(s.title, {
+    x: g.margin,
+    y: 2.86,
+    w: 9.6,
+    h: 1.2,
+    fontFace: fonts.display,
+    fontSize: 40,
+    bold: true,
+    color: p.canvas,
+    margin: 0,
+    valign: 'top',
+  });
+
+  slide.addText(s.lede, {
+    x: g.margin,
+    y: 4.18,
+    w: 8.4,
+    h: 1.2,
+    fontFace: fonts.body,
+    fontSize: 16,
+    color: p.line,
+    margin: 0,
+    valign: 'top',
+    lineSpacingMultiple: 1.3,
+  });
+}
+
+function renderStatRow(slide: Sl, s: StatRowSlide): void {
+  slide.background = { color: p.canvas };
+  eyebrow(slide, s.eyebrow);
+  title(slide, s.title);
+
+  const n = s.stats.length;
+  const gap = 0.4;
+  const cellW = (g.contentW - gap * (n - 1)) / n;
+  const top = (g.bodyY + g.bodyBottom) / 2 - 1.15;
+
+  s.stats.forEach((stat, i) => {
+    const x = g.margin + (cellW + gap) * i;
+
+    // A hairline above each figure rather than a card: at this type size the number is the object,
+    // and boxing it would only add furniture.
+    slide.addShape('line', {
+      x,
+      y: top,
+      w: cellW,
+      h: 0,
+      line: { color: p.hairline, width: 1 },
+    });
+
+    slide.addText(stat.value, {
+      x,
+      y: top + 0.24,
+      w: cellW,
+      h: 1.15,
+      fontFace: fonts.display,
+      fontSize: 54,
+      bold: true,
+      color: p.navy,
+      margin: 0,
+      valign: 'top',
+    });
+
+    slide.addText(stat.label.toUpperCase(), {
+      x,
+      y: top + 1.44,
+      w: cellW,
+      h: 0.3,
+      fontFace: fonts.mono,
+      fontSize: 10,
+      color: p.accent,
+      charSpacing: 1.4,
+      margin: 0,
+      valign: 'middle',
+    });
+
+    if (stat.note) {
+      slide.addText(stat.note, {
+        x,
+        y: top + 1.8,
+        w: cellW,
+        h: 0.7,
+        fontFace: fonts.body,
+        fontSize: 12,
+        color: p.muted,
+        margin: 0,
+        valign: 'top',
+        lineSpacingMultiple: 1.25,
+      });
+    }
+  });
+
+  footnote(slide, s.footnote);
+}
+
+function renderDistribution(slide: Sl, s: DistributionSlide): void {
+  slide.background = { color: p.canvas };
+  eyebrow(slide, s.eyebrow);
+  title(slide, s.title);
+
+  // A NATIVE chart, not an image: the .pptx is the editable artifact, and a picture of a bar chart is
+  // the one thing a client cannot correct. Ordered descending so the shape is the message.
+  const bars = [...s.bars].sort((a, b) => b.value - a.value);
+
+  slide.addChart(
+    'bar',
+    [
+      {
+        name: s.unit,
+        labels: bars.map((b) => b.label),
+        values: bars.map((b) => b.value),
+      },
+    ],
+    {
+      x: g.margin,
+      y: g.bodyY,
+      w: g.contentW,
+      h: g.bodyBottom - g.bodyY - 0.1,
+      barDir: 'bar',
+      chartColors: [p.navy],
+      showLegend: false,
+      showTitle: false,
+      showValue: true,
+      dataLabelPosition: 'outEnd',
+      dataLabelColor: p.ink,
+      dataLabelFontFace: fonts.mono,
+      dataLabelFontSize: 11,
+      catAxisLabelColor: p.ink,
+      catAxisLabelFontFace: fonts.body,
+      catAxisLabelFontSize: 12,
+      catAxisLineShow: false,
+      catGridLine: { style: 'none' },
+      valAxisHidden: true,
+      valGridLine: { style: 'none' },
+      barGapWidthPct: 45,
+    },
+  );
+
+  footnote(slide, s.footnote);
+}
+
+function renderSequence(slide: Sl, s: SequenceSlide): void {
+  slide.background = { color: p.canvas };
+  eyebrow(slide, s.eyebrow);
+  title(slide, s.title);
+
+  const cols = s.columns ?? 3;
+  const rows = Math.ceil(s.steps.length / cols);
+  const gapX = 0.32;
+  const gapY = 0.24;
+  const cellW = (g.contentW - gapX * (cols - 1)) / cols;
+  const available = g.bodyBottom - g.bodyY;
+  const cellH = (available - gapY * (rows - 1)) / rows;
+
+  s.steps.forEach((step, i) => {
+    const x = g.margin + (cellW + gapX) * (i % cols);
+    const y = g.bodyY + (cellH + gapY) * Math.floor(i / cols);
+
+    slide.addText(step.marker, {
+      x,
+      y,
+      w: 0.55,
+      h: 0.28,
+      fontFace: fonts.mono,
+      fontSize: 11,
+      bold: true,
+      color: p.accent,
+      charSpacing: 0.8,
+      margin: 0,
+      valign: 'middle',
+    });
+
+    // Two lines of room for the label, always: sizing it to one line means a long label ("Nature de
+    // la dépendance") silently overprints the note beneath it in exactly one cell of the grid.
+    slide.addText(step.label, {
+      x: x + 0.55,
+      y,
+      w: cellW - 0.55,
+      h: 0.5,
+      fontFace: fonts.body,
+      fontSize: 13,
+      bold: true,
+      color: p.ink,
+      margin: 0,
+      valign: 'top',
+    });
+
+    slide.addText(step.note, {
+      x: x + 0.55,
+      y: y + 0.54,
+      w: cellW - 0.55,
+      h: cellH - 0.58,
+      fontFace: fonts.body,
+      fontSize: 11,
+      color: p.muted,
+      margin: 0,
+      valign: 'top',
+      lineSpacingMultiple: 1.2,
+    });
+  });
+
+  footnote(slide, s.footnote);
+}
+
+function renderWeightedBars(slide: Sl, s: WeightedBarsSlide): void {
+  slide.background = { color: p.canvas };
+  eyebrow(slide, s.eyebrow);
+  title(slide, s.title);
+
+  const rowH = (g.bodyBottom - g.bodyY) / s.items.length;
+  const labelW = 3.1;
+  const barMaxW = 2.6;
+  const max = Math.max(...s.items.map((i) => i.weight));
+
+  s.items.forEach((item, i) => {
+    const y = g.bodyY + rowH * i;
+
+    slide.addText(item.label, {
+      x: g.margin,
+      y,
+      w: labelW,
+      h: rowH - 0.1,
+      fontFace: fonts.body,
+      fontSize: 13,
+      bold: true,
+      color: p.ink,
+      margin: 0,
+      valign: 'middle',
+    });
+
+    // The weight IS the bar. Reading the arbitration's shape should not require reading numbers.
+    slide.addShape('rect', {
+      x: g.margin + labelW,
+      y: y + rowH / 2 - 0.09,
+      w: (item.weight / max) * barMaxW,
+      h: 0.18,
+      fill: { color: p.navy },
+      line: { color: p.navy, width: 0 },
+    });
+
+    slide.addText(`${item.weight}`, {
+      x: g.margin + labelW + barMaxW + 0.14,
+      y,
+      w: 0.5,
+      h: rowH - 0.1,
+      fontFace: fonts.mono,
+      fontSize: 12,
+      bold: true,
+      color: p.navy,
+      margin: 0,
+      valign: 'middle',
+    });
+
+    slide.addText(item.question, {
+      x: g.margin + labelW + barMaxW + 0.78,
+      y,
+      w: g.contentW - labelW - barMaxW - 0.78,
+      h: rowH - 0.1,
+      fontFace: fonts.body,
+      fontSize: 12,
+      color: p.muted,
+      margin: 0,
+      valign: 'middle',
+    });
+  });
+
+  footnote(slide, s.footnote);
+}
+
+function renderLadder(slide: Sl, s: LadderSlide): void {
+  slide.background = { color: p.canvas };
+  eyebrow(slide, s.eyebrow);
+  title(slide, s.title);
+
+  const rowH = (g.bodyBottom - g.bodyY) / s.rungs.length;
+  const scaleW = 2.4;
+  const max = Math.max(...s.rungs.map((r) => r.score));
+
+  s.rungs.forEach((rung, i) => {
+    const y = g.bodyY + rowH * i;
+
+    slide.addText(String(rung.score), {
+      x: g.margin,
+      y,
+      w: 0.4,
+      h: rowH - 0.06,
+      fontFace: fonts.mono,
+      fontSize: 14,
+      bold: true,
+      color: rung.admissible ? p.navy : p.hairline,
+      margin: 0,
+      valign: 'middle',
+    });
+
+    slide.addShape('rect', {
+      x: g.margin + 0.5,
+      y: y + rowH / 2 - 0.07,
+      w: Math.max(0.1, (rung.score / max) * scaleW),
+      h: 0.14,
+      fill: { color: rung.admissible ? p.navy : p.accent },
+      line: { color: p.hairline, width: 0 },
+    });
+
+    slide.addText(rung.label, {
+      x: g.margin + 0.5 + scaleW + 0.3,
+      y,
+      w: 4.2,
+      h: rowH - 0.06,
+      fontFace: fonts.body,
+      fontSize: 13,
+      color: rung.admissible ? p.ink : p.muted,
+      strike: !rung.admissible,
+      margin: 0,
+      valign: 'middle',
+    });
+  });
+
+  footnote(slide, s.footnote);
+}
+
+function renderSplit(slide: Sl, s: SplitSlide): void {
+  slide.background = { color: p.canvas };
+  eyebrow(slide, s.eyebrow);
+  title(slide, s.title);
+
+  const leftW = g.contentW * 0.56;
+  const panelX = g.margin + leftW + 0.5;
+  const panelW = g.contentW - leftW - 0.5;
+
+  slide.addText(
+    s.body.map((t, i) => ({
+      text: t,
+      options: {
+        color: p.ink,
+        fontSize: 14,
+        paraSpaceAfter: 10,
+        breakLine: i < s.body.length - 1,
+      },
+    })),
+    {
+      x: g.margin,
+      y: g.bodyY,
+      w: leftW,
+      // Short of the band, not flush with it. These slides carry the longest prose in the deck AND
+      // the longest footnotes (a disclaimer plus sources), and pptxgenjs does not clip overflow — it
+      // just prints the last paragraph on top of whatever is below.
+      h: g.bodyBottom - g.bodyY - 0.3,
+      fontFace: fonts.body,
+      margin: 0,
+      valign: 'top',
+      lineSpacingMultiple: 1.28,
+    },
+  );
+
+  const panelH = 0.46 * s.panel.length + 0.9;
+  slide.addShape('rect', {
+    x: panelX,
+    y: g.bodyY,
+    w: panelW,
+    h: panelH,
+    fill: { color: p.surface },
+    line: { color: p.line, width: 1 },
+  });
+
+  slide.addText(s.panelTitle.toUpperCase(), {
+    x: panelX + 0.34,
+    y: g.bodyY + 0.3,
+    w: panelW - 0.68,
+    h: 0.28,
+    fontFace: fonts.mono,
+    fontSize: 10,
+    color: p.accent,
+    charSpacing: 1.4,
+    margin: 0,
+    valign: 'middle',
+  });
+
+  s.panel.forEach((row, i) => {
+    const y = g.bodyY + 0.76 + 0.46 * i;
+    slide.addText(row.key, {
+      x: panelX + 0.34,
+      y,
+      w: panelW * 0.52,
+      h: 0.4,
+      fontFace: fonts.body,
+      fontSize: 12,
+      color: p.muted,
+      margin: 0,
+      valign: 'middle',
+    });
+    slide.addText(row.value, {
+      x: panelX + 0.34 + panelW * 0.52,
+      y,
+      w: panelW - 0.68 - panelW * 0.52,
+      h: 0.4,
+      fontFace: fonts.mono,
+      fontSize: 12,
+      bold: true,
+      color: p.ink,
+      align: 'right',
+      margin: 0,
+      valign: 'middle',
+    });
+  });
+
+  footnote(slide, s.footnote);
+}
+
 function renderContact(slide: Sl, s: ContactSlide): void {
   slide.background = { color: p.navy };
   graticule(slide, p.canvas);
@@ -608,6 +1040,28 @@ function renderSlide(pres: PptxGenJS, s: Slide, index: number, total: number): v
       return; // no folio on the cover
     case 'statement':
       renderStatement(slide, s);
+      break;
+    case 'section-break':
+      renderSectionBreak(slide, s);
+      folio(slide, index, total, p.hairline);
+      return; // dark ground — the folio needs the light ink
+    case 'stat-row':
+      renderStatRow(slide, s);
+      break;
+    case 'distribution':
+      renderDistribution(slide, s);
+      break;
+    case 'sequence':
+      renderSequence(slide, s);
+      break;
+    case 'weighted-bars':
+      renderWeightedBars(slide, s);
+      break;
+    case 'ladder':
+      renderLadder(slide, s);
+      break;
+    case 'split':
+      renderSplit(slide, s);
       break;
     case 'bullets':
       renderBullets(slide, s);
