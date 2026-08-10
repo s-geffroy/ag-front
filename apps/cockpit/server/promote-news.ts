@@ -42,7 +42,7 @@ export function itemKey(item: Pick<PromotedNewsItemT, 'cluster_id' | 'articles'>
  */
 export function toPromotedItem(
   cluster: NewsClusterOut,
-  opts: { promotedBy: string; promotedAt: string },
+  opts: { promotedBy: string; promotedAt: string; editorialNote: string },
 ): PromotedNewsItemT {
   // Defence-in-depth: the route's resolvePromoteFromFeed already refuses a tainted cluster, but keep the
   // "cleared_only stamp ⇒ actually clear" invariant LOCAL so this exported projector is safe on its own.
@@ -75,6 +75,9 @@ export function toPromotedItem(
     cluster_id: cluster.cluster_id ?? '',
     run_id: '',
     taint_class: 'cleared_only',
+    // Required by the schema — a promotion without a human sentence does not parse, and therefore
+    // cannot be written (ADR 0074).
+    editorial_note: opts.editorialNote.trim(),
     promoted_by: opts.promotedBy,
     promoted_at: opts.promotedAt,
   });

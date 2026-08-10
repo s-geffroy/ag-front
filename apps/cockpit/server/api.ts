@@ -852,6 +852,10 @@ export function createApiRouter(): Router {
         cluster_id: z.string().optional(),
         article_urls: z.array(z.string()).optional(),
         validated_by: z.string().min(1),
+        // ADR 0074 — the promoter's own framing, required. This is the gate: the model's headline is
+        // a summary of article titles, and validating it while having read only those same titles is
+        // the defect ag-back named in their 0026 §5 and we conceded.
+        editorial_note: z.string().trim().min(1),
         reserve: z.string().optional(),
       })
       .refine((b) => b.cluster_id || (b.article_urls && b.article_urls.length > 0), {
@@ -881,6 +885,7 @@ export function createApiRouter(): Router {
       const item = toPromotedItem(resolved.cluster, {
         promotedBy: body.data.validated_by,
         promotedAt: new Date().toISOString(),
+        editorialNote: body.data.editorial_note,
       });
       await writePromotedNews(corridorId, item);
       const entry = ValidationEntry.parse({

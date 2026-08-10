@@ -232,6 +232,8 @@ export const api = {
       cluster_id?: string;
       article_urls?: string[];
       validated_by: string;
+      /** The promoter's own line — required by the server since ADR 0074. */
+      editorial_note: string;
       reserve?: string;
     },
   ) =>

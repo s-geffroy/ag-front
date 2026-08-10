@@ -54,7 +54,9 @@ const families = [...consensus.families].sort((a, b) => b.probability - a.probab
   </div>
   <p class="mb-3 text-xs text-muted">
     Probabilité de consensus des marchés de prédiction <strong>{CONSENSUS_ATTRIBUTION.source}</strong>,
-    pondérée par la liquidité et agrégée par famille de signal. {CONSENSUS_RELIABILITY.text}
+    pondérée par la liquidité et agrégée par famille de signal. Le nombre de marchés indique une
+    pluralité de cotations, <strong>pas leur indépendance</strong> : deux marchés proches du même auteur
+    y comptent pour deux. {CONSENSUS_RELIABILITY.text}
   </p>
   <ul class="space-y-2.5 text-sm">
     {

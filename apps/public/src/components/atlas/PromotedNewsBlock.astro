@@ -3,8 +3,14 @@ import { humanize } from '../../lib/labels';
 import type { PromotedNewsItem } from '@ag/schema/content';
 
 // Human-promoted media coverage, public-safe (ADR 0071). Only clusters an operator promoted from the
-// cockpit reach here. Model prose (headline/summary) is a CANDIDATE, framed as such and capped at
-// "coverage" — never a confirmed incident (ADR 0042). Article links are the reliable, attributed anchor.
+// cockpit reach here, capped at "coverage" — never a confirmed incident (ADR 0042).
+//
+// The model's headline and summary are NO LONGER RENDERED (ADR 0074). They were the most prominent
+// line on the block, and they were a model's summary of article TITLES, approved by someone who had
+// read those same titles and nothing else — the defect ag-back named in their `0026` §5 and we
+// conceded applies to us. Two kinds of text remain, and both are answerable for: the article titles,
+// which are the publishers' own words, attributed and linked; and one line the promoter wrote and
+// signed. The model's prose survives in the store as an audit trail of what was proposed.
 
 interface Props {
   items: PromotedNewsItem[];
@@ -58,13 +64,13 @@ function promotedLabel(iso: string): string | null {
   <ul class="space-y-5">
     {
       items.map((it) => {
-        const headline = decodeEntities(it.headline).trim();
+        const note = (it.editorial_note ?? '').trim();
         const category = humanize(it.event_category);
         const articles = it.articles.filter((a) => isHttp(a.url));
         const promoted = promotedLabel(it.promoted_at);
         return (
           <li>
-            {headline ? <p class="text-sm font-medium">{headline}</p> : null}
+            {note ? <p class="text-sm font-medium">{note}</p> : null}
             {category ? (
               <p class="mt-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">{category}</p>
             ) : null}
@@ -92,7 +98,8 @@ function promotedLabel(iso: string): string | null {
             ) : null}
             {promoted ? (
               <p class="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
-                Promu le {promoted}
+                {/* The line above is signed, not anonymous: someone wrote it and is answerable for it. */}
+                {note && it.promoted_by ? `${it.promoted_by} · ` : ''}Promu le {promoted}
               </p>
             ) : null}
           </li>

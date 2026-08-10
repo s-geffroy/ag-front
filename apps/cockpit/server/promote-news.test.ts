@@ -76,6 +76,7 @@ describe('promote-news — resolvePromoteFromFeed', () => {
 describe('promote-news — toPromotedItem', () => {
   it('projects the public-safe subset, forces cleared_only, stamps who/when', () => {
     const item = toPromotedItem(cluster(), {
+      editorialNote: 'Couverture réelle, aucun incident confirmé.',
       promotedBy: 'sylvain',
       promotedAt: '2026-07-25T10:00:00Z',
     });
@@ -84,13 +85,27 @@ describe('promote-news — toPromotedItem', () => {
     expect(item.promoted_at).toBe('2026-07-25T10:00:00Z');
     expect(item.articles).toHaveLength(2);
     expect(item.affected_chokepoints[0]!.chokepoint_id).toBe('p0_x');
-    // prose is kept verbatim (the public component decodes/escapes at render — not here)
+    // The model's headline is still STORED — it is the audit trail of what was proposed — but the
+    // public component no longer renders it (ADR 0074). What the page shows is the line below.
     expect(item.headline).toContain('&#x2013;');
+    expect(item.editorial_note).toBe('Couverture réelle, aucun incident confirmé.');
+  });
+
+  it('refuses to project a promotion with no human sentence (ADR 0074)', () => {
+    // The gate is the schema, not the UI: a promotion written by any other caller fails here too.
+    expect(() =>
+      toPromotedItem(cluster(), {
+        editorialNote: '   ',
+        promotedBy: 'op',
+        promotedAt: '2026-07-25T10:00:00Z',
+      }),
+    ).toThrow();
   });
 
   it('throws on a tainted cluster (local invariant, ADR 0013)', () => {
     expect(() =>
       toPromotedItem(cluster({ license_taint: true }), {
+        editorialNote: 'n/a',
         promotedBy: 'op',
         promotedAt: '2026-07-25T10:00:00Z',
       }),
@@ -112,7 +127,11 @@ describe('promote-news — toPromotedItem', () => {
           { title: 'data', url: 'data:text/html,x', outlet: 'X', source_id: 's', observed_on: '' },
         ],
       }),
-      { promotedBy: 'op', promotedAt: '2026-07-25T10:00:00Z' },
+      {
+        editorialNote: 'Couverture réelle, sans confirmation d’incident.',
+        promotedBy: 'op',
+        promotedAt: '2026-07-25T10:00:00Z',
+      },
     );
     expect(item.articles).toHaveLength(1);
     expect(item.articles[0]!.url).toBe('https://ex.com/ok');

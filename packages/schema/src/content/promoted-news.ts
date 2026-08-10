@@ -46,7 +46,23 @@ export const PromotedNewsItem = z.object({
   first_seen: z.string().default(''),
   last_seen: z.string().default(''),
   generated_at: z.string().default(''),
-  // Model prose (candidate) -------------------------------------------------------------------------
+  /**
+   * The promoter's own one-line framing of the coverage — REQUIRED, and the only prose the public page
+   * shows (ADR 0074).
+   *
+   * The two fields below are the model's. They are kept for the audit trail — what was proposed, next
+   * to what a human wrote — and they are never rendered publicly any more. The reason is ag-back's
+   * `0026` §5, which we conceded: our promotion gate judged on article TITLES. A cluster's headline is
+   * a model's summary of titles, so publishing it put a second-order artefact in the most prominent
+   * position on the block, validated by someone who had read neither the articles nor anything but
+   * those same titles.
+   *
+   * Requiring a sentence is not paperwork: it is the only forcing function available here. A promoter
+   * with nothing of their own to say about a cluster discovers it while trying to write the line,
+   * which is exactly the moment the decision should be reconsidered.
+   */
+  editorial_note: z.string().min(1),
+  // Model prose (candidate) — audit trail only, never rendered publicly ------------------------------
   headline: z.string().default(''),
   summary_text: z.string().default(''),
   event_category: z.string().default(''),

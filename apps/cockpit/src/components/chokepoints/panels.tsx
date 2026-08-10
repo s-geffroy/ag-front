@@ -14,7 +14,12 @@ import type {
   RiskOut,
   SystemResilienceOut,
 } from '@ag/chokepoints';
-import { signalAttachmentRuleIsReviewed } from '@ag/chokepoints';
+import {
+  familyPluralitySurvivesDeduplication,
+  familyQuestionDiversity,
+  signalAttachmentRuleIsReviewed,
+  PUBLISHABLE_MIN_MARKET_COUNT,
+} from '@ag/chokepoints';
 import { Badge, Separator } from '@/components/ui';
 import { decodeHtmlEntities } from '@/lib/display';
 import { PromoteNewsButton } from './PromoteNewsButton';
@@ -344,6 +349,13 @@ export function SystemResiliencePanel({ r }: { r: SystemResilienceOut }) {
 
 /** Prediction-market odds. Crowd ANTICIPATION, never event evidence. read_tainted surface. */
 export function PerceptionPanel({ p }: { p: PerceptionSignalList }) {
+  // Deduplicate the RAW questions per family (ADR 0074). The cardinality floor counts rows; this
+  // counts propositions. It only works here, on the read_tainted surface, because the public endpoint
+  // serves totals and no questions — which is the whole reason the gap existed.
+  const diversity = new Map(
+    familyQuestionDiversity(p.signals).map((d) => [d.signalFamily, d] as const),
+  );
+
   return (
     <div>
       <PanelTitle>Perception (marchés de prédiction)</PanelTitle>
@@ -353,22 +365,45 @@ export function PerceptionPanel({ p }: { p: PerceptionSignalList }) {
       </p>
       {p.consensus.length ? (
         <ul className="space-y-1 text-sm">
-          {p.consensus.map((c, i) => (
-            <li key={i} className="flex items-baseline justify-between gap-2">
-              <span>{humanize(c.signal_family)}</span>
-              <span className="shrink-0 text-xs tabular-nums text-muted">
-                {c.consensus_probability != null
-                  ? `${(c.consensus_probability * 100).toFixed(1)} %`
-                  : '—'}
-                {c.market_count != null ? ` · ${c.market_count} marché(s)` : ''}
-                {c.total_liquidity != null ? ` · ${num(Math.round(c.total_liquidity))} $` : ''}
-              </span>
-            </li>
-          ))}
+          {p.consensus.map((c, i) => {
+            const d = c.signal_family ? diversity.get(c.signal_family) : undefined;
+            // Two markets asking one question clear the N≥2 floor and are not a consensus. Flag it
+            // where the human decides, since nothing downstream can.
+            const thin =
+              d !== undefined &&
+              !familyPluralitySurvivesDeduplication(d, PUBLISHABLE_MIN_MARKET_COUNT);
+            return (
+              <li key={i} className="flex items-baseline justify-between gap-2">
+                <span>
+                  {humanize(c.signal_family)}
+                  {thin ? (
+                    <Badge tone="at_risk" className="ml-1.5">
+                      {d!.distinctQuestions} question{d!.distinctQuestions > 1 ? 's' : ''} distincte
+                      {d!.distinctQuestions > 1 ? 's' : ''} / {d!.markets} marchés
+                    </Badge>
+                  ) : null}
+                </span>
+                <span className="shrink-0 text-xs tabular-nums text-muted">
+                  {c.consensus_probability != null
+                    ? `${(c.consensus_probability * 100).toFixed(1)} %`
+                    : '—'}
+                  {c.market_count != null ? ` · ${c.market_count} marché(s)` : ''}
+                  {c.total_liquidity != null ? ` · ${num(Math.round(c.total_liquidity))} $` : ''}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <Empty what="consensus" reason="aucune collecte pour ce corridor" />
       )}
+      {diversity.size > 0 ? (
+        <p className="mt-1.5 text-[11px] text-muted">
+          Le badge compare les questions posées, après normalisation, au nombre de marchés. Il
+          attrape une reformulation, <strong>pas</strong> une paraphrase, et il ne dit rien de
+          l'auteur : ce n'est pas un test d'indépendance, c'est ce qu'on peut en mesurer.
+        </p>
+      ) : null}
       {p.signals.length ? (
         <ul className="mt-2 space-y-0.5 text-[11px] text-muted">
           {p.signals.slice(0, 6).map((s, i) => (
