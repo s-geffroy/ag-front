@@ -925,5 +925,35 @@
       }
     ],
     "internal_notes": "Mesure relevée sur nos propres pages, même métrique PortWatch, même mois 2026-08 : Ormuz 2,5 transits/j contre Suez 36,5, Malacca 230,5, Taïwan 248. Deux ordres de grandeur. Recoupé hors site : trafic restreint de plus de 90 %, Reuters compte 33 navires du lundi au jeudi la semaine du 7 août. Un chiffre d'effondrement servi sans contexte donne l'apparence de la couverture sans l'information — c'est ce qui en fait un P0 et non une amélioration."
+  },
+  {
+    "id": "deliv_ops_activer_promotion_news",
+    "title": "Activer la promotion d'actualités — le tuyau est plein, rien n'en sort",
+    "description": "Le pipeline d'actualités existe de bout en bout (API → cockpit → bloc public) et n'a jamais servi : promoted-news.json est vide depuis l'origine.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "framing",
+    "priority": "P0",
+    "progress": 10,
+    "deadline": "2026-08-24",
+    "impact": "atlas",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "blocker": "Aucun geste de promotion n'a jamais été fait. Par conception (ADR 0071/0074) la promotion exige une `editorial_note` écrite par un humain — c'est la bonne conception, et c'est aussi pourquoi le dispositif s'éteint dès que personne n'agit.",
+    "next_action": "Décider une CADENCE, pas un correctif technique : rien n'est à construire. Mesuré le 2026-08-10 : l'API sert 6 clusters d'actualité pour Ormuz datés du 7 au 10 août, et 3 pour Bab el-Mandeb datés d'hier et d'aujourd'hui, déjà en français. Proposition : une revue hebdomadaire de 15 min au cockpit (/outils/revue), promotion de 1 à 3 clusters maximum, chacun avec sa phrase de promoteur. Sans cadence inscrite, ce livrable se rendormira comme le premier.",
+    "links": [
+      {
+        "label": "Bloc public (jamais rendu à ce jour)",
+        "url": "/atlas"
+      }
+    ],
+    "internal_notes": "Constat fait en cherchant comment couvrir la crise d'Ormuz. Le tuyau était plein pendant les cinq mois où notre Atlas n'en disait rien : ce n'est pas un manque d'information, c'est un manque de geste. Le bandeau de perturbation (ADR 0071, épisodes) couvre le cas automatique et ne dépend d'aucun humain ; la promotion d'actualités couvre le cas éditorial et en dépend entièrement. Les deux sont complémentaires : l'un est le plancher qui tient tout seul, l'autre le plafond qui exige qu'on monte."
   }
 ]
