@@ -7,12 +7,12 @@
     "pillar": "production",
     "status": "production",
     "priority": "P0",
-    "progress": 90,
+    "progress": 80,
     "deadline": "2026-08-30",
-    "next_action": "Sources validées (ADR 0046), contradiction passée + revue (ADR 0039), revue Munich (compliance_done), CVI qualitatif justifié (niveau ÉLEVÉ, offre Basic — §8, ADR 0043). Reste UNIQUEMENT la validation humaine finale (human_review_done) avant ready/published.",
+    "next_action": "Réécrire le passage périmé AVANT toute validation. Ce n'est pas un remplacement de phrase : le motif de ciblage a changé (interdiction de navigation visant les navires saoudiens, et non plus le lien avec Israël), donc le verdict, le scénario « Retour progressif », le niveau CVI `eleve` et sa justification candidate doivent être relus ensemble. Ensuite seulement, reprendre les portes humaines.",
     "impact": "preuve_90_jours",
     "offer": "public",
-    "quality_gate_status": "at_risk",
+    "quality_gate_status": "blocked",
     "gates": {
       "sources_ok": true,
       "llm_draft_done": true,
@@ -43,7 +43,8 @@
         "url": "/dossiers/mer-rouge-suez"
       }
     ],
-    "internal_notes": "Ne pas dépasser 25 pages. Garder l'angle décisionnel.\n\nLIMITE ASSUMÉE (arbitrée le 2026-08-10, retirée du champ `blocker`). La trajectoire récente de la prime war-risk — cœur de la thèse « assurance-dominé » — est recoupée par la presse (Reuters, S&P/Platts) sans série de taux primaire. C'est le finding de sévérité 5 de la passe de contradiction du 2026-07-14 (`unsupported_claim`), dont le test suggéré était d'intégrer une série primaire.\n\nPourquoi ce n'est pas un blocage : le rapport de contradiction est `reviewed`, la limite est déclarée au lecteur en tête de « Limites & angles morts », et la conformité Munich a été prononcée sur cette base. La décision de publier avec ce plafond de preuve, plutôt que d'attendre une série primaire, est donc déjà prise et tracée.\n\nLe dossier écrit que ce point est « le verrou de la validation » : il parle du verrou de la validation de LA THÈSE, pas de celle du livrable. Les deux ne sont pas en contradiction — la preuve a un plafond connu, et il est annoncé.\n\nObtenir la série primaire (S&P/Argus) reste la meilleure amélioration possible du dossier, et c'est un bloquant amont réel pour la FICHE Atlas Mer Rouge. Ici, ce n'en est pas un.\n\nTexte d'origine du champ : Limite assumée (non bloquante) : trajectoire de la prime war-risk (axe 1) presse/courtier, non primaire — finding contradiction sévérité 5, déclaré en Limites."
+    "internal_notes": "Ne pas dépasser 25 pages. Garder l'angle décisionnel.\n\nLIMITE ASSUMÉE (arbitrée le 2026-08-10, retirée du champ `blocker`). La trajectoire récente de la prime war-risk — cœur de la thèse « assurance-dominé » — est recoupée par la presse (Reuters, S&P/Platts) sans série de taux primaire. C'est le finding de sévérité 5 de la passe de contradiction du 2026-07-14 (`unsupported_claim`), dont le test suggéré était d'intégrer une série primaire.\n\nPourquoi ce n'est pas un blocage : le rapport de contradiction est `reviewed`, la limite est déclarée au lecteur en tête de « Limites & angles morts », et la conformité Munich a été prononcée sur cette base. La décision de publier avec ce plafond de preuve, plutôt que d'attendre une série primaire, est donc déjà prise et tracée.\n\nLe dossier écrit que ce point est « le verrou de la validation » : il parle du verrou de la validation de LA THÈSE, pas de celle du livrable. Les deux ne sont pas en contradiction — la preuve a un plafond connu, et il est annoncé.\n\nObtenir la série primaire (S&P/Argus) reste la meilleure amélioration possible du dossier, et c'est un bloquant amont réel pour la FICHE Atlas Mer Rouge. Ici, ce n'en est pas un.\n\nTexte d'origine du champ : Limite assumée (non bloquante) : trajectoire de la prime war-risk (axe 1) presse/courtier, non primaire — finding contradiction sévérité 5, déclaré en Limites.",
+    "blocker": "Fait publié devenu faux (constaté 2026-08-10) : les deux artefacts affirment « aucune attaque contre un navire marchand depuis le cessez-le-feu d'octobre 2025 ». Des tankers ont été visés depuis le 22 juillet 2026 (Encelia confirmé par l'agence saoudienne, NCC Ghazal, tanker Bahri) et le JMIC est passé à SEVERE le 2 août. Publier en l'état violerait le contrôle Munich 1. Preuves : docs/evidence/mer-rouge-suez-reprise-attaques-2026-07.md"
   },
   {
     "id": "deliv_atlas_red_sea_fiche",
@@ -53,12 +54,12 @@
     "pillar": "production",
     "status": "review",
     "priority": "P0",
-    "progress": 85,
+    "progress": 75,
     "deadline": "2026-08-30",
-    "next_action": "Contenu complet. Matériaux de revue prêts (docs/evidence/mer-rouge-suez-gates-review.md) : évaluation Munich candidate pour contrôles 2/6/7/8/9/10 + justification CVI qualitative (eleve). Reste jugement humain : valider ces contrôles → compliance_done, valider CVI → cvi_justified, puis human_review_done ; bloquant amont subsistant : collecte trajectoire primes S&P/Argus + séries incidents/fermeture (docs/evidence). Ensuite ready/published.",
+    "next_action": "Réécrire le passage périmé AVANT toute validation. Ce n'est pas un remplacement de phrase : le motif de ciblage a changé (interdiction de navigation visant les navires saoudiens, et non plus le lien avec Israël), donc le verdict, le scénario « Retour progressif », le niveau CVI `eleve` et sa justification candidate doivent être relus ensemble. Ensuite seulement, reprendre les portes humaines.",
     "impact": "atlas",
     "offer": "basic",
-    "quality_gate_status": "at_risk",
+    "quality_gate_status": "blocked",
     "gates": {
       "sources_ok": true,
       "llm_draft_done": true,
@@ -85,7 +86,8 @@
         "url": "/atlas/mer-rouge-suez"
       }
     ],
-    "internal_notes": "Fiche 4–8 pages maximum. Production terminée le 2026-06-27 : 5 seuils d’alerte quantifiés (transit Suez, part déroutée vers le Cap, prime war-risk, incidents Bab el-Mandeb, durée de fermeture) + carte schématique du corridor (composant CorridorMap — géométrie schématique, sans valeur navigationnelle/juridique). Satisfait les 3 gates éditoriaux atlas_fiche (verdict / flux / seuils). Gates restants = jugement humain : compliance_done (vérifier disclaimers schématiques + frontière d’offre Basic/CVI 0–5 réservé) puis human_review_done ; ensuite passer status → ready → published."
+    "internal_notes": "Fiche 4–8 pages maximum. Production terminée le 2026-06-27 : 5 seuils d’alerte quantifiés (transit Suez, part déroutée vers le Cap, prime war-risk, incidents Bab el-Mandeb, durée de fermeture) + carte schématique du corridor (composant CorridorMap — géométrie schématique, sans valeur navigationnelle/juridique). Satisfait les 3 gates éditoriaux atlas_fiche (verdict / flux / seuils). Gates restants = jugement humain : compliance_done (vérifier disclaimers schématiques + frontière d’offre Basic/CVI 0–5 réservé) puis human_review_done ; ensuite passer status → ready → published.",
+    "blocker": "Fait publié devenu faux (constaté 2026-08-10) : les deux artefacts affirment « aucune attaque contre un navire marchand depuis le cessez-le-feu d'octobre 2025 ». Des tankers ont été visés depuis le 22 juillet 2026 (Encelia confirmé par l'agence saoudienne, NCC Ghazal, tanker Bahri) et le JMIC est passé à SEVERE le 2 août. Publier en l'état violerait le contrôle Munich 1. Preuves : docs/evidence/mer-rouge-suez-reprise-attaques-2026-07.md"
   },
   {
     "id": "deliv_atlas_malacca_fiche",
