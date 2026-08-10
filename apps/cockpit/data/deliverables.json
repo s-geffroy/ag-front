@@ -946,7 +946,7 @@
       "compliance_done": false,
       "human_review_done": false
     },
-    "next_action": "Cadence INSTALLÉE le 2026-08-10 : cron lundi 09:00 (`scripts/news-review-cron.sh`), digest Slack, dead-man's switch. Mesure du premier passage à blanc : 20 clusters frais, dont 11 sur Ormuz, 0 promu, store inchangé depuis 15 jours. RESTE, et c'est humain : tenir la revue. Ouvrir /outils/exploration, lire les clusters du corridor concerné, promouvoir 1 à 3 maximum avec une phrase de promoteur. Le cron rappelle ; il ne promeut pas, et il ne cite aucun titre — lire reste le travail.",
+    "next_action": "Cadence en place (cron lundi 09:00) ET destination publique en place (/veille + bande d'accueil). Tout le dispositif attend désormais un seul geste, hebdomadaire : ouvrir /outils/exploration, lire, promouvoir 1 à 3 clusters avec sa phrase. Mesure du 2026-08-10 : 20 clusters frais, dont 11 sur Ormuz, 0 promu. Le premier geste ferait apparaître la crise d'Ormuz sur sa page publique en deux minutes — plus vite que la fiche éditoriale, qui doit encore passer ses portes.",
     "links": [
       {
         "label": "Bloc public (jamais rendu à ce jour)",
@@ -954,5 +954,59 @@
       }
     ],
     "internal_notes": "Constat fait en cherchant comment couvrir la crise d'Ormuz. Le tuyau était plein pendant les cinq mois où notre Atlas n'en disait rien : ce n'est pas un manque d'information, c'est un manque de geste. Le bandeau de perturbation (ADR 0071, épisodes) couvre le cas automatique et ne dépend d'aucun humain ; la promotion d'actualités couvre le cas éditorial et en dépend entièrement. Les deux sont complémentaires : l'un est le plancher qui tient tout seul, l'autre le plafond qui exige qu'on monte. MISE À JOUR 2026-08-10 : le rappel est en place. Il ne cite délibérément aucun titre dans Slack : ADR 0074 a rendu `editorial_note` obligatoire parce que juger sur titres était le défaut retiré ; un digest rempli de titres reconstruirait le confort de ne pas lire, un canal plus loin. Le message dit combien et où, jamais quoi."
+  },
+  {
+    "id": "deliv_public_veille_surface",
+    "title": "Surface de veille publique (/veille + bande d'accueil)",
+    "description": "Page /veille groupée par corridor, flux RSS, et bande d'accueil des promotions récentes. Les deux s'effacent au lieu de vieillir.",
+    "type": "site_page",
+    "pillar": "site",
+    "status": "published",
+    "priority": "P1",
+    "progress": 100,
+    "deadline": "2026-08-31",
+    "impact": "site_credibility",
+    "offer": "public",
+    "quality_gate_status": "ok",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
+      "human_review_done": true
+    },
+    "next_action": "En service, et invisible tant que rien n'est promu — c'est voulu. La page et son entrée de nav quittent le build s'il n'y a aucune promotion ; la bande d'accueil disparaît passé 21 jours. Elles apparaîtront d'elles-mêmes à la première promotion.",
+    "links": [
+      {
+        "label": "Page veille (absente tant que le store est vide)",
+        "url": "/veille"
+      }
+    ],
+    "internal_notes": "Règle qui gouverne le dessin : tomber vers le vide, jamais vers le périmé. Un bloc daté non alimenté ne devient pas neutre en vieillissant, il ment — la fiche Mer Rouge l'a montré le 2026-08-10. Défaut livré puis corrigé le jour même : la page était un `veille.astro` STATIQUE portant un `getStaticPaths`, qu'Astro n'honore que sur une route dynamique ; le site a servi quelques minutes un titre avec rien dessous. Route devenue `veille/[...page].astro`. Une garde de source interdit aux quatre surfaces de lire `headline`/`summary_text` (ADR 0074)."
+  },
+  {
+    "id": "deliv_ops_slack_promotion",
+    "title": "Promotion d'actualités depuis Slack (Socket Mode + refus de paraphrase)",
+    "description": "Service Socket Mode permettant de promouvoir depuis le canal privé, et refus machine d'une note qui recopie un titre.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "review",
+    "priority": "P1",
+    "progress": 80,
+    "deadline": "2026-08-31",
+    "impact": "atlas",
+    "offer": "internal",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
+      "human_review_done": false
+    },
+    "blocker": "Trois jetons Slack manquants dans docker/.env (SLACK_APP_TOKEN, SLACK_BOT_TOKEN, SLACK_CHANNEL_ID). Ils naissent dans l'administration Slack — geste humain.",
+    "next_action": "Créer l'app Slack (marche à suivre dans docker/.env.example), inviter le bot dans le canal privé, relever son identifiant, puis `up -d slackbot`. P2 — le refus de paraphrase — est DÉJÀ en service et protège la promotion faite au cockpit, indépendamment de Slack.",
+    "links": [],
+    "internal_notes": "Socket Mode et non endpoint public : l'interactivité classique aurait exigé une URL HTTPS entrante mutant l'Atlas public, dans un déploiement bâti pour garder le cockpit hors d'Internet. Aucune surface ajoutée. L'autorisation est le canal privé ; une configuration absente ferme la porte. La modale montre les titres des éditeurs en liens, jamais le headline du modèle. P2 utilise le RECOUVREMENT et non Jaccard, qui laisserait passer une note brève recopiée d'un titre long ; une note courte mais juste passe, par construction. Limite assumée : une note française paraphrasant un titre anglais n'est pas attrapée. Journal : « Sylvain Geffroy (via Slack) »."
   }
 ]

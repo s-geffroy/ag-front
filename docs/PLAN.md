@@ -10,14 +10,19 @@ vérifiée** :
 - `CLAUDE.md` adapté à app-geo (2 UI, monorepo, Docker-only) ;
 - plugins `commit-commands` + `security-guidance` installés (`/reload-plugins` pour appliquer).
 
-**État au 2026-07-02** : le socle applicatif est **construit et déployé**. Les **4 UIs** sont en
+**État au 2026-08-10** : le socle applicatif est **construit et déployé**. Les **4 UIs** sont en
 service — site public en ligne (`www.applied-geopolitics.com`), cockpit interne via Tailscale, **HDDE**
 et **VERDICT** publiés derrière authentification — plus le **consumer pinné** de la Read API
 Chokepoints (ADR 0062, vert ce jour). Le monorepo compte 7 apps (`public, cockpit, hdde-api, hdde-web,
 lead-api, verdict-api, verdict-web`) + 5 packages, sous la règle **Docker-only**, en _clean-room
 rebuild_ depuis le pack de référence `/home/deploy/sources` (à LIRE, pas à copier). Le reste-à-faire
-est désormais surtout **gouvernance** (ADR 0044/0045, _Proposed_) et **production éditoriale**
-(cf. « Prochaine action recommandée » en bas).
+compte 8 apps (`public, cockpit, hdde-api, hdde-web, lead-api, verdict-api, verdict-web, slackbot`)
++ 5 packages.
+
+Depuis, l'exploitation a été reprise (§ Phase 8) et le reste-à-faire s'est déplacé : il n'est plus
+« construire », il est **valider, alimenter et renseigner**. Quatre branchements sont câblés, testés
+et **inertes faute d'une valeur humaine** ; treize artefacts éditoriaux sont écrits et retenus par des
+portes de jugement. Voir « Prochaine action recommandée » en bas.
 
 > Méthode (cf. `CLAUDE.md`) : avant tout code non trivial → `brainstorming` → `writing-plans` →
 > `test-driven-development`. Chaque décision matérielle ci-dessous = un ADR sous `docs/decisions/`.
@@ -130,6 +135,34 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
 - Contrat épinglé `contract/openapi.json` (v0.2.0) ; `drift.log` **vert au 2026-07-02**. ADR 0062.
   Coexiste avec le client TS build-time `@ag/chokepoints` du site (partagent le contrat, pas le code).
 
+### Phase 8 — Exploitation, conformité et veille — ✅ FAIT (2026-08-10)
+
+Une journée de reprise, déclenchée par la question « que reste-t-il pour que le site soit 100 %
+opérationnel ». Le code n'était pas le problème : aucun TODO dans `apps/public/src`. Ce qui manquait
+était ailleurs.
+
+- **Conformité** — pages légales et politique de confidentialité écrites, consentement RGPD
+  `literal(true)` au schéma (sans lui, rien ne s'écrit). Les pages **quittent le build** tant qu'un
+  fait obligatoire manque, plutôt que de faire échouer la reconstruction horaire.
+- **Notification des leads** — SMTP câblé par `docker/.env`. Un prospect était jusque-là écrit sur
+  disque sans que personne ne soit prévenu.
+- **Intégrité publique** — `cp_alpha` (« Alpha Strait »), fixture servie par l'API amont, était
+  publiée en page, au sitemap et dans le GeoJSON. Filtrée aux deux points d'entrée, signalée à
+  ag-back.
+- **Sauvegardes** (ADR 0076 voisin) — rien n'était sauvegardé. Les bases tournent en WAL : un `cp`
+  aurait produit une base ouvrable et presque **vide**. API de sauvegarde en ligne + tirage de
+  restauration hebdomadaire. Healthchecks sur huit services, rotation des journaux.
+- **Mesure d'audience** (ADR 0076) — Plausible auto-hébergé, sans cookie donc sans bandeau, servi en
+  première partie sous `/p/*` pour ne pas être bloqué ; tableau de bord tailnet-only.
+- **Carte sociale** — `Base.astro` acceptait une prop `image` qu'aucune page ne passait : chaque
+  partage rendait une vignette grise.
+- **Cockpit** — piliers et types `ops` ajoutés : un cockpit de *déploiement* n'avait aucun moyen de
+  représenter du travail de déploiement, ce qui est précisément pourquoi ces manques étaient
+  invisibles.
+- **Veille** — la cadence hebdomadaire (cron lundi), la surface publique (`/veille` + bande
+  d'accueil, toutes deux auto-effaçantes), le refus machine de la paraphrase (P2) et le service Slack
+  Socket Mode (B2, inerte faute de jetons).
+
 ## Reste à faire (gouvernance — ADR _Proposed_)
 
 - **ADR 0044 (Proposed)** — cycle de vie & confidentialité des données client : rétention, purge, DSAR,
@@ -154,11 +187,15 @@ JSON E-light (zod-validé, écriture atomique, allowlist). Consomme `@ag/schema/
       avec des permissions `644` ; le fichier est désormais en `600` et n'a jamais été versionné, mais
       une rotation reste la bonne hygiène (action manuelle côté admin de l'API Chokepoints). Voir la
       revue complète (commit `7024944`).
-- [ ] **Garder les docs synchronisées** — ce `PLAN.md` et `apps/README.md` ont pris du retard sur le
-      code (rafraîchis le 2026-07-02) ; les remettre à jour à chaque nouvelle phase/app. La source de
-      vérité opérationnelle reste `CLAUDE.md` + les READMEs d'app + `docs/decisions/README.md`.
+- [x] **Garder les docs synchronisées** — `PLAN.md` remis à jour le 2026-08-10 (Phase 8).
+      `CLAUDE.md` l'a été aussi (audience, sauvegardes). **Reste `apps/README.md`**, qui ignore encore
+      `slackbot` et les ADR 0063–0076 ; et les en-têtes des ADR 0070/0071 décrivent des restrictions
+      levées depuis.
+- [ ] **Supervision externe d'uptime** — tous les signaux actuels sont émis PAR ce serveur, donc
+      aucun ne peut partir quand c'est lui qui tombe. `BACKUP_PING_URL` est prêt à recevoir un
+      moniteur tiers ; le compte reste à créer.
 
-## Workflow de publication — état (2026-06-27)
+## Workflow de publication — état (2026-08-10)
 
 Le site public est **en ligne** ; publier = rebuild (Caddy sert le `dist` monté). Durcissement livré
 (commits `143b09d`/`6d7cbd9`/`bbc1f5a`) :
@@ -169,23 +206,56 @@ Le site public est **en ligne** ; publier = rebuild (Caddy sert le `dist` monté
   pour relire un candidat avant publication.
 - **Conformité Charte de Munich** (ADR 0037) : contrôle machine bloquant au build/CI (`check:munich`)
   - mécanisme d'erratum + checklist 10 contrôles définissant `compliance_done`.
-- **Fiche Atlas Mer Rouge** : seuils quantifiés + carte schématique livrés ; reste conformité + revue
-  humaine avant `published: true`.
-- **Candidats-sources assurance** collectés : `docs/evidence/mer-rouge-suez-assurance-candidates.md`
-  (_pending validation_).
+- **Publication 1-clic** (ADR 0069) : le cockpit pose un sentinelle, un watcher hôte republie en
+  deux minutes. La porte reste `resolvePublish` — gates complets, journal nominatif.
+- **Correctif du 2026-08-10** : quatre notes n'étaient pointées par aucun livrable et répondaient
+  donc `409 no_linked_deliverable` **quoi qu'on valide** — impubliables par construction, et le
+  défaut ne se voyait qu'au moment d'essayer. Par ailleurs, seul le livrable du **type propriétaire**
+  gouverne désormais la publication : un renvoi (note teaser → fiche) imposait ses portes à la fiche.
+- **Fiche + dossier Mer Rouge** : contenu complet, mais **affirmation devenue fausse** détectée avant
+  publication — la reprise des attaques du 22 juillet 2026 contredisait l'encart « État au 12 juillet ».
+  Réécriture candidate déposée ; la porte de revue humaine a fait exactement son travail.
 
 ## Prochaine action recommandée
 
-**Débloquer le dossier Mer Rouge / Suez** (`deliv_red_sea_suez_dossier`, jalon `at_risk` 2026-09-15) :
+L'ancienne version de cette section demandait de « valider les sources » du dossier Mer Rouge. Ce
+gate est passé depuis. Ce qui bloque aujourd'hui est ailleurs, et se range en deux tas.
 
-1. **Valider les sources** (gate `sources_ok`) : fournir le contenu des sites bloqués au bot (S&P,
-   NorthStandard, PDF UNCTAD/IUMI — listés dans le registre), recouper chaque chiffre dans **≥ 2**
-   sources indépendantes, puis promouvoir les sources validées.
-2. **Refonte académique du dossier** : squelette Méthode / Constructs opérationnalisés / Données
-   sourcées / Scénarios formalisés / Analyse contradictoire / **CVI appliqué** / Limites / Références
-   normées — avec marqueurs `[À SOURCER]` partout où une preuve manque (cf. challenge du 2026-06-27).
-3. Une fois conforme (Munich + revue humaine) → `published: true` pour fiche puis dossier.
+### 1. Quatre valeurs à renseigner — chacune débloque un dispositif déjà testé
 
-> Côté **code**, les chantiers structurants restants sont les deux ADR _Proposed_ ci-dessus —
-> **0044** (cycle de vie / confidentialité des données) et **0045** (rail commercial paiement →
-> provisioning). À prioriser après (ou en parallèle de) le déblocage éditorial du dossier Mer Rouge.
+| Manque | Effet tant qu'il manque |
+| --- | --- |
+| Identifiants **SMTP** (`docker/.env`) | Un prospect écrit, la donnée est stockée, **personne n'est prévenu** |
+| **Faits légaux** (`apps/public/src/lib/legal.ts`) | `/mentions-legales` répond 404 **par construction** ; le site collecte sans notice publiée |
+| **Compte Plausible** (tableau de bord tailnet) | L'ingestion répond `202`, les événements sont **écartés** |
+| **Trois jetons Slack** (`docker/.env`) | Le digest du lundi part sans boutons ; la promotion reste au cockpit |
+
+Aucune n'est un chantier. Chacune est un blanc à remplir, et toutes échouent en silence si on les
+oublie — c'est pourquoi elles sont listées ici plutôt que dans un coin.
+
+### 2. Un geste hebdomadaire, et une décision éditoriale
+
+- **Tenir la revue de veille.** Le pipeline est complet depuis l'ADR 0071 et n'a jamais servi :
+  `promoted-news.json` est resté vide pendant les cinq mois de la crise d'Ormuz, avec une vingtaine
+  de clusters frais par semaine dans le flux. Ce n'est pas un manque d'information, c'est un manque
+  de geste. Promouvoir **un** cluster ferait apparaître la crise sur la page publique d'Ormuz en deux
+  minutes — plus vite que la fiche éditoriale, qui doit encore passer ses portes.
+- **Trancher la lecture Mer Rouge / Ormuz.** Le motif de ciblage a changé de nature : les Houthis
+  invoquent une interdiction de navigation visant les navires saoudiens, non plus le lien avec
+  Israël, et l'analyse décrit une tentative de reproduire à Bab el-Mandeb le contrôle iranien sur
+  Ormuz. Le `verdict`, le `cvi_level` et la `confidence` des deux fiches en dépendent. C'est un
+  jugement éditorial, pas une retouche — il n'a pas été préempté.
+- **Passer les portes.** Le dossier Mer Rouge est à une porte de la publication une fois la réécriture
+  relue ; `validation_journal.json` est encore **vide**, donc la chaîne n'a jamais été exercée de bout
+  en bout. La dérisquer sur un seul document a plus de valeur que d'en préparer trois de plus.
+
+### 3. Puis les deux chantiers de code restants
+
+**ADR 0044** (cycle de vie / confidentialité des données clients) et **ADR 0045** (rail commercial
+paiement → provisioning). Ce sont les seuls chantiers structurants encore au stade design ; le second
+conditionne la vente des trois paliers déjà affichés sur `/offres`.
+
+> Un fil relie plusieurs défauts trouvés le 2026-08-10, et vaut d'être retenu : le **statut
+> épistémique d'une absence**. Rien ne distinguait une fixture d'un objet réel (`cp_alpha`), ni
+> « aucun épisode ouvert » de « rien ne se passe » (Ormuz), ni un flux d'actualités vide d'une
+> agrégation qui n'a jamais tourné. Trois fois la même forme de trou, à trois endroits de la chaîne.
