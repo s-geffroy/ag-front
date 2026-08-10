@@ -1,5 +1,7 @@
 ---
-import { nav, site } from '../lib/site';
+import { site } from '../lib/site';
+import { navWithVeille } from '../lib/veille';
+const nav = navWithVeille();
 import { plaquetteIsPublic } from '../lib/plaquette';
 import { publishableLegalPages } from '../lib/legal';
 const year = 2026;

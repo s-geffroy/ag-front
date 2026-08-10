@@ -1,5 +1,7 @@
 ---
-import { nav } from '../lib/site';
+import { navWithVeille } from '../lib/veille';
+// `Veille` only appears once the page exists in the build — see ../lib/veille.ts.
+const nav = navWithVeille();
 const path = Astro.url.pathname;
 const isActive = (href: string) => path === href || path.startsWith(href + '/');
 ---

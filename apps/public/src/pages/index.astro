@@ -6,6 +6,7 @@ import EntryCard from '../components/EntryCard.astro';
 import Pill from '../components/Pill.astro';
 import CorridorChain from '../components/CorridorChain.astro';
 import ChartFrame from '../components/ChartFrame.astro';
+import VeilleStrip from '../components/VeilleStrip.astro';
 import { doctrineChain, offers } from '../lib/site';
 import { accessLabel, accessTone, formatDate } from '../lib/labels';
 
@@ -43,6 +44,9 @@ const lead = dossiers[0];
       </div>
     </ChartFrame>
   </Section>
+
+  <!-- Veille: renders only while fresh (21 days), nothing at all past that — see VeilleStrip.astro -->
+  <VeilleStrip />
 
   <!-- Doctrine chain as an instrumented corridor -->
   <Section class="bg-graticule border-y border-line bg-surface py-9">

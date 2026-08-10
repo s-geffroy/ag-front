@@ -1,0 +1,49 @@
+---
+/**
+ * Homepage veille strip — the newest promotions, or nothing at all.
+ *
+ * `homepageVeille` returns an empty list once the freshest promotion passes 21 days, so this
+ * component renders nothing rather than a short list of old items. That is the whole design: on the
+ * most-seen page of the site, absence beats a stale block. It must never print "rien de récent" —
+ * that sentence would be a claim, and a claim is what goes wrong when nobody feeds it.
+ */
+import { homepageVeille } from '../lib/veille';
+
+const entries = homepageVeille(new Date());
+const dateFmt = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' });
+---
+
+{
+  entries.length > 0 && (
+    <section class="border-y border-line bg-subtle">
+      <div class="mx-auto max-w-content px-5 py-8">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="eyebrow">Ce que nous suivons</p>
+          <a
+            href="/veille"
+            class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted hover:text-accent"
+          >
+            Toute la veille →
+          </a>
+        </div>
+        <ul class="mt-4 grid gap-5 md:grid-cols-3">
+          {entries.map((e) => (
+            <li>
+              <a
+                href={`/atlas/chokepoints/${e.corridorId}`}
+                class="font-mono text-[11px] uppercase tracking-[0.08em] text-accent hover:underline"
+              >
+                {e.corridorName}
+              </a>
+              {/* The promoter's sentence, never the model's headline (ADR 0074). */}
+              <p class="mt-1 text-sm leading-relaxed text-ink">{e.item.editorial_note}</p>
+              {e.promotedAt ? (
+                <p class="mt-1 font-mono text-[11px] text-muted">{dateFmt.format(e.promotedAt)}</p>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}

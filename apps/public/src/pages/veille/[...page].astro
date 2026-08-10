@@ -1,0 +1,73 @@
+---
+/**
+ * `/veille` — every promoted cluster, across corridors.
+ *
+ * A REST PARAMETER, not a static `veille.astro`, and the distinction is the whole guard: Astro only
+ * honours `getStaticPaths` on a DYNAMIC route. As a static page this file was built unconditionally
+ * and shipped a heading plus a promise with nothing under it — the empty shell this design exists to
+ * prevent. Caught in production on 2026-08-10, minutes after deploying it.
+ *
+ * `[...page]` with `params.page: undefined` emits exactly `/veille` and nothing else, so returning an
+ * empty array removes the page from `dist` entirely. The nav entry is guarded by the same
+ * `veilleIsPublic()`, so a link and its target can never disagree.
+ */
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import PromotedNewsBlock from '../../components/atlas/PromotedNewsBlock.astro';
+import { loadVeille, lastReviewedAt, veilleIsPublic, type VeilleEntry } from '../../lib/veille';
+
+export function getStaticPaths() {
+  return veilleIsPublic() ? [{ params: { page: undefined } }] : [];
+}
+
+const entries = loadVeille();
+const reviewed = lastReviewedAt(entries);
+const dateFmt = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+// Grouped by corridor, corridors ordered by their most recent promotion.
+const groups: { corridorId: string; corridorName: string; entries: VeilleEntry[] }[] = [];
+for (const e of entries) {
+  const g = groups.find((x) => x.corridorId === e.corridorId);
+  if (g) g.entries.push(e);
+  else groups.push({ corridorId: e.corridorId, corridorName: e.corridorName, entries: [e] });
+}
+---
+
+<Base
+  title="Veille"
+  description="Couverture média retenue à la main sur les corridors stratégiques que nous suivons."
+>
+  <Section width="prose" class="py-14">
+    <p class="eyebrow">Veille</p>
+    <h1 class="mt-4 font-serif text-title font-bold">Ce que nous suivons</h1>
+    <p class="prose-ag mt-4">
+      Regroupements d’articles retenus à la main sur les corridors que nous suivons. Chaque entrée
+      porte la phrase de l’analyste qui l’a retenue, et les titres des éditeurs, liés à la source.
+      Un candidat, jamais un incident confirmé.
+    </p>
+    {
+      reviewed ? (
+        <p class="mt-3 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+          Dernière revue éditoriale : {dateFmt.format(reviewed)}
+        </p>
+      ) : null
+    }
+
+    <div class="mt-10 space-y-12">
+      {
+        groups.map((g) => (
+          <section>
+            <h2 class="font-serif text-xl font-bold">
+              <a href={`/atlas/chokepoints/${g.corridorId}`} class="hover:text-accent">
+                {g.corridorName}
+              </a>
+            </h2>
+            <div class="mt-3">
+              <PromotedNewsBlock items={g.entries.map((e) => e.item)} />
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </Section>
+</Base>
