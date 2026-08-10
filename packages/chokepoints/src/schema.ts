@@ -1122,3 +1122,18 @@ export const NewsFeedOut = z
   })
   .passthrough();
 export type NewsFeedOut = z.infer<typeof NewsFeedOut>;
+
+/**
+ * A list endpoint that answers with a BARE ARRAY cannot say "this is everything" rather than "this
+ * is what fitted". Measured on `event-signals` (2026-08-10): Hormuz returns exactly `limit` rows at
+ * 500, 900 and 2000 — so there are at least two thousand, and the default shows five hundred without
+ * saying so. Malacca returns 53 at any limit: that list was complete. **The two responses have the
+ * same shape.**
+ *
+ * Until the producer declares truncation (handoff 0029), a consumer can still know one thing for
+ * certain: a full page MIGHT be truncated, and a short one certainly is not. That is enough to stop
+ * treating a capped list as the whole set.
+ */
+export function mayBeTruncated(rows: readonly unknown[], requestedLimit: number): boolean {
+  return rows.length >= requestedLimit;
+}

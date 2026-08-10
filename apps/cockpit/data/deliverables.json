@@ -1015,21 +1015,21 @@
     "description": "Passer chaque consommation de l'API de lecture au crible : un 0, un tableau vide ou un champ manquant peut-il y vouloir dire deux choses ?",
     "type": "ops",
     "pillar": "ops",
-    "status": "framing",
+    "status": "review",
     "priority": "P1",
-    "progress": 15,
+    "progress": 75,
     "deadline": "2026-09-15",
     "impact": "atlas",
     "offer": "internal",
     "quality_gate_status": "at_risk",
     "gates": {
       "sources_ok": true,
-      "llm_draft_done": false,
+      "llm_draft_done": true,
       "contradiction_done": false,
       "compliance_done": false,
       "human_review_done": false
     },
-    "next_action": "Le 2026-08-10 n'a regardé que TROIS couches (episodes, metrics, news) sur QUATRE chokepoints P0. Le contrat en compte bien davantage — flows, risks, alternatives, perception-signals, prediction-consensus, cvi-assessment, analytics. Pour chacune : le vide y est-il distinguable de l'inconnu ? Ce qui n'est pas distinguable vaut inconnu et ne doit rien conclure ; ce qui l'est doit être distingué dans le code appelant. Aide-mémoire : Outils → Référence → « Une absence n'est pas une donnée ».",
+    "next_action": "Audit FAIT le 2026-08-10 sur les 40 chemins du contrat, mesuré contre l'API vivante (docs/evidence/audit-absences-2026-08-10.md), handoff 0029 déposé. Trouvé : (1) event-signals TRONQUE EN SILENCE — Ormuz rend exactement la limite à 500/900/2000, Malacca rend 53 quelle que soit la limite, et les deux réponses ont la même forme ; (2) sept listes globales sans enveloppe ; (3) des zéros indécidables sur les couches en constitution (SWIFT : 0 acteur, 0 alternative). Notre part est corrigée : `mayBeTruncated` au paquet, HDDE passé de 20 à 200 avec avertissement, cockpit à 2000 avec `may_be_truncated` dans la réponse. RESTE : la réponse d'ag-back, et une décision sur le rendu du doute dans l'UI du cockpit — aujourd'hui le drapeau est servi mais aucun panneau ne l'affiche.",
     "links": [
       {
         "label": "Aide-mémoire opérationnel",

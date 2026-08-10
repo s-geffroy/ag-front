@@ -2,6 +2,7 @@
 // The client is created with includeTainted:false, and we additionally drop any record that still
 // carries license_taint=true as a defence-in-depth guard so no restricted data can reach the public
 // client. Suggestions are CANDIDATES pending analyst validation, never facts.
+import { mayBeTruncated } from '@ag/chokepoints';
 import {
   createChokepointsClient,
   ChokepointsApiError,
@@ -205,8 +206,13 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
     )
     .catch(degrade('actors', [] as CorridorEvidence['actors']));
 
+  // 20 était une troncature muette : sur un corridor actif l'API en sert au moins 2 000, et rend
+  // exactement ce qu'on demande sans dire qu'elle coupe (handoff 0029). On demande plus, et surtout
+  // on saura si on a encore coupé — un red team nourri d'un échantillon pris pour un tout conclut
+  // sur ce qu'il n'a pas vu.
+  const EVENT_SIGNALS_LIMIT = 200;
   const event_signals = await client
-    .getChokepointEventSignals(chokepointId, 20)
+    .getChokepointEventSignals(chokepointId, EVENT_SIGNALS_LIMIT)
     .then((rows) =>
       rows
         .filter((r) => !isTainted(r))
@@ -219,6 +225,12 @@ export async function fetchCorridorEvidence(chokepointId: string): Promise<Corri
         })),
     )
     .catch(degrade('event-signals', [] as CorridorEvidence['event_signals']));
+  if (mayBeTruncated(event_signals, EVENT_SIGNALS_LIMIT)) {
+    console.warn(
+      `[hdde] event-signals ${chokepointId} : ${event_signals.length} lignes = la limite demandée — ` +
+        `liste probablement TRONQUÉE, l'amont ne le déclare pas. Ne pas conclure sur l'exhaustivité.`,
+    );
+  }
 
   const perception = await client
     .getChokepointPredictionConsensus(chokepointId)

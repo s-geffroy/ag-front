@@ -18,7 +18,12 @@ import {
   type ItemCollectionName,
 } from './store';
 import { chokepointsClient } from './chokepoints';
-import { ChokepointsApiError, type AnalysisDoc, type ChokepointsClient } from '@ag/chokepoints';
+import {
+  ChokepointsApiError,
+  mayBeTruncated,
+  type AnalysisDoc,
+  type ChokepointsClient,
+} from '@ag/chokepoints';
 import {
   InvalidSlugError,
   isContentType,
@@ -308,9 +313,21 @@ export function createApiRouter(): Router {
     '/chokepoints/:id/analysis',
     proxy((c, req) => c.getChokepointAnalysis(req.params.id)),
   );
+  // 100 était une troncature muette : l'amont rend exactement ce qu'on demande sans dire qu'il coupe
+  // (handoff 0029). On demande le maximum du contrat, et on ANNONCE le doute au lieu de le taire —
+  // une liste pleine peut être coupée, une liste courte ne l'est certainement pas.
+  const EVENT_SIGNALS_LIMIT = 2000;
   explore.get(
     '/chokepoints/:id/event-signals',
-    proxy((c, req) => c.getChokepointEventSignals(req.params.id, 100)),
+    proxy(async (c, req) => {
+      const rows = await c.getChokepointEventSignals(req.params.id, EVENT_SIGNALS_LIMIT);
+      return {
+        items: rows,
+        count: rows.length,
+        requested_limit: EVENT_SIGNALS_LIMIT,
+        may_be_truncated: mayBeTruncated(rows, EVENT_SIGNALS_LIMIT),
+      };
+    }),
   );
   explore.get(
     '/chokepoints/:id/perception-signals',

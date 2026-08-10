@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FIXTURE_RECORD_IDS,
   isFixtureRecord,
+  mayBeTruncated,
   toPublicFeatureCollection,
   type GeoJsonFeatureCollection,
 } from './schema';
@@ -68,5 +69,19 @@ describe('toPublicFeatureCollection', () => {
     };
     expect(() => toPublicFeatureCollection(fc)).not.toThrow();
     expect(toPublicFeatureCollection(fc).features).toHaveLength(1);
+  });
+});
+
+describe('mayBeTruncated', () => {
+  // Mesuré le 2026-08-10 : Ormuz rend exactement `limit` à 500, 900 et 2000 ; Malacca rend 53 quelle
+  // que soit la limite. Les deux réponses ont la même forme — c'est tout le problème.
+  it('doute d’une page pleine, et seulement d’elle', () => {
+    expect(mayBeTruncated(new Array(500), 500)).toBe(true);
+    expect(mayBeTruncated(new Array(53), 500)).toBe(false);
+    expect(mayBeTruncated([], 500)).toBe(false);
+  });
+
+  it('doute aussi si l’amont rend PLUS que demandé — on ne suppose pas qu’il obéit', () => {
+    expect(mayBeTruncated(new Array(501), 500)).toBe(true);
   });
 });
