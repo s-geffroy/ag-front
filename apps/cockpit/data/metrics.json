@@ -8,7 +8,7 @@
       {
         "id": "notes_published",
         "label": "Notes publiées",
-        "value": 2,
+        "value": 3,
         "target_90d": 10,
         "target_12m": 50,
         "unit": "count",

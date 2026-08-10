@@ -4,12 +4,11 @@
     "title": "Publier le dossier Mer Rouge / Suez",
     "horizon": "90d",
     "due_date": "2026-09-15",
-    "status": "at_risk",
+    "status": "in_progress",
     "linked_deliverables": ["deliv_red_sea_suez_dossier"],
     "expected_proof": "Premier dossier sérieux transmissible à des contacts qualifiés.",
     "success_metric": "1 dossier publié + 5 demandes ou envois ciblés.",
-    "blocker": "Sources assurance maritime insuffisantes.",
-    "next_action": "Compléter corpus et lancer contradiction LLM."
+    "next_action": "À UNE porte de la publication : human_review_done. Sources validées, contradiction revue, CVI justifié, Munich 10/10. C'est le plus fort levier du plan — publier ce dossier remplit /dossiers, restaure le CTA principal de la page d'accueil et inscrit la première entrée du journal de validation, encore vide."
   },
   {
     "id": "milestone_three_atlas_fiches",
@@ -24,7 +23,7 @@
     ],
     "expected_proof": "Atlas visible avec cas principal et cas secondaire.",
     "success_metric": "3 fiches publiées.",
-    "next_action": "Malacca et Taïwan structurées au gabarit P0 (flux/seuils/scénarios) ; sourcing chiffré en cours (prompts Perplexity + registres docs/evidence). Mer Rouge : matériaux de revue Munich/CVI prêts pour validation. Reste : sourcing humain, validation nominative, flip gates → published."
+    "next_action": "Mer Rouge : matériaux de revue prêts (docs/evidence/mer-rouge-suez-gates-review.md) ; restent compliance_done, cvi_justified, human_review_done. Malacca et Taïwan : rapports de contradiction encore `pending` à traiter, puis mêmes portes. Aucune n'est bloquée par le code — toutes passent déjà la garde machine (munich-check)."
   },
   {
     "id": "milestone_50_contacts",
@@ -35,7 +34,7 @@
     "linked_deliverables": ["deliv_contact_50_targets"],
     "expected_proof": "Base de prospection Premium fermée.",
     "success_metric": "50 contacts qualifiés.",
-    "next_action": "Compléter profils risk/resilience."
+    "next_action": "Réconcilier d'abord la mesure et la donnée : la métrique annonce 18 contacts identifiés alors que contacts.json n'en porte que 2, tous deux nommés « À compléter ». L'un des deux chiffres est faux et je ne sais pas lequel — le jalon ne peut pas être suivi tant que ce n'est pas tranché. Ensuite seulement : compléter les profils risk/resilience."
   },
   {
     "id": "milestone_premium_pilots_12m",

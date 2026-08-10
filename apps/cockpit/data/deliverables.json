@@ -731,5 +731,152 @@
       }
     ],
     "internal_notes": "Sources : Ulanowicz et al. (2009), méthode interne. Faute de débit réel par lien, la robustesse est topologique : la note l’écrit et l’émet en confiance basse. Vérifier en revue que cette réserve n’a pas été affaiblie."
+  },
+  {
+    "id": "deliv_ops_legal_pages",
+    "title": "Conformité légale du site public (mentions légales + RGPD)",
+    "description": "Mentions légales (LCEN art. 6-III) et politique de confidentialité (RGPD art. 13), plus le consentement horodaté sur le formulaire de contact.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "review",
+    "priority": "P0",
+    "progress": 80,
+    "deadline": "2026-08-31",
+    "impact": "conformite",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
+      "human_review_done": false
+    },
+    "blocker": "Faits légaux manquants : SIREN, forme juridique, siège, directeur de publication, hébergeur, durées de conservation, prestataire SMTP.",
+    "next_action": "Renseigner les marqueurs ⟦À COMPLÉTER⟧ dans apps/public/src/lib/legal.ts, puis rebuild. Les pages apparaîtront d'elles-mêmes, avec leurs liens de pied de page : getStaticPaths n'émet que les pages sans marqueur, donc /mentions-legales répond 404 par construction tant qu'un fait manque.",
+    "links": [
+      {
+        "label": "Mentions légales (retenue du build)",
+        "url": "/mentions-legales"
+      },
+      {
+        "label": "Politique de confidentialité (retenue du build)",
+        "url": "/politique-de-confidentialite"
+      }
+    ],
+    "internal_notes": "Le consentement est un literal(true) au schéma (packages/schema/src/cockpit/lead.ts) : une charge utile sans lui ne parse pas, donc rien ne s'écrit — la garde tient pour tout appelant, pas seulement pour notre formulaire. Horodatage porté au registre (leads.ndjson, champ consentAt) ET dans la fiche contact, l'article 7.1 mettant la charge de la preuve sur nous. Report documenté depuis l'ADR 0006, jamais soldé jusqu'ici."
+  },
+  {
+    "id": "deliv_ops_lead_notification",
+    "title": "Notification des leads entrants (SMTP)",
+    "description": "Alerte e-mail à chaque soumission du formulaire de contact.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "review",
+    "priority": "P0",
+    "progress": 85,
+    "deadline": "2026-08-20",
+    "impact": "acquisition",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
+      "human_review_done": false
+    },
+    "blocker": "Identifiants SMTP absents de docker/.env — sans SMTP_HOST, email.ts no-ope et personne n'est prévenu.",
+    "next_action": "Renseigner SMTP_HOST/PORT/USER/PASS et LEAD_TO dans docker/.env, puis `docker compose -f docker/docker-compose.yml up -d lead`. Enfin envoyer un lead de test et VÉRIFIER LA RÉCEPTION — c'est la seule étape que l'agent n'a pas pu vérifier.",
+    "links": [
+      {
+        "label": "Formulaire public",
+        "url": "/contact"
+      }
+    ],
+    "internal_notes": "Chemin vérifié de bout en bout le 2026-08-10 hors e-mail : POST → 201, consentAt au registre, fiche créée dans contacts.json ; le lead de test a été supprimé ensuite. Défaut le plus coûteux du site avant correction : un prospect écrivait, la donnée atterrissait sur disque, et rien ne le signalait."
+  },
+  {
+    "id": "deliv_ops_audience_measurement",
+    "title": "Mesure d'audience du site public (Plausible, ADR 0076)",
+    "description": "Plausible auto-hébergé, sans cookie donc sans bandeau, servi en première partie sous /p/* ; tableau de bord tailnet-only.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "review",
+    "priority": "P1",
+    "progress": 85,
+    "deadline": "2026-08-31",
+    "impact": "site_credibility",
+    "offer": "internal",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
+      "human_review_done": false
+    },
+    "blocker": "Compte propriétaire non créé : l'ingestion répond 202 mais les événements sont écartés tant que le site n'est pas déclaré.",
+    "next_action": "Ouvrir https://srv1100990.tail880531.ts.net:8443, créer le compte, déclarer www.applied-geopolitics.com, puis retirer PLAUSIBLE_DISABLE_REGISTRATION=false de docker/.env. Ajouter alors la métrique d'audience au scorecard — elle n'y figure pas encore parce qu'un `value: 0` affirmerait zéro visiteur, ce qui est faux : nous n'en comptons simplement aucun.",
+    "links": [
+      {
+        "label": "ADR 0076",
+        "url": "/docs/decisions/0076-mesure-audience-plausible-auto-heberge.md"
+      }
+    ],
+    "internal_notes": "Servi sous /p/* et non depuis un hôte tiers : un traceur bloqué pour un tiers des visiteurs ne mesure pas un tiers de moins, il mesure deux tiers biaisés. ClickHouse bridé (docker/clickhouse/) — invité de cinq services de production sur une machine sans swap ; ~180 Mo mesurés."
+  },
+  {
+    "id": "deliv_ops_backups",
+    "title": "Sauvegardes et supervision de l'exploitation",
+    "description": "Sauvegarde nocturne des données non régénérables, tirage de restauration hebdomadaire, healthchecks sur les huit services, rotation des journaux.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "published",
+    "priority": "P0",
+    "progress": 100,
+    "deadline": "2026-08-15",
+    "impact": "continuite",
+    "offer": "internal",
+    "quality_gate_status": "ok",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
+      "human_review_done": true
+    },
+    "next_action": "En service. Reste hors de notre main : la supervision externe d'uptime (compte tiers) — BACKUP_PING_URL est prêt à la recevoir. Tous les signaux actuels sont émis PAR ce serveur, donc aucun ne peut partir quand c'est lui qui tombe.",
+    "links": [],
+    "internal_notes": "Rien n'était sauvegardé avant le 2026-08-10. Le piège évité : les deux bases tournent en WAL et le .sqlite fait 4 Ko quand son -wal en fait 1,4 Mo — un `cp` aurait produit une base ouvrable et presque VIDE, le pire mode de défaillance, celui qui ressemble à une réussite. D'où l'API de sauvegarde en ligne, et la relecture de chaque instantané (integrity_check + compte de tables) avant acceptation. Archives 0600 : elles contiennent docker/.env et des données clients."
+  },
+  {
+    "id": "deliv_ops_social_card",
+    "title": "Carte sociale et icônes du site public",
+    "description": "Image Open Graph par défaut, apple-touch-icon et manifeste web.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "published",
+    "priority": "P1",
+    "progress": 100,
+    "deadline": "2026-08-15",
+    "impact": "site_credibility",
+    "offer": "public",
+    "quality_gate_status": "ok",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": true,
+      "compliance_done": true,
+      "human_review_done": true
+    },
+    "next_action": "En ligne. Régénérer avec `npm --workspace @ag/public run build:brand` si la marque bouge.",
+    "links": [
+      {
+        "label": "Carte sociale",
+        "url": "/og.png"
+      }
+    ],
+    "internal_notes": "Base.astro acceptait une prop `image` depuis le début et aucune page ne la passait : chaque partage LinkedIn rendait une vignette grise. Le head pointait aussi vers un apple-touch-icon et un manifeste inexistants — créés dans le même geste."
   }
 ]

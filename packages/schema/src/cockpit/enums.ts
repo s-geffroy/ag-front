@@ -34,6 +34,9 @@ export const deliverableTypes = [
   'map',
   'translation',
   'method',
+  // Operational work that keeps the deployment alive (backups, monitoring, wiring). Not editorial:
+  // it has no body, no sources and no Munich checklist — see the gate note on `Pillar` below.
+  'ops',
 ] as const;
 export const DeliverableType = z.enum(deliverableTypes);
 export type DeliverableType = z.infer<typeof DeliverableType>;
@@ -45,6 +48,11 @@ export const pillars = [
   'acquisition',
   'scorecard',
   'site',
+  // Running the thing, as opposed to producing or selling it: deployment, backups, supervision,
+  // legal compliance of the public surface. Added 2026-08-10 because a *deployment* cockpit had no
+  // way to represent deployment work — the SMTP wiring, the backups and the audience measurement
+  // were all invisible to it, which is exactly how they had gone unnoticed in the first place.
+  'ops',
 ] as const;
 export const Pillar = z.enum(pillars);
 export type Pillar = z.infer<typeof Pillar>;

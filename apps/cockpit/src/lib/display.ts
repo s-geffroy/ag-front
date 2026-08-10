@@ -60,6 +60,7 @@ export const typeLabel: Record<string, string> = {
   map: 'Carte',
   translation: 'Traduction',
   method: 'Méthode',
+  ops: 'Exploitation',
 };
 
 export const pillarLabel: Record<string, string> = {
@@ -69,6 +70,7 @@ export const pillarLabel: Record<string, string> = {
   acquisition: 'Acquisition',
   scorecard: 'Scorecard',
   site: 'Site',
+  ops: 'Exploitation',
 };
 
 export const offerLabel: Record<string, string> = {

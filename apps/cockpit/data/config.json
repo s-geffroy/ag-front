@@ -1,12 +1,33 @@
 {
   "statuses": [
-    { "id": "backlog", "label": "Backlog" },
-    { "id": "framing", "label": "À cadrer" },
-    { "id": "sources", "label": "Sources" },
-    { "id": "production", "label": "Production" },
-    { "id": "review", "label": "Revue" },
-    { "id": "ready", "label": "Prêt" },
-    { "id": "published", "label": "Publié" }
+    {
+      "id": "backlog",
+      "label": "Backlog"
+    },
+    {
+      "id": "framing",
+      "label": "À cadrer"
+    },
+    {
+      "id": "sources",
+      "label": "Sources"
+    },
+    {
+      "id": "production",
+      "label": "Production"
+    },
+    {
+      "id": "review",
+      "label": "Revue"
+    },
+    {
+      "id": "ready",
+      "label": "Prêt"
+    },
+    {
+      "id": "published",
+      "label": "Publié"
+    }
   ],
   "priorities": ["P0", "P1", "P2", "P3"],
   "types": [
@@ -20,19 +41,41 @@
     "pilot",
     "map",
     "translation",
-    "method"
+    "method",
+    "ops"
   ],
-  "pillars": ["method", "production", "offers", "acquisition", "scorecard", "site"],
+  "pillars": ["method", "production", "offers", "acquisition", "scorecard", "site", "ops"],
   "offers": ["public", "basic", "standard", "premium", "internal"],
   "quality_gate_statuses": ["ok", "at_risk", "blocked", "not_started"],
   "contact_stages": [
-    { "id": "identified", "label": "Identifié" },
-    { "id": "to_contact", "label": "À contacter" },
-    { "id": "contacted", "label": "Contacté" },
-    { "id": "replied", "label": "Répondu" },
-    { "id": "meeting_obtained", "label": "Échange obtenu" },
-    { "id": "pilot_potential", "label": "Pilote potentiel" },
-    { "id": "pilot_started", "label": "Pilote lancé" }
+    {
+      "id": "identified",
+      "label": "Identifié"
+    },
+    {
+      "id": "to_contact",
+      "label": "À contacter"
+    },
+    {
+      "id": "contacted",
+      "label": "Contacté"
+    },
+    {
+      "id": "replied",
+      "label": "Répondu"
+    },
+    {
+      "id": "meeting_obtained",
+      "label": "Échange obtenu"
+    },
+    {
+      "id": "pilot_potential",
+      "label": "Pilote potentiel"
+    },
+    {
+      "id": "pilot_started",
+      "label": "Pilote lancé"
+    }
   ],
   "output_types": [
     {
