@@ -13,6 +13,15 @@ published: false
 confidence: moyen
 corrections: []
 sources:
+  - label: Reuters — Les Houthis annoncent avoir visé deux pétroliers saoudiens (22 juil. 2026)
+    type: presse_specialisee
+    url: https://www.reuters.com/world/middle-east/yemens-houthis-say-they-targeted-two-saudi-oil-tankers-2026-07-22/
+  - label: Xinhua / Saudi Press Agency — Incendie à bord de l’Encelia (confirmation d’État, 23 juil. 2026)
+    type: institutionnel
+    url: https://english.news.cn/20260723/f45d031d4a7e48589b0aed3452627f9e/c.html
+  - label: JMIC — Advisory Note, Update 079 (2 août 2026 ; niveau régional SEVERE)
+    type: institutionnel
+    url: https://dbce.org/wp-content/uploads/2026/08/Update-079-JMIC-Advisory-Note-02-August.pdf
   - label: Suez Canal Authority — Navigation Statistics
     type: institutionnel
     url: https://www.suezcanal.gov.eg/English/Navigation/Pages/NavigationStatistics.aspx
@@ -54,8 +63,13 @@ revanche **à valider**. Le corridor porte normalement ≈ 15 % du commerce mari
 - La **trajectoire récente de la prime _war-risk_** — cœur de la thèse — est **recoupée par la presse**
   (Reuters, S&P/Platts), sans **série de taux primaire** : c’est le **verrou** de la validation, confirmé
   par notre passe de contradiction interne (finding de sévérité élevée).
-- La **durabilité de l’accalmie** post-cessez-le-feu d’octobre 2025 reste incertaine : aucune attaque
-  contre un navire marchand depuis, mais la menace est jugée **latente** par les autorités (US MARAD).
+- L’accalmie post-cessez-le-feu d’octobre 2025 **a pris fin le 22 juillet 2026** : des pétroliers
+  saoudiens ont de nouveau été attaqués (incendie de l’*Encelia* confirmé par l’agence de presse
+  saoudienne), et le JMIC a porté le niveau régional à **SEVERE** le 2 août. Le motif invoqué n’est plus
+  le lien avec Israël mais une **interdiction de navigation visant les navires saoudiens** : un ciblage
+  plus étroit, dont l’effet sur le trafic Asie–Europe **n’est pas encore mesuré**. Les conditions de
+  retour examinées dans ce dossier restent posées, mais leur **horizon est repoussé** et le compteur des
+  « ~3 mois sans attaque » évoqué par les armateurs est remis à zéro.
 - Deux repères de bascule tiennent à des sources hétérogènes : la **fréquence d’incidents** est fondée
   sur une série mensuelle primaire (JMIC/CMF), mais la **durée de fermeture** reste un repère historique.
 - Géométrie **schématique**, sans valeur navigationnelle ni juridique. Niveau de confiance global :

@@ -4,12 +4,12 @@
     "title": "Publier le dossier Mer Rouge / Suez",
     "horizon": "90d",
     "due_date": "2026-09-15",
-    "status": "blocked",
+    "status": "at_risk",
     "linked_deliverables": ["deliv_red_sea_suez_dossier"],
     "expected_proof": "Premier dossier sérieux transmissible à des contacts qualifiés.",
     "success_metric": "1 dossier publié + 5 demandes ou envois ciblés.",
-    "next_action": "Corriger le contenu avant de reprendre la revue. La porte human_review_done n'est plus la dernière étape : le texte a vieilli sous elle.",
-    "blocker": "Le dossier affirme un fait devenu faux : reprise des attaques contre des navires marchands depuis le 22 juillet 2026 (voir docs/evidence/mer-rouge-suez-reprise-attaques-2026-07.md)."
+    "next_action": "Relire la réécriture du 2026-08-10, trancher verdict/CVI/confiance, puis human_review_done.",
+    "blocker": "Le fait périmé est corrigé en candidat ; reste à trancher si le changement de motif de ciblage modifie le verdict et le niveau CVI."
   },
   {
     "id": "milestone_three_atlas_fiches",
@@ -25,7 +25,7 @@
     "expected_proof": "Atlas visible avec cas principal et cas secondaire.",
     "success_metric": "3 fiches publiées.",
     "next_action": "Mer Rouge : matériaux de revue prêts (docs/evidence/mer-rouge-suez-gates-review.md) ; restent compliance_done, cvi_justified, human_review_done. Malacca et Taïwan : rapports de contradiction encore `pending` à traiter, puis mêmes portes. Aucune n'est bloquée par le code — toutes passent déjà la garde machine (munich-check).",
-    "blocker": "Fiche Mer Rouge : même fait périmé que le dossier. Malacca et Taïwan ne sont pas touchées, mais leur fraîcheur n'a pas été vérifiée."
+    "blocker": "Fiche Mer Rouge : réécriture candidate déposée, décision éditoriale en attente. Malacca et Taïwan : fraîcheur NON vérifiée — même contrôle à faire avant publication."
   },
   {
     "id": "milestone_50_contacts",

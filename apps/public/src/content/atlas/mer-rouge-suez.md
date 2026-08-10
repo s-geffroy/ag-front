@@ -15,7 +15,7 @@ regions:
 access: public
 published: false
 corrections: []
-updated: 2026-07-14
+updated: 2026-08-10
 confidence: moyen
 cvi_level: eleve
 chokepoint_id: p0_maritime_strait_bab_el_mandeb_strait
@@ -84,6 +84,18 @@ sources:
   - label: BIMCO — CONWARTIME (clause war-risk d’affrètement, refus de transit)
     type: reglementaire
     url: https://www.bimco.org/news-insights/bimco-news/2026/03/03-war-risks
+  - label: Reuters — Les Houthis annoncent avoir visé deux pétroliers saoudiens (22 juil. 2026)
+    type: presse_specialisee
+    url: https://www.reuters.com/world/middle-east/yemens-houthis-say-they-targeted-two-saudi-oil-tankers-2026-07-22/
+  - label: Xinhua / Saudi Press Agency — Incendie à bord de l’Encelia après attaque (confirmation d’État, 23 juil. 2026)
+    type: institutionnel
+    url: https://english.news.cn/20260723/f45d031d4a7e48589b0aed3452627f9e/c.html
+  - label: Reuters — Le trafic à Bab el-Mandeb ralentit après une frappe houthie (données Kpler, 27 juil. 2026)
+    type: presse_specialisee
+    url: https://www.reuters.com/world/middle-east/red-sea-shipping-slows-after-houthi-attack-saudi-arabia-data-shows-2026-07-27/
+  - label: JMIC — Advisory Note, Update 079 (2 août 2026 ; niveau régional SEVERE, transits AIS en baisse)
+    type: institutionnel
+    url: https://dbce.org/wp-content/uploads/2026/08/Update-079-JMIC-Advisory-Note-02-August.pdf
 ---
 
 ## Définition du corridor
@@ -94,9 +106,16 @@ Système maritime reliant la Méditerranée (canal de Suez, Port-Saïd) à la me
 s’est **scindé en deux corridors** — l’un, régional et pétrolier, largement rétabli ; l’autre, celui des
 mégaporteurs Asie–Europe, quasi vidé et durablement dérouté par le Cap.
 
-> **État au 12 juillet 2026.** Aucune attaque contre un navire marchand depuis le cessez-le-feu de Gaza
-> d’octobre 2025 ; la menace reste jugée présente par les autorités maritimes (US MARAD). Le corridor est
-> en accalmie, non en normalisation.
+> **État au 10 août 2026.** L’accalmie est terminée. Depuis le 22 juillet 2026, des **pétroliers sont de
+> nouveau attaqués** : l’*Encelia* a pris feu à l’avant — attaque **confirmée par l’agence de presse
+> saoudienne**, et non seulement revendiquée —, suivi du *NCC Ghazal* le 28 juillet puis d’un tanker
+> contrôlé par Bahri le 4 août. Le JMIC a relevé Bab el-Mandeb à « Substantial » le 23 juillet, puis
+> inscrit un niveau régional **SEVERE** le 2 août, avec des transits AIS en baisse.
+>
+> **Le motif a changé.** Les Houthis n’invoquent plus le lien avec Israël mais une **interdiction de
+> navigation visant les navires saoudiens**. Le ciblage est donc plus étroit qu’en 2023-24 : à ce stade,
+> il vise un pavillon et un armateur, non le trafic Asie–Europe indistinctement. Ce que cela fait au
+> report vers le Cap n’est **pas encore mesuré**.
 
 ## Nœuds principaux
 
@@ -131,8 +150,11 @@ L’histoire n’est plus la part de marché, c’est **l’effondrement et le t
   marchands en 2024, retombées à **~7** en 2025 (ACLED) ; au pic (déc. 2023 – printemps 2024), la cadence
   atteignait **~3–4 attaques par semaine**. Sud mer Rouge et golfe d’Aden restent classés « High Risk » par
   le Joint War Committee (circulaire primaire **JWLA-033**, 3 mars 2026 — zone désormais combinée/élargie).
-  La menace est **latente, non éteinte** : aucune frappe depuis le cessez-le-feu
-  d’octobre 2025, mais l’arsenal (missiles/drones, portée démontrée > 150 milles) demeure.
+  La menace est **active** : après neuf mois sans attaque suivant le cessez-le-feu d’octobre 2025, les
+  frappes ont repris le 22 juillet 2026 contre des pétroliers saoudiens (Reuters ; SPA via Xinhua pour la
+  confirmation de l’incendie de l’*Encelia*), et le JMIC a porté le niveau régional à **SEVERE** le 2 août
+  (Update 079). L’arsenal (missiles/drones, portée démontrée > 150 milles) est employé, non plus seulement
+  disponible.
 - **Assurance — la variable pivot.** La surprime _war-risk_ (en % de la valeur coque) a suivi un arc :
   ~0,05 % avant octobre 2023 → **0,3–0,5 %** en décembre 2023 → jusqu’à **~1 %** début 2024 → détente, puis
   **bond à 0,7–1 %** en juillet 2025 après le naufrage de deux navires → **~0,2 %** après le cessez-le-feu
@@ -171,9 +193,10 @@ des **repères de décision** (analyse), non des mesures. La colonne _Statut_ di
 
 ## Scénarios
 
-1. **Retour progressif** — l’accalmie post-octobre 2025 tient ; les mégaporteurs reviennent par paliers, à
-   mesure que la prime reste basse et qu’un seuil pratique se confirme (les armateurs évoquent **~3 mois
-   sans attaque** avant de replanifier). Risque : congestion à la bascule inverse.
+1. **Retour progressif** — *scénario suspendu par la reprise du 22 juillet 2026.* Il supposait une
+   accalmie durable ; le compteur des « ~3 mois sans attaque » que les armateurs évoquent avant de
+   replanifier est **remis à zéro**. Le scénario redevient plausible si la campagne reste circonscrite au
+   pavillon saoudien et si la prime ne se généralise pas — deux conditions à vérifier, non acquises.
 2. **Perturbation durable** — le canal reste ouvert mais amputé de sa mainline ; le corridor bimodal
    (tankers + feeders oui, mégaporteurs non) se prolonge, la route du Cap devient le régime dominant du
    conteneur longue distance.
@@ -194,9 +217,14 @@ Le chokepoint irrigue l’économie mondiale, et sa perturbation s’y lit :
 ## Niveau de confiance
 
 **Moyen.** Élevé sur la géographie, les nœuds, l’ampleur et la **structure bimodale** du déroutage (recoupé
-par SCA, WSC, FMI/PortWatch, Kiel) et sur l’arc des primes (Reuters, S&P). L’incertitude ne porte plus sur
-la géographie mais sur **la durabilité de l’accalmie** post-cessez-le-feu et sur la **trajectoire future de
-la prime** — deux variables politiques, non hydrographiques.
+par SCA, WSC, FMI/PortWatch, Kiel) et sur l’arc des primes jusqu’à fin 2025 (Reuters, S&P).
+
+L’incertitude s’est **déplacée et creusée** depuis le 22 juillet 2026. Elle ne porte plus sur la durabilité
+d’une accalmie — celle-ci a cessé — mais sur **l’extension du ciblage** : une campagne visant le seul
+pavillon saoudien n’a pas le même effet sur le corridor qu’un retour au ciblage indistinct de 2023-24.
+Trois grandeurs manquent pour trancher, et aucune n’est estimée ici : la **prime _war-risk_ post-juillet
+2026**, le **report vers le Cap** sur la période, et la **réaction des mégaporteurs**. Variables
+politiques, non hydrographiques.
 
 > **Fait / analyse.** Les valeurs chiffrées proviennent des sources citées (faits **rapportés**, non
 > reconfirmés par nos soins) ; les seuils et les scénarios relèvent de l’analyse (repères de décision).
