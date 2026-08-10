@@ -72,21 +72,22 @@ export const fr: DeckCopy = {
       'Huit dimensions. Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes.',
   },
 
-  cviLimits: {
+  cviScope: {
     eyebrow: 'Méthode CVI',
-    title: 'Ce que le CVI ne prétend pas être',
+    title: 'Ce que le CVI établit',
     bullets: [
-      'Règle dure : pas de score global 0–100 sans documentation méthodologique publiée.',
-      'L’échelle suit l’offre — qualitatif en Basic, 0–5 par dimension en Standard, agrégé en Premium.',
-      'La géométrie des cartes est schématique : aucune valeur navigationnelle ni juridique.',
+      'Huit dimensions, chacune adossée à une question précise : exposition, concentration, menace, capacité de perturbation, résilience, coût de contournement, gouvernance, incertitude.',
+      'La même grille appliquée de la même façon partout — deux corridors deviennent comparables, et un même corridor comparable à lui-même six mois plus tard.',
+      'Une échelle qui suit l’offre : qualitative de bas à critique, puis 0–5 par dimension, puis agrégée.',
+      'Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes.',
     ],
     exclusions: [
-      'Ce n’est pas une prédiction, ni une probabilité de rupture.',
-      'Ce n’est pas un conseil juridique, financier ou assurantiel engageant.',
-      'Cela ne se substitue jamais au jugement interne du client.',
+      'Pas de score global 0–100 sans documentation méthodologique publiée.',
+      'Ni prédiction, ni probabilité de rupture — nous n’en produisons pas.',
+      'Aucune valeur navigationnelle ni juridique dans la géométrie des cartes.',
     ],
     footnote:
-      'Un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée.',
+      'Les trois dernières lignes comptent autant que les quatre premières : un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée.',
   },
 
   hdde: {

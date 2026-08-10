@@ -141,12 +141,12 @@ export const methodeFr: MethodeCopy = {
     },
     scales: {
       eyebrow: 'Méthode CVI',
-      title: 'L’échelle suit l’offre, et la règle dure ne bouge pas',
+      title: 'Ce que l’échelle vous donne, niveau par niveau',
       bullets: [
-        'Public et Basic : diagnostic qualitatif, bas → critique.',
-        'Standard : score 0–5 par dimension, plus un niveau global qualitatif.',
-        'Premium : score agrégé 0–100, uniquement si la méthodologie est documentée.',
-        'Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes.',
+        'Public et Basic — un diagnostic qualitatif, bas → critique : de quoi situer un corridor et le comparer à un autre.',
+        'Standard — un score 0–5 par dimension : de quoi voir OÙ se loge la vulnérabilité, et donc sur quoi agir.',
+        'Premium — un score agrégé 0–100, pondéré pour le contexte du client, dès lors que la méthodologie est documentée.',
+        'À tous les niveaux, chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes.',
       ],
       exclusions: [
         'Pas de score global 0–100 sans documentation méthodologique publiée.',

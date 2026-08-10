@@ -133,12 +133,12 @@ export const methodeEn: MethodeCopy = {
     },
     scales: {
       eyebrow: 'CVI method',
-      title: 'The scale follows the tier; the hard rule does not move',
+      title: 'What the scale gives you, tier by tier',
       bullets: [
-        'Public and Basic: qualitative diagnosis, low → critical.',
-        'Standard: 0–5 score per dimension, plus a qualitative overall level.',
-        'Premium: aggregate 0–100 score, only where the methodology is documented.',
-        'Every score carries its sources, its date, its confidence level and its uncertainties.',
+        'Public and Basic — a qualitative diagnosis, low → critical: enough to place a corridor and compare it to another.',
+        'Standard — a 0–5 score per dimension: enough to see WHERE the vulnerability sits, and therefore what to act on.',
+        'Premium — an aggregate 0–100 score, weighted for the client’s context, once the methodology is documented.',
+        'At every tier, each score carries its sources, its date, its confidence level and its uncertainties.',
       ],
       exclusions: [
         'No aggregate 0–100 score without published methodological documentation.',

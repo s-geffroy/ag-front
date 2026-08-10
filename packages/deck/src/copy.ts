@@ -43,8 +43,14 @@ export interface DeckCopy {
     glosses: [string, string, string, string];
     footnote: string;
   };
-  /** The disclaimer slide. `exclusions` are rendered muted — what is explicitly NOT promised. */
-  cviLimits: {
+  /**
+   * What the CVI establishes — and, in support, what it does not claim.
+   *
+   * `bullets` lead and carry the substance; `exclusions` render muted and smaller beneath them. That
+   * order is the point: a slide titled "what this is not" reads as a defence, and the limits land
+   * harder when they qualify a stated claim than when they ARE the claim.
+   */
+  cviScope: {
     eyebrow: string;
     title: string;
     bullets: string[];

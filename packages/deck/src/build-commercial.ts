@@ -82,11 +82,11 @@ export function buildCommercialDeck(lang: Lang, date: string): Deck {
     },
     {
       kind: 'bullets',
-      eyebrow: c.cviLimits.eyebrow,
-      title: c.cviLimits.title,
-      bullets: c.cviLimits.bullets,
-      exclusions: c.cviLimits.exclusions,
-      footnote: c.cviLimits.footnote,
+      eyebrow: c.cviScope.eyebrow,
+      title: c.cviScope.title,
+      bullets: c.cviScope.bullets,
+      exclusions: c.cviScope.exclusions,
+      footnote: c.cviScope.footnote,
     },
     {
       kind: 'bullets',

@@ -68,21 +68,22 @@ export const en: DeckCopy = {
       'Eight dimensions. Every score carries its sources, its date, its confidence level and its uncertainties.',
   },
 
-  cviLimits: {
+  cviScope: {
     eyebrow: 'CVI method',
-    title: 'What the CVI does not claim to be',
+    title: 'What the CVI establishes',
     bullets: [
-      'Hard rule: no aggregate 0–100 score without published methodological documentation.',
-      'The scale follows the tier — qualitative in Basic, 0–5 per dimension in Standard, aggregate in Premium.',
-      'Map geometry is schematic: it carries no navigational or legal precision.',
+      'Eight dimensions, each tied to a precise question: exposure, concentration, threat, disruption capacity, resilience, cost of bypass, governance, uncertainty.',
+      'The same grid applied the same way everywhere — two corridors become comparable, and one corridor becomes comparable to itself six months later.',
+      'A scale that follows the tier: qualitative from low to critical, then 0–5 per dimension, then aggregate.',
+      'Every score carries its sources, its date, its confidence level and its uncertainties.',
     ],
     exclusions: [
-      'It is not a prediction, nor a probability of disruption.',
-      'It is not binding legal, financial or insurance advice.',
-      'It never substitutes for the client’s own internal judgement.',
+      'No aggregate 0–100 score without published methodological documentation.',
+      'Neither a prediction nor a probability of disruption — we do not produce them.',
+      'No navigational or legal precision in map geometry.',
     ],
     footnote:
-      'An index that does not state its limits is not an index. It is an opinion with numbers.',
+      'The last three lines matter as much as the first four: an index that does not state its limits is not an index, it is an opinion with numbers.',
   },
 
   hdde: {
