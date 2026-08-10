@@ -34,6 +34,19 @@ export const Deliverable = z.object({
   priority: Priority,
   progress: z.number().int().min(0).max(100),
   deadline: z.string(), // ISO 8601 date
+  /**
+   * An OBSTACLE that currently stops this deliverable from advancing — something a human must
+   * remove. Not a place to record a limitation the work has already accepted and declared.
+   *
+   * The distinction is load-bearing because the field drives behaviour, not just display:
+   * `globalHealth` degrades to `at_risk`, `p0ToPush` promotes the item, the "Avec blocage" filter
+   * catches it, and the Markdown export prints it under **Blocages critiques**. A declared limitation
+   * parked here therefore announces itself as a critical blockage — which is how the Mer Rouge
+   * dossier came to publish the line "Limite assumée (non bloquante)" under that exact heading
+   * (arbitrated 2026-08-10; the text moved to `internal_notes`, where provenance belongs).
+   *
+   * Rule of thumb: if nobody can act on it, it is not a blocker.
+   */
   blocker: z.string().optional(),
   next_action: z.string(),
   impact: z.string(),
