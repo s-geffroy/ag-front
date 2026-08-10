@@ -6,6 +6,7 @@ import { RoadmapPage } from './pages/RoadmapPage';
 import { ProjectScorecardPage } from './pages/ProjectScorecardPage';
 import { CommercialScorecardPage } from './pages/CommercialScorecardPage';
 import { AcquisitionPage } from './pages/AcquisitionPage';
+import { PlaquettePage } from './pages/PlaquettePage';
 import { ExplorationPage } from './pages/ExplorationPage';
 import { SfimPage } from './pages/SfimPage';
 import { ContentReaderPage } from './pages/ContentReaderPage';
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       // Gestion commerciale
       { path: 'commercial/acquisition', element: <AcquisitionPage /> },
       { path: 'commercial/kpis', element: <CommercialScorecardPage /> },
+      { path: 'commercial/plaquette', element: <PlaquettePage /> },
 
       // Espaces de sortie (config-driven, single page)
       { path: 'sorties/:slug', element: <OutputWorkspacePage /> },

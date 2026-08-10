@@ -34,6 +34,22 @@ services:
     # Sensible default so `run --rm tools` with no args drops into a shell.
     command: ['bash']
 
+  # Deck/PDF toolchain (ADR 0073): LibreOffice + poppler + qpdf + the vendored `pptx`/`pdf` skill
+  # scripts. Separate image so the everyday `tools` service stays slim — build it only when a
+  # plaquette is regenerated. Driven by scripts/build-deck.sh, never invoked by hand in normal use.
+  #
+  #   docker compose -f docker/docker-compose.yml build slides
+  slides:
+    build:
+      context: ..
+      dockerfile: docker/slides.Dockerfile
+    image: app-geo-slides:local
+    user: '${UID:-1000}:${GID:-1000}'
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    command: ['bash']
+
   # Production cockpit server (built SPA + editable /api). Published on the host loopback only;
   # Tailscale serve fronts it as tailnet-only HTTPS (ADR 0005 / 0009). Never bind to 0.0.0.0 on host.
   cockpit:

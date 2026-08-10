@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<!--
+  Substitution-QA fontconfig: everything the base image has, MINUS the house fonts.
+
+  Point FONTCONFIG_FILE at this file and re-render a deck to see it the way a
+  prospect whose machine has neither Inter nor Fraunces sees it. The `pptx` skill
+  warns that non-standard fonts are QA-unreliable precisely because substitution
+  changes glyph widths — this is how we look at that failure mode instead of
+  assuming it away. See docs/decisions/0073-generateur-de-plaquettes.md §6.
+
+  NOT a rendering config for anything else: never set FONTCONFIG_FILE to this for
+  the real build, or the shipped PDF is the degraded one.
+-->
+<fontconfig>
+  <dir>/usr/share/fonts</dir>
+  <dir>/usr/local/share/fonts</dir>
+  <cachedir>/tmp/fontconfig-substitution-qa</cachedir>
+
+  <!-- Hide the house fonts installed by docker/slides.Dockerfile. -->
+  <selectfont>
+    <rejectfont>
+      <glob>/usr/local/share/fonts/applied-geopolitics/*</glob>
+    </rejectfont>
+  </selectfont>
+
+  <config></config>
+</fontconfig>

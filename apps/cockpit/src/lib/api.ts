@@ -88,6 +88,25 @@ export interface ValidatePayload {
   judge_verdict_snapshot?: JudgeGateVerdict;
 }
 
+/** Plaquette state (mirrors server/plaquette.ts, ADR 0073). */
+export interface PlaquetteLanguageStatus {
+  lang: 'fr' | 'en';
+  slides: number;
+  pptx: { file: string; bytes: number | null };
+  pdf: { file: string; bytes: number | null };
+  previews: string[];
+  substitutionPreviews: string[];
+}
+export interface PlaquetteStatus {
+  family: string;
+  updated: string;
+  published: boolean;
+  pageBuilt: boolean;
+  /** 'served' = live in dist, 'withheld' = built but gated, 'none' = site not rebuilt since the deck. */
+  previewSource: 'served' | 'withheld' | 'none';
+  languages: PlaquetteLanguageStatus[];
+}
+
 /** Payload for a one-click publish / unpublish (mirrors the server, ADR 0069). */
 export interface PublishPayload {
   decision: 'publish' | 'unpublish';
@@ -186,6 +205,15 @@ export const api = {
   // rebuild sentinel. Going live still needs the host rebuild (watcher, ~2 min).
   publishDoc: (type: string, slug: string, payload: PublishPayload) =>
     fetch(`/api/publish/${encodeURIComponent(type)}/${encodeURIComponent(slug)}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(asJson<{ published: boolean; entry: ValidationEntry; pending_rebuild: boolean }>),
+  // Plaquette review (ADR 0073). The deck is produced by scripts/build-deck.sh; the cockpit only reads
+  // its state, serves the artifacts for review, and records the publication decision.
+  getPlaquette: () => fetch('/api/plaquette').then(asJson<PlaquetteStatus>),
+  publishPlaquette: (payload: PublishPayload) =>
+    fetch('/api/plaquette/publish', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),

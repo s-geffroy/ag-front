@@ -1,0 +1,23 @@
+{
+  "name": "@ag/deck",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Plaquette generator — declarative slide model → .pptx (pptxgenjs), house chart identity, FR/EN. Driven by scripts/build-deck.sh.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build:deck": "tsx bin/build-deck.ts"
+  },
+  "dependencies": {
+    "pptxgenjs": "^3.12.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

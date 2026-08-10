@@ -1,0 +1,6 @@
+# The plaquettes under presentations/ are versioned deliverables (ADR 0073). They are ZIP/PDF
+# containers: marking them binary stops git from attempting a textual diff or a three-way merge, both
+# of which would silently produce a corrupt file on a conflict.
+presentations/**/*.pptx binary
+presentations/**/*.pdf  binary
+presentations/fonts/*   binary

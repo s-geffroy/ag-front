@@ -1,8 +1,12 @@
 ---
 import { nav, site } from '../lib/site';
+import { plaquetteIsPublic } from '../lib/plaquette';
 const year = 2026;
 // Flatten dropdown groups so every method page still appears as a direct link.
 const footerLinks = nav.flatMap((n) => ('children' in n ? n.children : [n]));
+// The plaquette page only exists in the build once it is published (ADR 0073) — linking it before
+// that would ship a 404 in the footer of every page on the site.
+const showPlaquette = plaquetteIsPublic();
 ---
 
 <footer class="bg-graticule mt-24 border-t-2 border-t-navy bg-surface">
@@ -26,6 +30,9 @@ const footerLinks = nav.flatMap((n) => ('children' in n ? n.children : [n]));
         <div class="label mb-3">Contact</div>
         <ul class="space-y-1.5 text-muted">
           <li><a href="/contact" class="hover:text-ink">Demander un échange</a></li>
+          {/* Deliberately here and not in `nav`: Footer flattens `nav`, so adding it there would put
+              the plaquette in the header menu too, which already carries six entries. */}
+          {showPlaquette && <li><a href="/plaquette" class="hover:text-ink">Plaquette (PDF)</a></li>}
           <li><a href={`mailto:${site.email}`} class="hover:text-ink">{site.email}</a></li>
           <li><a href="/notes/rss.xml" class="hover:text-ink">Flux RSS des notes</a></li>
         </ul>

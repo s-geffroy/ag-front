@@ -32,6 +32,13 @@ import { JudgeError, runJudge } from './llm/judge';
 import { resolveGateValidation } from './validate';
 import { resolvePublish, touchPublishPending, writePublishFlag } from './publish';
 import {
+  readStatus as readPlaquetteStatus,
+  resolveArtifact as resolvePlaquetteArtifact,
+  resolvePlaquettePublish,
+  resolvePreviewImage as resolvePlaquettePreviewImage,
+  writePublishedFlag as writePlaquettePublishedFlag,
+} from './plaquette';
+import {
   resolvePromoteFromFeed,
   toPromotedItem,
   writePromotedNews,
@@ -745,6 +752,84 @@ export function createApiRouter(): Router {
         res.status(400).json({ error: 'invalid slug' });
         return;
       }
+      next(err);
+    }
+  });
+
+  // --- Plaquette review & publication (ADR 0073) --------------------------------------------------
+  // The commercial deck is a PUBLIC artifact, so it crosses candidate → fact the same way an editorial
+  // fiche does: a nominative click, journalled, then the host watcher rebuilds. The cockpit never
+  // generates the deck (scripts/build-deck.sh does) and never runs the site build.
+  r.get('/plaquette', (_req: Request, res: Response) => {
+    const status = readPlaquetteStatus();
+    if (!status) {
+      res.status(404).json({ error: 'no_manifest' });
+      return;
+    }
+    res.json(status);
+  });
+
+  r.get('/plaquette/file/:lang/:file', (req: Request, res: Response) => {
+    const path = resolvePlaquetteArtifact(req.params.lang, req.params.file);
+    if (!path) {
+      res.status(404).json({ error: 'unknown artifact' });
+      return;
+    }
+    // inline: the reviewer reads the PDF in the browser's own viewer, which is the closest thing to
+    // what a prospect sees when they click the link on the public page.
+    res.sendFile(path, { headers: { 'Content-Disposition': 'inline' } });
+  });
+
+  r.get('/plaquette/preview/:name', (req: Request, res: Response) => {
+    const path = resolvePlaquettePreviewImage(req.params.name);
+    if (!path) {
+      res.status(404).json({ error: 'unknown preview' });
+      return;
+    }
+    res.sendFile(path);
+  });
+
+  r.post('/plaquette/publish', async (req: Request, res: Response, next: NextFunction) => {
+    const body = z
+      .object({
+        decision: z.enum(['publish', 'unpublish']),
+        validated_by: z.string().min(1),
+        reserve: z.string().optional(),
+      })
+      .safeParse(req.body);
+    if (!body.success) {
+      res.status(400).json({ error: 'validation', issues: body.error.issues });
+      return;
+    }
+    try {
+      const status = readPlaquetteStatus();
+      const resolved = resolvePlaquettePublish(status, body.data.decision);
+      if (!resolved.ok) {
+        res.status(resolved.status).json({ error: resolved.error });
+        return;
+      }
+      const publish = body.data.decision === 'publish';
+      const before = writePlaquettePublishedFlag(publish);
+      await touchPublishPending();
+      const entry = ValidationEntry.parse({
+        id: `val_${randomUUID()}`,
+        // No deliverable backs the plaquette; the target names itself so the trail stays readable.
+        deliverable_id: `plaquette/${status!.family}`,
+        target_kind: 'publication',
+        target_id: `plaquette/${status!.family}`,
+        decision: publish ? 'validated' : 'rejected',
+        reserve: body.data.reserve ?? '',
+        before,
+        after: publish,
+        validated_by: body.data.validated_by,
+        validated_at: new Date().toISOString(),
+      });
+      await mutateCollection('validation_journal', (list) => {
+        const arr = list as z.infer<typeof ValidationEntry>[];
+        return [...arr, entry];
+      });
+      res.status(201).json({ published: publish, entry, pending_rebuild: true });
+    } catch (err) {
       next(err);
     }
   });

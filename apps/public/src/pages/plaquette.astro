@@ -1,0 +1,100 @@
+---
+/**
+ * /plaquette — the public download page for the commercial deck (ADR 0073).
+ *
+ * The binaries are NOT in this repo's `public/` directory: `integrations/plaquette.mjs` copies them
+ * out of `presentations/commercial/` at build time, into this page's own dist directory. That same
+ * integration withholds the whole page when the manifest is unpublished, so this file can assume that
+ * if it renders at all, the deck has been validated in the cockpit.
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import CorridorChain from '../components/CorridorChain.astro';
+import { doctrineChain, site } from '../lib/site';
+import { fileSize, readManifest, PLAQUETTE_BASE } from '../lib/plaquette';
+
+const manifest = readManifest();
+if (!manifest) {
+  throw new Error(
+    'presentations/commercial/manifest.json is missing — run scripts/build-deck.sh before building.',
+  );
+}
+
+const langLabel = { fr: 'Français', en: 'English' } as const;
+const rows = manifest.languages.map((l) => ({
+  ...l,
+  label: langLabel[l.lang],
+  pdfSize: fileSize(l.lang, l.pdf),
+  pptxSize: fileSize(l.lang, l.pptx),
+}));
+
+const updated = new Date(`${manifest.updated}T00:00:00Z`).toLocaleDateString('fr-FR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<Base
+  title="Plaquette"
+  description="La plaquette Applied Geopolitics : doctrine des corridors, méthode CVI, HDDE et VERDICT, et les trois niveaux d’offre. PDF et PowerPoint, FR et EN."
+>
+  <Section class="py-14">
+    <p class="eyebrow">Plaquette</p>
+    <h1 class="mt-4 font-serif text-title font-bold">Applied Geopolitics, en seize pages</h1>
+    <p class="mt-3 max-w-prose text-lg text-muted">{site.positioning}</p>
+
+    <div class="mt-10 border-t border-line pt-8">
+      <p class="label">La doctrine qu’elle expose</p>
+      <CorridorChain steps={doctrineChain} class="mt-5" />
+    </div>
+
+    <div class="mt-12">
+      <p class="label">Télécharger</p>
+      <p class="mt-3 max-w-prose text-sm text-muted">
+        Le <strong class="text-ink">PDF</strong> est la version de référence : sa mise en page et ses
+        polices sont embarquées, elle s’affiche partout à l’identique. Le
+        <strong class="text-ink">PowerPoint</strong> est la version éditable — sur un poste dépourvu des
+        polices de la maison, la substitution modifie légèrement la composition.
+      </p>
+
+      <div class="mt-6 grid gap-4 sm:grid-cols-2">
+        {
+          rows.map((r) => (
+            <div class="border border-line bg-surface p-5">
+              <div class="flex items-baseline justify-between gap-3">
+                <h2 class="font-serif text-xl font-bold">{r.label}</h2>
+                <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+                  {r.slides} slides
+                </span>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <a href={`${PLAQUETTE_BASE}/${r.pdf}`} class="btn-primary" download>
+                  PDF{r.pdfSize ? ` · ${r.pdfSize}` : ''}
+                </a>
+                <a href={`${PLAQUETTE_BASE}/${r.pptx}`} class="btn-ghost" download>
+                  PowerPoint{r.pptxSize ? ` · ${r.pptxSize}` : ''}
+                </a>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
+        Mise à jour : {updated}
+      </p>
+    </div>
+
+    <div class="mt-12 border-t border-line pt-8">
+      <p class="max-w-prose text-sm leading-relaxed text-muted">
+        La plaquette présente la méthode et les niveaux d’offre. Elle ne contient aucun score de
+        vulnérabilité présenté comme un fait : les diagnostics de corridor sont publiés, un par un, dans
+        l’<a href="/atlas" class="text-ink underline underline-offset-2">Atlas</a>, à mesure que leur
+        validation aboutit. Pour un pilote Premium, l’entretien de cadrage précède toute proposition —
+        <a href="/contact?sujet=pilote" class="text-ink underline underline-offset-2">demander un échange</a>.
+      </p>
+    </div>
+  </Section>
+</Base>

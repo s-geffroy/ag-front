@@ -1,0 +1,17 @@
+{
+  "family": "commercial",
+  "updated": "2026-08-10",
+  "published": false,
+  "languages": {
+    "fr": {
+      "slides": 16,
+      "pptx": "commercial.fr.pptx",
+      "pdf": "commercial.fr.pdf"
+    },
+    "en": {
+      "slides": 16,
+      "pptx": "commercial.en.pptx",
+      "pdf": "commercial.en.pdf"
+    }
+  }
+}

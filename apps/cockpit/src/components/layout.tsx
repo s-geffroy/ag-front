@@ -12,6 +12,7 @@ import {
   Moon,
   ShieldCheck,
   Sun,
+  Presentation,
   TrendingUp,
   Upload,
   Users,
@@ -47,6 +48,7 @@ const STATIC_SECTIONS: NavSection[] = [
     items: [
       { to: '/commercial/acquisition', label: 'Acquisition', icon: Users },
       { to: '/commercial/kpis', label: 'KPIs commerciaux', icon: TrendingUp },
+      { to: '/commercial/plaquette', label: 'Plaquette', icon: Presentation },
     ],
   },
 ];

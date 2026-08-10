@@ -2,6 +2,10 @@
 import Base from '../layouts/Base.astro';
 import Section from '../components/Section.astro';
 import { offers } from '../lib/site';
+import { plaquetteIsPublic } from '../lib/plaquette';
+
+// Guarded: /plaquette is absent from the build until the deck is published (ADR 0073).
+const showPlaquette = plaquetteIsPublic();
 ---
 
 <Base
@@ -73,5 +77,15 @@ import { offers } from '../lib/site';
       suivis, 1 restitution. Au lancement, les offres Basic et Standard ouvrent progressivement à mesure
       que l’Atlas et l’historique se constituent.
     </p>
+
+    {
+      showPlaquette && (
+        <p class="mt-4 max-w-prose text-sm text-muted">
+          Ces trois niveaux, la méthode et la doctrine sont réunis dans la{' '}
+          <a href="/plaquette" class="text-ink underline underline-offset-2">plaquette</a> — PDF et
+          PowerPoint, FR et EN.
+        </p>
+      )
+    }
   </Section>
 </Base>
