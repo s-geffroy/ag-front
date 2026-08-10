@@ -56,7 +56,7 @@ export const methodeEn: MethodeCopy = {
       statement:
         'We do not write notes off the back of the news. We query a corridor database that we maintain.',
       support:
-        'Every analysis starts from catalogued, sourced, versioned objects — not from research restarted for each engagement. That is what makes it possible to compare two corridors, to track a change, and to answer tomorrow the question that was asked today.',
+        'Every analysis starts from catalogued, sourced, versioned objects — not from research restarted for each engagement. That is what makes two corridors comparable — the same grid, applied the same way — what makes a change trackable, and what lets us answer tomorrow the question that was asked today.',
     },
     scale: {
       eyebrow: 'The substrate',
@@ -67,8 +67,8 @@ export const methodeEn: MethodeCopy = {
         'Each carries its reliability level and its licence regime: use, extraction, storage.',
         'CVI, control, corroboration, resilience, network, weaponizability, event pressure, exposed trade loss…',
       ],
-      footnote:
-        'Catalogued is not validated: promoting an object to P0 requires sourced evidence and human validation. 22 objects are there today.',
+      footnote: (f) =>
+        `Catalogued is not validated: promoting an object to P0 requires sourced evidence and human validation. ${f.p0} objects are there today. That figure describes the instructed corpus — the base also serves ${f.servedCatalogue.toLocaleString('en-GB')} objects, most of which have had no analytical treatment at all.`,
     },
     corpus: {
       eyebrow: 'The substrate',
@@ -86,8 +86,15 @@ export const methodeEn: MethodeCopy = {
         'The corpus is not frozen: every schema change is a versioned migration, and every architectural decision is written down before it is applied.',
       ],
       panelTitle: 'Discipline',
+      panelLabels: [
+        'Registered sources',
+        'Derivation engines',
+        'Written architectural decisions',
+        'Versioned migrations',
+        'Pinned read contract',
+      ],
       footnote:
-        'This is not rigour on display: it is what makes a claim refutable six months later.',
+        'This is not rigour on display: it is what makes a claim refutable six months later. The read interface is itself a versioned contract, pinned on the consumer side: a break is caught at compile time, on both sides, never in production.',
     },
     engines: {
       eyebrow: 'The substrate',
@@ -114,14 +121,6 @@ export const methodeEn: MethodeCopy = {
       footnote:
         'The cardinality floor is recent and it costs: it removed the consensus block from Panama, our most visible corridor. A signal backed by a single market is not a consensus, however convenient.',
     },
-    contract: {
-      eyebrow: 'The substrate',
-      statement:
-        'The read interface is a versioned contract, pinned on the consumer side, and guarded by a test that breaks the build.',
-      support:
-        'A contract break is not discovered in production: it is caught at build time, on both sides, before anything is served.',
-      statLabels: ['endpoints', 'schemas', 'pinned contract'],
-    },
   },
 
   measure: {
@@ -137,7 +136,7 @@ export const methodeEn: MethodeCopy = {
       bullets: [
         'Public and Basic — a qualitative diagnosis, low → critical: enough to place a corridor and compare it to another.',
         'Standard — a 0–5 score per dimension: enough to see WHERE the vulnerability sits, and therefore what to act on.',
-        'Premium — an aggregate 0–100 score, weighted for the client’s context, once the methodology is documented.',
+        'Premium — an aggregate 0–100 score weighted for the client’s context. That condition is not met today: until the weighting is documented and published, the aggregate is not computed, and the engine does not serve it.',
         'At every tier, each score carries its sources, its date, its confidence level and its uncertainties.',
       ],
       exclusions: [
@@ -145,8 +144,10 @@ export const methodeEn: MethodeCopy = {
         'No probability of disruption: we do not produce them.',
         'No navigational or legal precision in map geometry.',
       ],
+      measuredLimit: (f) =>
+        `As of ${f.measuredOn}: ${f.allEightDimensions} instructed corridors out of ${f.instructedCorpus} carry all eight dimensions, ${f.threeDimensions} carry only three, and every one of them sits in the top band. The grid discriminates in principle; the base does not discriminate yet in fact.`,
       footnote:
-        'An index that does not state its limits is not an index. It is an opinion with numbers.',
+        'An index that does not state its limits is not an index. It is an opinion with numbers — and the state of the base is one of those limits.',
     },
   },
 
@@ -321,24 +322,23 @@ export const methodeEn: MethodeCopy = {
     verdicts: {
       eyebrow: 'VERDICT',
       title: 'Four outcomes, and the score band that leads there',
-      steps: [
-        { marker: '≥ 80', label: 'DO', note: 'Commit. Evidence ≥ 4, no veto, human validation.' },
-        {
-          marker: '65–79',
+      // The bands are NOT here: `build-methode.ts` reads them from `verdictLabels`. This copy carries
+      // only what translation owns — the name and the gloss.
+      entries: {
+        FAIRE: { label: 'DO', note: 'Commit. Evidence ≥ 4, no veto, human validation.' },
+        TESTER: {
           label: 'TEST',
           note: 'Run a falsifiable, bounded test, with its stop condition.',
         },
-        {
-          marker: '50–64',
+        DIFFÉRER: {
           label: 'DEFER',
           note: 'Evidence is missing or the context is not ready. Set the review date.',
         },
-        {
-          marker: '< 50',
+        ABANDONNER: {
           label: 'ABANDON',
           note: 'The option does not hold. Write it down, so it is not revived in six months.',
         },
-      ],
+      },
       footnote:
         'Defer and abandon are decisions, not failures of the method. A protocol that can only output “do” is worthless.',
     },
@@ -370,9 +370,10 @@ export const methodeEn: MethodeCopy = {
   walkthrough: {
     disclaimer:
       'Method illustration on public sources — this is not a published diagnosis. The corresponding Atlas entry is still in human validation.',
+    outcomeLabel: 'Outcome',
     steps: [
       {
-        eyebrow: 'Walk it through · 1/3',
+        eyebrow: 'Walk it through · 1/4',
         title: 'The corridor, and what actually moves through it',
         body: [
           'Malacca is not a route, it is a narrowing. The binding passage is the Phillips Channel, a few kilometres off Singapore — and that is where everything that follows concentrates.',
@@ -390,7 +391,7 @@ export const methodeEn: MethodeCopy = {
           'Sources: US EIA, World Oil Transit Chokepoints (H1 2025); MPA Singapore, Annual Report 2024.',
       },
       {
-        eyebrow: 'Walk it through · 2/3',
+        eyebrow: 'Walk it through · 2/4',
         title: 'Where the dependency hides — and what nobody documents',
         body: [
           'The naive question is “can ships go elsewhere?”. The answer is yes: Lombok is deep and permissive, it takes vessels Malacca turns away. The constraint is therefore not draught.',
@@ -409,7 +410,7 @@ export const methodeEn: MethodeCopy = {
           'Sources: Reuters (2017) and Global Energy Monitor for pipeline capacity; the route extension is a model, not official data.',
       },
       {
-        eyebrow: 'Walk it through · 3/3',
+        eyebrow: 'Walk it through · 3/4',
         title: 'The threshold, and the decision it triggers',
         body: [
           'A diagnosis that does not say what to watch tomorrow morning has served no purpose. Each threshold ties an observable indicator to a regime shift and to the action it implies.',
@@ -426,6 +427,24 @@ export const methodeEn: MethodeCopy = {
         ],
         footnote:
           'Source: ReCAAP ISC, Annual Report 2025. Thresholds are decision markers — an analysis, never a measurement.',
+      },
+      {
+        eyebrow: 'Walk it through · 4/4',
+        title: 'The threshold is crossed. What do we do, and how will we know?',
+        body: [
+          'A crossed threshold is not a decision, it is an entry into the protocol. The situation is stated without its answer, at least three options are defined — the main one, a minimal alternative, and doing nothing — and only then are they compared.',
+          'In this case, the option “pre-position thirty days of stock on inputs transiting Malacca” comes out with partial evidence: the flows are measured, the residual absorption capacity is not. The score reflects that, deliberately — the weighting gives ten points to the level of proof.',
+          'So the outcome is not to commit. It is a bounded test whose stop condition is written before it starts: what will tell us the decision was wrong, and on what date we look.',
+        ],
+        panelTitle: 'The arbitration, as it comes out',
+        panel: [
+          { key: 'Triggering threshold', value: '-15 % crude' },
+          { key: 'Options compared, incl. non-action', value: '3' },
+          { key: 'Level of proof retained', value: '3 / 5' },
+          { key: 'Hard vetoes', value: 'none' },
+        ],
+        footnote:
+          'The score is not the decision: it is what the decision will have to justify itself against. Validation stays human and named.',
       },
     ],
   },

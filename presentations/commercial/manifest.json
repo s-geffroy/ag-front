@@ -4,12 +4,12 @@
   "published": false,
   "languages": {
     "fr": {
-      "slides": 16,
+      "slides": 15,
       "pptx": "commercial.fr.pptx",
       "pdf": "commercial.fr.pdf"
     },
     "en": {
-      "slides": 16,
+      "slides": 15,
       "pptx": "commercial.en.pptx",
       "pdf": "commercial.en.pdf"
     }

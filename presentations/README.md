@@ -40,8 +40,18 @@ The content is **not** written here. It is assembled by `packages/deck` from wha
 
 Editing a price means editing `site.ts`. There is no second copy to keep in sync, by design.
 
+That claim used to be broader than it was true. The 2026-08-10 audit found the four VERDICT score
+bands hand-typed into `methode-copy.{fr,en}.ts`, saying `65–79 / 50–64 / < 50` while the engine,
+`docs/methode-verdict.md` and `/methode-verdict` all said `60–79 / 40–59 / 0–39` — shipped, in the
+PDF. It also found the per-tier `includes`/`excludes` lists duplicated from `site.ts`, already
+drifted, and rendered nowhere. Both are gone: the bands come from `verdictLabels`, the dead lists were
+deleted, and `method-coupling.test.ts` fails if the coupling is ever undone. Measurements follow the
+same rule — `backend-facts.ts` and `cvi-facts.ts` reach the copy as function arguments, never as
+literals.
+
 ⚠️ The corollary: **a price change on `/offres` requires regenerating `commercial`**, or the site and
-the document disagree. Nothing reminds you.
+the document disagree. `artifact-freshness.test.ts` now reads the shipped `.pptx` and fails when the
+prices or the score bands in it are stale — that is the reminder that used not to exist.
 
 Pass `--date` explicitly when you want a reproducible rebuild: it stamps both the deck metadata and
 the PDF timestamps, so the same date yields byte-identical files and no spurious diff.

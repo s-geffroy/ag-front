@@ -64,7 +64,7 @@ export const methodeFr: MethodeCopy = {
       statement:
         'Nous ne produisons pas des notes à partir de la presse. Nous interrogeons une base de corridors que nous tenons.',
       support:
-        'Chaque analyse part d’objets recensés, sourcés et versionnés, pas d’une recherche recommencée à chaque dossier. C’est ce qui permet de comparer deux corridors, de suivre une évolution, et de répondre le lendemain à la question posée la veille.',
+        'Chaque analyse part d’objets recensés, sourcés et versionnés, pas d’une recherche recommencée à chaque dossier. C’est ce qui rend deux corridors comparables — la même grille, appliquée de la même façon —, ce qui permet de suivre une évolution, et de répondre le lendemain à la question posée la veille.',
     },
     scale: {
       eyebrow: 'Le socle',
@@ -75,8 +75,8 @@ export const methodeFr: MethodeCopy = {
         'Chacune porte son niveau de fiabilité et son régime de licence : usage, extraction, stockage.',
         'CVI, contrôle, corroboration, résilience, réseau, arme-abilité, pression événementielle, perte commerciale exposée…',
       ],
-      footnote:
-        'Recensé n’est pas validé : la promotion d’un objet en priorité P0 exige des preuves sourcées et une validation humaine. 22 objets y sont aujourd’hui.',
+      footnote: (f) =>
+        `Recensé n’est pas validé : la promotion d’un objet en priorité P0 exige des preuves sourcées et une validation humaine. ${f.p0} objets y sont aujourd’hui. Ce chiffre est celui du corpus instruit — la base sert par ailleurs ${f.servedCatalogue.toLocaleString('fr-FR')} objets, dont l’essentiel n’a reçu aucun traitement analytique.`,
     },
     corpus: {
       eyebrow: 'Le socle',
@@ -94,8 +94,15 @@ export const methodeFr: MethodeCopy = {
         'Le corpus n’est pas figé : chaque changement de schéma est une migration versionnée, et chaque décision d’architecture est écrite avant d’être appliquée.',
       ],
       panelTitle: 'Discipline',
+      panelLabels: [
+        'Sources au registre',
+        'Moteurs dérivés',
+        'Décisions d’architecture écrites',
+        'Migrations versionnées',
+        'Contrat de lecture épinglé',
+      ],
       footnote:
-        'Ce n’est pas de la rigueur affichée : c’est ce qui rend une affirmation réfutable six mois plus tard.',
+        'Ce n’est pas de la rigueur affichée : c’est ce qui rend une affirmation réfutable six mois plus tard. L’interface de lecture elle-même est un contrat versionné, épinglé chez le consommateur : une rupture est détectée à la compilation, des deux côtés, jamais en production.',
     },
     engines: {
       eyebrow: 'Le socle',
@@ -122,14 +129,6 @@ export const methodeFr: MethodeCopy = {
       footnote:
         'Le plancher de cardinalité est récent et il coûte : il a retiré son bloc de consensus à Panama, notre corridor le plus visible. Un signal adossé à un seul marché n’est pas un consensus, même quand il arrange.',
     },
-    contract: {
-      eyebrow: 'Le socle',
-      statement:
-        'L’interface de lecture est un contrat versionné, épinglé chez le consommateur, et gardé par un test qui casse le build.',
-      support:
-        'Une rupture de contrat n’est pas découverte en production : elle est détectée à la compilation, des deux côtés, avant d’être servie.',
-      statLabels: ['points d’accès', 'schémas', 'contrat épinglé'],
-    },
   },
 
   measure: {
@@ -145,7 +144,7 @@ export const methodeFr: MethodeCopy = {
       bullets: [
         'Public et Basic — un diagnostic qualitatif, bas → critique : de quoi situer un corridor et le comparer à un autre.',
         'Standard — un score 0–5 par dimension : de quoi voir OÙ se loge la vulnérabilité, et donc sur quoi agir.',
-        'Premium — un score agrégé 0–100, pondéré pour le contexte du client, dès lors que la méthodologie est documentée.',
+        'Premium — un score agrégé 0–100 pondéré pour le contexte du client. La condition n’est pas remplie à ce jour : tant que la pondération n’est pas documentée et publiée, l’agrégat n’est pas calculé, et le moteur ne le sert pas.',
         'À tous les niveaux, chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes.',
       ],
       exclusions: [
@@ -153,8 +152,10 @@ export const methodeFr: MethodeCopy = {
         'Pas de probabilité de rupture : nous n’en produisons pas.',
         'Aucune valeur navigationnelle ni juridique dans la géométrie des cartes.',
       ],
+      measuredLimit: (f) =>
+        `Au ${f.measuredOn} : ${f.allEightDimensions} corridors instruits sur ${f.instructedCorpus} portent les huit dimensions, ${f.threeDimensions} n’en portent que trois, et tous sont en bande ${f.observedLevel}. La grille discrimine en droit ; la base ne discrimine pas encore en fait.`,
       footnote:
-        'Un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée.',
+        'Un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée — et l’état de la base est une de ces limites.',
     },
   },
 
@@ -330,28 +331,26 @@ export const methodeFr: MethodeCopy = {
     verdicts: {
       eyebrow: 'VERDICT',
       title: 'Quatre issues, et la bande de score qui y mène',
-      steps: [
-        {
-          marker: '≥ 80',
+      // Les bandes ne sont PAS ici : `build-methode.ts` les lit dans `verdictLabels`. Cette copy ne
+      // porte que ce que la traduction possède — le nom et la glose.
+      entries: {
+        FAIRE: {
           label: 'FAIRE',
           note: 'Engager. Preuve ≥ 4, aucun veto, validation humaine.',
         },
-        {
-          marker: '65–79',
+        TESTER: {
           label: 'TESTER',
           note: 'Engager un test falsifiable, borné, avec sa condition d’arrêt.',
         },
-        {
-          marker: '50–64',
+        DIFFÉRER: {
           label: 'DIFFÉRER',
           note: 'La preuve manque ou le contexte n’est pas mûr. On fixe la date de revue.',
         },
-        {
-          marker: '< 50',
+        ABANDONNER: {
           label: 'ABANDONNER',
           note: 'L’option ne tient pas. On l’écrit, pour ne pas la reprendre dans six mois.',
         },
-      ],
+      },
       footnote:
         'Différer et abandonner sont des décisions, pas des échecs de la méthode. Un protocole qui ne peut produire que « faire » ne sert à rien.',
     },
@@ -383,9 +382,10 @@ export const methodeFr: MethodeCopy = {
   walkthrough: {
     disclaimer:
       'Illustration de méthode sur sources publiques — ce n’est pas un diagnostic publié. La fiche Atlas correspondante est en cours de validation humaine.',
+    outcomeLabel: 'Issue',
     steps: [
       {
-        eyebrow: 'Dérouler · 1/3',
+        eyebrow: 'Dérouler · 1/4',
         title: 'Le corridor, et ce qui y circule vraiment',
         body: [
           'Malacca n’est pas une route, c’est un rétrécissement. Le passage contraignant est le chenal de Phillips, quelques kilomètres devant Singapour — et c’est là que se concentre tout ce qui suit.',
@@ -403,7 +403,7 @@ export const methodeFr: MethodeCopy = {
           'Sources : US EIA, World Oil Transit Chokepoints (1ᵉʳ semestre 2025) ; MPA Singapore, Annual Report 2024.',
       },
       {
-        eyebrow: 'Dérouler · 2/3',
+        eyebrow: 'Dérouler · 2/4',
         title: 'Où se cache la dépendance — et ce que personne ne documente',
         body: [
           'La question naïve est « peut-on passer ailleurs ? ». La réponse est oui : Lombok est profond et permissif, il accueille des navires que Malacca refuse. La contrainte n’est donc pas le tirant d’eau.',
@@ -422,7 +422,7 @@ export const methodeFr: MethodeCopy = {
           'Sources : Reuters (2017) et Global Energy Monitor pour la capacité du pipeline ; l’allongement de route est une modélisation, pas une donnée officielle.',
       },
       {
-        eyebrow: 'Dérouler · 3/3',
+        eyebrow: 'Dérouler · 3/4',
         title: 'Le seuil, et la décision qu’il déclenche',
         body: [
           'Un diagnostic qui ne dit pas à quoi regarder demain matin n’a servi à rien. Chaque seuil lie un indicateur observable à une bascule de régime et à l’action qu’elle implique.',
@@ -439,6 +439,24 @@ export const methodeFr: MethodeCopy = {
         ],
         footnote:
           'Source : ReCAAP ISC, Annual Report 2025. Les seuils sont des repères de décision — une analyse, jamais une mesure.',
+      },
+      {
+        eyebrow: 'Dérouler · 4/4',
+        title: 'Le seuil est franchi. Que fait-on, et comment le saura-t-on ?',
+        body: [
+          'Un seuil franchi n’est pas une décision, c’est une entrée dans le protocole. On pose la situation sans sa réponse, on définit au moins trois options — la principale, une alternative minimale, et la non-action — puis seulement on compare.',
+          'Sur ce cas, l’option « pré-positionner trente jours de stock sur les intrants qui transitent par Malacca » sort avec un niveau de preuve partiel : les flux sont mesurés, la capacité résiduelle d’absorption ne l’est pas. Le score en tient compte, et c’est voulu — la pondération accorde dix points au niveau de preuve.',
+          'L’issue n’est donc pas d’engager. C’est un test borné, dont la condition d’arrêt est écrite avant de commencer : à quoi l’on reconnaîtra que la décision était mauvaise, et à quelle date on regarde.',
+        ],
+        panelTitle: 'L’arbitrage, tel qu’il sort',
+        panel: [
+          { key: 'Seuil déclencheur', value: '-15 % brut' },
+          { key: 'Options comparées, dont la non-action', value: '3' },
+          { key: 'Niveau de preuve retenu', value: '3 / 5' },
+          { key: 'Vetos durs', value: 'aucun' },
+        ],
+        footnote:
+          'Le score n’est pas la décision : il est ce sur quoi la décision devra s’expliquer. La validation reste humaine et nominative.',
       },
     ],
   },

@@ -191,7 +191,7 @@ export type ChokepointsClient = {
   getStrategicFlowVerdict(sfuId: string): Promise<SfuVerdictOutT | null>;
   /** GET /strategic-flows/{sfuId}/fiche — full SFU fiche (red_team block only with read_tainted). */
   getStrategicFlowFiche(sfuId: string): Promise<SfuFicheOutT>;
-  // --- 0.6.0 ---
+  // --- added in 0.6.0 ---
   /** GET /derived/relations — candidate graph extracted from the analysis fiches (ADR 0065). */
   listDerivedRelations(params?: DerivedRelationParams): Promise<DerivedRelationGraphOutT>;
   /** GET /derived/relation-graph — raw centrality/topology report. Opaque text; do not parse. */
@@ -266,7 +266,7 @@ export const COVERED_PATHS = [
   '/strategic-flows',
   '/strategic-flows/{sfu_id}/verdict',
   '/strategic-flows/{sfu_id}/fiche',
-  // 0.6.0
+  // added in 0.6.0
   '/derived/relations',
   '/derived/relation-graph',
   // 0.9.0
@@ -551,7 +551,7 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       return SfuFicheOut.parse(await get(`/strategic-flows/${enc(sfuId)}/fiche`));
     },
 
-    // --- 0.6.0 additive endpoints ---
+    // --- endpoints added in 0.6.0 ---
     async listDerivedRelations(params) {
       // Derived candidates, NOT canonical — distinct from `listRelations()`. No taint gate producer-side.
       return DerivedRelationGraphOut.parse(

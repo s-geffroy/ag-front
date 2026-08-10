@@ -7,6 +7,13 @@
  * `backend-facts.ts` and method vocabulary from `@ag/cvi` / `@ag/verdict`, never retyped here.
  */
 
+import type { verdictLabels } from '@ag/verdict';
+import type { backend } from './backend-facts';
+import type { CviFacts } from './cvi-facts';
+
+/** The engine's own verdict keys, derived so the copy contract cannot name a verdict it does not have. */
+type VerdictKey = keyof typeof verdictLabels;
+
 export interface Act {
   numeral: string;
   title: string;
@@ -39,24 +46,31 @@ export interface MethodeCopy {
 
   substrate: {
     thesis: { eyebrow: string; statement: string; support: string };
-    scale: { eyebrow: string; title: string; labels: string[]; notes: string[]; footnote: string };
+    scale: {
+      eyebrow: string;
+      title: string;
+      labels: string[];
+      notes: string[];
+      /** Takes the backend figures: the P0 count and the served/instructed gap are both measured. */
+      footnote: (f: typeof backend) => string;
+    };
     corpus: { eyebrow: string; title: string; unit: string; footnote: string };
     provenance: {
       eyebrow: string;
       title: string;
       body: string[];
       panelTitle: string;
+      /**
+       * Captions for the five panel figures, in order: sources, engines, written decisions, versioned
+       * migrations, pinned contract. The unit-test count used to sit here and was dropped: it evidences
+       * nothing the body claims, and a client-facing deck that counts its own unit tests is proving
+       * developer hygiene where it was asked for analytical discipline.
+       */
+      panelLabels: [string, string, string, string, string];
       footnote: string;
     };
     engines: { eyebrow: string; title: string; bullets: string[]; footnote: string };
     live: { eyebrow: string; title: string; bullets: string[]; footnote: string };
-    /** `statLabels` are the three figures' captions — endpoints / schemas / pinned contract. */
-    contract: {
-      eyebrow: string;
-      statement: string;
-      support: string;
-      statLabels: [string, string, string];
-    };
   };
 
   measure: {
@@ -67,6 +81,13 @@ export interface MethodeCopy {
       title: string;
       bullets: string[];
       exclusions: string[];
+      /**
+       * The measured state of the served base, rendered as the last exclusion. This is the slide that
+       * sells the scale tier by tier, so it is the slide that owes the reader what the scale currently
+       * resolves to — every instructed corridor in one band, three dimensions out of eight for most
+       * of the corpus. Built from `cvi-facts.ts`; never a literal.
+       */
+      measuredLimit: (f: CviFacts) => string;
       footnote: string;
     };
   };
@@ -89,7 +110,18 @@ export interface MethodeCopy {
   arbitrate: {
     stages: { eyebrow: string; title: string; footnote: string };
     criteria: { eyebrow: string; title: string; footnote: string };
-    verdicts: { eyebrow: string; title: string; steps: Step[]; footnote: string };
+    /**
+     * The four outcomes. `entries` is keyed by the engine's own verdict keys and carries ONLY what
+     * translation owns — the localised name and gloss. The score band is deliberately absent: it
+     * comes from `verdictLabels[].scoreBand` in `build-methode.ts`, because the one time it lived
+     * here it drifted from the engine and shipped wrong bands in the PDF.
+     */
+    verdicts: {
+      eyebrow: string;
+      title: string;
+      entries: Record<VerdictKey, { label: string; note: string }>;
+      footnote: string;
+    };
     vetoes: {
       eyebrow: string;
       title: string;
@@ -102,6 +134,12 @@ export interface MethodeCopy {
 
   walkthrough: {
     disclaimer: string;
+    /**
+     * Caption for the outcome row appended to the last step's panel. The value itself is NOT here:
+     * `build-methode.ts` builds it from `verdictLabels`, so the walkthrough cannot show a band the
+     * engine would not produce.
+     */
+    outcomeLabel: string;
     steps: {
       eyebrow: string;
       title: string;

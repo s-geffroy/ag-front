@@ -36,7 +36,7 @@ export const en: DeckCopy = {
     statement:
       'A company knows its suppliers. What it does not know is which corridors make those suppliers dependent on someone else.',
     support:
-      'Declared dependency is contractual and legible. Real dependency runs through chokepoints, jurisdictions and insurers that never made it onto the risk register.',
+      'Declared dependency is contractual and legible. Real dependency runs through chokepoints, jurisdictions and insurers that never made it onto the risk register — a strait, a regulator, a single plant. What breaks an operation is almost always one tier further back.',
   },
 
   chain: {
@@ -44,14 +44,6 @@ export const en: DeckCopy = {
     title: 'From corridor to decision, in seven moves',
     footnote:
       'The order is the argument: you do not jump from flows to decisions without thresholds.',
-  },
-
-  hiddenDependency: {
-    eyebrow: 'The shift',
-    statement:
-      'Visible dependency is not critical dependency. What breaks an operation is almost always one tier further back.',
-    support:
-      'The declared supplier is rarely the binding node. Behind it sit a strait, a regulator, an insurer, a single plant — and that is where the rupture happens.',
   },
 
   cvi: {
@@ -64,8 +56,8 @@ export const en: DeckCopy = {
       'Few alternatives, thresholds close.',
       'Extreme concentration, systemic disruption.',
     ],
-    footnote:
-      'Eight dimensions. Every score carries its sources, its date, its confidence level and its uncertainties.',
+    footnote: (f) =>
+      `Eight dimensions. Every score carries its sources, its date, its confidence level and its uncertainties. The scale states what the grid can establish, not where the base stands: as of this date, all ${f.instructedCorpus} instructed corridors sit in the top band.`,
   },
 
   cviScope: {
@@ -74,7 +66,7 @@ export const en: DeckCopy = {
     bullets: [
       'Eight dimensions, each tied to a precise question: exposure, concentration, threat, disruption capacity, resilience, cost of bypass, governance, uncertainty.',
       'The same grid applied the same way everywhere — two corridors become comparable, and one corridor becomes comparable to itself six months later.',
-      'A scale that follows the tier: qualitative from low to critical, then 0–5 per dimension, then aggregate.',
+      'A scale that follows the tier: qualitative from low to critical, then 0–5 per dimension. The 0–100 aggregate is waiting on its methodological documentation: it is not computed, so it is not served.',
       'Every score carries its sources, its date, its confidence level and its uncertainties.',
     ],
     exclusions: [
@@ -82,8 +74,10 @@ export const en: DeckCopy = {
       'Neither a prediction nor a probability of disruption — we do not produce them.',
       'No navigational or legal precision in map geometry.',
     ],
+    measuredLimit: (f) =>
+      `As of this date, ${f.allEightDimensions} instructed corridors out of ${f.instructedCorpus} carry all eight dimensions; ${f.threeDimensions} carry only three. The grid is applied everywhere; it is not populated everywhere.`,
     footnote:
-      'The last three lines matter as much as the first four: an index that does not state its limits is not an index, it is an opinion with numbers.',
+      'The lines at the bottom matter as much as those at the top: an index that does not state its limits is not an index, it is an opinion with numbers.',
   },
 
   hdde: {
@@ -113,9 +107,12 @@ export const en: DeckCopy = {
 
   coverage: {
     eyebrow: 'Coverage',
-    statement: 'Three founding corridors are under study: Malacca, Red Sea–Suez, Taiwan.',
-    support:
-      'Written and sourced, currently in human validation — not yet published. The Atlas opens one corridor at a time, never before the gates are met.',
+    title: 'Three corridors under study — and what “under study” means',
+    body: [
+      'Three founding corridors are under study: Malacca, Red Sea–Suez, Taiwan. Written and sourced, currently in human validation — not yet published. The Atlas opens one corridor at a time, never before the gates are met.',
+      'Studying a corridor is not having an opinion about it: it starts with establishing what actually moves through it. These are the four opening measures for Malacca — institutional, dated, and verifiable without us.',
+      'The rest of the method applies to those figures: real substitution, tipping thresholds, decision. It has its own deck.',
+    ],
   },
 
   offersIntro: {
@@ -128,40 +125,14 @@ export const en: DeckCopy = {
     basic: {
       promise: 'Inform',
       tagline: 'Understand corridors, flows and vulnerabilities.',
-      includes: [
-        'Structured notes',
-        'Basic Atlas entries',
-        'Qualitative diagnostics (low → critical)',
-        'Executive summaries of dossiers',
-        'Synthesis newsletter',
-      ],
-      excludes: ['0–5 CVI scoring', 'Thematic alerts', 'Historical tracking'],
     },
     standard: {
       promise: 'Monitor',
       tagline: 'Track the signals, the scores and how they move.',
-      includes: [
-        'Everything in Basic, plus:',
-        'Full Atlas entries',
-        '0–5 CVI scoring per dimension',
-        'Thematic alerts',
-        '3 to 5 tracked signals per corridor',
-        'Corridor-to-corridor comparison',
-      ],
-      excludes: ['Client contextualisation', 'Bespoke CVI weightings', 'Tailored debrief'],
     },
     premium: {
       promise: 'Arbitrate',
       tagline: 'Scenarios, tipping thresholds and contextualised arbitration.',
-      includes: [
-        'Everything in Standard, plus:',
-        'Framing interview',
-        'Client exposure diagnosis',
-        'Tailored scenarios and tipping thresholds',
-        'Mitigation options',
-        '45–60 min debrief + decision note',
-      ],
-      excludes: ['Full supply-chain audit', 'Legal advice', 'Guaranteed prediction'],
     },
   },
 

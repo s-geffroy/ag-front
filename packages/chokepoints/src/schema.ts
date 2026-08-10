@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-// Response shapes for the Chokepoints Read API (v0.6.0). Defensive: `.passthrough()` tolerates extra
+// Response shapes for the Chokepoints Read API (contract pinned at 0.18.0 —
+// scripts/consumer/contract/openapi.json is the machine truth). Defensive: `.passthrough()` tolerates extra
 // fields and additive API changes. Mirrors docs/api-interface-contract_V3.md.
 //
 // `.passthrough()` is a runtime safety net, NOT a licence to leave fields undeclared: an undeclared

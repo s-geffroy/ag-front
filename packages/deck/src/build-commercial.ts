@@ -12,10 +12,16 @@ import { backend } from './backend-facts';
 import type { DeckCopy } from './copy';
 import { en } from './copy.en';
 import { fr } from './copy.fr';
+import { cviFacts } from './cvi-facts';
+import type { MethodeCopy } from './methode-copy';
+import { methodeEn } from './methode-copy.en';
+import { methodeFr } from './methode-copy.fr';
 import type { Deck, Lang, Slide } from './model';
 import { cviLevels } from './theme';
 
 const COPY: Record<Lang, DeckCopy> = { fr, en };
+/** The long deck's copy, for the one panel the short deck borrows — see the coverage slide below. */
+const METHODE: Record<Lang, MethodeCopy> = { fr: methodeFr, en: methodeEn };
 
 /** Offers, keyed — site.ts exposes them as an ordered array. */
 function offer(id: 'basic' | 'standard' | 'premium') {
@@ -26,6 +32,9 @@ function offer(id: 'basic' | 'standard' | 'premium') {
 
 export function buildCommercialDeck(lang: Lang, date: string): Deck {
   const c = COPY[lang];
+  const m = METHODE[lang];
+  /** The walkthrough's opening step — the four sourced measures the coverage slide borrows. */
+  const measured = m.walkthrough.steps[0]!;
   const tiers = (['basic', 'standard', 'premium'] as const).map((id) => ({
     id,
     site: offer(id),
@@ -52,12 +61,10 @@ export function buildCommercialDeck(lang: Lang, date: string): Deck {
       steps: [...doctrineChain],
       footnote: c.chain.footnote,
     },
-    {
-      kind: 'statement',
-      eyebrow: c.hiddenDependency.eyebrow,
-      statement: c.hiddenDependency.statement,
-      support: c.hiddenDependency.support,
-    },
+    // A second `statement` used to sit here ("visible dependency is not critical dependency"). It made
+    // the same argument as slide 2 with the chain slide in between, and the deck could not afford two
+    // slots for one idea. Its strongest image — the second rank — folded into slide 2's support, and
+    // the slot went to the coverage slide below, which now carries verifiable figures.
     { kind: 'section-break', ...c.acts.ground },
     {
       kind: 'stat-row',
@@ -78,14 +85,16 @@ export function buildCommercialDeck(lang: Lang, date: string): Deck {
         label: c.cvi.levels[i]!,
         gloss: c.cvi.glosses[i]!,
       })),
-      footnote: c.cvi.footnote,
+      footnote: c.cvi.footnote(cviFacts),
     },
     {
       kind: 'bullets',
       eyebrow: c.cviScope.eyebrow,
       title: c.cviScope.title,
       bullets: c.cviScope.bullets,
-      exclusions: c.cviScope.exclusions,
+      // The measured coverage rides with the exclusions: it is a limit on what the scale currently
+      // resolves to, and it belongs on the slide that states the claim it qualifies.
+      exclusions: [...c.cviScope.exclusions, c.cviScope.measuredLimit(cviFacts)],
       footnote: c.cviScope.footnote,
     },
     {
@@ -102,11 +111,26 @@ export function buildCommercialDeck(lang: Lang, date: string): Deck {
       bullets: c.verdict.bullets,
       footnote: c.verdict.footnote,
     },
+    // The proof slide, and the reason this deck was restructured.
+    //
+    // A cold prospect reaching this point had been given two numbers — 313 and 3 — and no way to check
+    // either, because every Atlas fiche is still `published: false` and the deck (correctly) links to
+    // none of them. Meanwhile the one genuinely demonstrative sequence in the corpus, the Malacca
+    // walkthrough, sat in the `methode` deck, read only by prospects already convinced. The proof was
+    // on the wrong side.
+    //
+    // So the coverage slide now carries the walkthrough's opening panel: four institutional measures,
+    // from the US EIA and MPA Singapore, that the reader can verify without us. Imported from the
+    // methode copy rather than retyped — the figures have exactly one home.
     {
-      kind: 'statement',
+      kind: 'split',
       eyebrow: c.coverage.eyebrow,
-      statement: c.coverage.statement,
-      support: c.coverage.support,
+      title: c.coverage.title,
+      body: c.coverage.body,
+      panelTitle: measured.panelTitle,
+      panel: measured.panel,
+      // Same disclaimer as in `methode`, and for the same reason: a slide gets photographed alone.
+      footnote: `${m.walkthrough.disclaimer} ${measured.footnote}`,
     },
     { kind: 'section-break', ...c.acts.offers },
     {

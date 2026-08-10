@@ -40,7 +40,7 @@ export const fr: DeckCopy = {
     statement:
       'Une entreprise connaît ses fournisseurs. Elle ignore par quels corridors ils dépendent, eux, de quelqu’un d’autre.',
     support:
-      'La dépendance déclarée est contractuelle et lisible. La dépendance réelle passe par des points de passage, des juridictions et des assureurs que personne n’a inscrits au registre des risques.',
+      'La dépendance déclarée est contractuelle et lisible. La dépendance réelle passe par des points de passage, des juridictions et des assureurs que personne n’a inscrits au registre des risques — un détroit, un régulateur, une usine unique. Ce qui casse une activité est presque toujours à ce second rang.',
   },
 
   chain: {
@@ -48,14 +48,6 @@ export const fr: DeckCopy = {
     title: 'Du corridor à la décision, en sept temps',
     footnote:
       'L’ordre est l’argument : on ne saute pas des flux aux décisions sans passer par les seuils.',
-  },
-
-  hiddenDependency: {
-    eyebrow: 'Le déplacement',
-    statement:
-      'Dépendance visible n’est pas dépendance critique. Ce qui casse une activité est presque toujours au second rang.',
-    support:
-      'Le fournisseur déclaré est rarement le nœud contraignant. Derrière lui : un détroit, un régulateur, un assureur, une usine unique — et c’est là que se joue la rupture.',
   },
 
   cvi: {
@@ -68,8 +60,8 @@ export const fr: DeckCopy = {
       'Peu d’alternatives, seuils proches.',
       'Concentration extrême, perturbation systémique.',
     ],
-    footnote:
-      'Huit dimensions. Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes.',
+    footnote: (f) =>
+      `Huit dimensions. Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes. L’échelle dit ce que la grille peut établir, pas où en est la base : à cette date, les ${f.instructedCorpus} corridors instruits sont tous en bande ${f.observedLevel}.`,
   },
 
   cviScope: {
@@ -78,7 +70,7 @@ export const fr: DeckCopy = {
     bullets: [
       'Huit dimensions, chacune adossée à une question précise : exposition, concentration, menace, capacité de perturbation, résilience, coût de contournement, gouvernance, incertitude.',
       'La même grille appliquée de la même façon partout — deux corridors deviennent comparables, et un même corridor comparable à lui-même six mois plus tard.',
-      'Une échelle qui suit l’offre : qualitative de bas à critique, puis 0–5 par dimension, puis agrégée.',
+      'Une échelle qui suit l’offre : qualitative de bas à critique, puis 0–5 par dimension. L’agrégat 0–100 attend sa documentation méthodologique : il n’est pas calculé, donc pas servi.',
       'Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes.',
     ],
     exclusions: [
@@ -86,8 +78,10 @@ export const fr: DeckCopy = {
       'Ni prédiction, ni probabilité de rupture — nous n’en produisons pas.',
       'Aucune valeur navigationnelle ni juridique dans la géométrie des cartes.',
     ],
+    measuredLimit: (f) =>
+      `À cette date, ${f.allEightDimensions} corridors instruits sur ${f.instructedCorpus} portent les huit dimensions, ${f.threeDimensions} n’en portent que trois. La grille est appliquée partout ; elle n’est pas partout renseignée.`,
     footnote:
-      'Les trois dernières lignes comptent autant que les quatre premières : un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée.',
+      'Les lignes du bas comptent autant que celles du haut : un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée.',
   },
 
   hdde: {
@@ -117,9 +111,12 @@ export const fr: DeckCopy = {
 
   coverage: {
     eyebrow: 'Couverture',
-    statement: 'Trois corridors fondateurs sont instruits : Malacca, Mer Rouge–Suez, Taïwan.',
-    support:
-      'Fiches rédigées et sourcées, en cours de validation humaine — elles ne sont pas encore publiées. L’Atlas s’ouvre corridor par corridor, jamais avant que les gates soient tenues.',
+    title: 'Trois corridors instruits — et ce qu’« instruit » veut dire',
+    body: [
+      'Trois corridors fondateurs sont instruits : Malacca, Mer Rouge–Suez, Taïwan. Fiches rédigées et sourcées, en cours de validation humaine — elles ne sont pas encore publiées. L’Atlas s’ouvre corridor par corridor, jamais avant que les gates soient tenues.',
+      'Instruire un corridor, ce n’est pas en avoir une opinion : c’est d’abord établir ce qui y circule. Voici les quatre mesures de départ pour Malacca — institutionnelles, datées, et vérifiables sans nous.',
+      'Le reste de la méthode s’applique à ces chiffres-là : substitution réelle, seuils de bascule, décision. Il fait l’objet d’une plaquette dédiée.',
+    ],
   },
 
   offersIntro: {
@@ -132,44 +129,14 @@ export const fr: DeckCopy = {
     basic: {
       promise: 'Informer',
       tagline: 'Comprendre les corridors, les flux et les vulnérabilités.',
-      includes: [
-        'Notes structurées',
-        'Fiches Atlas Basic',
-        'Diagnostics qualitatifs (bas → critique)',
-        'Résumés exécutifs de dossiers',
-        'Newsletter de synthèse',
-      ],
-      excludes: ['Scoring CVI 0–5', 'Alertes thématiques', 'Historique d’évolution'],
     },
     standard: {
       promise: 'Surveiller',
       tagline: 'Suivre les signaux, les scores et les évolutions.',
-      includes: [
-        'Tout Basic, plus :',
-        'Fiches Atlas complètes',
-        'Scoring CVI 0–5 par dimension',
-        'Alertes thématiques',
-        '3 à 5 signaux suivis par corridor',
-        'Comparaisons entre corridors',
-      ],
-      excludes: [
-        'Contextualisation client',
-        'Pondérations CVI sur mesure',
-        'Restitution personnalisée',
-      ],
     },
     premium: {
       promise: 'Arbitrer',
       tagline: 'Scénarios, seuils de bascule et arbitrage contextualisé.',
-      includes: [
-        'Tout Standard, plus :',
-        'Entretien de cadrage',
-        'Diagnostic d’exposition client',
-        'Scénarios et seuils de bascule adaptés',
-        'Options de mitigation',
-        'Restitution 45–60 min + note de décision',
-      ],
-      excludes: ['Audit complet de supply chain', 'Conseil juridique', 'Garantie de prédiction'],
     },
   },
 

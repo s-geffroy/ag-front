@@ -9,9 +9,10 @@
  */
 
 import { cviDimensionKeys, cviDimensions } from '@ag/cvi';
-import { criterionLabels, verdictStages } from '@ag/verdict';
+import { criterionLabels, verdictLabels, verdictStages } from '@ag/verdict';
 import { site } from '../../../apps/public/src/lib/site';
 import { backend, corpusByFamily } from './backend-facts';
+import { cviFacts } from './cvi-facts';
 import type { Deck, Lang, Slide } from './model';
 import type { MethodeCopy } from './methode-copy';
 import { methodeEn } from './methode-copy.en';
@@ -47,7 +48,7 @@ export function buildMethodeDeck(lang: Lang, date: string): Deck {
         label: c.substrate.scale.labels[i]!,
         note: c.substrate.scale.notes[i]!,
       })),
-      footnote: c.substrate.scale.footnote,
+      footnote: c.substrate.scale.footnote(backend),
     },
     {
       kind: 'distribution',
@@ -66,12 +67,18 @@ export function buildMethodeDeck(lang: Lang, date: string): Deck {
       title: c.substrate.provenance.title,
       body: c.substrate.provenance.body,
       panelTitle: c.substrate.provenance.panelTitle,
+      // The panel used to read ADR / Migrations / Tests / Sources, with English captions in both
+      // languages. The unit-test count is gone — it evidenced nothing in the body, and a deck that
+      // counts its own unit tests is proving developer hygiene to a reader who asked about analytical
+      // discipline. What is left maps line for line onto a claim the body actually makes, plus the
+      // pinned contract, folded in from the slide that used to follow this one.
       panel: [
-        { key: 'ADR', value: String(backend.adrs) },
-        { key: 'Migrations', value: String(backend.migrations) },
-        { key: 'Tests', value: String(backend.tests) },
-        { key: 'Sources', value: String(backend.sources) },
-      ],
+        String(backend.sources),
+        String(backend.engines),
+        String(backend.adrs),
+        String(backend.migrations),
+        backend.contract,
+      ].map((value, i) => ({ key: c.substrate.provenance.panelLabels[i]!, value })),
       footnote: c.substrate.provenance.footnote,
     },
     {
@@ -88,15 +95,11 @@ export function buildMethodeDeck(lang: Lang, date: string): Deck {
       bullets: c.substrate.live.bullets,
       footnote: c.substrate.live.footnote,
     },
-    {
-      kind: 'stat-row',
-      eyebrow: c.substrate.contract.eyebrow,
-      title: c.substrate.contract.statement,
-      stats: [String(backend.endpoints), String(backend.schemas), backend.contract].map(
-        (value, i) => ({ value, label: c.substrate.contract.statLabels[i]! }),
-      ),
-      footnote: c.substrate.contract.support,
-    },
+    // A stat-row on the read contract used to close Act I: "40 endpoints · 51 schemas · 0.18.0 pinned".
+    // It was the deck's most inward-looking slide — endpoint counts are an engineering property, and a
+    // B2B geopolitics buyer does not buy one. Its single client-relevant idea (a contract break is
+    // caught at compile time, not in production) folded into the provenance footnote above, and the
+    // slot went to the fourth walkthrough slide, where the method finally reaches a decision.
 
     // ── Act II — measure ─────────────────────────────────────────────────────────────────────────
     // No CVI ramp here: the commercial deck already carries the gauge. This act goes one level down,
@@ -119,7 +122,9 @@ export function buildMethodeDeck(lang: Lang, date: string): Deck {
       eyebrow: c.measure.scales.eyebrow,
       title: c.measure.scales.title,
       bullets: c.measure.scales.bullets,
-      exclusions: c.measure.scales.exclusions,
+      // The measured state of the base rides with the things we refuse to claim, because that is what
+      // it is: a limit on what the scale currently resolves to, stated where the scale is sold.
+      exclusions: [...c.measure.scales.exclusions, c.measure.scales.measuredLimit(cviFacts)],
       footnote: c.measure.scales.footnote,
     },
 
@@ -192,7 +197,14 @@ export function buildMethodeDeck(lang: Lang, date: string): Deck {
       eyebrow: c.arbitrate.verdicts.eyebrow,
       title: c.arbitrate.verdicts.title,
       columns: 2,
-      steps: c.arbitrate.verdicts.steps,
+      // The band comes from the engine, the name and gloss from the copy. Retyping the band here is
+      // exactly what shipped `65–79 / 50–64 / < 50` into a PDF while the engine said `60–79 / 40–59
+      // / 0–39`; `method-coupling.test.ts` now fails if this ever stops importing.
+      steps: (Object.keys(verdictLabels) as (keyof typeof verdictLabels)[]).map((v) => ({
+        marker: verdictLabels[v].scoreBand,
+        label: c.arbitrate.verdicts.entries[v].label,
+        note: c.arbitrate.verdicts.entries[v].note,
+      })),
       footnote: c.arbitrate.verdicts.footnote,
     },
     {
@@ -213,13 +225,26 @@ export function buildMethodeDeck(lang: Lang, date: string): Deck {
     // ── Act V — walk it through ──────────────────────────────────────────────────────────────────
     { kind: 'section-break', ...c.acts.walkthrough },
     ...c.walkthrough.steps.map(
-      (step): Slide => ({
+      (step, i): Slide => ({
         kind: 'split',
         eyebrow: step.eyebrow,
         title: step.title,
         body: step.body,
         panelTitle: step.panelTitle,
-        panel: step.panel,
+        // The last step ends on the arbitration's outcome, and the outcome row is built from the
+        // engine — band and name both — so the walkthrough cannot display a verdict VERDICT would not
+        // produce. This is the only place the two methods visibly chain: a threshold crossed in Act V
+        // enters the protocol laid out in Act IV and comes out as a bounded test, not as a commitment.
+        panel:
+          i === c.walkthrough.steps.length - 1
+            ? [
+                ...step.panel,
+                {
+                  key: c.walkthrough.outcomeLabel,
+                  value: `${verdictLabels.TESTER.scoreBand} · ${c.arbitrate.verdicts.entries.TESTER.label}`,
+                },
+              ]
+            : step.panel,
         // The disclaimer rides on EVERY walkthrough slide, not once at the top of the act: slides get
         // screenshotted and forwarded individually, and a caveat that only exists on slide 26 is not
         // a caveat.

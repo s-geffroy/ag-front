@@ -7,13 +7,14 @@
  * compile error, which is what a client-facing artifact deserves.
  *
  * PRICES ARE NOT HERE. They come from `apps/public/src/lib/site.ts`, so the plaquette and /offres can
- * never disagree. Anything transcribed into this file is transcribed twice and will drift.
+ * never disagree. MEASUREMENTS ARE NOT HERE EITHER: anything counted is imported from
+ * `backend-facts.ts` / `cvi-facts.ts` and reaches the copy as a function argument. Anything
+ * transcribed into this file is transcribed twice and will drift — the VERDICT score bands did.
  */
 
+import type { CviFacts } from './cvi-facts';
+
 export interface OfferCopy {
-  /** Localised inclusion lines, replacing the FR-only `offers[].includes` from site.ts. */
-  includes: string[];
-  excludes: string[];
   promise: string;
   tagline: string;
 }
@@ -34,14 +35,18 @@ export interface DeckCopy {
 
   problem: { eyebrow: string; statement: string; support: string };
   chain: { eyebrow: string; title: string; footnote: string };
-  hiddenDependency: { eyebrow: string; statement: string; support: string };
 
   cvi: {
     eyebrow: string;
     title: string;
     levels: [string, string, string, string];
     glosses: [string, string, string, string];
-    footnote: string;
+    /**
+     * Takes the measured coverage, because the gauge is the slide most likely to mislead: it shows
+     * four bands, and every instructed corridor currently sits in the top one. The footnote is where
+     * that gets said, in the same breath as the scale it qualifies.
+     */
+    footnote: (f: CviFacts) => string;
   };
   /**
    * What the CVI establishes — and, in support, what it does not claim.
@@ -55,13 +60,21 @@ export interface DeckCopy {
     title: string;
     bullets: string[];
     exclusions: string[];
+    /** The measured state of the base, rendered as a final exclusion. Built from `cvi-facts.ts`. */
+    measuredLimit: (f: CviFacts) => string;
     footnote: string;
   };
 
   hdde: { eyebrow: string; title: string; bullets: string[]; footnote: string };
   verdict: { eyebrow: string; title: string; bullets: string[]; footnote: string };
 
-  coverage: { eyebrow: string; statement: string; support: string };
+  /**
+   * Coverage — and the deck's only externally checkable moment.
+   *
+   * `panelTitle` and `panel` are NOT here: they are borrowed from the methode deck's walkthrough, so
+   * the four institutional measures have exactly one home. This copy owns the framing only.
+   */
+  coverage: { eyebrow: string; title: string; body: string[] };
 
   offersIntro: { eyebrow: string; title: string; footnote: string };
   offers: { basic: OfferCopy; standard: OfferCopy; premium: OfferCopy };
