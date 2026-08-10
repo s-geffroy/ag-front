@@ -928,32 +928,31 @@
   },
   {
     "id": "deliv_ops_activer_promotion_news",
-    "title": "Activer la promotion d'actualités — le tuyau est plein, rien n'en sort",
+    "title": "Cadence hebdomadaire de promotion des actualités",
     "description": "Le pipeline d'actualités existe de bout en bout (API → cockpit → bloc public) et n'a jamais servi : promoted-news.json est vide depuis l'origine.",
     "type": "ops",
     "pillar": "ops",
-    "status": "framing",
+    "status": "review",
     "priority": "P0",
-    "progress": 10,
+    "progress": 70,
     "deadline": "2026-08-24",
     "impact": "atlas",
     "offer": "public",
     "quality_gate_status": "at_risk",
     "gates": {
       "sources_ok": true,
-      "llm_draft_done": false,
+      "llm_draft_done": true,
       "contradiction_done": false,
       "compliance_done": false,
       "human_review_done": false
     },
-    "blocker": "Aucun geste de promotion n'a jamais été fait. Par conception (ADR 0071/0074) la promotion exige une `editorial_note` écrite par un humain — c'est la bonne conception, et c'est aussi pourquoi le dispositif s'éteint dès que personne n'agit.",
-    "next_action": "Décider une CADENCE, pas un correctif technique : rien n'est à construire. Mesuré le 2026-08-10 : l'API sert 6 clusters d'actualité pour Ormuz datés du 7 au 10 août, et 3 pour Bab el-Mandeb datés d'hier et d'aujourd'hui, déjà en français. Proposition : une revue hebdomadaire de 15 min au cockpit (/outils/revue), promotion de 1 à 3 clusters maximum, chacun avec sa phrase de promoteur. Sans cadence inscrite, ce livrable se rendormira comme le premier.",
+    "next_action": "Cadence INSTALLÉE le 2026-08-10 : cron lundi 09:00 (`scripts/news-review-cron.sh`), digest Slack, dead-man's switch. Mesure du premier passage à blanc : 20 clusters frais, dont 11 sur Ormuz, 0 promu, store inchangé depuis 15 jours. RESTE, et c'est humain : tenir la revue. Ouvrir /outils/exploration, lire les clusters du corridor concerné, promouvoir 1 à 3 maximum avec une phrase de promoteur. Le cron rappelle ; il ne promeut pas, et il ne cite aucun titre — lire reste le travail.",
     "links": [
       {
         "label": "Bloc public (jamais rendu à ce jour)",
         "url": "/atlas"
       }
     ],
-    "internal_notes": "Constat fait en cherchant comment couvrir la crise d'Ormuz. Le tuyau était plein pendant les cinq mois où notre Atlas n'en disait rien : ce n'est pas un manque d'information, c'est un manque de geste. Le bandeau de perturbation (ADR 0071, épisodes) couvre le cas automatique et ne dépend d'aucun humain ; la promotion d'actualités couvre le cas éditorial et en dépend entièrement. Les deux sont complémentaires : l'un est le plancher qui tient tout seul, l'autre le plafond qui exige qu'on monte."
+    "internal_notes": "Constat fait en cherchant comment couvrir la crise d'Ormuz. Le tuyau était plein pendant les cinq mois où notre Atlas n'en disait rien : ce n'est pas un manque d'information, c'est un manque de geste. Le bandeau de perturbation (ADR 0071, épisodes) couvre le cas automatique et ne dépend d'aucun humain ; la promotion d'actualités couvre le cas éditorial et en dépend entièrement. Les deux sont complémentaires : l'un est le plancher qui tient tout seul, l'autre le plafond qui exige qu'on monte. MISE À JOUR 2026-08-10 : le rappel est en place. Il ne cite délibérément aucun titre dans Slack : ADR 0074 a rendu `editorial_note` obligatoire parce que juger sur titres était le défaut retiré ; un digest rempli de titres reconstruirait le confort de ne pas lire, un canal plus loin. Le message dit combien et où, jamais quoi."
   }
 ]
