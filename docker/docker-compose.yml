@@ -81,6 +81,15 @@ services:
       OPENAI_JUDGE_EFFORT: ${OPENAI_JUDGE_EFFORT:-}
     ports:
       - '127.0.0.1:8787:8787'
+    # Reports, does not repair: `restart: unless-stopped` reacts to a process that EXITS, never to
+    # one that is alive and wedged. This makes the difference visible in `docker ps` (and to any
+    # future supervisor) instead of leaving a hung service indistinguishable from a healthy one.
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', '-m', '5', 'http://127.0.0.1:8787/api/health']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/cockpit', 'start']
 
@@ -90,6 +99,15 @@ services:
   # at PUBLIC_IP. Build the site first: npm --workspace @ag/public run build.
   public:
     image: caddy:2.8-alpine
+    # Probes Caddy's admin API, not the site root: `http://127.0.0.1/` answers a 308 to HTTPS, and the
+    # loopback TLS handshake then fails for want of a certificate for `127.0.0.1` — the probe would
+    # report a permanently unhealthy container while the site serves perfectly.
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:2019/config/']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     restart: unless-stopped
     depends_on:
       - lead # Caddy reverse_proxies /api/* to the lead service; start it first
@@ -132,6 +150,15 @@ services:
       SMTP_PASS: '${SMTP_PASS:-}'
       LEAD_TO: '${LEAD_TO:-contact@applied-geopolitics.com}'
       LEAD_FROM: '${LEAD_FROM:-no-reply@applied-geopolitics.com}'
+    # Reports, does not repair: `restart: unless-stopped` reacts to a process that EXITS, never to
+    # one that is alive and wedged. This makes the difference visible in `docker ps` (and to any
+    # future supervisor) instead of leaving a hung service indistinguishable from a healthy one.
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', '-m', '5', 'http://127.0.0.1:8080/api/health']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/lead-api', 'start']
 
@@ -170,6 +197,15 @@ services:
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-}
     ports:
       - '127.0.0.1:8090:8090'
+    # Reports, does not repair: `restart: unless-stopped` reacts to a process that EXITS, never to
+    # one that is alive and wedged. This makes the difference visible in `docker ps` (and to any
+    # future supervisor) instead of leaving a hung service indistinguishable from a healthy one.
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', '-m', '5', 'http://127.0.0.1:8090/api/health']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/hdde-api', 'start']
 
@@ -209,6 +245,15 @@ services:
       CHOKEPOINTS_API_TOKEN: ${CHOKEPOINTS_API_TOKEN:-}
     ports:
       - '127.0.0.1:8095:8095'
+    # Reports, does not repair: `restart: unless-stopped` reacts to a process that EXITS, never to
+    # one that is alive and wedged. This makes the difference visible in `docker ps` (and to any
+    # future supervisor) instead of leaving a hung service indistinguishable from a healthy one.
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', '-m', '5', 'http://127.0.0.1:8095/api/health']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
     command: ['npm', '--workspace', '@ag/verdict-api', 'start']
 
