@@ -567,5 +567,169 @@
       }
     ],
     "internal_notes": "Note explicative VERDICT top-of-funnel (préparation le 2026-07-15). Brouillon complet rédigé draft:true (frontmatter + corps au template). Note conceptuelle : pas de chaîne pplx (sourcing = méthode interne : page /methode-verdict, packages/verdict/src/labels.ts, docs/methode-verdict.md, ADR 0043 ; références fondatrices PESTEL/SWOT/BMC/Kahneman/Popper) ; sources_ok reste false jusqu’à revue humaine. Principe : le score ouvre une possibilité, il ne décide jamais seul (anti-tyrannie du score, vetos durs). Frontière d’offre : VERDICT = 3ᵉ étage Premium « Arbitrer » ; ne pas divulguer la pondération fine ; l’arbitrage opérationnel se fait dans le pilote fermé. Note gratuite/publique — cvi_justified omis."
+  },
+  {
+    "id": "deliv_note_interdependance_armee",
+    "title": "Note — L’interdépendance armée : mesurer qui tient un corridor",
+    "description": "Note-méthode : ce que mesure la concentration du contrôle (indice de type Herfindahl-Hirschman) et ce qu’elle ajoute, seule, à la vulnérabilité d’un corridor.",
+    "type": "note",
+    "pillar": "method",
+    "status": "review",
+    "priority": "P2",
+    "progress": 70,
+    "deadline": "2026-08-31",
+    "impact": "method",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "next_action": "Note conceptuelle rédigée le 2026-07-15, restée hors du suivi : aucun livrable ne pointait vers elle, donc la publication échouait en 409 no_linked_deliverable quoi qu'on valide. Le lien est désormais posé. Reste la chaîne normale : contradiction (ADR 0039), conformité Munich, validation humaine des sources (méthode interne), puis revue finale. Alors seulement draft:false.",
+    "links": [
+      {
+        "label": "Brouillon (draft, hors-ligne)",
+        "url": "/notes/interdependance-armee-concentration-du-controle"
+      }
+    ],
+    "internal_notes": "Sources : Farrell & Newman (2019), Herfindahl/Hirschman, méthode interne. La note distingue explicitement capacité et intention — angle mort déclaré. Ne pas divulguer la pondération fine (frontière d’offre). sources_ok reste false : le sourcing est méthodologique, sa validation est humaine."
+  },
+  {
+    "id": "deliv_note_centralite_cascade",
+    "title": "Note — Le nœud qui fait tomber les autres : centralité et cascade",
+    "description": "Note-méthode : identifier le nœud contraignant d’un réseau de corridors (intermédiarité, point d’articulation, cascade au retrait) pour savoir où intervenir.",
+    "type": "note",
+    "pillar": "method",
+    "status": "review",
+    "priority": "P2",
+    "progress": 70,
+    "deadline": "2026-08-31",
+    "impact": "method",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "next_action": "Note conceptuelle rédigée le 2026-07-15, restée hors du suivi : aucun livrable ne pointait vers elle, donc la publication échouait en 409 no_linked_deliverable quoi qu'on valide. Le lien est désormais posé. Reste la chaîne normale : contradiction (ADR 0039), conformité Munich, validation humaine des sources (méthode interne), puis revue finale. Alors seulement draft:false.",
+    "links": [
+      {
+        "label": "Brouillon (draft, hors-ligne)",
+        "url": "/notes/le-noeud-qui-fait-tomber-les-autres"
+      }
+    ],
+    "internal_notes": "Sources : Brandes (2001), Goldratt (1984), Meadows (1999), méthode interne. Adossée aux skills thinking-theory-of-constraints / thinking-leverage-points (ADR 0027) : l’analyse produite est dérivée et candidate, jamais un fait. La note dit que la centralité est topologique et ne prédit pas une chute — angle mort déclaré."
+  },
+  {
+    "id": "deliv_note_perception_nest_pas_preuve",
+    "title": "Note — Perception n’est pas preuve : lire un signal sans le croire",
+    "description": "Note-méthode : scorer la crédibilité d’un signal (échelles Amirauté/OTAN, indépendance des origines) sans jamais qu’une perception vaille validation d’un fait.",
+    "type": "note",
+    "pillar": "method",
+    "status": "review",
+    "priority": "P2",
+    "progress": 70,
+    "deadline": "2026-08-31",
+    "impact": "method",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "next_action": "Note conceptuelle rédigée le 2026-07-15, restée hors du suivi : aucun livrable ne pointait vers elle, donc la publication échouait en 409 no_linked_deliverable quoi qu'on valide. Le lien est désormais posé. Reste la chaîne normale : contradiction (ADR 0039), conformité Munich, validation humaine des sources (méthode interne), puis revue finale. Alors seulement draft:false.",
+    "links": [
+      {
+        "label": "Brouillon (draft, hors-ligne)",
+        "url": "/notes/perception-nest-pas-preuve"
+      }
+    ],
+    "internal_notes": "Sources : OTAN AJP-2.1, méthode interne, Polymarket comme couche de perception (P3). Cohérente avec ADR 0071/0072 : la perception plafonne à « sous tension » et ne valide jamais une fermeture. Vérifier en revue que le texte reste aligné sur la légende publique — le nombre de marchés indique une pluralité de cotations, PAS une indépendance (point resté ouvert avec ag-back)."
+  },
+  {
+    "id": "deliv_note_resilience_fenetre_vitalite",
+    "title": "Note — Un réseau efficace n’est pas un réseau résilient : la fenêtre de vitalité",
+    "description": "Note-méthode : pourquoi l’optimisation d’un réseau de corridors peut le fragiliser, et comment se situe la fenêtre de vitalité entre fragilité et redondance inerte.",
+    "type": "note",
+    "pillar": "method",
+    "status": "review",
+    "priority": "P2",
+    "progress": 70,
+    "deadline": "2026-08-31",
+    "impact": "method",
+    "offer": "public",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "next_action": "Note conceptuelle rédigée le 2026-07-15, restée hors du suivi : aucun livrable ne pointait vers elle, donc la publication échouait en 409 no_linked_deliverable quoi qu'on valide. Le lien est désormais posé. Reste la chaîne normale : contradiction (ADR 0039), conformité Munich, validation humaine des sources (méthode interne), puis revue finale. Alors seulement draft:false.",
+    "links": [
+      {
+        "label": "Brouillon (draft, hors-ligne)",
+        "url": "/notes/resilience-la-fenetre-de-vitalite"
+      }
+    ],
+    "internal_notes": "Sources : Ulanowicz et al. (2009), méthode interne. Faute de débit réel par lien, la robustesse est topologique : la note l’écrit et l’émet en confiance basse. Vérifier en revue que cette réserve n’a pas été affaiblie."
   }
 ]

@@ -28,6 +28,40 @@ export function deliverableLinksTo(d: Deliverable, type: string, slug: string): 
   return (d.links ?? []).some((l) => l.url === target || l.url === `${target}/`);
 }
 
+/** Content directory → the deliverable type that OWNS a document in it. */
+const OWNER_TYPE: Record<string, Deliverable['type']> = {
+  notes: 'note',
+  atlas: 'atlas_fiche',
+  dossiers: 'dossier',
+};
+
+/**
+ * The deliverables whose gates actually govern this document.
+ *
+ * A link is used for two different things in the tracker: "this deliverable IS that document", and
+ * "this deliverable FEEDS that document" (a teaser note pointing at the Atlas fiche it nourishes).
+ * Both match `deliverableLinksTo`, so gating on every linked deliverable silently unions the gates of
+ * unrelated work — publishing the Malacca fiche would demand the teaser note's `sources_ok`, a gate
+ * that does not appear anywhere on the fiche's card. The operator would read a missing gate they
+ * cannot find, let alone satisfy.
+ *
+ * So ownership is decided by type when the type is known: only a `note` governs `/notes/x`, only an
+ * `atlas_fiche` governs `/atlas/x`. Cross-references stay in `links` and keep working as navigation.
+ * If nothing of the owning type is linked we fall back to every link, which preserves the previous
+ * behaviour for any document whose collection is not in `OWNER_TYPE`.
+ */
+export function governingDeliverables(
+  deliverables: Deliverable[],
+  type: string,
+  slug: string,
+): Deliverable[] {
+  const linked = deliverables.filter((d) => deliverableLinksTo(d, type, slug));
+  const owner = OWNER_TYPE[type];
+  if (!owner) return linked;
+  const owned = linked.filter((d) => d.type === owner);
+  return owned.length > 0 ? owned : linked;
+}
+
 export type PublishResolution =
   | { ok: false; status: number; error: string; missing?: string[] }
   | { ok: true; deliverableId: string | null };
@@ -43,7 +77,7 @@ export function resolvePublish(
   slug: string,
   decision: 'publish' | 'unpublish',
 ): PublishResolution {
-  const linked = deliverables.filter((d) => deliverableLinksTo(d, type, slug));
+  const linked = governingDeliverables(deliverables, type, slug);
   const deliverableId = linked[0]?.id ?? null;
   if (decision === 'unpublish') return { ok: true, deliverableId };
   if (linked.length === 0) return { ok: false, status: 409, error: 'no_linked_deliverable' };
