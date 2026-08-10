@@ -8,7 +8,7 @@
     "status": "production",
     "priority": "P0",
     "progress": 90,
-    "deadline": "2026-09-15",
+    "deadline": "2026-08-30",
     "next_action": "Sources validées (ADR 0046), contradiction passée + revue (ADR 0039), revue Munich (compliance_done), CVI qualitatif justifié (niveau ÉLEVÉ, offre Basic — §8, ADR 0043). Reste UNIQUEMENT la validation humaine finale (human_review_done) avant ready/published.",
     "impact": "preuve_90_jours",
     "offer": "public",
