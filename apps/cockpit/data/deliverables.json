@@ -1008,5 +1008,34 @@
     "next_action": "Créer l'app Slack (marche à suivre dans docker/.env.example), inviter le bot dans le canal privé, relever son identifiant, puis `up -d slackbot`. P2 — le refus de paraphrase — est DÉJÀ en service et protège la promotion faite au cockpit, indépendamment de Slack.",
     "links": [],
     "internal_notes": "Socket Mode et non endpoint public : l'interactivité classique aurait exigé une URL HTTPS entrante mutant l'Atlas public, dans un déploiement bâti pour garder le cockpit hors d'Internet. Aucune surface ajoutée. L'autorisation est le canal privé ; une configuration absente ferme la porte. La modale montre les titres des éditeurs en liens, jamais le headline du modèle. P2 utilise le RECOUVREMENT et non Jaccard, qui laisserait passer une note brève recopiée d'un titre long ; une note courte mais juste passe, par construction. Limite assumée : une note française paraphrasant un titre anglais n'est pas attrapée. Journal : « Sylvain Geffroy (via Slack) »."
+  },
+  {
+    "id": "deliv_ops_audit_absences",
+    "title": "Auditer les absences des couches amont (ADR 0077)",
+    "description": "Passer chaque consommation de l'API de lecture au crible : un 0, un tableau vide ou un champ manquant peut-il y vouloir dire deux choses ?",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "framing",
+    "priority": "P1",
+    "progress": 15,
+    "deadline": "2026-09-15",
+    "impact": "atlas",
+    "offer": "internal",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "next_action": "Le 2026-08-10 n'a regardé que TROIS couches (episodes, metrics, news) sur QUATRE chokepoints P0. Le contrat en compte bien davantage — flows, risks, alternatives, perception-signals, prediction-consensus, cvi-assessment, analytics. Pour chacune : le vide y est-il distinguable de l'inconnu ? Ce qui n'est pas distinguable vaut inconnu et ne doit rien conclure ; ce qui l'est doit être distingué dans le code appelant. Aide-mémoire : Outils → Référence → « Une absence n'est pas une donnée ».",
+    "links": [
+      {
+        "label": "Aide-mémoire opérationnel",
+        "url": "/reference/absence-checklist"
+      }
+    ],
+    "internal_notes": "Deux occurrences déjà signalées à ag-back (cp_alpha, épisodes d'Ormuz), une déjà résolue de leur côté (run_id sur le flux d'actualités) qui sert de modèle de ce qu'on demande. Ne PAS compenser un trou trouvé par une heuristique locale : un trou visible vaut mieux qu'un faux positif silencieux, et le correctif appartient à qui détient la donnée. Le rendu attendu est une liste de distinctions manquantes, déposée en un seul handoff plutôt qu'au fil de l'eau."
   }
 ]
