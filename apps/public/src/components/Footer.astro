@@ -1,7 +1,11 @@
 ---
 import { nav, site } from '../lib/site';
 import { plaquetteIsPublic } from '../lib/plaquette';
+import { publishableLegalPages } from '../lib/legal';
 const year = 2026;
+// Same guard as the route itself: a legal page still carrying an unfilled fact is not built, so
+// linking it unconditionally would ship a 404 in the footer of every page (the plaquette lesson).
+const legal = publishableLegalPages();
 // Flatten dropdown groups so every method page still appears as a direct link.
 const footerLinks = nav.flatMap((n) => ('children' in n ? n.children : [n]));
 // The plaquette page only exists in the build once it is published (ADR 0073) — linking it before
@@ -48,6 +52,19 @@ const showPlaquette = plaquetteIsPublic();
       <p class="mt-3 font-mono uppercase tracking-[0.08em]">
         © {year} Applied Geopolitics — LucidAxis. Tous droits réservés.
       </p>
+      {
+        legal.length > 0 && (
+          <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            {legal.map((p) => (
+              <li>
+                <a href={`/${p.slug}`} class="text-muted underline hover:text-ink">
+                  {p.navLabel}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
     </div>
   </div>
 </footer>

@@ -1,0 +1,47 @@
+---
+// Legal pages are a DYNAMIC route on purpose: `getStaticPaths` returns only the pages whose facts
+// have been filled in, so an unfinished mentions-légales is simply absent from `dist` instead of
+// being published by the unattended hourly rebuild. See the header of `../lib/legal.ts`.
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import { groupBody, publishableLegalPages, type LegalPage } from '../lib/legal';
+
+export async function getStaticPaths() {
+  return publishableLegalPages().map((page) => ({ params: { legal: page.slug }, props: { page } }));
+}
+
+interface Props {
+  page: LegalPage;
+}
+const { page } = Astro.props;
+const sections = page.sections.map((s) => ({ heading: s.heading, blocks: groupBody(s.body) }));
+---
+
+<Base title={page.title} description={page.description}>
+  <Section width="prose" class="py-14">
+    <p class="eyebrow">Informations légales</p>
+    <h1 class="mt-4 font-serif text-title font-bold">{page.title}</h1>
+    <p class="prose-ag mt-4">{page.intro}</p>
+
+    {
+      sections.map((section) => (
+        <section>
+          <div class="section-rule mt-12">
+            <span class="label">{section.heading}</span>
+          </div>
+          {section.blocks.map((block) =>
+            block.kind === 'ul' ? (
+              <ul class="prose-ag">
+                {block.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p class="prose-ag mt-3">{block.text}</p>
+            ),
+          )}
+        </section>
+      ))
+    }
+  </Section>
+</Base>

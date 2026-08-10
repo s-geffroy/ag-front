@@ -2,6 +2,13 @@
 import Base from '../layouts/Base.astro';
 import Section from '../components/Section.astro';
 import { site } from '../lib/site';
+import { publishableLegalPages } from '../lib/legal';
+
+// Link the privacy policy only once it is actually built — until its facts are filled in the page
+// does not exist, and the consent notice has to stand on its own rather than point at a 404.
+const privacyHref = publishableLegalPages().some((p) => p.slug === 'politique-de-confidentialite')
+  ? '/politique-de-confidentialite'
+  : null;
 
 const fieldClass =
   'mt-1 w-full rounded-[2px] border border-hairline bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25';
@@ -56,11 +63,40 @@ const fieldClass =
         aria-hidden="true"
         class="hidden"
       />
+      <label class="flex items-start gap-2 text-xs text-muted">
+        <input
+          type="checkbox"
+          name="consent"
+          required
+          class="mt-0.5 h-4 w-4 shrink-0 accent-accent"
+        />
+        <span>
+          J’accepte que mon nom, mon adresse électronique, mon organisation et mon message soient
+          conservés afin qu’il soit répondu à ma demande. Base légale : mon consentement, révocable
+          à tout moment en écrivant à <a
+            href={`mailto:${site.email}`}
+            class="text-accent underline">{site.email}</a
+          >.{
+            privacyHref ? (
+              <>
+                {' '}
+                Détail du traitement, durées de conservation et exercice de vos droits :{' '}
+                <a href={privacyHref} class="text-accent underline">
+                  politique de confidentialité
+                </a>
+                .
+              </>
+            ) : null
+          }
+        </span>
+      </label>
       <button type="submit" class="btn-primary"> Envoyer </button>
       <p id="form-status" class="text-sm" role="status" aria-live="polite"></p>
       <p class="text-xs text-muted">
-        Vos informations servent uniquement à répondre à votre demande. Vous pouvez aussi écrire
-        directement à <a href={`mailto:${site.email}`} class="text-accent underline">{site.email}</a>.
+        Vous pouvez aussi écrire directement à <a
+          href={`mailto:${site.email}`}
+          class="text-accent underline">{site.email}</a
+        >.
       </p>
     </form>
   </Section>
@@ -101,6 +137,10 @@ const fieldClass =
         organization: String(f.get('org') || ''),
         subject: String(f.get('subject') || 'echange'),
         message: String(f.get('message') || ''),
+        // The endpoint requires `consent === true` (RGPD art. 6.1.a) and rejects anything else, so
+        // this mirrors the checkbox rather than defaulting it — an unchecked box must not become a
+        // consent on the wire. `required` on the input means the browser blocks submit first.
+        consent: f.get('consent') === 'on',
         website: String(f.get('website') || ''),
       };
       if (statusEl) {

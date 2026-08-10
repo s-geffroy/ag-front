@@ -63,7 +63,14 @@ export async function recordLead(lead: LeadInput, now: Date): Promise<{ id: stri
   const iso = now.toISOString();
 
   await mkdir(LEDGER_DIR, { recursive: true });
-  await appendFile(LEDGER_FILE, JSON.stringify({ id, receivedAt: iso, lead }) + '\n', 'utf8');
+  // `consentAt` is hoisted out of the payload so the proof of consent is a first-class field of the
+  // ledger entry, greppable without parsing the lead — this file is what we would produce if asked
+  // to demonstrate a lawful basis (RGPD art. 7.1).
+  await appendFile(
+    LEDGER_FILE,
+    JSON.stringify({ id, receivedAt: iso, consentAt: iso, lead }) + '\n',
+    'utf8',
+  );
 
   const contact = leadToContact(lead, id, iso);
   await withFileLock(CONTACTS_FILE, async () => {

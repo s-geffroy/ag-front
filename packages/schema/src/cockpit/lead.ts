@@ -16,6 +16,13 @@ export const LeadInput = z.object({
   organization: z.string().trim().max(200).optional().default(''),
   subject: LeadSubject.default('echange'),
   message: z.string().trim().max(5000).optional().default(''),
+  /**
+   * RGPD art. 6.1.a — the consent is the legal basis for storing everything above, so it is a
+   * `literal(true)`, not a boolean: a payload without it does not parse and nothing is written.
+   * Enforcing it in the schema rather than in the form is what makes the guarantee hold for any
+   * caller, not just for our own page.
+   */
+  consent: z.literal(true),
   // honeypot: real users leave it empty. Accepted by the schema so a filled value parses, then the
   // server silently drops it (returns ok) rather than signalling detection to bots.
   website: z.string().max(200).optional(),
@@ -52,6 +59,9 @@ export function leadToContact(lead: LeadInput, id: string, receivedAtIso: string
     interest_signal: `${label}${excerpt}`,
     next_action: 'Qualifier le lead entrant',
     last_contact_date: receivedAtIso.slice(0, 10),
-    notes: `Formulaire web — ${label}. Email : ${lead.email}.${lead.message ? `\n\n${lead.message}` : ''}`,
+    // The consent timestamp travels with the contact: RGPD art. 7.1 puts the burden of proof on us,
+    // and a consent recorded only in the append-only ledger would be invisible to whoever reads the
+    // pipeline and decides to write back.
+    notes: `Formulaire web — ${label}. Email : ${lead.email}.\nConsentement RGPD recueilli le ${receivedAtIso}.${lead.message ? `\n\n${lead.message}` : ''}`,
   });
 }
