@@ -11,6 +11,8 @@ import {
   type AtlasChokepoint,
 } from '../../../lib/atlas-data';
 import ConsensusBlock from '../../../components/atlas/ConsensusBlock.astro';
+import DisruptionBanner from '../../../components/atlas/DisruptionBanner.astro';
+import { ongoingEpisodes } from '../../../lib/disruption';
 import PromotedNewsBlock from '../../../components/atlas/PromotedNewsBlock.astro';
 
 export async function getStaticPaths() {
@@ -25,6 +27,9 @@ const { summary } = Astro.props;
 const detail = await loadChokepointDetail(summary.id);
 const consensus = await loadCorridorConsensus(summary.id);
 const promotedNews = loadCorridorPromotedNews(summary.id);
+// Hoisted out of the episode list at the bottom of the page: an ongoing crisis must not read like
+// the 2021 grounding printed three lines below it. See ../../../lib/disruption.ts.
+const ongoing = ongoingEpisodes(detail);
 ---
 
 <Base title={summary.name} description={`Chokepoint — ${humanize(summary.family)}`} type="article">
@@ -45,6 +50,8 @@ const promotedNews = loadCorridorPromotedNews(summary.id);
         </p>
       ) : null
     }
+
+    <DisruptionBanner episodes={ongoing} />
 
     {
       detail ? (
@@ -132,11 +139,13 @@ const promotedNews = loadCorridorPromotedNews(summary.id);
             </section>
           ) : null}
 
-          {detail.episodes.length ? (
+          {detail.episodes.filter((e) => !ongoing.includes(e)).length ? (
             <section>
-              <div class="section-rule"><span class="label">Épisodes de perturbation</span></div>
+              {/* Ongoing episodes are hoisted into the banner above; what remains here is history,
+                  which is what this flat list was always good at. */}
+              <div class="section-rule"><span class="label">Épisodes passés</span></div>
               <ul class="space-y-1.5 text-sm">
-                {detail.episodes.map((e) => (
+                {detail.episodes.filter((e) => !ongoing.includes(e)).map((e) => (
                   <li>
                     {e.name}
                     {e.started_on ? ` · ${e.started_on}${e.ended_on ? ` → ${e.ended_on}` : ''}` : ''}

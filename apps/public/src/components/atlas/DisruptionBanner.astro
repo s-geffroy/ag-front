@@ -1,0 +1,54 @@
+---
+/**
+ * Live-disruption banner for a chokepoint page.
+ *
+ * Renders nothing when there is no ongoing episode — and, crucially, says nothing in that case.
+ * Silence here means "the producer has opened no episode", NOT "this corridor is calm": on
+ * 2026-08-10 the Strait of Hormuz had no open episode while running at 2.5 transits/day. Printing a
+ * reassuring "aucune perturbation" would turn a data gap into a false statement.
+ *
+ * Only the producer's structured fields are shown — name, dates, severity, status. No model prose
+ * reaches this component (ADR 0071/0074).
+ */
+import { durationLabel } from '../../lib/disruption';
+import type { ChokepointEpisodeOut } from '@ag/chokepoints';
+
+interface Props {
+  episodes: ChokepointEpisodeOut[];
+}
+const { episodes } = Astro.props;
+// Fixed build clock: the page is static, so "now" is the build instant. The hourly rebuild keeps the
+// duration honest without making the output non-deterministic within a build.
+const now = new Date();
+---
+
+{
+  episodes.length > 0 && (
+    <aside
+      class="mt-6 rounded-[2px] border-l-4 border-l-accent border-y border-r border-line bg-subtle px-4 py-3"
+      aria-label="Perturbation en cours"
+    >
+      <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-accent">
+        Perturbation en cours
+      </p>
+      <ul class="mt-2 space-y-1.5">
+        {episodes.map((e) => {
+          const d = durationLabel(e.started_on, now);
+          return (
+            <li class="text-sm">
+              <span class="font-medium text-ink">{e.name}</span>
+              {d ? <span class="text-muted"> — {d}</span> : null}
+              {e.started_on ? (
+                <span class="font-mono text-[11px] text-muted"> (depuis le {e.started_on})</span>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+      <p class="mt-2 text-xs leading-relaxed text-muted">
+        Épisode déclaré par la base chokepoints. L’absence d’épisode sur une autre fiche ne signifie
+        pas qu’elle est calme : elle signifie qu’aucun épisode n’y est ouvert.
+      </p>
+    </aside>
+  )
+}
