@@ -52,3 +52,8 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0070](0070-consommation-news-et-cvi-counterfactual.md) | Consumption of `/news`, `/analytics/cvi-counterfactual` and the `media_attention_spike` alert | Accepted |
 | [0071](0071-consensus-et-news-promue-sur-atlas-public.md) | Market consensus + human-promoted news on the public Atlas (attribution + S5, fail-closed on attachment rule) | Accepted |
 | [0072](0072-plancher-de-cardinalite-et-allowlist-consensus.md) | Cardinality floor (`market_count >= 2`) + publication allowlist for the market-consensus block | Accepted |
+| [0073](0073-generateur-de-plaquettes.md) | Versioned client decks generated from `@ag/deck` | Accepted |
+| [0074](0074-jugement-sur-titres-et-independance-des-marches.md) | Model prose never rendered; promoter's own sentence required | Accepted |
+| [0075](0075-couplage-plaquettes-code-garde-par-test.md) | Deck↔code coupling guarded by test; measured state written into decks | Accepted |
+| [0076](0076-mesure-audience-plausible-auto-heberge.md) | Audience measurement = self-hosted Plausible, cookieless, first-party | Accepted |
+| [0077](0077-statut-epistemique-d-une-absence.md) | The epistemic status of an absence (empty ≠ unknown) | Accepted |
