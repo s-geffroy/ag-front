@@ -62,6 +62,15 @@ export const PromotedNewsItem = z.object({
    * which is exactly the moment the decision should be reconsidered.
    */
   editorial_note: z.string().min(1),
+  /**
+   * D'où vient la phrase publiée (ADR 0079, amendé le 2026-08-11).
+   *
+   * Publier le brouillon tel quel est désormais permis. La contrepartie n'est pas une friction, c'est
+   * une trace : le journal est nominatif et en ajout seul, il doit dire ce qui a été signé. Optionnel,
+   * car les promotions antérieures à l'amendement n'ont pas cette information — et une absence ne se
+   * lit pas « écrit à la main » (ADR 0077).
+   */
+  note_origin: z.enum(['human_written', 'draft_edited', 'draft_accepted']).optional(),
   // Model prose (candidate) — audit trail only, never rendered publicly ------------------------------
   headline: z.string().default(''),
   summary_text: z.string().default(''),

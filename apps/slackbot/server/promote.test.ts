@@ -519,7 +519,7 @@ describe('brouillon — pré-remplir sans vider la règle (ADR 0079)', () => {
     const m: any = buildWritingModalWithDraft(pick, 'Sujet', { draft: 'Une phrase machine.' });
     const input = m.blocks.find((b: any) => b.block_id === NOTE_BLOCK_ID);
     expect(input.element.initial_value).toBe('Une phrase machine.');
-    expect(input.hint.text).toContain('RÉÉCRIRE');
+    expect(input.hint.text).toContain('Publiable tel quel');
   });
 
   it('ne pré-remplit rien quand le brouillon est vide, et retrouve la consigne normale', () => {
@@ -540,20 +540,15 @@ describe('brouillon — pré-remplir sans vider la règle (ADR 0079)', () => {
     expect(json).toContain('ne peut pas dire');
   });
 
-  it('distingue « vous recopiez le brouillon » de « vous recopiez un titre »', () => {
-    const draftEcho = outcomeFromCockpit(422, {
-      error: 'editorial_note_paraphrase',
-      echoes_draft: true,
-      message: 'générique',
-    });
-    expect(draftEcho.ok).toBe(false);
-    expect((draftEcho as { message: string }).message).toContain('brouillon');
-
+  it('laisse passer le brouillon intact, et refuse toujours la recopie d’un titre', () => {
+    // ADR 0079 amendé : publier le brouillon tel quel est permis. Le refus qui reste vise le TITRE —
+    // redire ce qui est arrivé au lieu de dire ce que ça change n'aide aucun lecteur.
     const titleEcho = outcomeFromCockpit(422, {
       error: 'editorial_note_paraphrase',
       message: 'Votre phrase reprend un texte déjà présent.',
     });
-    expect((titleEcho as { message: string }).message).not.toContain('brouillon');
+    expect(titleEcho.ok).toBe(false);
+    expect((titleEcho as { message: string }).message).toContain('reprend un texte');
   });
 
   it('la fenêtre d’attente s’ouvre sans brouillon, et le dit', () => {

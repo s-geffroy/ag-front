@@ -50,6 +50,7 @@ import {
   unpromoteNews,
   findParaphrase,
   paraphraseCandidates,
+  noteOrigin,
   distinctTitles,
   distinctOutlets,
 } from './promote-news';
@@ -1035,29 +1036,29 @@ export function createApiRouter(): Router {
       }
       // P2 — la note doit ajouter quelque chose (ADR 0074). Recopier le titre satisfaisait la lettre
       // de la règle en la vidant : la porte exigeait une phrase, pas une phrase de plus.
-      const echo = findParaphrase(
-        body.data.editorial_note,
-        paraphraseCandidates(resolved.cluster, body.data.draft),
-      );
+      // Le brouillon ne fait plus partie des textes interdits (ADR 0079 amendé) : le publier tel
+      // quel est une décision explicite. Recopier un TITRE reste refusé — c'est un autre problème.
+      const echo = findParaphrase(body.data.editorial_note, paraphraseCandidates(resolved.cluster));
       if (echo) {
         res.status(422).json({
           error: 'editorial_note_paraphrase',
           message:
             'Votre phrase reprend un texte déjà présent — dites ce que cette couverture change pour un décideur.',
-          // Nommer la source du refus : « vous recopiez le brouillon » et « vous recopiez un titre »
-          // demandent deux corrections différentes.
-          echoes_draft:
-            !!body.data.draft && echo.source.trim() === body.data.draft.trim() ? true : undefined,
+
           echoes: echo.source,
           score: Number(echo.score.toFixed(2)),
         });
         return;
       }
 
+      // Trace, pas friction : la phrase publiée peut être le brouillon intact, et le magasin comme le
+      // journal doivent dire laquelle des trois situations s'est produite.
+      const origin = noteOrigin(body.data.editorial_note, body.data.draft);
       const item = toPromotedItem(resolved.cluster, {
         promotedBy: body.data.validated_by,
         promotedAt: new Date().toISOString(),
         editorialNote: body.data.editorial_note,
+        noteOrigin: origin,
       });
       await writePromotedNews(corridorId, item);
       const entry = ValidationEntry.parse({
@@ -1071,6 +1072,7 @@ export function createApiRouter(): Router {
         after: true,
         validated_by: body.data.validated_by,
         validated_at: new Date().toISOString(),
+        note_origin: origin,
       });
       await mutateCollection('validation_journal', (list) => {
         const arr = list as z.infer<typeof ValidationEntry>[];

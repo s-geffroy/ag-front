@@ -58,4 +58,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0076](0076-mesure-audience-plausible-auto-heberge.md) | Audience measurement = self-hosted Plausible, cookieless, first-party | Accepted |
 | [0077](0077-statut-epistemique-d-une-absence.md) | The epistemic status of an absence (empty ≠ unknown) | Accepted |
 | [0078](0078-intitule-du-modele-pour-choisir-jamais-pour-publier.md) | Model headline shown to CHOOSE a subject, never published (amends 0074) | Accepted |
-| [0079](0079-brouillon-machine-impose-a-reecrire.md) | LLM draft pre-fills the note AND joins the texts it may not echo | Accepted |
+| [0079](0079-brouillon-machine-impose-a-reecrire.md) | LLM draft pre-fills the note; publishable as-is, origin recorded (amended same day) | Accepted |

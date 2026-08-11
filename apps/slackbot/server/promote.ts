@@ -477,7 +477,7 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
         elements: [
           {
             type: 'mrkdwn' as const,
-            text: '_Les intitulés en gras sont proposés par le modèle amont, pas écrits par une rédaction. Ils servent à repérer un sujet — les reprendre dans votre phrase sera refusé._',
+            text: '_Les intitulés en gras sont proposés par le modèle amont, pas écrits par une rédaction. Ils servent à repérer un sujet — les recopier dans votre phrase sera refusé._',
           },
         ],
       },
@@ -580,7 +580,7 @@ export function buildWritingModalWithDraft(
         hint: {
           type: 'plain_text' as const,
           text: draft.draft
-            ? 'Brouillon machine — à RÉÉCRIRE. Le publier tel quel sera refusé.'
+            ? 'Brouillon machine. Publiable tel quel — le journal notera qu’il n’a pas été retouché.'
             : 'Votre phrase, pas celle du titre. Une phrase courte et juste suffit.',
         },
         element: {
@@ -661,17 +661,6 @@ export type PromoteOutcome =
 export function outcomeFromCockpit(status: number, body: Record<string, unknown>): PromoteOutcome {
   if (status >= 200 && status < 300) return { ok: true };
   if (status === 422 && body.error === 'editorial_note_paraphrase') {
-    // Recopier le BROUILLON et recopier un TITRE demandent deux corrections différentes : dans le
-    // premier cas il faut s'approprier la phrase, dans le second il faut passer du fait à sa
-    // conséquence. Un message unique laissait la personne deviner laquelle.
-    if (body.echoes_draft === true) {
-      return {
-        ok: false,
-        field: 'note',
-        message:
-          'Vous publiez le brouillon tel quel. Il est là pour être réécrit : dites-le avec vos mots, et ce que vous en retenez.',
-      };
-    }
     return {
       ok: false,
       field: 'note',

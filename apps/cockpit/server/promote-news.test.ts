@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { NewsClusterOut, NewsFeedOut } from '@ag/chokepoints';
-import { itemKey, resolvePromoteFromFeed, toPromotedItem } from './promote-news';
+import { itemKey, noteOrigin, resolvePromoteFromFeed, toPromotedItem } from './promote-news';
 
 function cluster(overrides: Partial<NewsClusterOut> = {}): NewsClusterOut {
   return {
@@ -152,5 +152,35 @@ describe('promote-news — itemKey', () => {
       ],
     });
     expect(k).toBe('urls:https://a.com|https://b.com');
+  });
+});
+
+describe('noteOrigin — consigner d’où vient la phrase publiée', () => {
+  const draft =
+    'Les décideurs doivent anticiper des coûts supplémentaires et des routes alternatives.';
+
+  it('dit « écrite » quand aucun brouillon n’a été proposé', () => {
+    expect(noteOrigin('Ma phrase à moi.', undefined)).toBe('human_written');
+    expect(noteOrigin('Ma phrase à moi.', '')).toBe('human_written');
+  });
+
+  it('dit « acceptée » quand le brouillon est publié intact', () => {
+    expect(noteOrigin(draft, draft)).toBe('draft_accepted');
+    expect(noteOrigin(`  ${draft}  `, draft)).toBe('draft_accepted');
+  });
+
+  it('dit « retouchée » quand la personne s’est approprié la phrase', () => {
+    expect(
+      noteOrigin(
+        'Tout chargeur passant par Ormuz doit budgéter une surprime de guerre, sans date de levée.',
+        draft,
+      ),
+    ).toBe('draft_edited');
+  });
+
+  it('ne qualifie pas d’acceptée une réécriture qui garde quelques mots', () => {
+    expect(
+      noteOrigin('Les décideurs doivent revoir leurs contrats d’assurance maritime.', draft),
+    ).toBe('draft_edited');
   });
 });

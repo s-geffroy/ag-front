@@ -1,6 +1,6 @@
-# 0079 — Un brouillon machine, imposé à réécrire
+# 0079 — Un brouillon machine, proposé au champ de saisie
 
-- **Statut** : accepté
+- **Statut** : accepté, **amendé le 2026-08-11** (voir « Amendement » en fin de document)
 - **Date** : 2026-08-11
 - **Voisins** : [0074](0074-jugement-sur-titres-et-independance-des-marches.md) (phrase du promoteur
   requise), [0078](0078-intitule-du-modele-pour-choisir-jamais-pour-publier.md) (intitulé du modèle
@@ -67,3 +67,28 @@ piloter le modèle.
 Publier une phrase machine. Le brouillon est un point de départ que le serveur refuse à l'arrivée.
 Si un jour le refus devient contournable, cette ADR tombe avec lui : c'est le refus qui la porte,
 pas l'intention.
+
+## Amendement du 2026-08-11 — le brouillon devient publiable tel quel
+
+**Décidé explicitement, quelques heures après la mise en service**, l'usage ayant montré que
+l'obligation de réécrire coûtait plus qu'elle ne rapportait sur une phrase déjà juste.
+
+Ce qui change :
+
+- Le brouillon **sort** de `paraphraseCandidates`. Publier la proposition intacte est accepté.
+- Le refus qui subsiste vise le **titre d'article**, et il est d'une autre nature : redire ce qui est
+  arrivé au lieu de dire ce que cela change n'aide aucun lecteur, quelle que soit la décision
+  d'ergonomie.
+- La contrepartie n'est pas une friction, c'est une **trace**. `note_origin` — `human_written`,
+  `draft_edited`, `draft_accepted` — est écrit dans le magasin public **et** dans le journal
+  nominatif. Le journal est en ajout seul : il doit dire ce qui a été signé, pas ce qu'on aurait
+  aimé signer. Le champ est optionnel, car les promotions antérieures ne le portent pas — et une
+  absence ne se lit pas « écrit à la main » (ADR 0077).
+- Le seuil qui sépare « retouchée » d'« acceptée » est un recouvrement de 0,9, volontairement haut :
+  on reconnaît un texte laissé pratiquement intact, on ne requalifie pas une réécriture partielle.
+
+**Ce que l'amendement coûte, dit franchement.** L'ADR 0074 tenait parce qu'aucune phrase publiée ne
+pouvait être entièrement machine. Ce n'est plus vrai. Ce qui reste garanti est plus faible et doit
+être énoncé comme tel : une phrase publiée est ou bien humaine, ou bien identifiée dans le journal
+comme reprise d'un brouillon. La signature ne prouve plus la rédaction — elle prouve
+**l'endossement**, ce qui n'est pas la même chose et ne doit pas être vendu comme tel.

@@ -42,7 +42,12 @@ export function itemKey(item: Pick<PromotedNewsItemT, 'cluster_id' | 'articles'>
  */
 export function toPromotedItem(
   cluster: NewsClusterOut,
-  opts: { promotedBy: string; promotedAt: string; editorialNote: string },
+  opts: {
+    promotedBy: string;
+    promotedAt: string;
+    editorialNote: string;
+    noteOrigin?: 'human_written' | 'draft_edited' | 'draft_accepted';
+  },
 ): PromotedNewsItemT {
   // Defence-in-depth: the route's resolvePromoteFromFeed already refuses a tainted cluster, but keep the
   // "cleared_only stamp ⇒ actually clear" invariant LOCAL so this exported projector is safe on its own.
@@ -78,6 +83,7 @@ export function toPromotedItem(
     // Required by the schema — a promotion without a human sentence does not parse, and therefore
     // cannot be written (ADR 0074).
     editorial_note: opts.editorialNote.trim(),
+    note_origin: opts.noteOrigin,
     promoted_by: opts.promotedBy,
     promoted_at: opts.promotedAt,
   });
@@ -343,14 +349,37 @@ export function distinctOutlets(cluster: Pick<NewsClusterOut, 'articles'>): numb
   ).size;
 }
 
-export function paraphraseCandidates(cluster: NewsClusterOut, draft?: string): string[] {
+/**
+ * Les textes qu'une note ne peut pas recopier.
+ *
+ * Le BROUILLON n'y figure plus (ADR 0079 amendé le 2026-08-11) : publier le brouillon tel quel est
+ * désormais permis, sur décision explicite. Ce qui reste interdit est inchangé et n'a rien à voir —
+ * recopier un TITRE, c'est redire ce qui est arrivé au lieu de dire ce que ça change, et aucune
+ * décision d'ergonomie ne rend cela utile à un lecteur.
+ */
+export function paraphraseCandidates(cluster: NewsClusterOut): string[] {
   return [
     cluster.headline ?? '',
     cluster.summary_text ?? '',
-    // Le BROUILLON proposé par le LLM (ADR 0079). Sans lui dans cette liste, pré-remplir le champ
-    // aurait désactivé la règle en silence : une phrase fraîchement écrite par un modèle ne
-    // ressemble à aucun des textes ci-dessus, et passait donc le contrôle sans être vue.
-    draft ?? '',
     ...(cluster.articles ?? []).map((a) => a.title ?? ''),
   ].filter((s) => s.trim().length > 0);
+}
+
+/**
+ * D'où vient la phrase publiée. Ce n'est pas un jugement, c'est un fait consigné : le journal est
+ * nominatif et en ajout seul, il doit dire ce qui a été signé.
+ *
+ * Le seuil de 0.9 est volontairement haut — on ne cherche pas à qualifier une réécriture partielle
+ * de « acceptée », seulement à reconnaître un texte laissé pratiquement intact.
+ */
+export function noteOrigin(
+  note: string,
+  draft?: string,
+): 'human_written' | 'draft_edited' | 'draft_accepted' {
+  const d = (draft ?? '').trim();
+  if (!d) return 'human_written';
+  const n = note.trim();
+  if (n === d) return 'draft_accepted';
+  const score = containment(noteFingerprint(n), noteFingerprint(d));
+  return score >= 0.9 ? 'draft_accepted' : 'draft_edited';
 }

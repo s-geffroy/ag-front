@@ -40,6 +40,11 @@ export const ValidationEntry = z.object({
   after: ValidationValue.optional(),
   /** The LLM judge candidate the human confirmed or overrode, if a judge run existed (ADR 0068). */
   judge_verdict_snapshot: JudgeGateVerdict.optional(),
+  /**
+   * Pour une promotion d'actualité : la phrase publiée était-elle écrite, retouchée, ou acceptée
+   * telle quelle depuis le brouillon machine (ADR 0079 amendé) ?
+   */
+  note_origin: z.enum(['human_written', 'draft_edited', 'draft_accepted']).optional(),
   /** Nominative validator identity (honor-system on the single-operator tailnet — ADR 0046). */
   validated_by: z.string(),
   validated_at: z.string(), // ISO 8601
