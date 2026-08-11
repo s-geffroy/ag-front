@@ -363,6 +363,29 @@ export const PROMOTABLE_IN_MODAL = 5;
 /** Places gardées pour les sujets saillants mais peu repris, en plus des {@link PROMOTABLE_IN_MODAL}. */
 export const RESERVED_FOR_SALIENT = 2;
 
+export const PICK_ACTION_PATTERN = /^pick_subject_\d+$/;
+export function pickActionId(index: number): string {
+  return `pick_subject_${index}`;
+}
+
+/** Ce qu'un bouton « Choisir » emporte : de quoi retrouver le sujet même si son identifiant change. */
+export interface PickPayload {
+  corridorId: string;
+  clusterId: string;
+  /**
+   * Quelques URL d'articles. MESURÉ le 2026-08-11 : entre deux passes du même jour, aucun des 15
+   * `cluster_id` n'a survécu. Sans ce repli, une fenêtre ouverte avant une passe échouait à la
+   * validation en `cluster_not_found`, sans que la personne ait rien fait de faux.
+   */
+  urls: string[];
+}
+
+/**
+ * Fenêtre 1 — la liste des sujets. Un bouton par sujet, EN FACE du sujet.
+ *
+ * Le menu déroulant a été supprimé : il redemandait de choisir dans une liste de 75 caractères ce
+ * qu'on venait de lire en détail juste au-dessus. Choisir deux fois n'est pas choisir mieux.
+ */
 export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[], today: string) {
   // Les sujets les plus PORTÉS d'abord, puis on coupe. L'ordre précède la coupe : couper avant de
   // classer aurait gardé les cinq premiers du flux, pas les cinq qui comptent.
@@ -378,38 +401,47 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
   const shown = [...byEcho, ...quiet];
   const hidden = ranked.length - shown.length;
 
-  const options = shown.map(({ cluster }) => ({
-    text: { type: 'plain_text' as const, text: clusterLabel(cluster) },
-    value: cluster.clusterId,
-  }));
-
-  const articleBlocks = shown.flatMap(({ cluster: c, weight }) => {
+  const subjectBlocks = shown.flatMap(({ cluster: c, weight }, i) => {
     const stories = distinctStories(c.articles);
     const win = windowLabel(c.firstSeen, c.lastSeen);
     // L'intitulé du sujet, marqué comme venant du modèle (ADR 0078) : il sert à repérer, et le
     // cockpit refuse une note qui le recopie — c'est cette garde qui rend son affichage tenable.
     const title = decodeEntities(c.headline ?? '').trim();
-    const head = [
-      title ? `⟨modèle⟩ *${title}*` : `*${(c.eventCategory ?? 'couverture').replace(/_/g, ' ')}*`,
-      weightLine(weight, win),
-    ].join('\n');
+    const payload: PickPayload = {
+      corridorId,
+      clusterId: c.clusterId,
+      urls: stories.slice(0, 4).map((a) => a.url),
+    };
     return [
+      {
+        type: 'section' as const,
+        text: {
+          type: 'mrkdwn' as const,
+          text: [
+            title
+              ? `⟨modèle⟩ *${title}*`
+              : `*${(c.eventCategory ?? 'couverture').replace(/_/g, ' ')}*`,
+            weightLine(weight, win),
+          ].join('\n'),
+        },
+        accessory: {
+          type: 'button' as const,
+          action_id: pickActionId(i),
+          // Slack plafonne `value` à 2000 caractères : quatre URL et deux identifiants tiennent.
+          value: JSON.stringify(payload).slice(0, 2000),
+          text: { type: 'plain_text' as const, text: 'Choisir' },
+        },
+      },
       {
         type: 'context' as const,
         elements: [
           {
             type: 'mrkdwn' as const,
-            text: [
-              head,
-              ...stories.slice(0, 4).map((a) => {
+            text: stories
+              .slice(0, 4)
+              .map((a) => {
                 const t = decodeEntities(a.title).replace(/[<>|]/g, ' ').slice(0, 90);
-                // La reprise est dite, pas cachée : elle mesure l'écho, elle ne le remplace pas.
                 const age = ageLabel(a.observedOn, today);
-                // Deuxième ligne : le POIDS. Médias distincts = donnée réelle, donc en gras.
-                // Pays = PLANCHER (« ≥ »), parce que deux tiers des domaines n'en déclarent aucun ;
-                // l'indéterminé est affiché à côté au lieu d'être confondu avec zéro (ADR 0077).
-                // Le pays est porté par le SUJET, au-dessus : le répéter par histoire noierait
-                // l'aperçu sans rien ajouter. Ici, ce qui distingue une histoire d'une autre.
                 const line = [
                   a.outlets > 1 ? `${a.outlets} médias` : (a.outlet ?? 'média inconnu'),
                   age,
@@ -417,8 +449,8 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
                   .filter(Boolean)
                   .join(' · ');
                 return `   • <${a.url}|${t}> _(${line})_`;
-              }),
-            ].join('\n'),
+              })
+              .join('\n'),
           },
         ],
       },
@@ -427,28 +459,14 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
 
   return {
     type: 'modal' as const,
-    callback_id: MODAL_CALLBACK_ID,
+    callback_id: 'promote_pick_modal',
     private_metadata: corridorId,
-    title: { type: 'plain_text' as const, text: 'Promouvoir' },
-    submit: { type: 'plain_text' as const, text: 'Publier' },
-    close: { type: 'plain_text' as const, text: 'Annuler' },
+    title: { type: 'plain_text' as const, text: 'Choisir un sujet' },
+    close: { type: 'plain_text' as const, text: 'Fermer' },
     blocks: [
-      {
-        type: 'input' as const,
-        block_id: CLUSTER_BLOCK_ID,
-        label: {
-          type: 'plain_text' as const,
-          text: 'Sujet — intitulé proposé par le modèle, à ne pas reprendre',
-        },
-        element: {
-          type: 'static_select' as const,
-          action_id: CLUSTER_ACTION_ID,
-          options,
-        },
-      },
-      ...articleBlocks,
-      // Une coupe tue est une coupe qui ment : sans cette ligne, cinq regroupements sur vingt-trois
-      // se liraient comme la totalité du corridor (ADR 0077).
+      ...subjectBlocks,
+      // Une coupe tue est une coupe qui ment : sans cette ligne, cinq sujets sur vingt-trois se
+      // liraient comme la totalité du corridor (ADR 0077).
       ...(hidden > 0
         ? [
             {
@@ -456,19 +474,37 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
               elements: [
                 {
                   type: 'mrkdwn' as const,
-                  text: `_${hidden} autre(s) regroupement(s) sur ce corridor ne sont pas montrés ici. Cette fenêtre n'offre que ce qu'elle affiche — les autres se traitent depuis le cockpit._`,
+                  text: `_${hidden} autre(s) sujet(s) sur ce corridor ne sont pas montrés ici. Cette fenêtre n'offre que ce qu'elle affiche — les autres se traitent depuis le cockpit._`,
                 },
               ],
             },
           ]
         : []),
+    ],
+  };
+}
+
+/** Fenêtre 2, état d'attente : ouverte tout de suite, le brouillon arrive par mise à jour. */
+export function buildWritingModal(pick: PickPayload, subjectTitle: string) {
+  return {
+    type: 'modal' as const,
+    callback_id: MODAL_CALLBACK_ID,
+    private_metadata: JSON.stringify({ ...pick, draft: '' }),
+    title: { type: 'plain_text' as const, text: 'Promouvoir' },
+    submit: { type: 'plain_text' as const, text: 'Publier' },
+    close: { type: 'plain_text' as const, text: 'Annuler' },
+    blocks: [
+      {
+        type: 'context' as const,
+        elements: [{ type: 'mrkdwn' as const, text: `⟨modèle⟩ *${subjectTitle}*` }],
+      },
       {
         type: 'input' as const,
         block_id: NOTE_BLOCK_ID,
         label: { type: 'plain_text' as const, text: 'Ce que cela change pour un décideur' },
         hint: {
           type: 'plain_text' as const,
-          text: 'Votre phrase, pas celle du titre. Une phrase courte et juste suffit.',
+          text: 'Rédaction du brouillon en cours… vous pouvez déjà écrire, le brouillon ne l’écrasera pas.',
         },
         element: {
           type: 'plain_text_input' as const,
@@ -480,9 +516,72 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
   };
 }
 
+/**
+ * Fenêtre 2, brouillon arrivé. Le champ est pré-rempli ET le brouillon voyage dans
+ * `private_metadata` : il repartira au cockpit, qui refusera une note qui s'en approche. Sans ce
+ * voyage, pré-remplir aurait désactivé la règle en silence — une phrase fraîchement écrite par un
+ * modèle ne ressemble à aucun des textes que le garde-fou connaissait (ADR 0079).
+ */
+export function buildWritingModalWithDraft(
+  pick: PickPayload,
+  subjectTitle: string,
+  draft: { draft: string; basis?: string[]; cannot_say?: string[] },
+) {
+  const notes = [
+    draft.basis?.length ? `*Appuyé sur :* ${draft.basis.slice(0, 4).join(' · ')}` : null,
+    draft.cannot_say?.length
+      ? `*Ce que le brouillon ne peut pas dire :* ${draft.cannot_say.slice(0, 4).join(' · ')}`
+      : null,
+  ].filter(Boolean) as string[];
+
+  return {
+    type: 'modal' as const,
+    callback_id: MODAL_CALLBACK_ID,
+    private_metadata: JSON.stringify({ ...pick, draft: draft.draft }),
+    title: { type: 'plain_text' as const, text: 'Promouvoir' },
+    submit: { type: 'plain_text' as const, text: 'Publier' },
+    close: { type: 'plain_text' as const, text: 'Annuler' },
+    blocks: [
+      {
+        type: 'context' as const,
+        elements: [{ type: 'mrkdwn' as const, text: `⟨modèle⟩ *${subjectTitle}*` }],
+      },
+      {
+        type: 'input' as const,
+        block_id: NOTE_BLOCK_ID,
+        label: { type: 'plain_text' as const, text: 'Ce que cela change pour un décideur' },
+        hint: {
+          type: 'plain_text' as const,
+          text: draft.draft
+            ? 'Brouillon machine — à RÉÉCRIRE. Le publier tel quel sera refusé.'
+            : 'Votre phrase, pas celle du titre. Une phrase courte et juste suffit.',
+        },
+        element: {
+          type: 'plain_text_input' as const,
+          action_id: NOTE_ACTION_ID,
+          multiline: true,
+          ...(draft.draft ? { initial_value: draft.draft } : {}),
+        },
+      },
+      ...(notes.length
+        ? [
+            {
+              type: 'context' as const,
+              elements: [{ type: 'mrkdwn' as const, text: notes.join('\n') }],
+            },
+          ]
+        : []),
+    ],
+  };
+}
+
 export interface Submission {
   corridorId: string;
   clusterId: string;
+  /** URL de repli, au cas où l'identifiant amont aurait changé depuis l'ouverture de la fenêtre. */
+  urls: string[];
+  /** Le brouillon proposé. Repart au cockpit pour entrer dans les textes à ne pas recopier. */
+  draft: string;
   note: string;
 }
 
@@ -492,14 +591,34 @@ export function parseSubmission(view: {
   state?: { values?: Record<string, Record<string, unknown>> };
 }): Submission {
   const values = view.state?.values ?? {};
-  const cluster = values[CLUSTER_BLOCK_ID]?.[CLUSTER_ACTION_ID] as
-    | { selected_option?: { value?: string } }
-    | undefined;
   const note = values[NOTE_BLOCK_ID]?.[NOTE_ACTION_ID] as { value?: string } | undefined;
-  const corridorId = (view.private_metadata ?? '').trim();
-  const clusterId = cluster?.selected_option?.value ?? '';
-  if (!corridorId || !clusterId) throw new Error('submission incomplète');
-  return { corridorId, clusterId, note: (note?.value ?? '').trim() };
+  // Le sujet ne vient plus d'un menu : il a été choisi au bouton et voyage dans private_metadata,
+  // avec les URL de repli et le brouillon qui a été mis sous les yeux de la personne.
+  let meta: { corridorId?: string; clusterId?: string; urls?: string[]; draft?: string };
+  try {
+    meta = JSON.parse(view.private_metadata ?? '{}');
+  } catch {
+    throw new Error('submission incomplète');
+  }
+  if (!meta.corridorId || !meta.clusterId) throw new Error('submission incomplète');
+  return {
+    corridorId: meta.corridorId,
+    clusterId: meta.clusterId,
+    urls: Array.isArray(meta.urls) ? meta.urls : [],
+    draft: typeof meta.draft === 'string' ? meta.draft : '',
+    note: (note?.value ?? '').trim(),
+  };
+}
+
+/** Le bouton « Choisir » d'un sujet — ce que l'action rapporte. */
+export function parsePick(value: string | undefined): PickPayload {
+  const p = JSON.parse(value ?? '{}');
+  if (!p.corridorId || !p.clusterId) throw new Error('pick incomplet');
+  return {
+    corridorId: p.corridorId,
+    clusterId: p.clusterId,
+    urls: Array.isArray(p.urls) ? p.urls : [],
+  };
 }
 
 export type PromoteOutcome =
@@ -514,6 +633,17 @@ export type PromoteOutcome =
 export function outcomeFromCockpit(status: number, body: Record<string, unknown>): PromoteOutcome {
   if (status >= 200 && status < 300) return { ok: true };
   if (status === 422 && body.error === 'editorial_note_paraphrase') {
+    // Recopier le BROUILLON et recopier un TITRE demandent deux corrections différentes : dans le
+    // premier cas il faut s'approprier la phrase, dans le second il faut passer du fait à sa
+    // conséquence. Un message unique laissait la personne deviner laquelle.
+    if (body.echoes_draft === true) {
+      return {
+        ok: false,
+        field: 'note',
+        message:
+          'Vous publiez le brouillon tel quel. Il est là pour être réécrit : dites-le avec vos mots, et ce que vous en retenez.',
+      };
+    }
     return {
       ok: false,
       field: 'note',

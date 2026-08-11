@@ -50,7 +50,10 @@ import {
   unpromoteNews,
   findParaphrase,
   paraphraseCandidates,
+  distinctTitles,
+  distinctOutlets,
 } from './promote-news';
+import { NoteDraftError, draftEditorialNote } from './llm/note-draft';
 import {
   addUploads,
   getUpload,
@@ -84,6 +87,44 @@ const ValidateBody = z.object({
  * the tailnet (Tailscale serve), never public (ADR 0005). Inputs are still zod-validated and the
  * collection name is allowlisted, so a bad/hostile payload can't corrupt data or traverse the FS.
  */
+/**
+ * Quelques faits internes pour situer l'enjeu d'un corridor — volumes, régime, concentration.
+ *
+ * Volontairement COURT et défensif : chaque champ est optionnel côté amont, et ce résumé alimente un
+ * prompt. Ce qui n'est pas là ne doit pas produire de phrase creuse — on omet la ligne plutôt que
+ * d'écrire « inconnu », qu'un modèle pourrait transformer en affirmation.
+ */
+export function corridorFactSummary(fiche: Record<string, unknown>): string[] {
+  const out: string[] = [];
+  const flows = fiche.flows as
+    | { flow_type?: string; estimated_volume?: number; volume_unit?: string }[]
+    | undefined;
+  for (const f of (flows ?? []).slice(0, 3)) {
+    if (f.flow_type && typeof f.estimated_volume === 'number') {
+      out.push(`Flux ${f.flow_type} : ${f.estimated_volume} ${f.volume_unit ?? ''}`.trim());
+    }
+  }
+  const regime = fiche.regime as
+    | { operational_state?: string; lifecycle_phase?: string }
+    | undefined;
+  if (regime?.operational_state) {
+    out.push(
+      `État opérationnel déclaré : ${regime.operational_state}${regime.lifecycle_phase ? ` (phase ${regime.lifecycle_phase})` : ''}`,
+    );
+  }
+  const conc = fiche.concentration as
+    | { score?: number; top_actor_id?: string; top_actor_share?: number }
+    | undefined;
+  if (typeof conc?.score === 'number') {
+    out.push(
+      `Concentration du contrôle : score ${conc.score}${conc.top_actor_id ? `, acteur principal ${conc.top_actor_id}` : ''}`,
+    );
+  }
+  const cp = fiche.chokepoint as { priority_class?: string; macro_region?: string } | undefined;
+  if (cp?.priority_class) out.push(`Classe de priorité : ${cp.priority_class}`);
+  return out.slice(0, 8);
+}
+
 export function createApiRouter(): Router {
   const r = express.Router();
 
@@ -860,6 +901,92 @@ export function createApiRouter(): Router {
   // must be CLEARED (not license_taint) and its reliable fields come from a FRESH server re-fetch, never
   // the client body. Touches the publish sentinel so the host watcher ships it. Never runs the build.
   const CORRIDOR_ID_RE = /^[a-z0-9_]+$/i;
+
+  // --- Brouillon de note pour une promotion (ADR 0079) -------------------------------------------
+  // Rend un BROUILLON à réécrire, jamais une phrase publiable : la route de promotion ci-dessous
+  // reçoit ce même texte et REFUSE une note qui s'en approche. Le cluster est relu côté serveur —
+  // le corps de la requête ne porte qu'un identifiant, jamais du contenu.
+  r.post(
+    '/promote-news/:corridorId/draft',
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { corridorId } = req.params;
+      if (!CORRIDOR_ID_RE.test(corridorId)) {
+        res.status(400).json({ error: 'invalid corridor id' });
+        return;
+      }
+      const body = z
+        .object({ cluster_id: z.string().min(1), article_urls: z.array(z.string()).optional() })
+        .safeParse(req.body);
+      if (!body.success) {
+        res.status(400).json({ error: 'validation', issues: body.error.issues });
+        return;
+      }
+      const client = chokepointsClient();
+      if (!client) {
+        res.status(503).json({ error: 'chokepoints_api_unconfigured' });
+        return;
+      }
+      try {
+        const feed = await client.getChokepointNews(corridorId, { limit: 200 });
+        const resolved = resolvePromoteFromFeed(feed, {
+          cluster_id: body.data.cluster_id,
+          article_urls: body.data.article_urls,
+        });
+        if (!resolved.ok) {
+          res.status(resolved.status).json({ error: resolved.error });
+          return;
+        }
+        const c = resolved.cluster;
+        // La fiche corridor situe l'enjeu. Son échec ne doit PAS empêcher le brouillon : on rédige
+        // alors sur les seuls titres, et le modèle le dit dans cannot_say.
+        let corridorFacts: string[] = [];
+        let corridorName = corridorId;
+        try {
+          const fiche = (await client.getChokepointFiche(corridorId)) as Record<string, unknown>;
+          corridorFacts = corridorFactSummary(fiche);
+          const cp = fiche.chokepoint as { canonical_name?: string } | undefined;
+          if (cp?.canonical_name) corridorName = cp.canonical_name;
+        } catch (err) {
+          console.error('[cockpit] fiche indisponible pour le brouillon', corridorId, err);
+        }
+        const titles = distinctTitles(c);
+        const draft = await draftEditorialNote({
+          corridorName,
+          titles: titles.map((t) => t.title),
+          outlets: distinctOutlets(c),
+          countries: [],
+          countryUnknown: 0,
+          articles: c.article_count ?? (c.articles ?? []).length,
+          window: `${c.first_seen ?? '?'} → ${c.last_seen ?? '?'}`,
+          salience: c.salience_score ?? undefined,
+          eventCategory: c.event_category ?? undefined,
+          corridorFacts,
+        });
+        res.json(draft);
+      } catch (err) {
+        if (err instanceof NoteDraftError) {
+          // Un brouillon absent n'empêche pas de promouvoir : on renvoie 200 avec un draft vide et
+          // la raison, plutôt qu'une erreur qui ferait croire que la promotion est bloquée.
+          res.json({
+            analysis: '',
+            draft: '',
+            basis: [],
+            cannot_say: [`Brouillon indisponible : ${err.message}. Écrivez la phrase directement.`],
+            injection_detected: false,
+            injection_evidence: '',
+          });
+          return;
+        }
+        const status = err instanceof ChokepointsApiError ? err.status : 0;
+        if (status === 404) {
+          res.status(404).json({ error: 'corridor_not_found' });
+          return;
+        }
+        next(err);
+      }
+    },
+  );
+
   r.post('/promote-news/:corridorId', async (req: Request, res: Response, next: NextFunction) => {
     const { corridorId } = req.params;
     if (!CORRIDOR_ID_RE.test(corridorId)) {
@@ -875,6 +1002,11 @@ export function createApiRouter(): Router {
         // a summary of article titles, and validating it while having read only those same titles is
         // the defect ag-back named in their 0026 §5 and we conceded.
         editorial_note: z.string().trim().min(1),
+        // Le brouillon qui a été MIS SOUS LES YEUX de la personne (ADR 0079). Il entre dans les
+        // textes que la note ne doit pas recopier — c'est ce qui empêche le pré-remplissage de
+        // vider la règle. Optionnel : une promotion depuis le cockpit peut n'avoir eu aucun
+        // brouillon, et son absence ne doit pas bloquer.
+        draft: z.string().optional(),
         reserve: z.string().optional(),
       })
       .refine((b) => b.cluster_id || (b.article_urls && b.article_urls.length > 0), {
@@ -903,12 +1035,19 @@ export function createApiRouter(): Router {
       }
       // P2 — la note doit ajouter quelque chose (ADR 0074). Recopier le titre satisfaisait la lettre
       // de la règle en la vidant : la porte exigeait une phrase, pas une phrase de plus.
-      const echo = findParaphrase(body.data.editorial_note, paraphraseCandidates(resolved.cluster));
+      const echo = findParaphrase(
+        body.data.editorial_note,
+        paraphraseCandidates(resolved.cluster, body.data.draft),
+      );
       if (echo) {
         res.status(422).json({
           error: 'editorial_note_paraphrase',
           message:
             'Votre phrase reprend un texte déjà présent — dites ce que cette couverture change pour un décideur.',
+          // Nommer la source du refus : « vous recopiez le brouillon » et « vous recopiez un titre »
+          // demandent deux corrections différentes.
+          echoes_draft:
+            !!body.data.draft && echo.source.trim() === body.data.draft.trim() ? true : undefined,
           echoes: echo.source,
           score: Number(echo.score.toFixed(2)),
         });
@@ -937,7 +1076,14 @@ export function createApiRouter(): Router {
         const arr = list as z.infer<typeof ValidationEntry>[];
         return [...arr, entry];
       });
-      res.status(201).json({ promoted: item, entry, pending_rebuild: true });
+      res.status(201).json({
+        promoted: item,
+        entry,
+        pending_rebuild: true,
+        // Dit quand l'identifiant amont a changé entre l'ouverture de la fenêtre et la validation :
+        // la promotion a bien eu lieu, mais par repli sur les URL (voir resolvePromoteFromFeed).
+        matched_by: resolved.matchedBy,
+      });
     } catch (err) {
       const status = err instanceof ChokepointsApiError ? err.status : 0;
       if (status === 404) {

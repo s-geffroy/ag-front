@@ -2,14 +2,15 @@ import { outletCountry } from './country';
 import { describe, expect, it } from 'vitest';
 import {
   buildPromoteModal,
+  buildWritingModal,
+  buildWritingModalWithDraft,
   clusterLabel,
   isAllowedChannel,
   NOTE_BLOCK_ID,
   outcomeFromCockpit,
   parseSubmission,
+  parsePick,
   validatedBy,
-  CLUSTER_BLOCK_ID,
-  CLUSTER_ACTION_ID,
   NOTE_ACTION_ID,
   PROMOTE_ACTION_PATTERN,
   promoteActionId,
@@ -22,7 +23,6 @@ import {
   rankSubjects,
   subjectWeight,
   weightLine,
-  RESERVED_FOR_SALIENT,
   type ClusterChoice,
 } from './promote';
 
@@ -91,11 +91,9 @@ describe('clusterLabel — le poids devant, l’intitulé du modèle derrière',
 describe('buildPromoteModal', () => {
   const modal = buildPromoteModal('hormuz', [cluster], '2026-08-11');
 
-  it('porte le corridor et les deux champs attendus', () => {
+  it('porte le corridor et un bouton par sujet', () => {
     expect(modal.private_metadata).toBe('hormuz');
-    const ids = modal.blocks.map((b) => (b as { block_id?: string }).block_id);
-    expect(ids).toContain(CLUSTER_BLOCK_ID);
-    expect(ids).toContain(NOTE_BLOCK_ID);
+    expect(modal.blocks.some((b) => (b as { accessory?: unknown }).accessory)).toBe(true);
   });
 
   it('met les titres des ÉDITEURS en liens cliquables — lire est à une tape', () => {
@@ -104,28 +102,38 @@ describe('buildPromoteModal', () => {
     expect(json).toContain('Iran ties Hormuz reopening');
   });
 
-  it('n’expose jamais headline ni summary_text', () => {
-    // ClusterChoice ne les porte même pas : la garde est dans le type, ce test la constate.
-    expect(JSON.stringify(modal)).not.toMatch(/headline|summary_text/);
+  it('n’expose jamais summary_text, et marque l’intitulé quand il le montre', () => {
+    // ADR 0078 : `headline` est affiché POUR CHOISIR, toujours préfixé ; `summary_text` reste banni.
+    const json = JSON.stringify(
+      buildPromoteModal('hormuz', [{ ...cluster, headline: 'X' }], '2026-08-11'),
+    );
+    expect(json).not.toMatch(/summary_text/);
+    expect(json).toContain('⟨modèle⟩');
   });
 });
 
 describe('parseSubmission', () => {
   const view = (note: string, clusterId = 'c1') => ({
-    private_metadata: 'hormuz',
+    private_metadata: JSON.stringify({
+      corridorId: 'hormuz',
+      clusterId,
+      urls: ['https://x.test/a'],
+      draft: 'un brouillon machine',
+    }),
     state: {
       values: {
-        [CLUSTER_BLOCK_ID]: { [CLUSTER_ACTION_ID]: { selected_option: { value: clusterId } } },
         [NOTE_BLOCK_ID]: { [NOTE_ACTION_ID]: { value: note } },
       },
     },
   });
 
-  it('relit le choix et la phrase', () => {
-    expect(parseSubmission(view('  Le passage devient négociable.  '))).toEqual({
+  it('relit le choix, la phrase, les URL de repli et le brouillon montré', () => {
+    expect(parseSubmission(view('  Ma phrase.  '))).toEqual({
       corridorId: 'hormuz',
       clusterId: 'c1',
-      note: 'Le passage devient négociable.',
+      urls: ['https://x.test/a'],
+      draft: 'un brouillon machine',
+      note: 'Ma phrase.',
     });
   });
 
@@ -319,6 +327,7 @@ describe('poids — le nombre de médias, et un plancher de pays', () => {
 describe("la fenêtre n'offre que ce qu'elle montre", () => {
   const cluster = (i: number) => ({
     clusterId: `c${i}`,
+    headline: `Sujet ${i}`,
     eventCategory: 'security',
     articleCount: 3,
     firstSeen: '2026-08-10',
@@ -333,19 +342,24 @@ describe("la fenêtre n'offre que ce qu'elle montre", () => {
     ],
   });
 
-  it('ne propose jamais un regroupement dont les articles ne sont pas affichés', () => {
+  const buttons = (modal: any) =>
+    modal.blocks.filter((b: any) => b.accessory?.type === 'button').map((b: any) => b.accessory);
+
+  it('pose un bouton par sujet affiché, et aucun menu à re-choisir', () => {
     const modal: any = buildPromoteModal(
       'hormuz',
       [...Array(23)].map((_, i) => cluster(i)),
       '2026-08-11',
     );
-    const select = modal.blocks.find((b: any) => b.block_id === CLUSTER_BLOCK_ID);
-    const previews = modal.blocks.filter((b: any) => b.type === 'context');
-    expect(select.element.options).toHaveLength(PROMOTABLE_IN_MODAL);
-    // autant d'aperçus que d'options, plus la ligne qui déclare la coupe
-    expect(previews).toHaveLength(PROMOTABLE_IN_MODAL + 1);
-    const offered = select.element.options.map((o: any) => o.value);
-    expect(offered).toEqual(['c0', 'c1', 'c2', 'c3', 'c4']);
+    expect(buttons(modal)).toHaveLength(PROMOTABLE_IN_MODAL);
+    expect(modal.blocks.some((b: any) => b.element?.type === 'static_select')).toBe(false);
+  });
+
+  it('emporte les URL de repli, car un cluster_id ne survit pas à une passe amont', () => {
+    const modal: any = buildPromoteModal('hormuz', [cluster(0)], '2026-08-11');
+    const pick = parsePick(buttons(modal)[0].value);
+    expect(pick.clusterId).toBe('c0');
+    expect(pick.urls[0]).toContain('x0.com');
   });
 
   it('déclare le reste au lieu de le taire', () => {
@@ -357,7 +371,7 @@ describe("la fenêtre n'offre que ce qu'elle montre", () => {
     const texts = modal.blocks
       .filter((b: any) => b.type === 'context')
       .map((b: any) => b.elements[0].text);
-    expect(texts.some((t: string) => t.includes('18 autre(s) regroupement(s)'))).toBe(true);
+    expect(texts.some((t: string) => t.includes('18 autre(s) sujet(s)'))).toBe(true);
   });
 
   it("n'annonce aucune coupe quand il n'y en a pas", () => {
@@ -478,10 +492,66 @@ describe('écho et saillance sont deux mesures, pas une', () => {
       subj('trafic', 3, 0.9),
     ];
     const modal: any = buildPromoteModal('hormuz', clusters, '2026-08-11');
-    const values = modal.blocks
-      .find((b: any) => b.block_id === CLUSTER_BLOCK_ID)
-      .element.options.map((o: any) => o.value);
-    expect(values).toHaveLength(PROMOTABLE_IN_MODAL + 1);
-    expect(values).toContain('trafic');
+    const picked = modal.blocks
+      .filter((b: any) => b.accessory?.type === 'button')
+      .map((b: any) => parsePick(b.accessory.value).clusterId);
+    expect(picked).toHaveLength(PROMOTABLE_IN_MODAL + 1);
+    expect(picked).toContain('trafic');
+  });
+});
+
+describe('brouillon — pré-remplir sans vider la règle (ADR 0079)', () => {
+  const pick = { corridorId: 'hormuz', clusterId: 'c1', urls: ['https://x.test/a'] };
+
+  it('emporte le brouillon dans private_metadata, pour qu’il reparte au cockpit', () => {
+    const m: any = buildWritingModalWithDraft(pick, 'Sujet', { draft: 'Une phrase machine.' });
+    expect(JSON.parse(m.private_metadata).draft).toBe('Une phrase machine.');
+  });
+
+  it('pré-remplit le champ et dit que c’est un brouillon à réécrire', () => {
+    const m: any = buildWritingModalWithDraft(pick, 'Sujet', { draft: 'Une phrase machine.' });
+    const input = m.blocks.find((b: any) => b.block_id === NOTE_BLOCK_ID);
+    expect(input.element.initial_value).toBe('Une phrase machine.');
+    expect(input.hint.text).toContain('RÉÉCRIRE');
+  });
+
+  it('ne pré-remplit rien quand le brouillon est vide, et retrouve la consigne normale', () => {
+    const m: any = buildWritingModalWithDraft(pick, 'Sujet', { draft: '' });
+    const input = m.blocks.find((b: any) => b.block_id === NOTE_BLOCK_ID);
+    expect(input.element.initial_value).toBeUndefined();
+    expect(input.hint.text).toContain('Votre phrase');
+  });
+
+  it('montre ce sur quoi le brouillon s’appuie et ce qu’il ne peut pas dire', () => {
+    const m: any = buildWritingModalWithDraft(pick, 'Sujet', {
+      draft: 'x',
+      basis: ['Un titre'],
+      cannot_say: ['La durée'],
+    });
+    const json = JSON.stringify(m);
+    expect(json).toContain('Appuyé sur');
+    expect(json).toContain('ne peut pas dire');
+  });
+
+  it('distingue « vous recopiez le brouillon » de « vous recopiez un titre »', () => {
+    const draftEcho = outcomeFromCockpit(422, {
+      error: 'editorial_note_paraphrase',
+      echoes_draft: true,
+      message: 'générique',
+    });
+    expect(draftEcho.ok).toBe(false);
+    expect((draftEcho as { message: string }).message).toContain('brouillon');
+
+    const titleEcho = outcomeFromCockpit(422, {
+      error: 'editorial_note_paraphrase',
+      message: 'Votre phrase reprend un texte déjà présent.',
+    });
+    expect((titleEcho as { message: string }).message).not.toContain('brouillon');
+  });
+
+  it('la fenêtre d’attente s’ouvre sans brouillon, et le dit', () => {
+    const m: any = buildWritingModal(pick, 'Sujet');
+    expect(m.blocks.find((b: any) => b.block_id === NOTE_BLOCK_ID).hint.text).toContain('en cours');
+    expect(JSON.parse(m.private_metadata).draft).toBe('');
   });
 });

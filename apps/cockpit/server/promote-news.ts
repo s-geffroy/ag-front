@@ -85,7 +85,7 @@ export function toPromotedItem(
 
 export type PromoteResolution =
   | { ok: false; status: number; error: string }
-  | { ok: true; cluster: NewsClusterOut };
+  | { ok: true; cluster: NewsClusterOut; matchedBy?: 'cluster_id' | 'article_urls' };
 
 /**
  * Pick + validate the cluster to promote out of a fresh feed. Matches by `cluster_id` when given, else
@@ -97,11 +97,20 @@ export function resolvePromoteFromFeed(
 ): PromoteResolution {
   const items = feed.items ?? [];
   let cluster: NewsClusterOut | undefined;
+  let matchedBy: 'cluster_id' | 'article_urls' | undefined;
   if (select.cluster_id) {
     cluster = items.find((c) => c.cluster_id === select.cluster_id);
-  } else if (select.article_urls?.length) {
+    if (cluster) matchedBy = 'cluster_id';
+  }
+  // REPLI PAR LES URL, et non plus « sinon ». Mesuré le 2026-08-11 : entre deux passes du même jour
+  // (aggregate_news@…T061535Z puis …T181553Z) AUCUN des 15 cluster_id n'a survécu — zéro en commun
+  // sur 18 nouveaux. Une fenêtre ouverte avant une passe et validée après échouait donc en
+  // `cluster_not_found`, sans que la personne ait rien fait de faux. Les URL d'articles, elles,
+  // survivent à la re-génération.
+  if (!cluster && select.article_urls?.length) {
     const wanted = new Set(select.article_urls);
     cluster = items.find((c) => (c.articles ?? []).some((a) => a.url && wanted.has(a.url)));
+    if (cluster) matchedBy = 'article_urls';
   }
   if (!cluster) return { ok: false, status: 404, error: 'cluster_not_found' };
   // Belt to ADR 0013: a redistribution-restricted cluster never reaches the public site.
@@ -110,7 +119,7 @@ export function resolvePromoteFromFeed(
   if (!(cluster.articles ?? []).some((a) => isHttp(a.url))) {
     return { ok: false, status: 409, error: 'no_attributable_article' };
   }
-  return { ok: true, cluster };
+  return { ok: true, cluster, matchedBy };
 }
 
 async function readStore(): Promise<Record<string, PromotedNewsItemT[]>> {
@@ -299,10 +308,49 @@ export function findParaphrase(
 }
 
 /** Les textes qu'une note ne doit pas se contenter de redire : titres des articles + prose du modèle. */
-export function paraphraseCandidates(cluster: NewsClusterOut): string[] {
+/**
+ * Titres distincts d'un regroupement, les plus portés d'abord, avec le compte de rédactions.
+ *
+ * DUPLICATION DÉLIBÉRÉE avec le slackbot : le cockpit re-lit le flux lui-même avant d'écrire ou de
+ * rédiger, et ne fait jamais confiance à la vue qu'un client lui transmet. Dériver ici sa propre
+ * lecture est le principe, pas un oubli de factorisation.
+ */
+export function distinctTitles(
+  cluster: Pick<NewsClusterOut, 'articles'>,
+): { title: string; outlets: number }[] {
+  const by = new Map<string, { title: string; outlets: Set<string> }>();
+  for (const a of cluster.articles ?? []) {
+    const title = (a.title ?? '').trim();
+    if (!title) continue;
+    const key = title
+      .toLowerCase()
+      .replace(/&#x[0-9a-f]+;|&[a-z]+;/gi, ' ')
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .trim();
+    const e = by.get(key);
+    if (e) e.outlets.add((a.outlet ?? a.url ?? '').toLowerCase());
+    else by.set(key, { title, outlets: new Set([(a.outlet ?? a.url ?? '').toLowerCase()]) });
+  }
+  return [...by.values()]
+    .map((e) => ({ title: e.title, outlets: e.outlets.size }))
+    .sort((x, y) => y.outlets - x.outlets);
+}
+
+/** Rédactions distinctes de tout le regroupement — le poids, pas le volume d'articles. */
+export function distinctOutlets(cluster: Pick<NewsClusterOut, 'articles'>): number {
+  return new Set(
+    (cluster.articles ?? []).map((a) => (a.outlet ?? '').toLowerCase()).filter(Boolean),
+  ).size;
+}
+
+export function paraphraseCandidates(cluster: NewsClusterOut, draft?: string): string[] {
   return [
     cluster.headline ?? '',
     cluster.summary_text ?? '',
+    // Le BROUILLON proposé par le LLM (ADR 0079). Sans lui dans cette liste, pré-remplir le champ
+    // aurait désactivé la règle en silence : une phrase fraîchement écrite par un modèle ne
+    // ressemble à aucun des textes ci-dessus, et passait donc le contrôle sans être vue.
+    draft ?? '',
     ...(cluster.articles ?? []).map((a) => a.title ?? ''),
   ].filter((s) => s.trim().length > 0);
 }
