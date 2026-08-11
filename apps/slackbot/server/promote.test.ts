@@ -22,6 +22,7 @@ import {
   rankSubjects,
   subjectWeight,
   weightLine,
+  RESERVED_FOR_SALIENT,
   type ClusterChoice,
 } from './promote';
 
@@ -433,5 +434,54 @@ describe('sujets — classer par ce qui est porté, pas par ce qui est relayé',
   it('retombe sur la catégorie quand le modèle n’a pas donné d’intitulé', () => {
     const c = subject('c', '', ['a.com']);
     expect(clusterLabel({ ...c, headline: undefined })).toContain('security');
+  });
+});
+
+describe('écho et saillance sont deux mesures, pas une', () => {
+  const subj = (id: string, outlets: number, salience: number) => ({
+    clusterId: id,
+    headline: `Sujet ${id}`,
+    articleCount: outlets,
+    articles: [...Array(outlets)].map((_, i) => ({
+      title: `T${id}-${i}`,
+      url: `https://o${id}${i}.com/a`,
+      outlet: `o${id}${i}.com`,
+      observedOn: '2026-08-10',
+    })),
+    salience,
+  });
+
+  it('signale un sujet jugé saillant que personne ne reprend', () => {
+    const w = subjectWeight(subj('trafic', 3, 0.9));
+    expect(w.quietButSalient).toBe(true);
+    expect(weightLine(w, null)).toContain('peu repris');
+  });
+
+  it('ne le signale pas quand le sujet est largement repris', () => {
+    expect(subjectWeight(subj('iran', 199, 0.9)).quietButSalient).toBe(false);
+  });
+
+  it('ne le signale pas quand l’amont ne juge pas le sujet saillant', () => {
+    expect(subjectWeight(subj('bric', 1, 0.38)).quietButSalient).toBe(false);
+  });
+
+  it('ne prétend aucune saillance quand l’amont n’en fournit pas', () => {
+    const w = subjectWeight({ ...subj('x', 3, 0), salience: undefined });
+    expect(w.salience).toBeUndefined();
+    expect(w.quietButSalient).toBe(false);
+    expect(weightLine(w, null)).not.toContain('saillance');
+  });
+
+  it('réserve des places pour eux, sinon le classement par écho les coupe toujours', () => {
+    const clusters = [
+      ...[...Array(6)].map((_, i) => subj(`echo${i}`, 50 - i, 0.5)),
+      subj('trafic', 3, 0.9),
+    ];
+    const modal: any = buildPromoteModal('hormuz', clusters, '2026-08-11');
+    const values = modal.blocks
+      .find((b: any) => b.block_id === CLUSTER_BLOCK_ID)
+      .element.options.map((o: any) => o.value);
+    expect(values).toHaveLength(PROMOTABLE_IN_MODAL + 1);
+    expect(values).toContain('trafic');
   });
 });

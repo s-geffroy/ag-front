@@ -62,6 +62,12 @@ export interface ClusterChoice {
    * cockpit : `paraphraseCandidates` la contient déjà.
    */
   headline?: string;
+  /**
+   * Jugement d'importance du modèle amont (0–1). À NE PAS confondre avec l'écho : sur Ormuz, « le
+   * trafic tombe à six navires » vaut 0.90 pour 3 médias, quand « l'Iran lie la réouverture » vaut
+   * 0.90 pour 199. Deux mesures distinctes, jamais fondues en un score unique.
+   */
+  salience?: number;
 }
 
 /**
@@ -245,7 +251,23 @@ export interface SubjectWeight {
   articles: number;
   /** Histoires distinctes après regroupement des reprises. */
   stories: number;
+  /** Saillance déclarée par l'amont, telle quelle. Undefined si elle n'est pas fournie. */
+  salience?: number;
+  /**
+   * Jugé important par l'amont ET peu repris. C'est un SEUIL D'AFFICHAGE À NOUS, pas un fait :
+   * il ne fait que rapprocher deux valeurs déclarées pour attirer l'œil.
+   *
+   * Pourquoi ce drapeau existe : notre propre bloc public dit que « le volume d'articles reflète le
+   * cycle médiatique, pas l'importance de l'événement ». Classer uniquement par écho contredirait
+   * cette phrase — et enterrerait « le trafic tombe à six navires », qui est le fait le plus
+   * décisionnel du corridor et n'a que trois médias.
+   */
+  quietButSalient: boolean;
 }
+
+/** Seuils d'affichage, explicitement les nôtres. */
+export const SALIENT_AT = 0.8;
+export const LOW_ECHO_UNDER = 5;
 
 export function subjectWeight(c: ClusterChoice): SubjectWeight {
   const outlets = new Set<string>();
@@ -264,6 +286,9 @@ export function subjectWeight(c: ClusterChoice): SubjectWeight {
     countryUnknown: noCountry.size,
     articles: c.articleCount ?? c.articles.length,
     stories: distinctStories(c.articles).length,
+    salience: c.salience,
+    quietButSalient:
+      typeof c.salience === 'number' && c.salience >= SALIENT_AT && outlets.size < LOW_ECHO_UNDER,
   };
 }
 
@@ -293,7 +318,10 @@ export function weightLine(w: SubjectWeight, win: string | null): string {
       : null,
     w.countryUnknown > 0 ? `${w.countryUnknown} sans pays déclaré` : null,
     `${w.articles} art. · ${w.stories} histoire${w.stories > 1 ? 's' : ''}`,
+    typeof w.salience === 'number' ? `saillance ${w.salience.toFixed(2)}` : null,
     win,
+    // Dit en clair plutôt qu'encodé dans un rang : le sujet ne remonte pas, il se signale.
+    w.quietButSalient ? ':eyes: *jugé saillant par l’amont, peu repris*' : null,
   ]
     .filter(Boolean)
     .join(' · ');
@@ -332,11 +360,22 @@ export function clusterLabel(c: ClusterChoice): string {
  */
 export const PROMOTABLE_IN_MODAL = 5;
 
+/** Places gardées pour les sujets saillants mais peu repris, en plus des {@link PROMOTABLE_IN_MODAL}. */
+export const RESERVED_FOR_SALIENT = 2;
+
 export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[], today: string) {
   // Les sujets les plus PORTÉS d'abord, puis on coupe. L'ordre précède la coupe : couper avant de
   // classer aurait gardé les cinq premiers du flux, pas les cinq qui comptent.
   const ranked = rankSubjects(clusters);
-  const shown = ranked.slice(0, PROMOTABLE_IN_MODAL);
+  const byEcho = ranked.slice(0, PROMOTABLE_IN_MODAL);
+  // Des places RÉSERVÉES aux sujets jugés saillants par l'amont mais peu repris. Sans elles, le
+  // classement par écho les coupe systématiquement et le drapeau ne s'affiche jamais : sur Ormuz,
+  // « le trafic tombe à six navires » (saillance 0.90, 3 médias) sortait onzième. Un signal qu'on
+  // calcule sans jamais le montrer ne vaut rien — c'est la leçon du drapeau de troncature.
+  const quiet = ranked
+    .filter((r) => r.weight.quietButSalient && !byEcho.includes(r))
+    .slice(0, RESERVED_FOR_SALIENT);
+  const shown = [...byEcho, ...quiet];
   const hidden = ranked.length - shown.length;
 
   const options = shown.map(({ cluster }) => ({

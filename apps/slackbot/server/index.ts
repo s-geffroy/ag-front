@@ -60,6 +60,7 @@ async function fetchClusters(corridorId: string): Promise<ClusterChoice[]> {
     articleCount: typeof c.article_count === 'number' ? c.article_count : undefined,
     // Intitulé du modèle : affiché dans la fenêtre, marqué, jamais publié (ADR 0078).
     headline: c.headline ? String(c.headline) : undefined,
+    salience: typeof c.salience_score === 'number' ? c.salience_score : undefined,
     firstSeen: c.first_seen ? String(c.first_seen) : undefined,
     lastSeen: c.last_seen ? String(c.last_seen) : undefined,
     articles: ((c.articles ?? []) as Record<string, unknown>[])
