@@ -378,6 +378,12 @@ export interface PickPayload {
    * validation en `cluster_not_found`, sans que la personne ait rien fait de faux.
    */
   urls: string[];
+  /**
+   * L'intitulé, transporté plutôt que relu dans le bloc cliqué. Le relire dépendait d'un préfixe
+   * d'affichage — changer ce préfixe cassait la lecture, ce qui est exactement ce qui vient
+   * d'arriver.
+   */
+  title: string;
 }
 
 /**
@@ -411,6 +417,7 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
       corridorId,
       clusterId: c.clusterId,
       urls: stories.slice(0, 4).map((a) => a.url),
+      title: (title || (c.eventCategory ?? 'couverture')).slice(0, 150),
     };
     return [
       {
@@ -418,9 +425,7 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
         text: {
           type: 'mrkdwn' as const,
           text: [
-            title
-              ? `⟨modèle⟩ *${title}*`
-              : `*${(c.eventCategory ?? 'couverture').replace(/_/g, ' ')}*`,
+            title ? `*${title}*` : `*${(c.eventCategory ?? 'couverture').replace(/_/g, ' ')}*`,
             weightLine(weight, win),
           ].join('\n'),
         },
@@ -464,6 +469,18 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
     title: { type: 'plain_text' as const, text: 'Choisir un sujet' },
     close: { type: 'plain_text' as const, text: 'Fermer' },
     blocks: [
+      // Le marquage tient ICI, une fois. Il vivait sur le libellé du menu déroulant ; en supprimant
+      // le menu, je l'avais reporté sur chaque ligne — répétée sept fois, une mention cesse d'être
+      // lue, ce qui est l'inverse du but (ADR 0078).
+      {
+        type: 'context' as const,
+        elements: [
+          {
+            type: 'mrkdwn' as const,
+            text: '_Les intitulés en gras sont proposés par le modèle amont, pas écrits par une rédaction. Ils servent à repérer un sujet — les reprendre dans votre phrase sera refusé._',
+          },
+        ],
+      },
       ...subjectBlocks,
       // Une coupe tue est une coupe qui ment : sans cette ligne, cinq sujets sur vingt-trois se
       // liraient comme la totalité du corridor (ADR 0077).
@@ -496,7 +513,12 @@ export function buildWritingModal(pick: PickPayload, subjectTitle: string) {
     blocks: [
       {
         type: 'context' as const,
-        elements: [{ type: 'mrkdwn' as const, text: `⟨modèle⟩ *${subjectTitle}*` }],
+        elements: [
+          {
+            type: 'mrkdwn' as const,
+            text: `*${subjectTitle}*\n_intitulé proposé par le modèle_`,
+          },
+        ],
       },
       {
         type: 'input' as const,
@@ -544,7 +566,12 @@ export function buildWritingModalWithDraft(
     blocks: [
       {
         type: 'context' as const,
-        elements: [{ type: 'mrkdwn' as const, text: `⟨modèle⟩ *${subjectTitle}*` }],
+        elements: [
+          {
+            type: 'mrkdwn' as const,
+            text: `*${subjectTitle}*\n_intitulé proposé par le modèle_`,
+          },
+        ],
       },
       {
         type: 'input' as const,
@@ -618,6 +645,7 @@ export function parsePick(value: string | undefined): PickPayload {
     corridorId: p.corridorId,
     clusterId: p.clusterId,
     urls: Array.isArray(p.urls) ? p.urls : [],
+    title: typeof p.title === 'string' ? p.title : 'sujet sélectionné',
   };
 }
 

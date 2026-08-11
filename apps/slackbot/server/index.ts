@@ -127,11 +127,7 @@ app.action(PROMOTE_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
  */
 app.action(PICK_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
   await ack();
-  const b = body as unknown as {
-    trigger_id: string;
-    actions?: { value?: string }[];
-    view?: { blocks?: { text?: { text?: string } }[] };
-  };
+  const b = body as unknown as { trigger_id: string; actions?: { value?: string }[] };
   let pick: PickPayload;
   try {
     pick = parsePick(b.actions?.[0]?.value);
@@ -139,14 +135,7 @@ app.action(PICK_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
     logger.warn('[slackbot] bouton de sujet illisible, ignoré');
     return;
   }
-  // Le titre affiché en tête de la fenêtre d'écriture : repris du bloc cliqué, jamais reconstruit.
-  const title =
-    (b.view?.blocks ?? [])
-      .map((blk) => blk.text?.text ?? '')
-      .find((t) => t.includes('⟨modèle⟩'))
-      ?.replace(/^⟨modèle⟩\s*\*?/, '')
-      .split('\n')[0]
-      ?.replace(/\*$/, '') ?? 'sujet sélectionné';
+  const title = pick.title;
 
   const pushed = await client.views.push({
     trigger_id: b.trigger_id,

@@ -108,7 +108,9 @@ describe('buildPromoteModal', () => {
       buildPromoteModal('hormuz', [{ ...cluster, headline: 'X' }], '2026-08-11'),
     );
     expect(json).not.toMatch(/summary_text/);
-    expect(json).toContain('⟨modèle⟩');
+    // Le marquage tient en une mention de tête, pas en un préfixe répété sur chaque ligne.
+    expect(json).toContain('proposés par le modèle amont');
+    expect(json).not.toContain('⟨modèle⟩');
   });
 });
 
@@ -501,7 +503,12 @@ describe('écho et saillance sont deux mesures, pas une', () => {
 });
 
 describe('brouillon — pré-remplir sans vider la règle (ADR 0079)', () => {
-  const pick = { corridorId: 'hormuz', clusterId: 'c1', urls: ['https://x.test/a'] };
+  const pick = {
+    corridorId: 'hormuz',
+    clusterId: 'c1',
+    urls: ['https://x.test/a'],
+    title: 'Sujet',
+  };
 
   it('emporte le brouillon dans private_metadata, pour qu’il reparte au cockpit', () => {
     const m: any = buildWritingModalWithDraft(pick, 'Sujet', { draft: 'Une phrase machine.' });
