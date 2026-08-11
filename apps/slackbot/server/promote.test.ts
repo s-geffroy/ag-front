@@ -12,6 +12,10 @@ import {
   NOTE_ACTION_ID,
   PROMOTE_ACTION_PATTERN,
   promoteActionId,
+  distinctStories,
+  ageLabel,
+  daysSince,
+  windowLabel,
   type ClusterChoice,
 } from './promote';
 
@@ -55,7 +59,7 @@ describe('clusterLabel — jamais la prose du modèle', () => {
   it('décrit le regroupement par ses faits, pas par son titre généré', () => {
     const l = clusterLabel(cluster);
     expect(l).toContain('access restriction');
-    expect(l).toContain('3 article(s)');
+    expect(l).toContain('3 art.'); // abrégé pour laisser tenir la fenêtre d'observation sous les 75 caractères de Slack
   });
 
   it('respecte la limite de 75 caractères de Slack', () => {
@@ -69,7 +73,7 @@ describe('clusterLabel — jamais la prose du modèle', () => {
 });
 
 describe('buildPromoteModal', () => {
-  const modal = buildPromoteModal('hormuz', [cluster]);
+  const modal = buildPromoteModal('hormuz', [cluster], '2026-08-11');
 
   it('porte le corridor et les deux champs attendus', () => {
     expect(modal.private_metadata).toBe('hormuz');
@@ -156,5 +160,91 @@ describe('action_id — unicité dans un message', () => {
   it("n'attrape pas une action voisine qui commencerait pareil", () => {
     expect(PROMOTE_ACTION_PATTERN.test('promote_corridor_x')).toBe(false);
     expect(PROMOTE_ACTION_PATTERN.test('promote_corridor_note')).toBe(false);
+  });
+});
+
+describe('distinctStories — une dépêche reprise n’est pas quatre nouvelles', () => {
+  const wire = (outlet: string) => ({
+    title: 'Strait of Hormuz Remains Key Flashpoint as U.S. Weighs Next Steps with Iran',
+    url: `https://${outlet}/2026/08/10/strait-of-hormuz`,
+    outlet,
+  });
+
+  it('regroupe les reprises et compte leur nombre au lieu de les effacer', () => {
+    const d = distinctStories([
+      wire('wmal.com'),
+      wire('wmac-am.com'),
+      wire('wgowam.com'),
+      wire('newsradio1029.com'),
+      {
+        title: "U.S. assesses Iran's priority shifted",
+        url: 'https://nbcnews.com/x',
+        outlet: 'nbcnews.com',
+      },
+    ]);
+    expect(d).toHaveLength(2);
+    expect(d[0].republications).toBe(3);
+    expect(d[1].republications).toBe(0);
+  });
+
+  it("fait remonter l'article distinct qui était noyé en cinquième position", () => {
+    const arts = [
+      wire('a.com'),
+      wire('b.com'),
+      wire('c.com'),
+      wire('d.com'),
+      wire('e.com'),
+      { title: 'Une autre histoire', url: 'https://f.com/x', outlet: 'f.com' },
+    ];
+    expect(
+      distinctStories(arts)
+        .slice(0, 4)
+        .map((a) => a.title),
+    ).toContain('Une autre histoire');
+  });
+
+  it('traite les entités HTML du flux comme du texte, pas comme une différence de titre', () => {
+    const d = distinctStories([
+      { title: 'Trump says&#xA0;the US has swept Strait of Hormuz', url: 'https://a/1' },
+      { title: 'Trump says the US has swept Strait of Hormuz', url: 'https://b/1' },
+    ]);
+    expect(d).toHaveLength(1);
+  });
+
+  it('garde le premier média rencontré comme lien, sans en inventer un', () => {
+    const d = distinctStories([wire('wmal.com'), wire('nbcnews.com')]);
+    expect(d[0].url).toContain('wmal.com');
+  });
+});
+
+describe("âge — on date l'observation, pas la publication", () => {
+  it('compte les jours depuis la date vue dans le flux', () => {
+    expect(daysSince('2026-08-08', '2026-08-11')).toBe(3);
+    expect(daysSince('2026-08-11', '2026-08-11')).toBe(0);
+  });
+
+  it('dit « vu », jamais « publié » — nous n’avons pas la date de publication', () => {
+    expect(ageLabel('2026-08-11', '2026-08-11')).toBe("vu aujourd'hui");
+    expect(ageLabel('2026-08-10', '2026-08-11')).toBe('vu hier');
+    expect(ageLabel('2026-08-08', '2026-08-11')).toBe('vu il y a 3 j');
+  });
+
+  it('rend null quand la date manque, plutôt qu’un mot vague qui passerait pour de la fraîcheur', () => {
+    expect(ageLabel(undefined, '2026-08-11')).toBeNull();
+    expect(ageLabel('hier', '2026-08-11')).toBeNull();
+  });
+
+  it('date une histoire par sa reprise la PLUS ANCIENNE, sans la rajeunir', () => {
+    const d = distinctStories([
+      { title: 'Même dépêche', url: 'https://a/1', observedOn: '2026-08-11' },
+      { title: 'Même dépêche', url: 'https://b/1', observedOn: '2026-08-08' },
+    ]);
+    expect(d[0].observedOn).toBe('2026-08-08');
+  });
+
+  it('affiche une fenêtre, et un point unique quand les bornes se confondent', () => {
+    expect(windowLabel('2026-08-08', '2026-08-11')).toBe('08/08 → 11/08');
+    expect(windowLabel('2026-08-11', '2026-08-11')).toBe('11/08');
+    expect(windowLabel(undefined, undefined)).toBeNull();
   });
 });

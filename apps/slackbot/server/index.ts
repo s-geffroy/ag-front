@@ -58,12 +58,17 @@ async function fetchClusters(corridorId: string): Promise<ClusterChoice[]> {
     clusterId: String(c.cluster_id ?? ''),
     eventCategory: c.event_category ? String(c.event_category) : undefined,
     articleCount: typeof c.article_count === 'number' ? c.article_count : undefined,
+    firstSeen: c.first_seen ? String(c.first_seen) : undefined,
+    lastSeen: c.last_seen ? String(c.last_seen) : undefined,
     articles: ((c.articles ?? []) as Record<string, unknown>[])
       .filter((a) => typeof a.url === 'string' && /^https?:\/\//i.test(String(a.url)))
       .map((a) => ({
         title: String(a.title ?? ''),
         url: String(a.url),
         outlet: a.outlet ? String(a.outlet) : undefined,
+        // `observed_on` = quand le flux a VU l'article. Ce n'est pas sa date de publication, et nous
+        // ne la déduirons pas : l'interface dit « vu le », jamais « publié le » (ADR 0077).
+        observedOn: a.observed_on ? String(a.observed_on) : undefined,
       })),
   }));
 }
@@ -100,7 +105,8 @@ app.action(PROMOTE_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
   }
   await client.views.open({
     trigger_id: b.trigger_id,
-    view: buildPromoteModal(corridorId, clusters),
+    // `today` est injecté ici et pas calculé dans la vue : l'âge affiché doit être testable.
+    view: buildPromoteModal(corridorId, clusters, new Date().toISOString().slice(0, 10)),
   });
 });
 

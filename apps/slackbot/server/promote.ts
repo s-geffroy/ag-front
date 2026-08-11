@@ -48,17 +48,117 @@ export function validatedBy(operator: string): string {
 export interface ClusterChoice {
   clusterId: string;
   /** Article titles + urls — the publishers' own words, the only text we put in front of a promoter. */
-  articles: { title: string; url: string; outlet?: string }[];
+  articles: { title: string; url: string; outlet?: string; observedOn?: string }[];
+  /** Bornes d'OBSERVATION du regroupement (`first_seen`/`last_seen` amont), pas de publication. */
+  firstSeen?: string;
+  lastSeen?: string;
   eventCategory?: string;
   articleCount?: number;
+}
+
+/**
+ * Regroupe les REPRISES d'une même dépêche. Un regroupement de 220 articles peut n'être que quatre
+ * histoires : une dépêche d'agence relayée par des dizaines de radios locales. L'aperçu montrait
+ * donc les quatre premières lignes — quatre reprises identiques — pendant que l'article qui aurait
+ * servi à juger attendait en cinquième position.
+ *
+ * On ne SUPPRIME pas les reprises, on les COMPTE : « 216 médias reprennent la même dépêche » dit
+ * quelque chose sur l'ampleur de l'écho. L'effacer rendrait une couverture massive indistinguable
+ * d'un entrefilet (ADR 0077).
+ */
+export interface DistinctStory {
+  title: string;
+  url: string;
+  outlet?: string;
+  /** Nombre d'autres médias publiant le même titre. 0 = pas de reprise. */
+  republications: number;
+  /**
+   * La PLUS ANCIENNE observation de cette histoire. `observed_on` dit quand le flux l'a vue, pas
+   * quand elle a été publiée — nous n'avons pas la date de publication et nous ne la déduirons pas.
+   * D'où « vu », jamais « publié » (ADR 0077).
+   */
+  observedOn?: string;
+}
+
+function storyKey(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/&#x[0-9a-f]+;|&[a-z]+;/gi, ' ') // les entités HTML voyagent telles quelles dans le flux
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+}
+
+export function distinctStories(
+  articles: readonly ClusterChoice['articles'][number][],
+): DistinctStory[] {
+  const byKey = new Map<string, DistinctStory>();
+  for (const a of articles) {
+    const k = storyKey(a.title);
+    const seen = byKey.get(k);
+    if (seen) {
+      seen.republications += 1;
+      // La reprise la plus ancienne date l'histoire : une dépêche vue le 8 reste vue le 8, même si
+      // une radio la relaie le 11. Prendre la plus récente rajeunirait artificiellement le sujet.
+      if (a.observedOn && (!seen.observedOn || a.observedOn < seen.observedOn))
+        seen.observedOn = a.observedOn;
+    } else {
+      byKey.set(k, {
+        title: a.title,
+        url: a.url,
+        outlet: a.outlet,
+        republications: 0,
+        observedOn: a.observedOn,
+      });
+    }
+  }
+  return [...byKey.values()];
+}
+
+/** `2026-08-08` → nombre de jours écoulés depuis, ou null si la date est absente/illisible. */
+export function daysSince(observedOn: string | undefined, today: string): number | null {
+  if (!observedOn || !/^\d{4}-\d{2}-\d{2}$/.test(observedOn)) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) return null;
+  const a = Date.parse(`${observedOn}T00:00:00Z`);
+  const b = Date.parse(`${today}T00:00:00Z`);
+  if (Number.isNaN(a) || Number.isNaN(b)) return null;
+  return Math.round((b - a) / 86_400_000);
+}
+
+/**
+ * « vu il y a 3 j », jamais « publié il y a 3 j ». Renvoie null plutôt qu'un mot vague quand la date
+ * manque : une absence de date ne doit pas se rendre comme une fraîcheur (ADR 0077).
+ */
+export function ageLabel(observedOn: string | undefined, today: string): string | null {
+  const d = daysSince(observedOn, today);
+  if (d === null) return null;
+  if (d < 0) return `vu le ${frDate(observedOn as string)}`; // date à venir : on la montre telle quelle
+  if (d === 0) return "vu aujourd'hui";
+  if (d === 1) return 'vu hier';
+  return `vu il y a ${d} j`;
+}
+
+/** `2026-08-08` → `08/08`. Format explicite, sans dépendre de la locale du conteneur. */
+export function frDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  return m ? `${m[3]}/${m[2]}` : iso;
+}
+
+/** « fenêtre 08/08 → 11/08 » — les bornes d'observation du regroupement, ou null si inconnues. */
+export function windowLabel(firstSeen?: string, lastSeen?: string): string | null {
+  if (!firstSeen && !lastSeen) return null;
+  if (firstSeen && lastSeen && firstSeen !== lastSeen)
+    return `${frDate(firstSeen)} → ${frDate(lastSeen)}`;
+  return frDate((firstSeen || lastSeen) as string);
 }
 
 /** Compact label for the cluster picker. Deliberately NOT the model headline. */
 export function clusterLabel(c: ClusterChoice): string {
   const n = c.articleCount ?? c.articles.length;
   const cat = c.eventCategory ? c.eventCategory.replace(/_/g, ' ') : 'couverture';
-  const first = c.articles[0]?.outlet || c.articles[0]?.title || '';
-  const label = `${cat} · ${n} article(s)${first ? ` · ${first}` : ''}`;
+  const d = distinctStories(c.articles);
+  const first = d[0]?.outlet || d[0]?.title || '';
+  const win = windowLabel(c.firstSeen, c.lastSeen);
+  const label = `${cat} · ${n} art.${win ? ` · ${win}` : ''}${first ? ` · ${first}` : ''}`;
   // Slack caps option text at 75 characters and errors on longer.
   return label.length > 75 ? `${label.slice(0, 72)}…` : label;
 }
@@ -67,26 +167,46 @@ export function clusterLabel(c: ClusterChoice): string {
  * The modal. Article titles are rendered as markdown links so the promoter can open them from the
  * modal — the only honest answer to "did you read it" is to make reading one tap away.
  */
-export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[]) {
+export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[], today: string) {
   const options = clusters.slice(0, 100).map((c) => ({
     text: { type: 'plain_text' as const, text: clusterLabel(c) },
     value: c.clusterId,
   }));
 
-  const articleBlocks = clusters.slice(0, 3).flatMap((c) => [
-    {
-      type: 'context' as const,
-      elements: [
-        {
-          type: 'mrkdwn' as const,
-          text: c.articles
-            .slice(0, 4)
-            .map((a) => `<${a.url}|${a.title.replace(/[<>|]/g, ' ').slice(0, 90)}>`)
-            .join('\n'),
-        },
-      ],
-    },
-  ]);
+  const articleBlocks = clusters.slice(0, 3).flatMap((c) => {
+    const stories = distinctStories(c.articles);
+    const win = windowLabel(c.firstSeen, c.lastSeen);
+    // L'en-tête dit d'abord QUAND et COMBIEN : « 220 articles » sur quatre jours et « 4 histoires »
+    // ne se décide pas comme un fait du jour. Sans bornes, on écrit qu'on ne les a pas.
+    const head = [
+      win ? `*Observé* ${win}` : '*Fenêtre d’observation inconnue*',
+      `${c.articleCount ?? c.articles.length} article(s)`,
+      `${stories.length} histoire(s) distincte(s)`,
+    ].join(' · ');
+    return [
+      {
+        type: 'context' as const,
+        elements: [
+          {
+            type: 'mrkdwn' as const,
+            text: [
+              head,
+              ...stories.slice(0, 4).map((a) => {
+                const t = a.title.replace(/[<>|]/g, ' ').slice(0, 90);
+                // La reprise est dite, pas cachée : elle mesure l'écho, elle ne le remplace pas.
+                const echo =
+                  a.republications > 0
+                    ? ` _(+${a.republications} reprise${a.republications > 1 ? 's' : ''})_`
+                    : '';
+                const age = ageLabel(a.observedOn, today);
+                return `<${a.url}|${t}>${echo}${age ? ` · _${age}_` : ''}`;
+              }),
+            ].join('\n'),
+          },
+        ],
+      },
+    ];
+  });
 
   return {
     type: 'modal' as const,
