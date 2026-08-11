@@ -18,6 +18,7 @@ import {
   daysSince,
   windowLabel,
   decodeEntities,
+  PROMOTABLE_IN_MODAL,
   type ClusterChoice,
 } from './promote';
 
@@ -299,5 +300,58 @@ describe('poids — le nombre de médias, et un plancher de pays', () => {
   it('rend les entités HTML lisibles sans réécrire le titre de l’éditeur', () => {
     expect(decodeEntities('Trump says&#xA0;the US has swept')).toBe('Trump says the US has swept');
     expect(decodeEntities('Oil &amp; gas')).toBe('Oil & gas');
+  });
+});
+
+describe("la fenêtre n'offre que ce qu'elle montre", () => {
+  const cluster = (i: number) => ({
+    clusterId: `c${i}`,
+    eventCategory: 'security',
+    articleCount: 3,
+    firstSeen: '2026-08-10',
+    lastSeen: '2026-08-11',
+    articles: [
+      {
+        title: `Titre ${i}`,
+        url: `https://x${i}.com/a`,
+        outlet: `x${i}.com`,
+        observedOn: '2026-08-11',
+      },
+    ],
+  });
+
+  it('ne propose jamais un regroupement dont les articles ne sont pas affichés', () => {
+    const modal: any = buildPromoteModal(
+      'hormuz',
+      [...Array(23)].map((_, i) => cluster(i)),
+      '2026-08-11',
+    );
+    const select = modal.blocks.find((b: any) => b.block_id === CLUSTER_BLOCK_ID);
+    const previews = modal.blocks.filter((b: any) => b.type === 'context');
+    expect(select.element.options).toHaveLength(PROMOTABLE_IN_MODAL);
+    // autant d'aperçus que d'options, plus la ligne qui déclare la coupe
+    expect(previews).toHaveLength(PROMOTABLE_IN_MODAL + 1);
+    const offered = select.element.options.map((o: any) => o.value);
+    expect(offered).toEqual(['c0', 'c1', 'c2', 'c3', 'c4']);
+  });
+
+  it('déclare le reste au lieu de le taire', () => {
+    const modal: any = buildPromoteModal(
+      'hormuz',
+      [...Array(23)].map((_, i) => cluster(i)),
+      '2026-08-11',
+    );
+    const texts = modal.blocks
+      .filter((b: any) => b.type === 'context')
+      .map((b: any) => b.elements[0].text);
+    expect(texts.some((t: string) => t.includes('18 autre(s) regroupement(s)'))).toBe(true);
+  });
+
+  it("n'annonce aucune coupe quand il n'y en a pas", () => {
+    const modal: any = buildPromoteModal('hormuz', [cluster(0), cluster(1)], '2026-08-11');
+    const texts = modal.blocks
+      .filter((b: any) => b.type === 'context')
+      .map((b: any) => b.elements[0].text);
+    expect(texts.some((t: string) => t.includes('ne sont pas montrés'))).toBe(false);
   });
 });

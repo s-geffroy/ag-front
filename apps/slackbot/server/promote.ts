@@ -243,13 +243,29 @@ export function clusterLabel(c: ClusterChoice): string {
  * The modal. Article titles are rendered as markdown links so the promoter can open them from the
  * modal — the only honest answer to "did you read it" is to make reading one tap away.
  */
+/**
+ * Combien de regroupements la fenêtre propose — ET montre. Un seul nombre pour les deux, c'est tout
+ * l'objet de la constante.
+ *
+ * POURQUOI. Le menu listait 100 regroupements quand l'aperçu n'en détaillait que 3 : on pouvait
+ * donc sélectionner le septième et publier sur des articles que la fenêtre n'avait jamais affichés.
+ * Toute la doctrine tient à « on lit avant de promouvoir » (ADR 0074) et la fenêtre permettait
+ * exactement le contraire. Une seule borne rend l'incohérence impossible au lieu de compter sur
+ * l'attention de la personne.
+ */
+export const PROMOTABLE_IN_MODAL = 5;
+
 export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[], today: string) {
-  const options = clusters.slice(0, 100).map((c) => ({
+  // Ce qui est offert est exactement ce qui est montré.
+  const shown = clusters.slice(0, PROMOTABLE_IN_MODAL);
+  const hidden = clusters.length - shown.length;
+
+  const options = shown.map((c) => ({
     text: { type: 'plain_text' as const, text: clusterLabel(c) },
     value: c.clusterId,
   }));
 
-  const articleBlocks = clusters.slice(0, 3).flatMap((c) => {
+  const articleBlocks = shown.flatMap((c) => {
     const stories = distinctStories(c.articles);
     const win = windowLabel(c.firstSeen, c.lastSeen);
     // L'en-tête dit d'abord QUAND et COMBIEN : « 220 articles » sur quatre jours et « 4 histoires »
@@ -312,6 +328,21 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
         },
       },
       ...articleBlocks,
+      // Une coupe tue est une coupe qui ment : sans cette ligne, cinq regroupements sur vingt-trois
+      // se liraient comme la totalité du corridor (ADR 0077).
+      ...(hidden > 0
+        ? [
+            {
+              type: 'context' as const,
+              elements: [
+                {
+                  type: 'mrkdwn' as const,
+                  text: `_${hidden} autre(s) regroupement(s) sur ce corridor ne sont pas montrés ici. Cette fenêtre n'offre que ce qu'elle affiche — les autres se traitent depuis le cockpit._`,
+                },
+              ],
+            },
+          ]
+        : []),
       {
         type: 'input' as const,
         block_id: NOTE_BLOCK_ID,
