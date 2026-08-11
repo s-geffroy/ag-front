@@ -114,10 +114,21 @@ if b: blocks.append(b)
 if notes.strip(): blocks.append({"type":"section","text":{"type":"mrkdwn","text":"```\n"+notes[:2500]+"\n```"}})
 print(json.dumps({"channel":sys.argv[5],"text":title,"blocks":blocks}))
 ' "$title" "$fields" "$notes" "$buttons" "$SLACK_CHANNEL_ID")"
-  curl -sf -X POST https://slack.com/api/chat.postMessage \
+  # `curl -f` ne suffit PAS ici : Slack refuse en HTTP 200 avec {"ok":false,"error":"not_in_channel"}
+  # (ou invalid_auth, channel_not_found). Avec -f seul, un bot jamais invité dans le canal rendait un
+  # succès silencieux — la revue « partait » chaque lundi sans arriver nulle part, et le dead-man's
+  # switch n'aurait rien signalé puisqu'il se croyait vivant. On lit donc le corps (ADR 0077 : ne pas
+  # rendre une absence comme un fait), et on retombe sur le webhook plutôt que de perdre la semaine.
+  resp="$(curl -s -X POST https://slack.com/api/chat.postMessage \
     -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
     -H 'Content-Type: application/json; charset=utf-8' \
-    --data "$payload" >/dev/null || echo "warn: chat.postMessage a échoué" >&2
+    --data "$payload" || echo '{"ok":false,"error":"curl_failed"}')"
+  if ! printf '%s' "$resp" | grep -q '"ok":[[:space:]]*true'; then
+    err="$(printf '%s' "$resp" | sed -n 's/.*"error":"\([^"]*\)".*/\1/p')"
+    echo "warn: chat.postMessage refusé (${err:-inconnu}) — repli sur le webhook" >&2
+    slack_notify ":newspaper:" "$title" "$fields" \
+      "Message posté par webhook : l'app a refusé (${err:-inconnu}), donc SANS boutons de promotion."
+  fi
 else
   slack_notify ":newspaper:" "$title" "$fields" "$notes"
 fi
