@@ -57,3 +57,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0075](0075-couplage-plaquettes-code-garde-par-test.md) | Deck↔code coupling guarded by test; measured state written into decks | Accepted |
 | [0076](0076-mesure-audience-plausible-auto-heberge.md) | Audience measurement = self-hosted Plausible, cookieless, first-party | Accepted |
 | [0077](0077-statut-epistemique-d-une-absence.md) | The epistemic status of an absence (empty ≠ unknown) | Accepted |
+| [0078](0078-intitule-du-modele-pour-choisir-jamais-pour-publier.md) | Model headline shown to CHOOSE a subject, never published (amends 0074) | Accepted |

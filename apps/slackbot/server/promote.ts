@@ -56,6 +56,12 @@ export interface ClusterChoice {
   lastSeen?: string;
   eventCategory?: string;
   articleCount?: number;
+  /**
+   * L'intitulé écrit par le MODÈLE amont. Affiché dans la fenêtre de sélection, marqué comme tel,
+   * et jamais publié (ADR 0078 amende 0074). Recopier cette phrase dans la note est refusé par le
+   * cockpit : `paraphraseCandidates` la contient déjà.
+   */
+  headline?: string;
 }
 
 /**
@@ -227,14 +233,85 @@ export function windowLabel(firstSeen?: string, lastSeen?: string): string | nul
   return frDate((firstSeen || lastSeen) as string);
 }
 
-/** Compact label for the cluster picker. Deliberately NOT the model headline. */
+/** Le poids d'un sujet entier : ce qui le classe, et ce qu'on affiche à côté de son intitulé. */
+export interface SubjectWeight {
+  /** Rédactions distinctes portant le sujet. C'est le rang — une donnée, pas une estimation. */
+  outlets: number;
+  /** Pays identifiés par les domaines. PLANCHER : deux tiers des domaines n'en déclarent aucun. */
+  countries: string[];
+  /** Médias dont le domaine ne déclare aucun pays. Affiché à côté, jamais confondu avec zéro. */
+  countryUnknown: number;
+  /** Articles bruts, reprises comprises. Volume médiatique, pas importance. */
+  articles: number;
+  /** Histoires distinctes après regroupement des reprises. */
+  stories: number;
+}
+
+export function subjectWeight(c: ClusterChoice): SubjectWeight {
+  const outlets = new Set<string>();
+  const countries = new Set<string>();
+  const noCountry = new Set<string>();
+  for (const a of c.articles) {
+    const dom = a.outlet?.toLowerCase();
+    if (dom) outlets.add(dom);
+    const country = outletCountry(a.outlet);
+    if (country) countries.add(country);
+    else noCountry.add(dom ?? a.url);
+  }
+  return {
+    outlets: outlets.size,
+    countries: [...countries].sort(),
+    countryUnknown: noCountry.size,
+    articles: c.articleCount ?? c.articles.length,
+    stories: distinctStories(c.articles).length,
+  };
+}
+
+/**
+ * Classe les sujets par MÉDIAS DISTINCTS, pas par articles. Quarante radios locales relayant une
+ * dépêche font quarante articles et une rédaction de plus — les compter en articles mettrait le
+ * relais automatique devant le sujet réellement porté.
+ *
+ * Le nombre de pays n'entre PAS dans le rang : il n'est mesurable que pour un tiers des domaines,
+ * et les muets sont massivement américains. L'y faire entrer pénaliserait structurellement les
+ * sujets à couverture américaine (handoff 0030). Il s'affiche, il ne décide pas.
+ */
+export function rankSubjects(
+  clusters: ClusterChoice[],
+): { cluster: ClusterChoice; weight: SubjectWeight }[] {
+  return clusters
+    .map((cluster) => ({ cluster, weight: subjectWeight(cluster) }))
+    .sort((a, b) => b.weight.outlets - a.weight.outlets || b.weight.articles - a.weight.articles);
+}
+
+/** « 63 médias · ≥ 2 pays (Irlande, Royaume-Uni) · 5 sans pays déclaré · 220 art. · 08/08 → 11/08 » */
+export function weightLine(w: SubjectWeight, win: string | null): string {
+  return [
+    `*${w.outlets} média${w.outlets > 1 ? 's' : ''}*`,
+    w.countries.length > 0
+      ? `≥ ${w.countries.length} pays (${w.countries.slice(0, 3).join(', ')}${w.countries.length > 3 ? '…' : ''})`
+      : null,
+    w.countryUnknown > 0 ? `${w.countryUnknown} sans pays déclaré` : null,
+    `${w.articles} art. · ${w.stories} histoire${w.stories > 1 ? 's' : ''}`,
+    win,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
+/**
+ * L'étiquette d'un sujet dans le menu : son POIDS d'abord, son intitulé ensuite.
+ *
+ * L'intitulé vient du modèle amont. Il n'est plus caché (ADR 0078) parce qu'un menu de
+ * « security · 220 art. » ne permettait pas de choisir un sujet — mais il arrive APRÈS le chiffre,
+ * et le libellé du champ dit d'où il vient. Le marquage tient sur le bloc, pas sur chaque ligne :
+ * Slack plafonne une option à 75 caractères, et un préfixe par ligne mangerait l'intitulé.
+ */
 export function clusterLabel(c: ClusterChoice): string {
-  const n = c.articleCount ?? c.articles.length;
+  const w = subjectWeight(c);
   const cat = c.eventCategory ? c.eventCategory.replace(/_/g, ' ') : 'couverture';
-  const d = distinctStories(c.articles);
-  const first = d[0]?.outlet || d[0]?.title || '';
-  const win = windowLabel(c.firstSeen, c.lastSeen);
-  const label = `${cat} · ${n} art.${win ? ` · ${win}` : ''}${first ? ` · ${first}` : ''}`;
+  const head = decodeEntities(c.headline ?? '').trim();
+  const label = `${w.outlets} méd. · ${head || cat}`;
   // Slack caps option text at 75 characters and errors on longer.
   return label.length > 75 ? `${label.slice(0, 72)}…` : label;
 }
@@ -256,25 +333,27 @@ export function clusterLabel(c: ClusterChoice): string {
 export const PROMOTABLE_IN_MODAL = 5;
 
 export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[], today: string) {
-  // Ce qui est offert est exactement ce qui est montré.
-  const shown = clusters.slice(0, PROMOTABLE_IN_MODAL);
-  const hidden = clusters.length - shown.length;
+  // Les sujets les plus PORTÉS d'abord, puis on coupe. L'ordre précède la coupe : couper avant de
+  // classer aurait gardé les cinq premiers du flux, pas les cinq qui comptent.
+  const ranked = rankSubjects(clusters);
+  const shown = ranked.slice(0, PROMOTABLE_IN_MODAL);
+  const hidden = ranked.length - shown.length;
 
-  const options = shown.map((c) => ({
-    text: { type: 'plain_text' as const, text: clusterLabel(c) },
-    value: c.clusterId,
+  const options = shown.map(({ cluster }) => ({
+    text: { type: 'plain_text' as const, text: clusterLabel(cluster) },
+    value: cluster.clusterId,
   }));
 
-  const articleBlocks = shown.flatMap((c) => {
+  const articleBlocks = shown.flatMap(({ cluster: c, weight }) => {
     const stories = distinctStories(c.articles);
     const win = windowLabel(c.firstSeen, c.lastSeen);
-    // L'en-tête dit d'abord QUAND et COMBIEN : « 220 articles » sur quatre jours et « 4 histoires »
-    // ne se décide pas comme un fait du jour. Sans bornes, on écrit qu'on ne les a pas.
+    // L'intitulé du sujet, marqué comme venant du modèle (ADR 0078) : il sert à repérer, et le
+    // cockpit refuse une note qui le recopie — c'est cette garde qui rend son affichage tenable.
+    const title = decodeEntities(c.headline ?? '').trim();
     const head = [
-      win ? `*Observé* ${win}` : '*Fenêtre d’observation inconnue*',
-      `${c.articleCount ?? c.articles.length} article(s)`,
-      `${stories.length} histoire(s) distincte(s)`,
-    ].join(' · ');
+      title ? `⟨modèle⟩ *${title}*` : `*${(c.eventCategory ?? 'couverture').replace(/_/g, ' ')}*`,
+      weightLine(weight, win),
+    ].join('\n');
     return [
       {
         type: 'context' as const,
@@ -290,17 +369,15 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
                 // Deuxième ligne : le POIDS. Médias distincts = donnée réelle, donc en gras.
                 // Pays = PLANCHER (« ≥ »), parce que deux tiers des domaines n'en déclarent aucun ;
                 // l'indéterminé est affiché à côté au lieu d'être confondu avec zéro (ADR 0077).
-                const weight = [
-                  a.outlets > 1 ? `*${a.outlets} médias*` : (a.outlet ?? 'média inconnu'),
-                  a.countries.length > 0
-                    ? `≥ ${a.countries.length} pays (${a.countries.slice(0, 3).join(', ')}${a.countries.length > 3 ? '…' : ''})`
-                    : null,
-                  a.countryUnknown > 0 ? `${a.countryUnknown} sans pays déclaré` : null,
+                // Le pays est porté par le SUJET, au-dessus : le répéter par histoire noierait
+                // l'aperçu sans rien ajouter. Ici, ce qui distingue une histoire d'une autre.
+                const line = [
+                  a.outlets > 1 ? `${a.outlets} médias` : (a.outlet ?? 'média inconnu'),
                   age,
                 ]
                   .filter(Boolean)
                   .join(' · ');
-                return `<${a.url}|${t}>\n   _${weight}_`;
+                return `   • <${a.url}|${t}> _(${line})_`;
               }),
             ].join('\n'),
           },
@@ -320,7 +397,10 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
       {
         type: 'input' as const,
         block_id: CLUSTER_BLOCK_ID,
-        label: { type: 'plain_text' as const, text: 'Regroupement' },
+        label: {
+          type: 'plain_text' as const,
+          text: 'Sujet — intitulé proposé par le modèle, à ne pas reprendre',
+        },
         element: {
           type: 'static_select' as const,
           action_id: CLUSTER_ACTION_ID,

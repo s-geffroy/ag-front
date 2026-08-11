@@ -19,6 +19,9 @@ import {
   windowLabel,
   decodeEntities,
   PROMOTABLE_IN_MODAL,
+  rankSubjects,
+  subjectWeight,
+  weightLine,
   type ClusterChoice,
 } from './promote';
 
@@ -58,11 +61,20 @@ describe('validatedBy', () => {
   });
 });
 
-describe('clusterLabel — jamais la prose du modèle', () => {
-  it('décrit le regroupement par ses faits, pas par son titre généré', () => {
-    const l = clusterLabel(cluster);
+// Ce bloc gardait la règle de l'ADR 0074 : aucune prose du modèle dans l'étiquette. L'ADR 0078
+// l'amende — l'intitulé revient POUR CHOISIR, marqué, et reste banni de la publication. Le test
+// change donc de garde : ce n'est plus « pas de prose », c'est « le chiffre d'abord, la prose
+// ensuite, et jamais dans ce qui est publié ».
+describe('clusterLabel — le poids devant, l’intitulé du modèle derrière', () => {
+  it('ouvre sur le nombre de médias, pas sur le titre généré', () => {
+    const l = clusterLabel({ ...cluster, headline: 'Un titre écrit par le modèle' });
+    expect(l).toMatch(/^\d+ méd\. · /);
+    expect(l.indexOf('méd.')).toBeLessThan(l.indexOf('Un titre'));
+  });
+
+  it('retombe sur la catégorie, jamais sur un titre inventé, quand le modèle se tait', () => {
+    const l = clusterLabel({ ...cluster, headline: undefined });
     expect(l).toContain('access restriction');
-    expect(l).toContain('3 art.'); // abrégé pour laisser tenir la fenêtre d'observation sous les 75 caractères de Slack
   });
 
   it('respecte la limite de 75 caractères de Slack', () => {
@@ -353,5 +365,73 @@ describe("la fenêtre n'offre que ce qu'elle montre", () => {
       .filter((b: any) => b.type === 'context')
       .map((b: any) => b.elements[0].text);
     expect(texts.some((t: string) => t.includes('ne sont pas montrés'))).toBe(false);
+  });
+});
+
+describe('sujets — classer par ce qui est porté, pas par ce qui est relayé', () => {
+  const subject = (id: string, headline: string, outlets: string[], articlesPerOutlet = 1) => ({
+    clusterId: id,
+    headline,
+    eventCategory: 'security',
+    articleCount: outlets.length * articlesPerOutlet,
+    firstSeen: '2026-08-08',
+    lastSeen: '2026-08-11',
+    articles: outlets.flatMap((o, i) =>
+      [...Array(articlesPerOutlet)].map((_, k) => ({
+        title: `Titre ${i}-${k}`,
+        url: `https://${o}/${i}-${k}`,
+        outlet: o,
+        observedOn: '2026-08-10',
+      })),
+    ),
+  });
+
+  it('compte les rédactions distinctes, pas les articles', () => {
+    const w = subjectWeight(subject('c1', 'Sujet', ['a.com', 'b.com'], 20));
+    expect(w.outlets).toBe(2);
+    expect(w.articles).toBe(40);
+  });
+
+  it('met devant le sujet le plus PORTÉ, même s’il a moins d’articles', () => {
+    const relaye = subject('relaye', 'Dépêche relayée', ['x.com', 'y.com'], 40); // 80 articles, 2 médias
+    const porte = subject(
+      'porte',
+      'Sujet réellement porté',
+      [...Array(30)].map((_, i) => `m${i}.com`),
+    ); // 30 art., 30 médias
+    const r = rankSubjects([relaye, porte]);
+    expect(r[0].cluster.clusterId).toBe('porte');
+    expect(r[0].weight.outlets).toBe(30);
+  });
+
+  it("n'utilise PAS le nombre de pays pour classer — il n'est mesurable qu'au tiers", () => {
+    const usa = subject(
+      'usa',
+      'Couverture américaine',
+      [...Array(20)].map((_, i) => `radio${i}.com`),
+    );
+    const intl = subject('intl', 'Couverture internationale', ['a.co.uk', 'b.fr', 'c.de']);
+    const r = rankSubjects([intl, usa]);
+    // 20 médias sans pays déclaré passent devant 3 médias dans 3 pays : c'est voulu.
+    expect(r[0].cluster.clusterId).toBe('usa');
+    expect(r[1].weight.countries).toEqual(['Allemagne', 'France', 'Royaume-Uni']);
+  });
+
+  it('affiche le pays en plancher, avec les indéterminés à côté', () => {
+    const w = subjectWeight(subject('c', 'S', ['a.co.uk', 'b.com', 'c.com']));
+    expect(weightLine(w, '08/08 → 11/08')).toContain('≥ 1 pays (Royaume-Uni)');
+    expect(weightLine(w, '08/08 → 11/08')).toContain('2 sans pays déclaré');
+  });
+
+  it("porte l'intitulé du modèle dans le menu, derrière le poids", () => {
+    const l = clusterLabel(
+      subject('c', 'L’Iran lie la réouverture du détroit', ['a.com', 'b.com']),
+    );
+    expect(l).toMatch(/^2 méd\. · L’Iran lie/);
+  });
+
+  it('retombe sur la catégorie quand le modèle n’a pas donné d’intitulé', () => {
+    const c = subject('c', '', ['a.com']);
+    expect(clusterLabel({ ...c, headline: undefined })).toContain('security');
   });
 });
