@@ -7,6 +7,7 @@ import {
   clusterLabel,
   isAllowedChannel,
   NOTE_BLOCK_ID,
+  NOTE_BLOCK_ID_DRAFT,
   outcomeFromCockpit,
   parseSubmission,
   parsePick,
@@ -131,6 +132,7 @@ describe('parseSubmission', () => {
 
   it('relit le choix, la phrase, les URL de repli et le brouillon montré', () => {
     expect(parseSubmission(view('  Ma phrase.  '))).toEqual({
+      blockId: NOTE_BLOCK_ID,
       corridorId: 'hormuz',
       clusterId: 'c1',
       urls: ['https://x.test/a'],
@@ -517,7 +519,7 @@ describe('brouillon — pré-remplir sans vider la règle (ADR 0079)', () => {
 
   it('pré-remplit le champ et dit que c’est un brouillon à réécrire', () => {
     const m: any = buildWritingModalWithDraft(pick, 'Sujet', { draft: 'Une phrase machine.' });
-    const input = m.blocks.find((b: any) => b.block_id === NOTE_BLOCK_ID);
+    const input = m.blocks.find((b: any) => b.block_id === NOTE_BLOCK_ID_DRAFT);
     expect(input.element.initial_value).toBe('Une phrase machine.');
     expect(input.hint.text).toContain('Publiable tel quel');
   });
@@ -555,5 +557,51 @@ describe('brouillon — pré-remplir sans vider la règle (ADR 0079)', () => {
     const m: any = buildWritingModal(pick, 'Sujet');
     expect(m.blocks.find((b: any) => b.block_id === NOTE_BLOCK_ID).hint.text).toContain('en cours');
     expect(JSON.parse(m.private_metadata).draft).toBe('');
+  });
+});
+
+describe('Slack préserve l’état d’un bloc — l’identifiant doit changer', () => {
+  const pick = { corridorId: 'h', clusterId: 'c', urls: [], title: 'S' };
+
+  it('donne un identifiant NEUF au champ quand un brouillon arrive', () => {
+    const attente: any = buildWritingModal(pick, 'S');
+    const rempli: any = buildWritingModalWithDraft(pick, 'S', { draft: 'Une phrase.' });
+    const idAttente = attente.blocks.find((b: any) => b.type === 'input').block_id;
+    const idRempli = rempli.blocks.find((b: any) => b.type === 'input').block_id;
+    // Même identifiant ⇒ Slack garde le bloc vide et ignore l'initial_value : le champ reste vide,
+    // la soumission part sans phrase, et le cockpit répond 400.
+    expect(idRempli).not.toBe(idAttente);
+  });
+
+  it('garde l’identifiant d’origine quand aucun brouillon n’est venu', () => {
+    const m: any = buildWritingModalWithDraft(pick, 'S', { draft: '' });
+    expect(m.blocks.find((b: any) => b.type === 'input').block_id).toBe(NOTE_BLOCK_ID);
+  });
+
+  it('relit la phrase sous l’un ou l’autre identifiant', () => {
+    const meta = JSON.stringify({ corridorId: 'h', clusterId: 'c', urls: [], draft: 'd' });
+    const sous = (blockId: string) =>
+      parseSubmission({
+        private_metadata: meta,
+        state: { values: { [blockId]: { [NOTE_ACTION_ID]: { value: 'Ma phrase.' } } } },
+      });
+    expect(sous(NOTE_BLOCK_ID).note).toBe('Ma phrase.');
+    expect(sous(NOTE_BLOCK_ID_DRAFT).note).toBe('Ma phrase.');
+    // Et le refus doit s'accrocher au bloc qui existe vraiment, sinon il est invisible.
+    expect(sous(NOTE_BLOCK_ID_DRAFT).blockId).toBe(NOTE_BLOCK_ID_DRAFT);
+  });
+
+  it('ne traduit plus tout 400 par « une phrase est requise »', () => {
+    const surNote = outcomeFromCockpit(400, {
+      error: 'validation',
+      issues: [{ path: ['editorial_note'] }],
+    });
+    expect((surNote as { message: string }).message).toContain('phrase est requise');
+
+    const ailleurs = outcomeFromCockpit(400, {
+      error: 'validation',
+      issues: [{ path: ['validated_by'] }],
+    });
+    expect((ailleurs as { message: string }).message).toContain('validated_by');
   });
 });

@@ -29,6 +29,16 @@ export function promoteActionId(index: number): string {
 }
 export const MODAL_CALLBACK_ID = 'promote_news_modal';
 export const NOTE_BLOCK_ID = 'note_block';
+/**
+ * Le champ de saisie change d'identifiant quand le brouillon arrive — et ce n'est pas cosmétique.
+ *
+ * Slack PRÉSERVE l'état d'un bloc de saisie qui garde le même `block_id` à travers un
+ * `views.update`, et ignore donc l'`initial_value` de la mise à jour. Le champ restait vide, la
+ * soumission partait sans phrase, et le cockpit répondait 400 — que la fenêtre traduisait en
+ * « Une phrase est requise », un message exact et parfaitement inutile puisque la phrase avait été
+ * calculée puis jetée. Un identifiant neuf force Slack à traiter le bloc comme nouveau.
+ */
+export const NOTE_BLOCK_ID_DRAFT = 'note_block_draft';
 export const NOTE_ACTION_ID = 'editorial_note';
 export const CLUSTER_BLOCK_ID = 'cluster_block';
 export const CLUSTER_ACTION_ID = 'cluster_choice';
@@ -575,7 +585,9 @@ export function buildWritingModalWithDraft(
       },
       {
         type: 'input' as const,
-        block_id: NOTE_BLOCK_ID,
+        // Identifiant NEUF dès qu'il y a un brouillon : sans cela Slack garde le bloc d'origine,
+        // vide, et n'applique jamais l'initial_value (voir NOTE_BLOCK_ID_DRAFT).
+        block_id: draft.draft ? NOTE_BLOCK_ID_DRAFT : NOTE_BLOCK_ID,
         label: { type: 'plain_text' as const, text: 'Ce que cela change pour un décideur' },
         hint: {
           type: 'plain_text' as const,
@@ -603,6 +615,8 @@ export function buildWritingModalWithDraft(
 }
 
 export interface Submission {
+  /** L'identifiant du bloc de saisie effectivement présent — pour y accrocher un refus. */
+  blockId: string;
   corridorId: string;
   clusterId: string;
   /** URL de repli, au cas où l'identifiant amont aurait changé depuis l'ouverture de la fenêtre. */
@@ -618,7 +632,9 @@ export function parseSubmission(view: {
   state?: { values?: Record<string, Record<string, unknown>> };
 }): Submission {
   const values = view.state?.values ?? {};
-  const note = values[NOTE_BLOCK_ID]?.[NOTE_ACTION_ID] as { value?: string } | undefined;
+  // Le champ vit sous l'un ou l'autre identifiant selon qu'un brouillon est arrivé.
+  const blockId = values[NOTE_BLOCK_ID_DRAFT] ? NOTE_BLOCK_ID_DRAFT : NOTE_BLOCK_ID;
+  const note = values[blockId]?.[NOTE_ACTION_ID] as { value?: string } | undefined;
   // Le sujet ne vient plus d'un menu : il a été choisi au bouton et voyage dans private_metadata,
   // avec les URL de repli et le brouillon qui a été mis sous les yeux de la personne.
   let meta: { corridorId?: string; clusterId?: string; urls?: string[]; draft?: string };
@@ -629,6 +645,8 @@ export function parseSubmission(view: {
   }
   if (!meta.corridorId || !meta.clusterId) throw new Error('submission incomplète');
   return {
+    // Le bloc où poser un message d'erreur : viser le mauvais le rend invisible.
+    blockId,
     corridorId: meta.corridorId,
     clusterId: meta.clusterId,
     urls: Array.isArray(meta.urls) ? meta.urls : [],
@@ -667,6 +685,19 @@ export function outcomeFromCockpit(status: number, body: Record<string, unknown>
       message: String(body.message ?? 'Votre phrase reprend un texte déjà présent.'),
     };
   }
-  if (status === 400) return { ok: false, field: 'note', message: 'Une phrase est requise.' };
+  if (status === 400) {
+    // Ne pas traduire TOUT 400 par « phrase manquante » : c'est ce qui a masqué pendant une heure un
+    // champ vidé par Slack. On lit ce que le cockpit reproche vraiment.
+    const issues = Array.isArray(body.issues) ? (body.issues as { path?: unknown[] }[]) : [];
+    const onNote = issues.some((i) => Array.isArray(i.path) && i.path[0] === 'editorial_note');
+    if (onNote || issues.length === 0)
+      return { ok: false, field: 'note', message: 'Une phrase est requise.' };
+    const paths = issues.map((i) => (Array.isArray(i.path) ? i.path.join('.') : '?')).join(', ');
+    return {
+      ok: false,
+      field: null,
+      message: `Le cockpit a refusé la requête (champ : ${paths}).`,
+    };
+  }
   return { ok: false, field: null, message: `Le cockpit a refusé (HTTP ${status}).` };
 }

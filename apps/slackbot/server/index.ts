@@ -195,7 +195,7 @@ app.view(MODAL_CALLBACK_ID, async ({ ack, view, logger }) => {
   }).catch(() => null);
 
   if (!r) {
-    await ack({ response_action: 'errors', errors: { [NOTE_BLOCK_ID]: 'Cockpit injoignable.' } });
+    await ack({ response_action: 'errors', errors: { [sub.blockId]: 'Cockpit injoignable.' } });
     return;
   }
   const outcome = outcomeFromCockpit(r.status, (await r.json().catch(() => ({}))) as never);
@@ -205,7 +205,7 @@ app.view(MODAL_CALLBACK_ID, async ({ ack, view, logger }) => {
     return;
   }
   // The paraphrase refusal lands under the note field, where the person is typing — not in a log.
-  await ack({ response_action: 'errors', errors: { [NOTE_BLOCK_ID]: outcome.message } });
+  await ack({ response_action: 'errors', errors: { [sub.blockId]: outcome.message } });
 });
 
 await app.start();
