@@ -13,6 +13,8 @@
  *    inline on the note field, where the person is typing.
  */
 
+import { outletCountry } from './country.js';
+
 export const PROMOTE_ACTION_ID = 'promote_corridor';
 /**
  * Slack exige un `action_id` UNIQUE PAR MESSAGE : cinq boutons portant tous `promote_corridor`
@@ -72,12 +74,59 @@ export interface DistinctStory {
   outlet?: string;
   /** Nombre d'autres médias publiant le même titre. 0 = pas de reprise. */
   republications: number;
+  /** Nombre de MÉDIAS DISTINCTS portant cette histoire — le poids réel, celui de la donnée. */
+  outlets: number;
+  /**
+   * Pays identifiés par le domaine. C'est un PLANCHER : les gTLD (.com/.org/.net) n'en déclarent
+   * aucun et forment les deux tiers du corpus. D'où l'affichage « ≥ N pays ».
+   */
+  countries: string[];
+  /**
+   * MÉDIAS DISTINCTS dont le domaine ne déclare aucun pays. Compté en médias comme `outlets`,
+   * pas en articles : afficher « 16 médias · 16 sans pays » quand il y a 17 articles pour
+   * 16 médias donnait une ligne dont les deux nombres ne parlaient pas de la même chose.
+   */
+  countryUnknown: number;
   /**
    * La PLUS ANCIENNE observation de cette histoire. `observed_on` dit quand le flux l'a vue, pas
    * quand elle a été publiée — nous n'avons pas la date de publication et nous ne la déduirons pas.
    * D'où « vu », jamais « publié » (ADR 0077).
    */
   observedOn?: string;
+}
+
+/**
+ * Le flux transporte les titres avec leurs entités HTML (`Trump says&#xA0;the US has swept…`).
+ * On les rend lisibles à l'affichage sans toucher au titre stocké : ce qui est promu reste le mot
+ * de l'éditeur, tel qu'il nous est parvenu.
+ */
+export function decodeEntities(text: string): string {
+  const named: Record<string, string> = {
+    amp: '&',
+    lt: '<',
+    gt: '>',
+    quot: '"',
+    apos: "'",
+    nbsp: ' ',
+    laquo: '«',
+    raquo: '»',
+    hellip: '…',
+    mdash: '—',
+    ndash: '–',
+    rsquo: '’',
+    lsquo: '‘',
+    ldquo: '“',
+    rdquo: '”',
+  };
+  return (
+    text
+      .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+      .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+      .replace(/&([a-z]+);/gi, (m, n) => named[n.toLowerCase()] ?? m)
+      // `&#xA0;` donne une espace insécable, invisible à l'œil mais distincte à la comparaison :
+      // deux titres identiques cesseraient de se regrouper pour ce seul caractère.
+      .replace(/\u00a0/g, ' ')
+  );
 }
 
 function storyKey(title: string): string {
@@ -91,27 +140,54 @@ function storyKey(title: string): string {
 export function distinctStories(
   articles: readonly ClusterChoice['articles'][number][],
 ): DistinctStory[] {
-  const byKey = new Map<string, DistinctStory>();
+  type Acc = DistinctStory & {
+    _outlets: Set<string>;
+    _countries: Set<string>;
+    _noCountry: Set<string>;
+  };
+  const byKey = new Map<string, Acc>();
   for (const a of articles) {
     const k = storyKey(a.title);
-    const seen = byKey.get(k);
-    if (seen) {
-      seen.republications += 1;
-      // La reprise la plus ancienne date l'histoire : une dépêche vue le 8 reste vue le 8, même si
-      // une radio la relaie le 11. Prendre la plus récente rajeunirait artificiellement le sujet.
-      if (a.observedOn && (!seen.observedOn || a.observedOn < seen.observedOn))
-        seen.observedOn = a.observedOn;
-    } else {
-      byKey.set(k, {
+    let e = byKey.get(k);
+    if (!e) {
+      e = {
         title: a.title,
         url: a.url,
         outlet: a.outlet,
         republications: 0,
+        outlets: 0,
+        countries: [],
+        countryUnknown: 0,
         observedOn: a.observedOn,
-      });
+        _outlets: new Set<string>(),
+        _countries: new Set<string>(),
+        _noCountry: new Set<string>(),
+      };
+      byKey.set(k, e);
+    } else {
+      e.republications += 1;
+      // La reprise la plus ancienne date l'histoire : une dépêche vue le 8 reste vue le 8, même si
+      // une radio la relaie le 11. Prendre la plus récente rajeunirait artificiellement le sujet.
+      if (a.observedOn && (!e.observedOn || a.observedOn < e.observedOn))
+        e.observedOn = a.observedOn;
     }
+    const dom = a.outlet?.toLowerCase();
+    if (dom) e._outlets.add(dom);
+    const country = outletCountry(a.outlet);
+    if (country) e._countries.add(country);
+    else e._noCountry.add(dom ?? a.url);
   }
-  return [...byKey.values()];
+  const out = [...byKey.values()].map(({ _outlets, _countries, _noCountry, ...rest }) => ({
+    ...rest,
+    outlets: _outlets.size,
+    countries: [..._countries].sort(),
+    countryUnknown: _noCountry.size,
+  }));
+  // Le plus PORTÉ d'abord : un sujet repris par 40 médias n'a pas à se lire après un entrefilet
+  // unique parce qu'il arrivait plus loin dans le tableau. À poids égal, le plus récemment vu.
+  return out.sort(
+    (x, y) => y.outlets - x.outlets || (y.observedOn ?? '').localeCompare(x.observedOn ?? ''),
+  );
 }
 
 /** `2026-08-08` → nombre de jours écoulés depuis, ou null si la date est absente/illisible. */
@@ -192,14 +268,23 @@ export function buildPromoteModal(corridorId: string, clusters: ClusterChoice[],
             text: [
               head,
               ...stories.slice(0, 4).map((a) => {
-                const t = a.title.replace(/[<>|]/g, ' ').slice(0, 90);
+                const t = decodeEntities(a.title).replace(/[<>|]/g, ' ').slice(0, 90);
                 // La reprise est dite, pas cachée : elle mesure l'écho, elle ne le remplace pas.
-                const echo =
-                  a.republications > 0
-                    ? ` _(+${a.republications} reprise${a.republications > 1 ? 's' : ''})_`
-                    : '';
                 const age = ageLabel(a.observedOn, today);
-                return `<${a.url}|${t}>${echo}${age ? ` · _${age}_` : ''}`;
+                // Deuxième ligne : le POIDS. Médias distincts = donnée réelle, donc en gras.
+                // Pays = PLANCHER (« ≥ »), parce que deux tiers des domaines n'en déclarent aucun ;
+                // l'indéterminé est affiché à côté au lieu d'être confondu avec zéro (ADR 0077).
+                const weight = [
+                  a.outlets > 1 ? `*${a.outlets} médias*` : (a.outlet ?? 'média inconnu'),
+                  a.countries.length > 0
+                    ? `≥ ${a.countries.length} pays (${a.countries.slice(0, 3).join(', ')}${a.countries.length > 3 ? '…' : ''})`
+                    : null,
+                  a.countryUnknown > 0 ? `${a.countryUnknown} sans pays déclaré` : null,
+                  age,
+                ]
+                  .filter(Boolean)
+                  .join(' · ');
+                return `<${a.url}|${t}>\n   _${weight}_`;
               }),
             ].join('\n'),
           },

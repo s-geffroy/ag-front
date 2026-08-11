@@ -1,3 +1,4 @@
+import { outletCountry } from './country';
 import { describe, expect, it } from 'vitest';
 import {
   buildPromoteModal,
@@ -16,6 +17,7 @@ import {
   ageLabel,
   daysSince,
   windowLabel,
+  decodeEntities,
   type ClusterChoice,
 } from './promote';
 
@@ -246,5 +248,56 @@ describe("âge — on date l'observation, pas la publication", () => {
     expect(windowLabel('2026-08-08', '2026-08-11')).toBe('08/08 → 11/08');
     expect(windowLabel('2026-08-11', '2026-08-11')).toBe('11/08');
     expect(windowLabel(undefined, undefined)).toBeNull();
+  });
+});
+
+describe('poids — le nombre de médias, et un plancher de pays', () => {
+  const art = (outlet: string, title = 'Même dépêche') => ({
+    title,
+    url: `https://${outlet}/a`,
+    outlet,
+    observedOn: '2026-08-10',
+  });
+
+  it('compte les MÉDIAS distincts, pas les articles', () => {
+    const d = distinctStories([art('a.com'), art('a.com'), art('b.com')]);
+    expect(d[0].outlets).toBe(2);
+    expect(d[0].republications).toBe(2); // trois articles, donc deux reprises
+  });
+
+  it('classe la plus portée en premier, quel que soit son rang dans le flux', () => {
+    const d = distinctStories([
+      art('solo.com', 'Entrefilet unique'),
+      art('a.com'),
+      art('b.com'),
+      art('c.com'),
+    ]);
+    expect(d[0].title).toBe('Même dépêche');
+    expect(d[0].outlets).toBe(3);
+  });
+
+  it("n'énonce les pays qu'en plancher, et compte les médias muets en MÉDIAS", () => {
+    const d = distinctStories([art('x.co.uk'), art('y.ie'), art('z.com'), art('w.com')]);
+    expect(d[0].countries).toEqual(['Irlande', 'Royaume-Uni']);
+    expect(d[0].countryUnknown).toBe(2); // z.com et w.com — deux médias, pas deux articles
+  });
+
+  it('ne prête pas de pays à un gTLD ni à un ccTLD vendu comme générique', () => {
+    expect(outletCountry('nbcnews.com')).toBeUndefined();
+    expect(outletCountry('example.org')).toBeUndefined();
+    expect(outletCountry('startup.io')).toBeUndefined(); // pas « Territoire de l’océan Indien »
+    expect(outletCountry('news.co')).toBeUndefined(); // pas « Colombie »
+  });
+
+  it('lit le pays quand le domaine le déclare vraiment, second niveau compris', () => {
+    expect(outletCountry('ibtimes.co.uk')).toBe('Royaume-Uni');
+    expect(outletCountry('abc.net.au')).toBe('Australie');
+    expect(outletCountry('theweek.in')).toBe('Inde');
+    expect(outletCountry('trend.az')).toBe('Azerbaïdjan');
+  });
+
+  it('rend les entités HTML lisibles sans réécrire le titre de l’éditeur', () => {
+    expect(decodeEntities('Trump says&#xA0;the US has swept')).toBe('Trump says the US has swept');
+    expect(decodeEntities('Oil &amp; gas')).toBe('Oil & gas');
   });
 });
