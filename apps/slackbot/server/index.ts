@@ -18,7 +18,7 @@ import { App, LogLevel } from '@slack/bolt';
 import {
   MODAL_CALLBACK_ID,
   NOTE_BLOCK_ID,
-  PROMOTE_ACTION_ID,
+  PROMOTE_ACTION_PATTERN,
   buildPromoteModal,
   isAllowedChannel,
   outcomeFromCockpit,
@@ -68,7 +68,7 @@ async function fetchClusters(corridorId: string): Promise<ClusterChoice[]> {
   }));
 }
 
-app.action(PROMOTE_ACTION_ID, async ({ ack, body, client, logger }) => {
+app.action(PROMOTE_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
   await ack(); // within 3 s, always
   const b = body as unknown as {
     channel?: { id?: string };

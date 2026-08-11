@@ -97,10 +97,14 @@ if [ -n "${SLACK_BOT_TOKEN:-}" ] && [ -n "${SLACK_CHANNEL_ID:-}" ]; then
 import json,sys
 d=json.load(sys.stdin)
 els=[]
-for cid,_n in d["corridors"][:5]:
+for i,(cid,_n) in enumerate(d["corridors"][:5]):
     # The label names the corridor, never a headline: the button must not become a place to judge.
     short=cid.replace("p0_maritime_","").replace("p1_","").replace("_"," ")[:70]
-    els.append({"type":"button","action_id":"promote_corridor","value":cid,
+    # UN action_id PAR BOUTON : Slack rejette tout le message en invalid_blocks si deux elements
+    # partagent le meme identifiant. Aucun digest ne portait donc de boutons. Le corridor voyage
+    # dans value ; le slackbot ecoute le motif promote_corridor(_N)?.
+    # (Sans apostrophe : ce bloc vit dans un python3 -c entre quotes simples.)
+    els.append({"type":"button","action_id":f"promote_corridor_{i}","value":cid,
                 "text":{"type":"plain_text","text":f"Promouvoir — {short}"[:75]}})
 print(json.dumps({"type":"actions","elements":els} if els else {}))
 ')"
@@ -123,7 +127,14 @@ print(json.dumps({"channel":sys.argv[5],"text":title,"blocks":blocks}))
     -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
     -H 'Content-Type: application/json; charset=utf-8' \
     --data "$payload" || echo '{"ok":false,"error":"curl_failed"}')"
-  if ! printf '%s' "$resp" | grep -q '"ok":[[:space:]]*true'; then
+  if printf '%s' "$resp" | grep -q '"ok":[[:space:]]*true'; then
+    # Le permalien dans le log : c'est ce qui permet de retrouver le message quand on ne le voit pas
+    # dans le client Slack (mauvais espace de travail, canal replié, notification manquée).
+    ts="$(printf '%s' "$resp" | sed -n 's/.*"ts":"\([0-9.]*\)".*/\1/p')"
+    [ -n "$ts" ] && curl -s -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
+      "https://slack.com/api/chat.getPermalink?channel=${SLACK_CHANNEL_ID}&message_ts=${ts}" \
+      | sed -n 's/.*"permalink":"\([^"]*\)".*/[news] message: \1/p' | sed 's/\\//g'
+  else
     err="$(printf '%s' "$resp" | sed -n 's/.*"error":"\([^"]*\)".*/\1/p')"
     echo "warn: chat.postMessage refusé (${err:-inconnu}) — repli sur le webhook" >&2
     slack_notify ":newspaper:" "$title" "$fields" \

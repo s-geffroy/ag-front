@@ -14,6 +14,17 @@
  */
 
 export const PROMOTE_ACTION_ID = 'promote_corridor';
+/**
+ * Slack exige un `action_id` UNIQUE PAR MESSAGE : cinq boutons portant tous `promote_corridor`
+ * faisaient rejeter le digest entier en `invalid_blocks` — donc aucun bouton, jamais, depuis le
+ * premier envoi. Le digest suffixe donc `_0`…`_4`, et l'écoute se fait sur le motif, pas sur la
+ * chaîne exacte. Le corridor voyage dans `value`, jamais dans l'identifiant.
+ */
+export const PROMOTE_ACTION_PATTERN = /^promote_corridor(?:_\d+)?$/;
+/** L'identifiant du n-ième bouton d'un même message. */
+export function promoteActionId(index: number): string {
+  return `${PROMOTE_ACTION_ID}_${index}`;
+}
 export const MODAL_CALLBACK_ID = 'promote_news_modal';
 export const NOTE_BLOCK_ID = 'note_block';
 export const NOTE_ACTION_ID = 'editorial_note';

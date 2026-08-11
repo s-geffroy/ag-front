@@ -10,6 +10,8 @@ import {
   CLUSTER_BLOCK_ID,
   CLUSTER_ACTION_ID,
   NOTE_ACTION_ID,
+  PROMOTE_ACTION_PATTERN,
+  promoteActionId,
   type ClusterChoice,
 } from './promote';
 
@@ -136,5 +138,23 @@ describe('outcomeFromCockpit', () => {
       field: null,
       message: 'Le cockpit a refusé (HTTP 409).',
     });
+  });
+});
+
+describe('action_id — unicité dans un message', () => {
+  it('suffixe chaque bouton, car Slack rejette un message où deux elements partagent un action_id', () => {
+    const ids = [0, 1, 2, 3, 4].map(promoteActionId);
+    expect(new Set(ids).size).toBe(5);
+    expect(ids[0]).toBe('promote_corridor_0');
+  });
+
+  it('écoute les suffixés ET la forme nue, pour ne pas perdre les messages déjà postés', () => {
+    expect(PROMOTE_ACTION_PATTERN.test('promote_corridor_3')).toBe(true);
+    expect(PROMOTE_ACTION_PATTERN.test('promote_corridor')).toBe(true);
+  });
+
+  it("n'attrape pas une action voisine qui commencerait pareil", () => {
+    expect(PROMOTE_ACTION_PATTERN.test('promote_corridor_x')).toBe(false);
+    expect(PROMOTE_ACTION_PATTERN.test('promote_corridor_note')).toBe(false);
   });
 });
