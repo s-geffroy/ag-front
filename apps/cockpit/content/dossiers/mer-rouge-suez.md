@@ -6,6 +6,23 @@ strategic_question: >-
 status: draft
 published: false
 confidence: moyen
+sources:
+  - label: Reuters — Les Houthis annoncent avoir visé deux pétroliers saoudiens (22 juil. 2026)
+    type: presse_specialisee
+    url: https://www.reuters.com/world/middle-east/yemens-houthis-say-they-targeted-two-saudi-oil-tankers-2026-07-22/
+  - label: Xinhua / Saudi Press Agency — Incendie à bord de l’Encelia (confirmation d’État, 23 juil. 2026)
+    type: institutionnel
+    url: https://english.news.cn/20260723/f45d031d4a7e48589b0aed3452627f9e/c.html
+  - label: JMIC — Advisory Note, Update 079 (2 août 2026 ; niveau régional SEVERE)
+    type: institutionnel
+    url: https://on-shore.jmic.online/advisory-notes
+corrections:
+  - date: 2026-08-12
+    note: >-
+      Reprise des attaques du 22 juillet 2026 portée dans la version interne. Elle figurait dans la
+      version publique depuis le 2026-08-10 ; la version interne, seule lue en revue et seule évaluée
+      par le juge, affirmait encore l'accalmie en cours. Les passages concernés (§3 construct Z, §4
+      tableau des baselines, §8 incertitude, §9 limites) sont datés et le motif de ciblage corrigé.
 ---
 
 > **Version complète interne — candidat en attente de validation humaine.** Squelette académique :
@@ -65,10 +82,14 @@ transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y
   - **Z < 0,10 %** : un ordre de grandeur sous le pic de crise (~1,0 % `[C2/C8]`) et ~2-10× le plancher
     pré-crise (0,01-0,05 % `[C2/C8]`). À mesurer sur un **benchmark de référence** (surprime zone JWC,
     coque standard, transit 7 j), la prime étant fragmentée par courtier/navire (cf. §7).
-    ⚠ **Z non confirmé** : la **trajectoire récente** des primes est désormais **recoupée par la presse**
-    (Reuters `[C17]` `[C18]`, S&P/Platts `[C19]` : ~0,05 % → 0,7-1 % → ~0,2 % post-cessez-le-feu oct. 2025),
-    mais **reste presse/courtier, non validée** (axe 1 : aucune série de taux primaire publique). Z demeure
-    le **verrou** de la thèse « assurance-dominé ». `[à confirmer — source primaire de taux requise]`
+    ⚠ **Z non confirmé** : la trajectoire des primes est **recoupée par la presse**
+    (Reuters `[C17]` `[C18]`, S&P/Platts `[C19]` : ~0,05 % → 0,7-1 % → ~0,2 %), mais **reste
+    presse/courtier, non validée** (axe 1 : aucune série de taux primaire publique). Z demeure le
+    **verrou** de la thèse « assurance-dominé ». `[à confirmer — source primaire de taux requise]`
+    ⚠ **Le ~0,2 % est une observation d'avant le 22 juillet 2026.** L'accalmie
+    post-cessez-le-feu d'octobre 2025 a pris fin ce jour-là (voir §9) ; **aucune valeur de prime
+    postérieure à la reprise n'a été recoupée**. La trajectoire courante de Z est donc **non mesurée**,
+    et non « stable à 0,2 % ». `[candidat — docs/evidence/mer-rouge-suez-reprise-attaques-2026-07.md]`
 
 ## 4. Données & baselines `[primaires validées 2026-07-14 ; trajectoire de prime encore candidate]`
 
@@ -87,7 +108,8 @@ transits ≥ 90 % de la baseline pré-oct. 2023 (X), soutenus ≥ 13 semaines (Y
 | Surdélai route du Cap                               | +7 à 20 j (Kiel) ; +10 j (IMF) ; ~+2 sem. (UNCTAD)  | `[C11]` / `[C10]` / `[C1]`                   | 3 sources, fourchette large       |
 | Surcoût fret 40′ Chine → Europe du Nord             | ~1 500 $ → > 4 000 $ (déc. 2023)                    | Kiel Institute `[C11]`                       | 1 source                          |
 | Prime _war-risk_ Red Sea (niveau)                   | 0,01 % → jusqu'à 1,0 % de la valeur coque           | IUMI/Maritime Executive `[C2]`               | + trajectoire 0,05→0,7→1 % `[C8]` |
-| Prime _war-risk_ Red Sea (**trajectoire récente**)  | ~0,7-1 % (juil. 2025) → **~0,2 %** (post-cessez-le-feu) | Reuters `[C18]` ; S&P/Platts `[C19]`       | recoupé **presse** — non validé (axe 1) |
+| Prime _war-risk_ Red Sea (**trajectoire, jusqu'au 22 juil. 2026**) | ~0,7-1 % (juil. 2025) → **~0,2 %** (post-cessez-le-feu oct. 2025) | Reuters `[C18]` ; S&P/Platts `[C19]`       | recoupé **presse** — non validé (axe 1) ; **période close le 22 juil. 2026** |
+| Prime _war-risk_ Red Sea (**après la reprise du 22 juil. 2026**) | **non mesurée** — aucune valeur postérieure recoupée | —                                          | à ne pas extrapoler depuis la ligne précédente |
 
 ## 5. Seuils de bascule
 
@@ -163,7 +185,11 @@ corridor (non construit) et reste réservée aux offres **Standard** (0–5 par 
 - **Résilience** — moyenne : le Cap absorbe le report mais au prix de délais/coûts (`[C11]`).
 - **Coût de contournement** — élevé : surcoût fret ~1 500 → > 4 000 $/40′ (`[C11]`, source unique).
 - **Gouvernance** — mixte : réponse internationale (UNSC 2722 ; Aspides `[C31]` validé : > 1 960 navires accompagnés) vs sensibilité régionale (Yémen, Iran, riverains).
-- **Incertitude** — élevée sur la trajectoire des primes (axe 1 : presse, non primaire — verrou) et la durée de l'accalmie.
+- **Incertitude** — élevée sur la trajectoire des primes (axe 1 : presse, non primaire — verrou) et,
+  depuis le 22 juillet 2026, sur l'effet de la **reprise des attaques** : le motif invoqué n'est plus le
+  lien avec Israël mais une **interdiction de navigation visant les navires saoudiens** — un ciblage
+  plus étroit, dont l'effet sur le trafic Asie–Europe **n'est pas encore mesuré**. L'ancienne formule
+  « durée de l'accalmie » ne s'applique plus : l'accalmie est close, sa suite est inconnue.
 
 > **Niveau CVI (Basic, qualitatif) = ÉLEVÉ** — justifié : six dimensions sur huit en tension haute
 > (exposition, concentration, menace, capacité de perturbation, coût de contournement, incertitude),
@@ -180,6 +206,13 @@ corridor (non construit) et reste réservée aux offres **Standard** (0–5 par 
   série de taux primaire** — **verrou principal** confirmé par la passe de contradiction (ADR 0039,
   2026-07-14 : finding **sévérité 5**), limite assumée à la clôture de `contradiction_done`.
 - Deux seuils (fréquence d'incidents, durée de fermeture) naguère sans série : la **fréquence d’incidents** est désormais **fondée** (série primaire JMIC `[C30]`), seule la **durée de fermeture** reste un repère historique (`[C28]`, non validé).
+- **Fin de l'accalmie, 22 juillet 2026** — des pétroliers saoudiens ont de nouveau été attaqués ;
+  l'agence de presse saoudienne confirme l'incendie de l'*Encelia*, et le JMIC a porté le niveau
+  régional à **SEVERE** le 2 août (Advisory Note, Update 079). Ces éléments sont des **candidats
+  sourcés en attente de validation humaine**, consignés dans
+  `docs/evidence/mer-rouge-suez-reprise-attaques-2026-07.md` ; ils ne sont pas encore inscrits au
+  registre de sources sous un code `[Cxx]`. Ce qu'ils invalident est acquis — l'accalmie est close ;
+  ce qu'ils établissent sur la suite ne l'est pas.
 - Chiffres à source unique (−82 % tonnage, 586 navires, surcoût fret) : à recouper avant promotion.
 - Géométrie schématique, sans valeur navigationnelle ni juridique.
 

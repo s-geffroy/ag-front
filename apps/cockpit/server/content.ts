@@ -124,8 +124,11 @@ async function readRawDoc(
  */
 export function provenanceSummary(data: Record<string, unknown>): string {
   const lines: string[] = [];
+  // YAML transforme `date: 2026-08-12` en objet Date : `String()` rendrait
+  // « Wed Aug 12 2026 00:00:00 GMT+0000 », illisible dans un prompt et trompeur sur le fuseau.
+  const fmt = (v: unknown) => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v));
   const push = (k: string, v: unknown) => {
-    if (v !== undefined && v !== null && v !== '') lines.push(`${k}: ${String(v)}`);
+    if (v !== undefined && v !== null && v !== '') lines.push(`${k}: ${fmt(v)}`);
   };
   push('date', data.date);
   push('confidence_declaree', data.confidence);
@@ -144,10 +147,57 @@ export function provenanceSummary(data: Record<string, unknown>): string {
   // Une liste vide est DÉCLARÉE vide : « aucun erratum » n'est pas « rubrique absente » (ADR 0077).
   lines.push(`corrections_declarees: ${corrections.length}`);
   for (const c of corrections as Record<string, unknown>[]) {
-    const bits = [c.date, c.note ?? c.label].filter(Boolean).map(String);
+    const bits = [c.date, c.note ?? c.label].filter(Boolean).map(fmt);
     if (bits.length) lines.push(`  - ${bits.join(' | ')}`);
   }
   return lines.join('\n');
+}
+
+/**
+ * Résout les codes `[Cxx]` cités par un document contre son registre de sources.
+ *
+ * DEUXIÈME ÉTAGE DU MÊME AVEUGLEMENT. Une fois le frontmatter transmis, le juge a répondu ce qu'il
+ * fallait entendre : « les nombreuses références sous codes [Cxx] renvoient à un registre non
+ * inclus ». Il contrôlait donc l'origine des sources sans pouvoir en consulter une seule. Un
+ * relecteur humain, lui, a le registre sous la main — la limite était dans le prompt, pas dans le
+ * document.
+ *
+ * On ne transmet PAS le registre entier (plus de cinq cents lignes, dont des sources non citées) :
+ * seulement les entrées effectivement citées, avec leur intitulé, leur type et leur URL. Un code
+ * cité qui ne se résout pas est rendu comme tel — c'est un signal, pas un blanc à combler.
+ */
+export async function resolveCitedSources(body: string, repoRoot: string): Promise<string> {
+  const cited = [...new Set([...body.matchAll(/\[(C\d{1,3})\]/g)].map((m) => m[1]))];
+  if (cited.length === 0) return '';
+  // Le registre n'est pas codé en dur : le document le NOMME (« Voir le registre `docs/evidence/…` »).
+  // Un document qui ne déclare pas le sien n'en reçoit pas — et le juge le verra manquer, ce qui est
+  // le comportement juste : c'est le document qui doit dire d'où viennent ses codes.
+  const declared = /docs\/evidence\/[A-Za-z0-9._-]+\.md/.exec(body)?.[0];
+  if (!declared) {
+    return `codes cités: ${cited.join(', ')}\n(le document ne déclare aucun registre de sources)`;
+  }
+  let registry: string;
+  try {
+    registry = await readFile(resolve(repoRoot, declared), 'utf8');
+  } catch {
+    return `codes cités: ${cited.join(', ')}\n(registre « ${declared} » introuvable — aucune entrée résolue)`;
+  }
+  const entries = new Map<string, string>();
+  // Chaque entrée du registre commence par « ### C<n> — <intitulé> » ; l'URL suit dans les lignes
+  // qui la composent, jusqu'à l'entrée suivante.
+  const blocks = registry.split(/^### (?=C\d)/m).slice(1);
+  for (const block of blocks) {
+    const code = /^(C\d{1,3})\b/.exec(block)?.[1];
+    if (!code || !cited.includes(code)) continue;
+    const title = (block.split('\n')[0] ?? '').replace(/^C\d{1,3}\s*[—-]\s*/, '').trim();
+    const url = /https?:\/\/[^\s`)<>]+/.exec(block)?.[0] ?? '';
+    const type = /\*\*Type\*\*\s*:\s*`?([a-z_]+)`?/.exec(block)?.[1] ?? '';
+    entries.set(code, [title, type, url].filter(Boolean).join(' | '));
+  }
+  const lines = cited
+    .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))
+    .map((c) => `  - ${c}: ${entries.get(c) ?? '(code cité, absent du registre — à vérifier)'}`);
+  return `sources_citees_resolues: ${entries.size}/${cited.length}\n${lines.join('\n')}`;
 }
 
 export async function readContentSource(
@@ -157,10 +207,13 @@ export async function readContentSource(
   const found = await readRawDoc(type, slug);
   if (!found) return null;
   const { data, content } = matter(found.raw);
+  const cited = await resolveCitedSources(content, resolve(here, '../../..'));
   return {
     title: String(data.title ?? slug),
     body: content,
-    provenance: provenanceSummary(data as Record<string, unknown>),
+    provenance: [provenanceSummary(data as Record<string, unknown>), cited]
+      .filter(Boolean)
+      .join('\n'),
     full: found.full,
   };
 }
