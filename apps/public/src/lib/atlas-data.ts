@@ -312,6 +312,53 @@ export function corridorNewsSignal(
 }
 
 /**
+ * Pression déclarée par la base pour chaque corridor (`regime.pressure_score` de la fiche).
+ *
+ * POURQUOI CE CHAMP ET PAS UN AUTRE. Les deux critères d'importance attendus sont inertes ici :
+ * `/atlas` n'affiche que des P0, donc `priority_class` ne départage rien ; et le CVI est saturé à
+ * `critique` sur tout le corpus (handoff ag-back 0026, sans réponse). La pression est le seul signal
+ * ordinal que la base porte — mesuré le 2026-08-12 : Ormuz 263.8, Suez 59.9, Panama 8.3.
+ *
+ * ELLE N'EST DÉCLARÉE QUE POUR UN TIERS DES CORRIDORS (10 sur 30). Les autres reçoivent `null`, et
+ * `null` ne vaut PAS zéro : un corridor sans mesure n'est pas un corridor sous faible pression, il
+ * est un corridor qu'on n'a pas mesuré (ADR 0077). Le classement les traite à part au lieu de les
+ * enterrer sous un score qu'ils n'ont pas.
+ */
+let pressureCache: Map<string, number | null> | null = null;
+
+export async function loadCorridorPressure(
+  ids: readonly string[],
+): Promise<Map<string, number | null>> {
+  if (pressureCache) return pressureCache;
+  const out = new Map<string, number | null>();
+  const cfg = config();
+  if (!cfg) {
+    for (const id of ids) out.set(id, null);
+    pressureCache = out;
+    return out;
+  }
+  const client = createChokepointsClient(cfg);
+  await Promise.all(
+    ids.map(async (id) => {
+      try {
+        const fiche = (await client.getChokepointFiche(id)) as {
+          regime?: { pressure_score?: number | null };
+        };
+        const v = fiche.regime?.pressure_score;
+        out.set(id, typeof v === 'number' ? v : null);
+      } catch (err) {
+        // Une fiche injoignable donne `null`, pas 0 : l'échec réseau ne doit pas se lire comme une
+        // mesure basse.
+        console.warn(`[atlas] pression indisponible pour ${id} :`, (err as Error).message);
+        out.set(id, null);
+      }
+    }),
+  );
+  pressureCache = out;
+  return out;
+}
+
+/**
  * Classe les corridors : ceux qui portent une actualité récente d'abord, la plus fraîche en tête,
  * puis les autres dans l'ordre habituel (priorité, puis nom).
  *
@@ -323,19 +370,39 @@ export function corridorNewsSignal(
  */
 export function sortCorridorsByNews<
   T extends { id: string; priority?: string | null; name: string },
->(items: readonly T[], now: Date = new Date()): T[] {
+>(
+  items: readonly T[],
+  now: Date = new Date(),
+  pressure: ReadonlyMap<string, number | null> = new Map(),
+): T[] {
   const signal = new Map<string, string>();
   for (const c of items) {
     const s = corridorNewsSignal(c.id, now);
     if (s) signal.set(c.id, s.promotedAt);
   }
   return items.slice().sort((a, b) => {
+    // 1. Âge de l'actualité — la plus fraîche en tête.
     const da = signal.get(a.id);
     const db = signal.get(b.id);
-    if (da && db) return db.localeCompare(da); // la plus récente en tête
+    if (da && db) return db.localeCompare(da);
     if (da) return -1;
     if (db) return 1;
-    return (a.priority ?? 'P9').localeCompare(b.priority ?? 'P9') || a.name.localeCompare(b.name);
+    // 2. Pression déclarée, décroissante. Un corridor SANS mesure ne passe pas derrière un corridor
+    //    mesuré à 0 : il passe derrière tous les mesurés, parce qu'on ne sait pas où le placer —
+    //    et on le dit au lecteur plutôt que de lui vendre un rang.
+    const pa = pressure.get(a.id);
+    const pb = pressure.get(b.id);
+    const ma = typeof pa === 'number';
+    const mb = typeof pb === 'number';
+    if (ma && mb && pa !== pb) return (pb as number) - (pa as number);
+    if (ma !== mb) return ma ? -1 : 1;
+    // 2 bis. La classe de priorité. Inerte sur /atlas, qui n'affiche que des P0 — gardée quand même :
+    //        elle est le critère d'importance canonique, et la page pourrait un jour élargir sa
+    //        requête. La retirer aurait été supprimer une règle juste parce que ses données le sont.
+    const prio = (a.priority ?? 'P9').localeCompare(b.priority ?? 'P9');
+    if (prio !== 0) return prio;
+    // 3. Ordre alphabétique.
+    return a.name.localeCompare(b.name);
   });
 }
 

@@ -8,6 +8,7 @@ import { familyLabel, humanize, priorityTone } from '../../lib/labels';
 import {
   corridorNewsSignal,
   loadChokepoints,
+  loadCorridorPressure,
   newsSignalLabel,
   sortCorridorsByNews,
 } from '../../lib/atlas-data';
@@ -17,8 +18,9 @@ const fiches = (await getCollection('atlas', ({ data }) => data.published)).sort
 );
 
 const chokepoints = await loadChokepoints();
-// Actualité récente en tête, le reste dans l'ordre habituel (priorité, puis nom).
-const nodes = sortCorridorsByNews(chokepoints.items);
+// Trois niveaux : âge de l'actualité, puis pression déclarée, puis ordre alphabétique.
+const pressure = await loadCorridorPressure(chokepoints.items.map((c) => c.id));
+const nodes = sortCorridorsByNews(chokepoints.items, new Date(), pressure);
 ---
 
 <Base
@@ -69,9 +71,12 @@ const nodes = sortCorridorsByNews(chokepoints.items);
           </div>
           <p class="-mt-2 mb-5 max-w-prose text-sm text-muted">
             Cœur stratégique extrait de la base de données des chokepoints (plusieurs centaines de nœuds
-            P0–P3, lecture seule). Les corridors ayant fait l'objet d'une actualité au cours des trois
-            dernières semaines apparaissent en tête ; l'absence de mention signifie qu'aucune couverture
-            n'a été retenue, pas que le corridor est calme. {chokepoints.attributionNotice ??
+            P0–P3, lecture seule). Ordre : actualité des trois dernières semaines, puis pression
+            déclarée par la base, puis ordre alphabétique. Deux silences à ne pas surinterpréter —
+            l'absence d'actualité signifie qu'aucune couverture n'a été retenue, pas que le corridor
+            est calme ; et la pression n'est déclarée que pour une partie des corridors, les autres
+            venant après les mesurés faute de rang connu, non parce qu'ils seraient moins exposés.
+            {chokepoints.attributionNotice ??
               'Géométrie schématique, sans valeur navigationnelle ou juridique.'}
           </p>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
