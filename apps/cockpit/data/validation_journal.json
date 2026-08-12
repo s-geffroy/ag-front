@@ -1,1 +1,40 @@
-[]
+[
+  {
+    "id": "val_826bb2e1-1593-461f-9c65-df4b3b23e657",
+    "deliverable_id": "news/p0_maritime_strait_strait_of_hormuz",
+    "target_kind": "news_promotion",
+    "target_id": "11c90d92-bf20-4c2d-b254-a64c721546b0",
+    "decision": "validated",
+    "reserve": "",
+    "before": false,
+    "after": true,
+    "note_origin": "draft_edited",
+    "validated_by": "Diagnostic (via Slack)",
+    "validated_at": "2026-08-11T20:01:54.262Z"
+  },
+  {
+    "id": "val_78063d1c-3ef1-42d1-b5de-679d84c57eed",
+    "deliverable_id": "news/p0_maritime_strait_strait_of_hormuz",
+    "target_kind": "news_promotion",
+    "target_id": "id:11c90d92-bf20-4c2d-b254-a64c721546b0",
+    "decision": "rejected",
+    "reserve": "",
+    "before": true,
+    "after": false,
+    "validated_by": "Claude (diagnostic automatisé)",
+    "validated_at": "2026-08-11T20:02:39.249Z"
+  },
+  {
+    "id": "val_2bda8080-6b0c-4866-8cfd-e55d602a7a5e",
+    "deliverable_id": "news/p0_maritime_strait_strait_of_hormuz",
+    "target_kind": "news_promotion",
+    "target_id": "11c90d92-bf20-4c2d-b254-a64c721546b0",
+    "decision": "validated",
+    "reserve": "",
+    "before": false,
+    "after": true,
+    "note_origin": "draft_accepted",
+    "validated_by": "Sylvain Geffroy (via Slack)",
+    "validated_at": "2026-08-11T20:18:31.419Z"
+  }
+]

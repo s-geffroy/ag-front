@@ -21,6 +21,7 @@ import {
   PUBLISHABLE_MIN_MARKET_COUNT,
 } from '@ag/chokepoints';
 import { Badge, Separator } from '@/components/ui';
+import { cviBinding, levelForScore } from '@/lib/cvi-binding';
 import { decodeHtmlEntities } from '@/lib/display';
 import { PromoteNewsButton } from './PromoteNewsButton';
 
@@ -248,6 +249,7 @@ export function GeometriesPanel({
 /** CVI: 8 named 0–5 dimensions (higher = more vulnerable). An omitted dimension had no engine input. */
 export function CviPanel({ cvi }: { cvi: CviAssessmentOut }) {
   const dims = Object.entries(cvi.dimensions ?? {});
+  const binding = cviBinding(cvi.dimensions as Record<string, { score?: number | null }>);
   const levelTone = (l?: string | null) =>
     l === 'critique' ? 'blocked' : l === 'eleve' ? 'at_risk' : 'neutral';
   return (
@@ -264,6 +266,32 @@ export function CviPanel({ cvi }: { cvi: CviAssessmentOut }) {
         dimension sans donnée moteur est omise, jamais fabriquée. Aucun score agrégé 0–100 n'est
         publié.
       </p>
+      {/* Le contrefactuel agrégé rendu utile ICI, corridor par corridor. Il existait depuis 0.9.0
+          sur /analytics/cvi-counterfactual et nous avions un panneau pour l'afficher — que personne
+          n'avait ouvert avant d'écrire un handoff demandant la mesure. Un chiffre qu'on affiche sans
+          le porter au point de décision ne sert à rien (ADR 0077). */}
+      {binding.boundByInferred ? (
+        <p className="mb-1.5 rounded-[2px] border-l-2 border-l-status-at_risk bg-subtle px-2 py-1.5 text-[11px] leading-relaxed">
+          <span className="font-medium text-status-at_risk">
+            Ce niveau tient à « concentration » seule.
+          </span>{' '}
+          Cette dimension n'est pas une mesure : faute d'alternative de contournement modélisée, le
+          moteur amont retombe sur le compte des relations et note l'absence à 5. ag-back l'a
+          concédé et va la <strong>supprimer</strong> (leur 0027). Sans elle, le maximum retombe à{' '}
+          {binding.maxWithoutInferred}/5, soit «&nbsp;
+          {humanize(levelForScore(binding.maxWithoutInferred) ?? '')}
+          &nbsp;». Ne pas justifier une publication sur ce niveau.
+        </p>
+      ) : binding.max !== null ? (
+        <p className="mb-1.5 text-[11px] text-muted">
+          Niveau porté par{' '}
+          {binding.maxWithoutInferred === binding.max
+            ? 'des dimensions mesurées'
+            : 'plusieurs dimensions'}{' '}
+          — il survit au retrait annoncé de «&nbsp;concentration&nbsp;» (ag-back 0027).
+          «&nbsp;incertitude&nbsp;» est hors du maximum (leur ADR 0055).
+        </p>
+      ) : null}
       {dims.length ? (
         <ul className="space-y-2 text-sm">
           {dims.map(([key, d]) => (
@@ -541,9 +569,16 @@ function NewsCluster({ c, corridorId }: { c: NewsClusterOut; corridorId?: string
           {decodeHtmlEntities(c.headline) || '(sans titre)'}
         </span>
         {c.event_category ? <Badge tone="neutral">{humanize(c.event_category)}</Badge> : null}
-        {/* salience is coverage intensity, never a severity — keep a neutral tone. */}
+        {/* Jamais une sévérité — ton neutre. Et jamais un rang : ag-back a précisé (leur 0027,
+            2026-08-12) que ce score est 100 % modèle, calé sur deux ancres, « ni comparable entre
+            corridors ni stable entre passes ». Il sert à repérer dans UNE liste, à un instant donné.
+            Le titre de l'élément le dit à qui s'apprête à s'en servir pour comparer. */}
         {c.salience_score != null ? (
-          <Badge tone="neutral">saillance {c.salience_score.toFixed(2)}</Badge>
+          <Badge tone="neutral">
+            <span title="Jugement du modèle amont : ni comparable entre corridors, ni stable d'une passe à l'autre (ag-back 0027).">
+              saillance {c.salience_score.toFixed(2)}
+            </span>
+          </Badge>
         ) : null}
       </div>
       {c.summary_text ? (
@@ -551,13 +586,14 @@ function NewsCluster({ c, corridorId }: { c: NewsClusterOut; corridorId?: string
       ) : null}
       {c.affected_chokepoints.length ? (
         <div className="mt-1 text-[11px] text-muted">
+          {/* Le nombre qui suivait chaque objet a été RETIRÉ. `relevance` n'est pas une pertinence
+              par corridor : ag-back a divulgué (leur 0027, 2026-08-12) que c'est la salience GLOBALE
+              du regroupement, recopiée à l'identique sur chaque objet lié. L'afficher ainsi laissait
+              croire que ce regroupement comptait 0,90 pour Ormuz et autre chose pour Suez, alors que
+              toutes les valeurs sont la même. Un chiffre faux est pire qu'aucun chiffre. La salience
+              est affichée UNE fois, ci-dessous, pour ce qu'elle est. */}
           Objets liés :{' '}
-          {c.affected_chokepoints
-            .map(
-              (a) =>
-                `${a.canonical_name ?? a.chokepoint_id}${a.relevance != null ? ` (${a.relevance.toFixed(2)})` : ''}`,
-            )
-            .join(' · ')}
+          {c.affected_chokepoints.map((a) => a.canonical_name ?? a.chokepoint_id).join(' · ')}
         </div>
       ) : null}
       {c.articles.length ? (

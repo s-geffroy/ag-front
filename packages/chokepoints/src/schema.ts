@@ -1061,6 +1061,12 @@ export const NewsClusterChokepoint = z
   .object({
     chokepoint_id: z.string(),
     canonical_name: z.string().nullish(),
+    /**
+     * ATTENTION — ce n'est PAS une pertinence par corridor. ag-back a divulgué (leur 0027,
+     * 2026-08-12) que ce champ porte la SALIENCE GLOBALE du regroupement, recopiée à l'identique sur
+     * chaque objet lié. Deux objets d'un même regroupement portent donc toujours la même valeur.
+     * Ne pas l'afficher à côté d'un corridor : cela laisse croire à une pondération qui n'existe pas.
+     */
     relevance: z.number().nullish(),
   })
   .passthrough();
