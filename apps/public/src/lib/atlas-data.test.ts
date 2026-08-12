@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CONSENSUS_ATTRIBUTION, CONSENSUS_RELIABILITY, loadCorridorConsensus } from './atlas-data';
+import {
+  CONSENSUS_ATTRIBUTION,
+  CONSENSUS_RELIABILITY,
+  loadCorridorConsensus,
+  corridorNewsSignal,
+  newsSignalLabel,
+} from './atlas-data';
 
 // Publication conditions imposed by ag-back's handoff 0018 (`e3518308`) and recorded in ADR 0071:
 // mandatory Polymarket attribution + S5 disclaimer carried WITH the aggregate, and honest coverage
@@ -310,5 +316,30 @@ describe('mandatory attribution + S5 disclaimer (ag-back 0018 §1)', () => {
     const blob = `${CONSENSUS_RELIABILITY.text} ${CONSENSUS_ATTRIBUTION.text}`.toLowerCase();
     expect(blob).toMatch(/anticipation/);
     expect(blob).toMatch(/ni une preuve|jamais une preuve/);
+  });
+});
+
+describe('corridorNewsSignal — un signal qui ne s’éteint pas cesse d’en être un', () => {
+  const HORMUZ = 'p0_maritime_strait_strait_of_hormuz';
+  // Le magasin réel porte une promotion du 2026-08-11 : les dates ci-dessous sont relatives à elle.
+  const promotedDay = new Date('2026-08-11T21:00:00Z');
+
+  it('signale une promotion récente, et rend sa date', () => {
+    const s = corridorNewsSignal(HORMUZ, promotedDay);
+    expect(s).not.toBeNull();
+    expect(newsSignalLabel(s!.promotedAt)).toBe('11 août');
+  });
+
+  it('tient exactement 21 jours, puis se tait', () => {
+    expect(corridorNewsSignal(HORMUZ, new Date('2026-09-01T00:00:00Z'))).not.toBeNull();
+    expect(corridorNewsSignal(HORMUZ, new Date('2026-09-03T00:00:00Z'))).toBeNull();
+  });
+
+  it('ne signale rien pour un corridor jamais promu — ce qui ne veut pas dire « calme »', () => {
+    expect(corridorNewsSignal('p0_maritime_canal_panama_canal', promotedDay)).toBeNull();
+  });
+
+  it('ne rend pas de libellé pour une date illisible plutôt que d’en inventer une', () => {
+    expect(newsSignalLabel('pas-une-date')).toBe('');
   });
 });

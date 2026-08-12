@@ -1,105 +1,98 @@
 ---
 import { humanize } from '../../lib/labels';
+import { groupNewsStories } from '@ag/chokepoints';
 import type { PromotedNewsItem } from '@ag/schema/content';
 
 // Human-promoted media coverage, public-safe (ADR 0071). Only clusters an operator promoted from the
 // cockpit reach here, capped at "coverage" — never a confirmed incident (ADR 0042).
 //
-// The model's headline and summary are NO LONGER RENDERED (ADR 0074). They were the most prominent
-// line on the block, and they were a model's summary of article TITLES, approved by someone who had
-// read those same titles and nothing else — the defect ag-back named in their `0026` §5 and we
-// conceded applies to us. Two kinds of text remain, and both are answerable for: the article titles,
-// which are the publishers' own words, attributed and linked; and one line the promoter wrote and
-// signed. The model's prose survives in the store as an audit trail of what was proposed.
+// The model's headline and summary are NOT rendered (ADR 0074/0078): they may be shown to CHOOSE a
+// subject in the cockpit, never to a reader. Two kinds of text remain, and both are answerable for:
+// the article titles, which are the publishers' own words, attributed and linked; and one line the
+// promoter wrote and signed.
+//
+// LES ARTICLES SONT REGROUPÉS EN HISTOIRES. La première promotion réelle a rendu 89 liens à plat,
+// 82 médias, 41 Ko de balisage, sans une date — parce qu'une dépêche relayée par vingt-cinq
+// rédactions y comptait pour vingt-cinq lignes. `groupNewsStories` est la MÊME fonction que celle de
+// la fenêtre de promotion : ce qu'on choisit doit être ce qu'on publie.
 
 interface Props {
   items: PromotedNewsItem[];
 }
 const { items } = Astro.props;
 
-// Decode HTML entities to plain TEXT (ag-back 0017: GKG titles carry undecoded &#x2013; etc.). Output is
-// a normal string that Astro then re-escapes on render — we never emit raw HTML.
-const NAMED: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: ' ',
-  rsquo: '’',
-  lsquo: '‘',
-  rdquo: '”',
-  ldquo: '“',
-  ndash: '–',
-  mdash: '—',
-  hellip: '…',
-};
-function decodeEntities(s: string): string {
-  return s.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, body) => {
-    if (body[0] === '#') {
-      const cp = body[1]?.toLowerCase() === 'x' ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
-      return Number.isFinite(cp) && cp > 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : m;
-    }
-    return NAMED[body.toLowerCase()] ?? m;
-  });
-}
-/** Defence-in-depth: only http(s) links render (the store schema already rejects others at parse). */
-function isHttp(u: string): boolean {
-  return /^https?:\/\//i.test(u);
-}
+/** Combien d'histoires distinctes on montre. Au-delà, on annonce le reste au lieu de le dérouler. */
+const STORIES_SHOWN = 6;
+
 function promotedLabel(iso: string): string | null {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
   return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+
+/** `2026-08-11` → `11/08`. Date d'OBSERVATION par le flux, pas de publication (ADR 0077) — d'où « vu le ». */
+function seenLabel(iso: string | undefined): string | null {
+  const m = iso ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso) : null;
+  return m ? `vu le ${m[3]}/${m[2]}` : null;
+}
 ---
 
 <section>
   <div class="section-rule"><span class="label">Couverture média</span></div>
-  <p class="mb-3 text-xs text-muted">
+  <p class="mb-4 text-xs text-muted">
     Sélection éditoriale de regroupements d'articles liés à ce corridor. Un candidat retenu à la main —
-    jamais un incident confirmé. Le volume d'articles reflète le cycle médiatique, pas l'importance de
+    jamais un incident confirmé. Le nombre de rédactions mesure l'écho médiatique, pas l'importance de
     l'événement.
   </p>
-  <ul class="space-y-5">
+  <ul class="space-y-7">
     {
       items.map((it) => {
         const note = (it.editorial_note ?? '').trim();
         const category = humanize(it.event_category);
-        const articles = it.articles.filter((a) => isHttp(a.url));
+        const stories = groupNewsStories(it.articles ?? []);
+        const shown = stories.slice(0, STORIES_SHOWN);
+        const hiddenStories = stories.length - shown.length;
+        const totalArticles = (it.articles ?? []).length;
         const promoted = promotedLabel(it.promoted_at);
         return (
           <li>
-            {note ? <p class="text-sm font-medium">{note}</p> : null}
-            {category ? (
-              <p class="mt-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">{category}</p>
-            ) : null}
-            {articles.length ? (
-              <ul class="mt-1.5 space-y-1 text-sm">
-                {articles.map((a) => (
-                  <li>
+            {note ? <p class="font-serif text-lg leading-snug text-ink">{note}</p> : null}
+            <p class="mt-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+              {/* Signé, pas anonyme : quelqu'un a écrit cette ligne et en répond. */}
+              {note && it.promoted_by ? `${it.promoted_by} · ` : ''}
+              {promoted ? `Promu le ${promoted}` : ''}
+              {category ? ` · ${category}` : ''}
+            </p>
+            {shown.length ? (
+              <ul class="mt-4 space-y-3">
+                {shown.map((s) => (
+                  <li class="border-l-2 border-l-line pl-3">
                     <a
-                      href={a.url}
+                      href={s.url}
                       rel="noreferrer nofollow"
                       target="_blank"
-                      class="text-accent hover:underline"
+                      class="text-sm text-accent hover:underline"
                     >
-                      {decodeEntities(a.title).trim() || a.outlet || a.url}
+                      {s.title}
                     </a>
-                    {a.outlet ? <span class="text-muted"> · {a.outlet}</span> : null}
-                    {a.source_id === 'gdelt_gkg' ? (
-                      <span class="ml-1 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
-                        [gdelt]
-                      </span>
-                    ) : null}
+                    <p class="mt-0.5 text-xs text-muted">
+                      {s.outlet ? <span>{s.outlet}</span> : null}
+                      {/* « 25 médias » est une mesure ; le pays ne l'est pas encore (33 % des
+                          domaines seulement), donc il n'est pas publié — handoff ag-back 0030. */}
+                      {s.outlets > 1 ? <span> · {s.outlets} médias</span> : null}
+                      {seenLabel(s.observedOn) ? <span> · {seenLabel(s.observedOn)}</span> : null}
+                    </p>
                   </li>
                 ))}
               </ul>
             ) : null}
-            {promoted ? (
-              <p class="mt-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
-                {/* The line above is signed, not anonymous: someone wrote it and is answerable for it. */}
-                {note && it.promoted_by ? `${it.promoted_by} · ` : ''}Promu le {promoted}
+            {hiddenStories > 0 ? (
+              /* La coupe est DÉCLARÉE : six histoires sur trente-huit, présentées sans cette ligne,
+                 se liraient comme la couverture entière du sujet (ADR 0077). */
+              <p class="mt-3 text-xs text-muted">
+                + {hiddenStories} autre{hiddenStories > 1 ? 's' : ''} histoire
+                {hiddenStories > 1 ? 's' : ''} dans ce regroupement, {totalArticles} article
+                {totalArticles > 1 ? 's' : ''} au total.
               </p>
             ) : null}
           </li>

@@ -1,1 +1,653 @@
-{}
+{
+  "p0_maritime_strait_strait_of_hormuz": [
+    {
+      "articles": [
+        {
+          "title": "Strait of Hormuz will not reopen until US' naval blockade: Iran",
+          "url": "https://www.sentinelassam.com/more-news/international/strait-of-hormuz-will-not-reopen-until-us-naval-blockade-iran",
+          "outlet": "sentinelassam.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "US lacks moral or legal standing to demand reopening of Strait of Hormuz: Iran",
+          "url": "https://www.globalsecurity.org/wmd/library/news/iran/2026/08/iran-260810-irna08.htm",
+          "outlet": "globalsecurity.org",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Iran unveils new missile capabilities as Strait of Hormuz stays closed",
+          "url": "https://www.express.co.uk/news/world/2237911/iran-unveils-new-missile-capabilities-strait-hormuz-stays-closed",
+          "outlet": "express.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Iran Says No Talks with U.S. on Strait of Hormuz Until Demands Are Met",
+          "url": "https://www.breitbart.com/middle-east/2026/08/10/iran-says-no-talks-with-u-s-on-strait-of-hormuz-until-demands-are-met/",
+          "outlet": "breitbart.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Tehran says Strait of Hormuz won't reopen until US meets demands",
+          "url": "https://www.2lt.com.au/tehran-says-strait-of-hormuz-wont-reopen-until-us-meets-demands/",
+          "outlet": "2lt.com.au",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Iran will not reopen Strait of Hormuz without US concessions",
+          "url": "https://navhindtimes.in/worldnews/iran-will-not-reopen-strait-of-hormuz-without-us-concessions/",
+          "outlet": "navhindtimes.in",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Iran puts conditions on US before reopening of Strait of Hormuz",
+          "url": "http://www.texasguardian.com/news/279229684/iran-near-hormuz-deal-with-oman-sets-conditions-for-us",
+          "outlet": "texasguardian.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Iran puts conditions on US before reopening of Strait of Hormuz",
+          "url": "http://www.taiwansun.com/news/279229684/iran-near-hormuz-deal-with-oman-sets-conditions-for-us",
+          "outlet": "taiwansun.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Iran puts conditions on US before reopening of Strait of Hormuz",
+          "url": "http://www.australiannews.net/news/279229684/tehran-says-strait-of-hormuz-won-t-reopen-until-us-meets-demands",
+          "outlet": "australiannews.net",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-11"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.yourlocalguardian.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "yourlocalguardian.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wyff4.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wyff4.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wxii12.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wxii12.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wvtm13.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wvtm13.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wtae.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wtae.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments",
+          "url": "https://www.wsls.com/news/world/2026/08/10/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/",
+          "outlet": "wsls.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments",
+          "url": "https://www.wral.com/news/ap/0bdaa-iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/",
+          "outlet": "wral.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wpbf.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wpbf.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wmur.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wmur.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wmtw.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wmtw.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wlwt.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wlwt.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wlky.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wlky.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wjcl.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wjcl.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wisn.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wisn.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.wirralglobe.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "wirralglobe.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments &#x2013; Winnipeg Free Press",
+          "url": "https://www.winnipegfreepress.com/business/2026/08/10/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments",
+          "outlet": "winnipegfreepress.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.wimbledonguardian.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "wimbledonguardian.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.whtimes.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "whtimes.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.wharfedaleobserver.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "wharfedaleobserver.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions",
+          "url": "https://www.wgauradio.com/news/world/iran-wont-reopen/LDK67TNRXU76NFM2NPHRMY3YIM/",
+          "outlet": "wgauradio.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wgal.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wgal.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wesh.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wesh.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wdsu.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wdsu.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wcvb.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wcvb.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments",
+          "url": "https://www.wboc.com/news/international/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/article_8bbf7db6-6b5a-52d1-8f25-08ebea77c769.html",
+          "outlet": "wboc.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wbaltv.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wbaltv.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.warringtonguardian.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "warringtonguardian.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.wapt.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "wapt.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.tivysideadvertiser.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "tivysideadvertiser.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.thisiswiltshire.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "thisiswiltshire.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.thisisoxfordshire.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "thisisoxfordshire.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.thewestonmercury.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "thewestonmercury.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions",
+          "url": "https://www.thetrucker.com/trucking-news/the-nation/iran-wont-reopen-strait-of-hormuz-without-us-concessions",
+          "outlet": "thetrucker.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.thetottenhamindependent.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "thetottenhamindependent.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions | Bradford Telegraph and Argus",
+          "url": "https://www.thetelegraphandargus.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "thetelegraphandargus.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.thenorthernecho.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "thenorthernecho.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran sets 'tough' conditions for Strait of Hormuz transit amid regional uncertainty",
+          "url": "https://www.thenews.com.pk/latest/1411700-iran-sets-tough-conditions-for-strait-of-hormuz-transit-amid-regional-uncertainty",
+          "outlet": "thenews.com.pk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "West Asia war LIVE: Iran ties Strait of Hormuz reopening to U.S. concessions on several demands",
+          "url": "https://www.thehindu.com/news/international/iran-us-war-live-updates-august-10-2026-hormuz-strait-reopen-us-iran-talks/article71326809.ece",
+          "outlet": "thehindu.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Reopening of Strait of Hormuz tied to U.S. concessions on several Iranian demands",
+          "url": "https://www.theglobeandmail.com/world/article-us-iran-strait-of-hormuz-reopening/",
+          "outlet": "theglobeandmail.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran Again Refuses to Reopen Strait of Hormuz Unless US Meets Demands",
+          "url": "https://www.theepochtimes.com/world/iran-again-refuses-to-reopen-strait-of-hormuz-unless-us-meets-demands-6073201",
+          "outlet": "theepochtimes.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.theargus.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "theargus.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.surreycomet.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "surreycomet.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.stourbridgenews.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "stourbridgenews.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.sthelensstar.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "sthelensstar.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments",
+          "url": "https://www.stcatharinesstandard.ca/business/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/article_429a75cd-1094-5b7e-b838-bbccd321e2a4.html",
+          "outlet": "stcatharinesstandard.ca",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.southwalesargus.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "southwalesargus.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.somersetcountygazette.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "somersetcountygazette.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran Says Strait of Hormuz Won't Reopen Amid US Naval Blockade",
+          "url": "https://www.sentinelassam.com/breakingnews/iran-says-strait-of-hormuz-wont-reopen-amid-us-naval-blockade",
+          "outlet": "sentinelassam.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.runcornandwidnesworld.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "runcornandwidnesworld.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Mideast developments: Iran won't reopen Strait of Hormuz without US concessions | Politics and Government",
+          "url": "https://www.reviewjournal.com/news/politics-and-government/iran-wont-reopen-strait-of-hormuz-without-us-concessions-3861491/",
+          "outlet": "reviewjournal.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran says Strait of Hormuz will not reopen until US continues naval blockade",
+          "url": "https://www.prokerala.com/news/articles/a1798594.html",
+          "outlet": "prokerala.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran ties Strait of Hormuz reopening to US concessions",
+          "url": "https://www.orissapost.com/iran-ties-strait-of-hormuz-reopening-to-us-concessions/",
+          "outlet": "orissapost.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran Insists Strait of Hormuz Will Stay Closed Until Trump Agrees to Demands",
+          "url": "https://www.nytimes.com/2026/08/10/world/middleeast/iran-strait-of-hormuz-us-oman-talks.html",
+          "outlet": "nytimes.com",
+          "source_id": "nyt_world",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.nwemail.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "nwemail.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.northwalespioneer.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "northwalespioneer.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.northwaleschronicle.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "northwaleschronicle.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.newsshopper.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "newsshopper.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran 'will not reopen' Strait of Hormuz without US concessions",
+          "url": "https://www.newsandstar.co.uk/news/national/26450462.iran-will-not-reopen-strait-hormuz-without-us-concessions/",
+          "outlet": "newsandstar.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments",
+          "url": "https://www.news4jax.com/news/world/2026/08/10/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/",
+          "outlet": "news4jax.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran: Strait of Hormuz Closed Until US Ends Blockade",
+          "url": "https://www.newkerala.com/news/a/strait-hormuz-will-not-reopen-until-us-continues-171.htm",
+          "outlet": "newkerala.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran demands new U.S. concessions to reopen Strait of Hormuz",
+          "url": "https://www.mynbc5.com/article/iran-demands-new-us-concessions-to-reopen-strait-of-hormuz/73385083",
+          "outlet": "mynbc5.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran Won't Reopen Strait of Hormuz Without US Concessions and Other Mideast Developments",
+          "url": "https://www.military.com/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments",
+          "outlet": "military.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Tehran says Strait of Hormuz will remain closed until Washington accepts all its demands",
+          "url": "https://www.middleeastmonitor.com/20260810-tehran-says-strait-of-hormuz-will-remain-closed-until-washington-accepts-all-its-demands/",
+          "outlet": "middleeastmonitor.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran Won't Reopen Strait Of Hormuz Without US Concessions And Other Mideast Developments &#x2013; 710am KURV",
+          "url": "https://www.kurv.com/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/",
+          "outlet": "kurv.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments",
+          "url": "https://www.ktsa.com/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/",
+          "outlet": "ktsa.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran won't reopen Strait of Hormuz without US concessions and other Mideast developments",
+          "url": "https://www.kob.com/ap-top-news/iran-wont-reopen-strait-of-hormuz-without-us-concessions-and-other-mideast-developments/",
+          "outlet": "kob.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran Says Strait of Hormuz Reopening Depends on US Lifting Naval Blockade",
+          "url": "https://www.khaama.com/iran-says-strait-of-hormuz-reopening-depends-on-us-lifting-naval-blockade/",
+          "outlet": "khaama.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Middle East: Iran wants US concessions before opening Hormuz",
+          "url": "https://www.dw.com/en/middle-east-iran-wants-us-concessions-before-opening-hormuz/live-78305309?maca=en-rss-en-all-1573-xml-mrss",
+          "outlet": "dw.com",
+          "source_id": "dw_en",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Iran Ties Hormuz Reopening to US Concessions on Several Demands",
+          "url": "https://gcaptain.com/iran-ties-hormuz-reopening-to-us-concessions-on-several-demands/",
+          "outlet": "gcaptain.com",
+          "source_id": "gcaptain",
+          "observed_on": "2026-08-10"
+        },
+        {
+          "title": "Middle East crisis live: Hormuz will stay closed until US ‘accepts all our conditions’, say Iran’s Revolutionary Guards",
+          "url": "https://www.theguardian.com/world/live/2026/aug/09/iran-us-irgc-strait-of-hormuz-israel-netanyahu-trump-gaza-plan-latest-news-updates",
+          "outlet": "theguardian.com",
+          "source_id": "guardian_world",
+          "observed_on": "2026-08-09"
+        },
+        {
+          "title": "Iran Demands U.S. Withdrawal to Open Hormuz",
+          "url": "https://www.wsj.com/world/middle-east/u-a-e-says-iran-attacked-one-of-its-ships-in-hormuz-bfbec3b2?mod=rss_worldnews",
+          "outlet": "wsj.com",
+          "source_id": "wsj_world",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "Iran issues tough demands to reopen strait of Hormuz as deal remains out of reach",
+          "url": "https://www.theguardian.com/world/2026/aug/08/iran-issues-tough-demands-to-reopen-strait-of-hormuz-as-deal-remains-out-of-reach",
+          "outlet": "theguardian.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "Iran Issues List of Demands, Dampening Hopes of Reopening Strait of Hormuz",
+          "url": "https://www.nytimes.com/2026/08/08/world/middleeast/iran-us-oman-strait-of-hormuz.html",
+          "outlet": "nytimes.com",
+          "source_id": "nyt_world",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "Iran war: IRGC says Hormuz to open if US accepts Iran's terms",
+          "url": "https://www.dw.com/en/iran-war-irgc-says-hormuz-to-open-if-us-accepts-iran-s-terms/live-78289364?maca=en-rss-en-all-1573-xml-mrss",
+          "outlet": "dw.com",
+          "source_id": "dw_en",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "اتفاق هرمز.. طموحات إيران وحسابات ترمب السياسية",
+          "url": "https://www.aljazeera.net/video/2026/8/9/%d8%a7%d8%aa%d9%81%d8%a7%d9%82-%d9%87%d8%b1%d9%85%d8%b2-%d8%b7%d9%85%d9%88%d8%ad%d8%a7%d8%aa-%d8%a5%d9%8a%d8%b1%d8%a7%d9%86-%d9%88%d8%ad%d8%b3%d8%a7%d8%a8%d8%a7%d8%aa-%d8%aa%d8%b1%d9%85%d8%a8?traffic_source=rss",
+          "outlet": "aljazeera.net",
+          "source_id": "aljazeera_ar",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "إيران.. اتفاق وشيك بين طهران ومسقط والحرس الثوري يشترط لفتح هرمز",
+          "url": "https://www.aljazeera.net/news/liveblog/2026/8/9/%d8%a5%d9%8a%d8%b1%d8%a7%d9%86-%d8%a7%d8%aa%d9%81%d8%a7%d9%82-%d9%88%d8%b4%d9%8a%d9%83-%d8%a8%d9%8a%d9%86-%d8%b7%d9%87%d8%b1%d8%a7%d9%86-%d9%88%d9%85%d8%b3%d9%82%d8%b7?traffic_source=rss",
+          "outlet": "aljazeera.net",
+          "source_id": "aljazeera_ar",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "ما أبرز بنود الاتفاق الإيراني العُماني المحتمل بشأن مضيق هرمز؟",
+          "url": "https://www.aljazeera.net/news/2026/8/9/%d9%85%d8%a7-%d8%a3%d8%a8%d8%b1%d8%b2-%d8%a8%d9%86%d9%88%d8%af-%d8%a7%d9%84%d8%a7%d8%aa%d9%81%d8%a7%d9%82-%d8%a7%d9%84%d8%a5%d9%8a%d8%b1%d8%a7%d9%86%d9%8a?traffic_source=rss",
+          "outlet": "aljazeera.net",
+          "source_id": "aljazeera_ar",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "مسقط تؤكد إيجابية المحادثات وطهران تربط فتح هرمز بتلبية واشنطن لشروطها",
+          "url": "https://www.aljazeera.net/news/2026/8/8/%d9%85%d8%b3%d9%82%d8%b7-%d8%aa%d8%a4%d9%83%d8%af-%d8%a5%d9%8a%d8%ac%d8%a7%d8%a8%d9%8a%d8%a9-%d8%a7%d9%84%d9%85%d8%ad%d8%a7%d8%af%d8%ab%d8%a7%d8%aa-%d9%88%d8%b7%d9%87%d8%b1%d8%a7%d9%86?traffic_source=rss",
+          "outlet": "aljazeera.net",
+          "source_id": "aljazeera_ar",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "Iran deliberates Hormuz arrangement amid uncertain prospects with US",
+          "url": "https://www.aljazeera.com/news/2026/8/8/iran-deliberates-hormuz-arrangement-amid-uncertain-prospects-with-us?traffic_source=rss",
+          "outlet": "aljazeera.com",
+          "source_id": "aljazeera_en",
+          "observed_on": "2026-08-08"
+        },
+        {
+          "title": "Iran says Strait of Hormuz deal 'close' but reopening depends on other conditions",
+          "url": "https://www.abc.net.au/news/2026-08-09/iran-and-oman-close-to-new-route-strait-of-hormuz/107013264",
+          "outlet": "abc.net.au",
+          "source_id": "abc_au",
+          "observed_on": "2026-08-08"
+        }
+      ],
+      "affected_chokepoints": [
+        {
+          "chokepoint_id": "p0_maritime_strait_strait_of_hormuz",
+          "canonical_name": "Strait of Hormuz",
+          "relevance": 0.91
+        }
+      ],
+      "article_count": 89,
+      "first_seen": "2026-08-08",
+      "last_seen": "2026-08-11",
+      "generated_at": "2026-08-11T18:15:54.031772Z",
+      "editorial_note": "Les décideurs doivent anticiper des coûts accrus en assurance et logistique tant que le détroit d'Ormuz reste fermé, sans visibilité sur une réouverture rapide.",
+      "note_origin": "draft_accepted",
+      "headline": "L’Iran lie la réouverture du détroit d’Ormuz à des concessions américaines",
+      "summary_text": "De nombreux médias rapportent que l’Iran conditionne la réouverture du détroit d’Ormuz à l’acceptation de demandes ou de concessions américaines, certains titres mentionnant notamment la fin d’un blocus naval. Les articles présentent le détroit comme restant fermé ou non rouvert dans l’attente de ces conditions.",
+      "event_category": "policy",
+      "salience_score": 0.91,
+      "cluster_id": "11c90d92-bf20-4c2d-b254-a64c721546b0",
+      "run_id": "",
+      "taint_class": "cleared_only",
+      "promoted_by": "Sylvain Geffroy (via Slack)",
+      "promoted_at": "2026-08-11T20:18:31.416Z"
+    }
+  ]
+}

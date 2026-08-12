@@ -285,6 +285,38 @@ export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus 
 }
 
 // --- Promoted media coverage (public, human-promoted; ADR 0071) -----------------------------------
+/**
+ * Fraîcheur de la couverture média d'un corridor, pour les pages qui LISTENT des corridors.
+ *
+ * `null` veut dire « rien à signaler », jamais « corridor calme ». Le seuil est celui de la page
+ * /veille — 21 jours — pour la même raison : une date de mars affichée sur une carte se lit encore
+ * comme un signal actif, et un signal qui ne s'éteint jamais cesse d'en être un.
+ */
+export const NEWS_SIGNAL_MAX_AGE_DAYS = 21;
+
+export function corridorNewsSignal(
+  id: string,
+  now: Date = new Date(),
+): { promotedAt: string } | null {
+  const items = loadCorridorPromotedNews(id);
+  if (items.length === 0) return null;
+  const latest = items
+    .map((it) => it.promoted_at)
+    .filter((d): d is string => typeof d === 'string' && d.length > 0)
+    .sort()
+    .at(-1);
+  if (!latest) return null;
+  const age = (now.getTime() - new Date(latest).getTime()) / 86_400_000;
+  if (!Number.isFinite(age) || age > NEWS_SIGNAL_MAX_AGE_DAYS) return null;
+  return { promotedAt: latest };
+}
+
+/** « 11 août ». Le jour et le mois suffisent : l'année n'apporte rien sous 21 jours. */
+export function newsSignalLabel(promotedAt: string): string {
+  const d = new Date(promotedAt);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+}
 
 /**
  * Human-promoted news clusters for one corridor, from the repo-committed store

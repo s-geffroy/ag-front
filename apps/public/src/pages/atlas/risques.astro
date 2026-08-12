@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Section from '../../components/Section.astro';
 import Pill from '../../components/Pill.astro';
 import { humanize } from '../../lib/labels';
-import { loadCorridorsByRisk, loadChokepointPageIds } from '../../lib/atlas-data';
+import { corridorNewsSignal, loadCorridorsByRisk, loadChokepointPageIds } from '../../lib/atlas-data';
 
 const byRisk = await loadCorridorsByRisk();
 // Only P0 corridors have a detail page; link those, render the rest as plain text (no dead 404s).
@@ -44,7 +44,13 @@ const pageIds = await loadChokepointPageIds();
                 {group.corridors.map((c) =>
                   pageIds.has(c.id) ? (
                     <a href={`/atlas/chokepoints/${c.id}`}>
-                      <Pill tone="neutral" class="hover:border-accent hover:text-accent">
+                      {/* Ici la pastille EST le corridor : on change son ton plutôt que d'en ajouter
+                          une seconde, et le point signale l'actualité sans allonger l'étiquette. */}
+                      <Pill
+                        tone={corridorNewsSignal(c.id) ? 'accent' : 'neutral'}
+                        class="hover:border-accent hover:text-accent"
+                      >
+                        {corridorNewsSignal(c.id) ? '● ' : ''}
                         {c.name}
                       </Pill>
                     </a>

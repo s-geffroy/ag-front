@@ -5,7 +5,7 @@ import Section from '../../components/Section.astro';
 import EntryCard from '../../components/EntryCard.astro';
 import Pill from '../../components/Pill.astro';
 import { familyLabel, humanize, priorityTone } from '../../lib/labels';
-import { loadChokepoints } from '../../lib/atlas-data';
+import { corridorNewsSignal, loadChokepoints, newsSignalLabel } from '../../lib/atlas-data';
 
 const fiches = (await getCollection('atlas', ({ data }) => data.published)).sort((a, b) =>
   a.data.priority.localeCompare(b.data.priority),
@@ -81,6 +81,15 @@ const nodes = chokepoints.items
               >
                 {c.priority ? <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill> : null}
                 {c.attributions.length ? <Pill tone="neutral">Attribution requise</Pill> : null}
+                {/* Actualité récente, DATÉE : « 2 promotions » ne dit rien, « actualité du 11 août »
+                    dit tout. Absente au-delà de 21 jours (corridorNewsSignal) — un signal qui ne
+                    s'éteint jamais cesse d'en être un, et son absence ne dit pas « corridor calme ». */}
+                {(() => {
+                  const news = corridorNewsSignal(c.id);
+                  return news ? (
+                    <Pill tone="accent">● Actualité du {newsSignalLabel(news.promotedAt)}</Pill>
+                  ) : null;
+                })()}
               </EntryCard>
             ))}
           </div>
