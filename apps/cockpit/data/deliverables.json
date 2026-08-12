@@ -934,7 +934,7 @@
     "pillar": "ops",
     "status": "review",
     "priority": "P0",
-    "progress": 70,
+    "progress": 100,
     "deadline": "2026-08-24",
     "impact": "atlas",
     "offer": "public",
@@ -946,7 +946,7 @@
       "compliance_done": false,
       "human_review_done": false
     },
-    "next_action": "Cadence en place (cron lundi 09:00) ET destination publique en place (/veille + bande d'accueil). Tout le dispositif attend désormais un seul geste, hebdomadaire : ouvrir /outils/exploration, lire, promouvoir 1 à 3 clusters avec sa phrase. Mesure du 2026-08-10 : 20 clusters frais, dont 11 sur Ormuz, 0 promu. Le premier geste ferait apparaître la crise d'Ormuz sur sa page publique en deux minutes — plus vite que la fiche éditoriale, qui doit encore passer ses portes.",
+    "next_action": "La cadence a tiré pour de vrai. Digest envoyé le 2026-08-11 (23 clusters frais) puis le 2026-08-12 (29), avec ses boutons. Le premier envoi automatique du cron tombe le lundi 17 août 09:00 — il avait raté sa fenêtre à l'installation (commit à 19:37 un lundi). CORRECTION DE FAIT (ag-back 0027) : il y a QUATRE passes par jour (00:15/06:15/12:15/18:15 UTC), pas deux, et la fenêtre de regroupement est de trois jours — une même histoire peut donc réapparaître comme cluster neuf jusqu'à DOUZE fois. Sans topic_id, une crise longue produirait autant d'entrées publiques.",
     "links": [
       {
         "label": "Bloc public (jamais rendu à ce jour)",
@@ -992,7 +992,7 @@
     "pillar": "ops",
     "status": "review",
     "priority": "P1",
-    "progress": 80,
+    "progress": 100,
     "deadline": "2026-08-31",
     "impact": "atlas",
     "offer": "internal",
@@ -1005,7 +1005,7 @@
       "human_review_done": false
     },
     "blocker": "Trois jetons Slack manquants dans docker/.env (SLACK_APP_TOKEN, SLACK_BOT_TOKEN, SLACK_CHANNEL_ID). Ils naissent dans l'administration Slack — geste humain.",
-    "next_action": "Créer l'app Slack (marche à suivre dans docker/.env.example), inviter le bot dans le canal privé, relever son identifiant, puis `up -d slackbot`. P2 — le refus de paraphrase — est DÉJÀ en service et protège la promotion faite au cockpit, indépendamment de Slack.",
+    "next_action": "EN SERVICE. Jetons posés le 2026-08-11, bot connecté en Socket Mode, et la PREMIÈRE PROMOTION RÉELLE a été publiée le même jour à 20:18:31 UTC — deux minutes entre le doigt et la production. Journal nominatif : « Sylvain Geffroy (via Slack) », note_origin `draft_accepted`. Trois défauts trouvés en service et corrigés : (1) cinq boutons partageaient un action_id, Slack rejetait le message entier en invalid_blocks — aucun digest n'a JAMAIS porté de boutons avant le 11/08 ; (2) `curl -sf` ne voyait pas un refus servi en HTTP 200, la revue « partait » sans arriver ; (3) Slack préserve l'état d'un bloc de saisie à travers un views.update et ignorait l'initial_value — le brouillon était calculé puis jeté, et l'erreur affichée accusait l'utilisateur. RESTE : passer les portes de ce livrable.",
     "links": [],
     "internal_notes": "Socket Mode et non endpoint public : l'interactivité classique aurait exigé une URL HTTPS entrante mutant l'Atlas public, dans un déploiement bâti pour garder le cockpit hors d'Internet. Aucune surface ajoutée. L'autorisation est le canal privé ; une configuration absente ferme la porte. La modale montre les titres des éditeurs en liens, jamais le headline du modèle. P2 utilise le RECOUVREMENT et non Jaccard, qui laisserait passer une note brève recopiée d'un titre long ; une note courte mais juste passe, par construction. Limite assumée : une note française paraphrasant un titre anglais n'est pas attrapée. Journal : « Sylvain Geffroy (via Slack) »."
   },
@@ -1017,7 +1017,7 @@
     "pillar": "ops",
     "status": "review",
     "priority": "P1",
-    "progress": 75,
+    "progress": 90,
     "deadline": "2026-09-15",
     "impact": "atlas",
     "offer": "internal",
@@ -1025,11 +1025,11 @@
     "gates": {
       "sources_ok": true,
       "llm_draft_done": true,
-      "contradiction_done": false,
+      "contradiction_done": true,
       "compliance_done": false,
       "human_review_done": false
     },
-    "next_action": "Audit FAIT le 2026-08-10 sur les 40 chemins du contrat, mesuré contre l'API vivante (docs/evidence/audit-absences-2026-08-10.md), handoff 0029 déposé. Trouvé : (1) event-signals TRONQUE EN SILENCE — Ormuz rend exactement la limite à 500/900/2000, Malacca rend 53 quelle que soit la limite, et les deux réponses ont la même forme ; (2) sept listes globales sans enveloppe ; (3) des zéros indécidables sur les couches en constitution (SWIFT : 0 acteur, 0 alternative). Notre part est corrigée : `mayBeTruncated` au paquet, HDDE passé de 20 à 200 avec avertissement, cockpit à 2000 avec `may_be_truncated` dans la réponse. RESTE : la réponse d'ag-back, et une décision sur le rendu du doute dans l'UI du cockpit — aujourd'hui le drapeau est servi mais aucun panneau ne l'affiche.",
+    "next_action": "AG-BACK A RÉPONDU le 2026-08-12 (leur 0027) : OUI à une enveloppe comptée (returned/total_count/truncated/limit/generated_at) sur event-signals et sur HUIT listes nues, pas sept. Rupture assumée, version cible 1.0.0, annoncée avant bascule — leur propre détecteur de rupture ne voyait pas le changement de forme, il sera corrigé d'abord. Chiffre qui recadre : Ormuz porte 6488 signaux, pas les 2000 que nous mesurions — notre plancher « ≥ 2000 » disait le vrai en le sous-estimant d'un facteur trois. NON à un horodatage *_reviewed_at : « un horodatage posé par le chargeur daterait une écriture de machine en prétendant dater un regard humain ». Notre part est faite : drapeau affiché dans l'UI d'exploration (bandeau + badge « ≥ N »), et `readListEnvelope` accepte DÉJÀ les deux formes — sur un tableau nu il rend total:null et truncated:null, jamais false. RESTE : être prévenus de la bascule, et vérifier ce jour-là.",
     "links": [
       {
         "label": "Aide-mémoire opérationnel",
@@ -1037,5 +1037,121 @@
       }
     ],
     "internal_notes": "Deux occurrences déjà signalées à ag-back (cp_alpha, épisodes d'Ormuz), une déjà résolue de leur côté (run_id sur le flux d'actualités) qui sert de modèle de ce qu'on demande. Ne PAS compenser un trou trouvé par une heuristique locale : un trou visible vaut mieux qu'un faux positif silencieux, et le correctif appartient à qui détient la donnée. Le rendu attendu est une liste de distinctions manquantes, déposée en un seul handoff plutôt qu'au fil de l'eau."
+  },
+  {
+    "id": "deliv_public_couverture_media_lisible",
+    "title": "Rendre la couverture média lisible sur l'Atlas public",
+    "description": "Regrouper les reprises en histoires distinctes, signaler l'actualité depuis les pages qui listent les corridors, et classer par fraîcheur.",
+    "type": "site_page",
+    "pillar": "site",
+    "status": "review",
+    "priority": "P1",
+    "progress": 100,
+    "deadline": "2026-08-31",
+    "impact": "site_credibility",
+    "offer": "basic",
+    "quality_gate_status": "ok",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "next_action": "FAIT le 2026-08-12, en réaction à la première promotion réelle : la page corridor servait 89 liens à plat, 82 médias, 41 Ko de balisage, sans une date — parce qu'une dépêche relayée par 25 rédactions y comptait pour 25 lignes. Le travail était déjà fait du MAUVAIS CÔTÉ DU MUR : la fenêtre Slack regroupait, la promotion écrivait les 89 bruts. `groupNewsStories` est monté dans packages/chokepoints et sert aux deux — ce qu'on choisit doit être ce qu'on publie. La fiche rend 6 histoires (« 25 médias · vu le 10/08 ») et DÉCLARE la coupe. Les pages de liste portent une pastille datée qui s'éteint à 21 jours, seuil déjà retenu pour /veille. Le PAYS n'est pas publié : mesurable pour un tiers des domaines seulement. RESTE : passer les portes.",
+    "links": [
+      {
+        "label": "Fiche Ormuz (public)",
+        "url": "https://www.applied-geopolitics.com/atlas/chokepoints/p0_maritime_strait_strait_of_hormuz/"
+      }
+    ],
+    "internal_notes": "Tri de /atlas à trois niveaux : actualité, puis pression déclarée, puis alphabétique. Les deux critères d'importance attendus sont INERTES — priority_class est uniforme (la page n'interroge que des P0) et le CVI est saturé. Reste regime.pressure_score, non spécifié dans openapi 0.18.0 et déclaré pour 10 corridors sur 30 : handoff 0034 déposé pour le fiabiliser. Un corridor sans mesure passe après TOUS les mesurés, y compris après un mesuré à 0.0, parce qu'on ne sait pas où le placer — et la page le dit au lecteur."
+  },
+  {
+    "id": "deliv_cockpit_brouillon_note",
+    "title": "Brouillon LLM de la note éditoriale (ADR 0079)",
+    "description": "Pré-remplir « ce que cela change pour un décideur » à partir des titres et de la fiche corridor, sans vider la règle qui exige une phrase humaine.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "review",
+    "priority": "P2",
+    "progress": 100,
+    "deadline": "2026-08-31",
+    "impact": "atlas",
+    "offer": "internal",
+    "quality_gate_status": "ok",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": true,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "next_action": "FAIT le 2026-08-11, PUIS AMENDÉ le même jour sur décision explicite. Le piège mécanique a été établi avant de coder : le garde-fou anti-paraphrase ne comparait qu'à l'intitulé, au résumé et aux titres — une phrase fraîchement écrite par un LLM les traverse sans être vue, donc pré-remplir sans rien d'autre aurait DÉSACTIVÉ EN SILENCE la règle de l'ADR 0074. L'amendement autorise désormais à publier le brouillon tel quel ; la contrepartie n'est pas une friction mais une TRACE : note_origin (human_written / draft_edited / draft_accepted) est écrit dans le magasin public ET dans le journal nominatif. À DIRE FRANCHEMENT : la signature ne prouve plus la rédaction, elle prouve l'endossement — si cette garantie est citée dans une plaquette, elle doit être reformulée.",
+    "links": [
+      {
+        "label": "ADR 0079",
+        "url": "/reference/adr-0079"
+      }
+    ],
+    "internal_notes": "Le modèle reçoit titres + compteurs + fiche corridor (volumes, état opérationnel, concentration) ; sans elle il ne pouvait que reformuler un titre. Il rend `basis` et `cannot_say` — une proposition qui déclare ses trous est relisable. Titres fencés par marqueur aléatoire (ADR 0063) ; une injection détectée ANNULE le brouillon. Un brouillon indisponible n'empêche jamais de promouvoir."
+  },
+  {
+    "id": "deliv_ops_bascule_contrat_100",
+    "title": "Bascule du contrat chokepoints en 1.0.0",
+    "description": "Enveloppe comptée sur huit listes, topic_id stable, pays du média : trois ruptures annoncées par ag-back, à absorber sans rien casser.",
+    "type": "ops",
+    "pillar": "ops",
+    "status": "review",
+    "priority": "P1",
+    "progress": 25,
+    "deadline": "2026-09-30",
+    "impact": "continuite",
+    "offer": "internal",
+    "quality_gate_status": "ok",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "next_action": "ANNONCÉ par ag-back le 2026-08-12 (leur 0027), non daté. Trois changements : (1) enveloppe comptée sur huit listes nues — notre `readListEnvelope` accepte déjà les deux formes, donc rien à faire le jour J si la forme est celle annoncée ; (2) `topic_id` stable à côté de `cluster_id`, par recouvrement d'URL avec version et seuil déclarés — nous avons dit OUI et soulevé un mode de défaillance qu'ils n'avaient pas vu : le recouvrement porterait sur des ÉCHANTILLONS PLAFONNÉS (1197 articles écartés dans leurs propres run_notes), donc la chaîne casserait pour une raison de CAPACITÉ un jour de forte actualité, le sujet le plus suivi étant le plus exposé ; (3) pays du média en ISO + `unknown` explicite + `country_source`, sans promesse sur les 67 % de domaines muets — nous gardons notre plancher « ≥ N pays ».",
+    "links": [
+      {
+        "label": "Contrat épinglé",
+        "url": "/reference/api-contract"
+      }
+    ],
+    "internal_notes": "Ne PAS anticiper au-delà de la tolérance de forme déjà livrée : le contrat n'est pas publié. Le jour de la bascule, vérifier que la garde de couverture intégrale (ADR 0066) voit bien les nouveaux champs — elle est aveugle à un changement qui ne touche pas les champs requis."
+  },
+  {
+    "id": "deliv_data_cvi_desaturation",
+    "title": "Désaturation du CVI — suivre le retrait de « concentration »",
+    "description": "ag-back retire la dimension dérivée d'une absence ; l'indice redevient une distribution sur quatre bandes. Vérifier, et reprendre nos affirmations.",
+    "type": "cvi",
+    "pillar": "method",
+    "status": "review",
+    "priority": "P0",
+    "progress": 30,
+    "deadline": "2026-09-30",
+    "impact": "method",
+    "offer": "premium",
+    "quality_gate_status": "at_risk",
+    "gates": {
+      "sources_ok": true,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "next_action": "ACQUIS le 2026-08-12 : ag-back concède et RETIRE la dimension. Quand aucune alternative de contournement n'est modélisée, le moteur retombait sur le compte brut des relations — zéro relation → crédit 0 → difficulté 5. 305 objets sur 313 étaient notés sur une ABSENCE. Contrefactuel mesuré sur les 313 : 108 restent critique, 134 passent élevé, 66 modéré, 5 bas — aucun objet ne perd sa dernière dimension. NOTRE PART, FAITE : le panneau CVI du cockpit dit désormais, corridor par corridor, si le niveau tient à la dimension inférée (Ormuz : non, trois dimensions à 5). NOTRE ERREUR, CONCÉDÉE : notre §4 affirmait qu'`incertitude` entrait dans la contrainte liante — faux, elle en est exclue depuis leur ADR 0055, et le calcul l'exclut maintenant. RESTE : vérifier à la livraison, et reprendre toute affirmation CVI publiée ou vendue qui supposait la saturation.",
+    "links": [
+      {
+        "label": "Contrefactuel (exploration)",
+        "url": "/outils/exploration"
+      }
+    ],
+    "internal_notes": "LEÇON À RETENIR : le contrefactuel était servi depuis 0.9.0 et le cockpit avait un panneau pour l'afficher. Nous avons quand même écrit un handoff demandant la mesure — la donnée était sur notre propre écran et personne ne l'avait ouverte. Un chiffre affiché n'est pas un chiffre consommé. Le site public N'AFFICHE PAS le CVI de l'API (CviMeter lit cvi_level de nos fiches éditoriales), donc la saturation n'a jamais fuité en public."
   }
 ]

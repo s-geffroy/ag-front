@@ -163,6 +163,40 @@ opérationnel ». Le code n'était pas le problème : aucun TODO dans `apps/publ
   d'accueil, toutes deux auto-effaçantes), le refus machine de la paraphrase (P2) et le service Slack
   Socket Mode (B2, inerte faute de jetons).
 
+### Phase 9 — Le tuyau d'actualités sert, et l'amont répond — ✅ FAIT (2026-08-11 → 12)
+
+Deux jours qui ont fait passer la veille de « complète et inutilisée » à « en service », et obtenu
+d'ag-back un verdict sur dix dossiers ouverts.
+
+- **Première promotion réelle**, le 2026-08-11 à 20:18:31 UTC. Deux minutes entre le doigt et la
+  production. Le pipeline était complet depuis l'ADR 0071 et n'avait **jamais rien publié** — pendant
+  cinq mois de crise à Ormuz, avec quinze regroupements frais par semaine dans le flux.
+- **Canal Slack bidirectionnel** (ADR 0071/0074). Trois défauts trouvés en service, tous invisibles :
+  cinq boutons partageaient un `action_id` et Slack rejetait le message entier, donc **aucun digest
+  n'a jamais porté de boutons** ; `curl -sf` ne voyait pas un refus servi en HTTP 200, donc la revue
+  « partait » sans arriver ; et Slack **préserve l'état d'un bloc de saisie** à travers un
+  `views.update`, donc le brouillon était calculé puis jeté, avec un message d'erreur qui accusait
+  l'utilisateur.
+- **Promotion par sujet** (ADR 0078). Le menu proposait `security · 220 art.` sept fois : aucun choix
+  n'était possible, donc l'ouverture se faisait au hasard — la règle censée forcer la lecture forçait
+  le tirage au sort. L'intitulé du modèle revient **pour choisir**, marqué, jamais publié. Le
+  classement se fait sur les **rédactions distinctes**, pas les articles : 73 articles pour 10 médias
+  est un réseau de radios qui se relaie, 24 articles pour 20 médias est un sujet porté.
+- **Brouillon machine** (ADR 0079, amendé le jour même). Un fait mécanique devait être établi avant de
+  coder : le garde-fou ne comparait qu'à l'intitulé, au résumé et aux titres — pré-remplir sans rien
+  d'autre aurait **désactivé la règle en silence**. Le brouillon est désormais publiable tel quel, sur
+  décision explicite, avec `note_origin` consigné au journal. La signature ne prouve plus la
+  rédaction : elle prouve **l'endossement**.
+- **Couverture média lisible** (2026-08-12). La page corridor servait 89 liens à plat, 82 médias,
+  41 Ko de balisage, sans une date. Le travail était fait **du mauvais côté du mur** :
+  `groupNewsStories` est monté dans `packages/chokepoints` et sert aux deux — ce qu'on choisit doit
+  être ce qu'on publie. Pastille datée sur les pages de liste, éteinte à 21 jours ; tri à trois
+  niveaux.
+- **Réponse d'ag-back** (leur `0027`, 2026-08-12) sur dix dossiers : CVI **désaturé** (la dimension
+  `concentration` dérivée d'une absence est retirée — 134 objets passent `eleve`, 66 `modere`,
+  5 `bas`), **enveloppe comptée** sur huit listes en `1.0.0`, `topic_id` accepté, pays du média en
+  ISO. Deux corrections qui nous visent, toutes deux fondées.
+
 ## Reste à faire (gouvernance — ADR _Proposed_)
 
 - **ADR 0044 (Proposed)** — cycle de vie & confidentialité des données client : rétention, purge, DSAR,
@@ -195,7 +229,7 @@ opérationnel ». Le code n'était pas le problème : aucun TODO dans `apps/publ
       aucun ne peut partir quand c'est lui qui tombe. `BACKUP_PING_URL` est prêt à recevoir un
       moniteur tiers ; le compte reste à créer.
 
-## Workflow de publication — état (2026-08-10)
+## Workflow de publication — état (2026-08-12)
 
 Le site public est **en ligne** ; publier = rebuild (Caddy sert le `dist` monté). Durcissement livré
 (commits `143b09d`/`6d7cbd9`/`bbc1f5a`) :
@@ -215,47 +249,61 @@ Le site public est **en ligne** ; publier = rebuild (Caddy sert le `dist` monté
 - **Fiche + dossier Mer Rouge** : contenu complet, mais **affirmation devenue fausse** détectée avant
   publication — la reprise des attaques du 22 juillet 2026 contredisait l'encart « État au 12 juillet ».
   Réécriture candidate déposée ; la porte de revue humaine a fait exactement son travail.
+- **La chaîne a été exercée de bout en bout** le 2026-08-11 : `validation_journal.json` n'est plus
+  vide. Sa première entrée éditoriale est une promotion d'actualité signée « Sylvain Geffroy (via
+  Slack) », `note_origin: draft_accepted`. Deux autres entrées sont des actes de diagnostic
+  automatisé — une promotion de test **réellement publiée quelques minutes en ligne**, et son retrait
+  motivé. Le journal étant en ajout seul, les deux y restent : c'est ce qu'on lui demande.
 
 ## Prochaine action recommandée
 
-L'ancienne version de cette section demandait de « valider les sources » du dossier Mer Rouge. Ce
-gate est passé depuis. Ce qui bloque aujourd'hui est ailleurs, et se range en deux tas.
+Deux tas ont fondu depuis le 2026-08-10 : la veille sert, et ag-back a répondu. Ce qui reste se range
+autrement.
 
-### 1. Quatre valeurs à renseigner — chacune débloque un dispositif déjà testé
+### 1. Trois valeurs à renseigner — et une qui a été posée
+
+Les jetons Slack ont été posés le 2026-08-11 ; le canal est bidirectionnel et a servi. Restent :
 
 | Manque | Effet tant qu'il manque |
 | --- | --- |
 | Identifiants **SMTP** (`docker/.env`) | Un prospect écrit, la donnée est stockée, **personne n'est prévenu** |
 | **Faits légaux** (`apps/public/src/lib/legal.ts`) | `/mentions-legales` répond 404 **par construction** ; le site collecte sans notice publiée |
 | **Compte Plausible** (tableau de bord tailnet) | L'ingestion répond `202`, les événements sont **écartés** |
-| **Trois jetons Slack** (`docker/.env`) | Le digest du lundi part sans boutons ; la promotion reste au cockpit |
 
-Aucune n'est un chantier. Chacune est un blanc à remplir, et toutes échouent en silence si on les
-oublie — c'est pourquoi elles sont listées ici plutôt que dans un coin.
+Aucune n'est un chantier. Chacune est un blanc à remplir, et toutes échouent en silence.
 
-### 2. Un geste hebdomadaire, et une décision éditoriale
+### 2. Ce qu'attend l'amont, et ce qu'il va casser
 
-- **Tenir la revue de veille.** Le pipeline est complet depuis l'ADR 0071 et n'a jamais servi :
-  `promoted-news.json` est resté vide pendant les cinq mois de la crise d'Ormuz, avec une vingtaine
-  de clusters frais par semaine dans le flux. Ce n'est pas un manque d'information, c'est un manque
-  de geste. Promouvoir **un** cluster ferait apparaître la crise sur la page publique d'Ormuz en deux
-  minutes — plus vite que la fiche éditoriale, qui doit encore passer ses portes.
-- **Trancher la lecture Mer Rouge / Ormuz.** Le motif de ciblage a changé de nature : les Houthis
-  invoquent une interdiction de navigation visant les navires saoudiens, non plus le lien avec
-  Israël, et l'analyse décrit une tentative de reproduire à Bab el-Mandeb le contrôle iranien sur
-  Ormuz. Le `verdict`, le `cvi_level` et la `confidence` des deux fiches en dépendent. C'est un
-  jugement éditorial, pas une retouche — il n'a pas été préempté.
-- **Passer les portes.** Le dossier Mer Rouge est à une porte de la publication une fois la réécriture
-  relue ; `validation_journal.json` est encore **vide**, donc la chaîne n'a jamais été exercée de bout
-  en bout. La dérisquer sur un seul document a plus de valeur que d'en préparer trois de plus.
+- **Bascule `1.0.0`** — enveloppe comptée sur huit listes, `topic_id`, pays du média. Notre lecture
+  accepte déjà les deux formes (`readListEnvelope`), donc il n'y a rien à faire **le jour J** si la
+  forme livrée est celle annoncée. À vérifier ce jour-là : la garde de couverture intégrale (ADR 0066)
+  est **aveugle** à un changement qui ne touche pas les champs requis.
+- **Désaturation du CVI** — la dimension `concentration` est retirée. Deux objets sur trois vont
+  changer de niveau. Toute affirmation CVI publiée ou vendue qui supposait la saturation doit être
+  reprise à la livraison.
+- **`pressure_score`** — il décide désormais de l'ordre d'une page publique, il n'est **pas
+  spécifié** dans `openapi 0.18.0`, et il n'est déclaré que pour dix corridors sur trente. Handoff
+  `0034` déposé, sans réponse.
 
-### 3. Puis les deux chantiers de code restants
+### 3. Les portes, toujours
+
+Le dossier Mer Rouge reste à **une porte** de la publication, et les trois fiches Atlas fondatrices
+attendent la leur. La chaîne a été exercée depuis — sur une promotion d'actualité, pas sur un
+document éditorial. C'est un dérisquage réel, mais partiel : la voie `resolvePublish` complète
+(sources + contradiction + conformité + revue humaine + CVI justifié) n'a toujours pas été parcourue
+une seule fois.
+
+Restent aussi quatre rapports de contradiction `pending` et deux jugements LLM en échec sur la
+rubrique `sources`.
+
+### 4. Puis les deux chantiers de code restants
 
 **ADR 0044** (cycle de vie / confidentialité des données clients) et **ADR 0045** (rail commercial
 paiement → provisioning). Ce sont les seuls chantiers structurants encore au stade design ; le second
 conditionne la vente des trois paliers déjà affichés sur `/offres`.
 
-> Un fil relie plusieurs défauts trouvés le 2026-08-10, et vaut d'être retenu : le **statut
-> épistémique d'une absence**. Rien ne distinguait une fixture d'un objet réel (`cp_alpha`), ni
-> « aucun épisode ouvert » de « rien ne se passe » (Ormuz), ni un flux d'actualités vide d'une
-> agrégation qui n'a jamais tourné. Trois fois la même forme de trou, à trois endroits de la chaîne.
+> Le fil du 2026-08-10 — le **statut épistémique d'une absence** — a tenu deux jours de plus, et il
+> s'est retourné contre nous deux fois. Nous avons demandé à ag-back de mesurer un contrefactuel
+> **que notre propre cockpit affichait déjà** ; et nous avons affirmé qu'`incertitude` entrait dans
+> la contrainte liante sans le vérifier contre le comportement observé. Un chiffre affiché n'est pas
+> un chiffre consommé, et une lecture de spécification n'est pas une mesure.
