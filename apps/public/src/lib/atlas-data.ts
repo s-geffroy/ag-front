@@ -311,6 +311,34 @@ export function corridorNewsSignal(
   return { promotedAt: latest };
 }
 
+/**
+ * Classe les corridors : ceux qui portent une actualité récente d'abord, la plus fraîche en tête,
+ * puis les autres dans l'ordre habituel (priorité, puis nom).
+ *
+ * POURQUOI L'ACTUALITÉ NE REMPLACE PAS LA PRIORITÉ, ELLE LA PRÉCÈDE. Trier tout le tableau par date
+ * ferait remonter un P2 promu hier au-dessus d'un P0 jamais promu — or l'absence de promotion ne
+ * veut pas dire « rien ne s'y passe », seulement « personne n'a promu » (ADR 0077). Les corridors
+ * sans actualité gardent donc exactement l'ordre qu'ils avaient : on ajoute une tête de liste, on ne
+ * réorganise pas le reste.
+ */
+export function sortCorridorsByNews<
+  T extends { id: string; priority?: string | null; name: string },
+>(items: readonly T[], now: Date = new Date()): T[] {
+  const signal = new Map<string, string>();
+  for (const c of items) {
+    const s = corridorNewsSignal(c.id, now);
+    if (s) signal.set(c.id, s.promotedAt);
+  }
+  return items.slice().sort((a, b) => {
+    const da = signal.get(a.id);
+    const db = signal.get(b.id);
+    if (da && db) return db.localeCompare(da); // la plus récente en tête
+    if (da) return -1;
+    if (db) return 1;
+    return (a.priority ?? 'P9').localeCompare(b.priority ?? 'P9') || a.name.localeCompare(b.name);
+  });
+}
+
 /** « 11 août ». Le jour et le mois suffisent : l'année n'apporte rien sous 21 jours. */
 export function newsSignalLabel(promotedAt: string): string {
   const d = new Date(promotedAt);

@@ -5,19 +5,20 @@ import Section from '../../components/Section.astro';
 import EntryCard from '../../components/EntryCard.astro';
 import Pill from '../../components/Pill.astro';
 import { familyLabel, humanize, priorityTone } from '../../lib/labels';
-import { corridorNewsSignal, loadChokepoints, newsSignalLabel } from '../../lib/atlas-data';
+import {
+  corridorNewsSignal,
+  loadChokepoints,
+  newsSignalLabel,
+  sortCorridorsByNews,
+} from '../../lib/atlas-data';
 
 const fiches = (await getCollection('atlas', ({ data }) => data.published)).sort((a, b) =>
   a.data.priority.localeCompare(b.data.priority),
 );
 
 const chokepoints = await loadChokepoints();
-const nodes = chokepoints.items
-  .slice()
-  .sort(
-    (a, b) =>
-      (a.priority ?? 'P9').localeCompare(b.priority ?? 'P9') || a.name.localeCompare(b.name),
-  );
+// Actualité récente en tête, le reste dans l'ordre habituel (priorité, puis nom).
+const nodes = sortCorridorsByNews(chokepoints.items);
 ---
 
 <Base
@@ -68,7 +69,9 @@ const nodes = chokepoints.items
           </div>
           <p class="-mt-2 mb-5 max-w-prose text-sm text-muted">
             Cœur stratégique extrait de la base de données des chokepoints (plusieurs centaines de nœuds
-            P0–P3, lecture seule). {chokepoints.attributionNotice ??
+            P0–P3, lecture seule). Les corridors ayant fait l'objet d'une actualité au cours des trois
+            dernières semaines apparaissent en tête ; l'absence de mention signifie qu'aucune couverture
+            n'a été retenue, pas que le corridor est calme. {chokepoints.attributionNotice ??
               'Géométrie schématique, sans valeur navigationnelle ou juridique.'}
           </p>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

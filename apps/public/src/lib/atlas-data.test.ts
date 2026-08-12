@@ -5,6 +5,7 @@ import {
   loadCorridorConsensus,
   corridorNewsSignal,
   newsSignalLabel,
+  sortCorridorsByNews,
 } from './atlas-data';
 
 // Publication conditions imposed by ag-back's handoff 0018 (`e3518308`) and recorded in ADR 0071:
@@ -341,5 +342,34 @@ describe('corridorNewsSignal — un signal qui ne s’éteint pas cesse d’en �
 
   it('ne rend pas de libellé pour une date illisible plutôt que d’en inventer une', () => {
     expect(newsSignalLabel('pas-une-date')).toBe('');
+  });
+});
+
+describe('sortCorridorsByNews — une tête de liste, pas une réorganisation', () => {
+  const HORMUZ = 'p0_maritime_strait_strait_of_hormuz';
+  const at = new Date('2026-08-12T09:00:00Z');
+  const items = [
+    { id: 'p0_a', priority: 'P0', name: 'Alpha' },
+    { id: HORMUZ, priority: 'P0', name: 'Zulu' },
+    { id: 'p2_b', priority: 'P2', name: 'Bravo' },
+  ];
+
+  it('met en tête le corridor porteur d’actualité, même s’il finissait la liste', () => {
+    expect(sortCorridorsByNews(items, at).map((c) => c.id)[0]).toBe(HORMUZ);
+  });
+
+  it('laisse les autres exactement dans leur ordre habituel', () => {
+    expect(sortCorridorsByNews(items, at).map((c) => c.id)).toEqual([HORMUZ, 'p0_a', 'p2_b']);
+  });
+
+  it('rend l’ordre habituel quand plus aucune actualité n’est fraîche', () => {
+    const vieux = new Date('2026-10-01T00:00:00Z');
+    expect(sortCorridorsByNews(items, vieux).map((c) => c.id)).toEqual(['p0_a', HORMUZ, 'p2_b']);
+  });
+
+  it('ne modifie pas le tableau reçu', () => {
+    const copie = items.map((c) => c.id);
+    sortCorridorsByNews(items, at);
+    expect(items.map((c) => c.id)).toEqual(copie);
   });
 });
