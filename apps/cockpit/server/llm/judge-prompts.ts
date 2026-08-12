@@ -22,6 +22,11 @@ export interface JudgeContext {
   title: string;
   /** The document's plain-text/markdown body — the thing being judged. */
   body: string;
+  /**
+   * Métadonnées de provenance déclarées par le document (confiance, sources typées, errata).
+   * Sans elles, le juge contrôlait la véracité et le sourcing en aveugle — voir `provenanceSummary`.
+   */
+  provenance?: string;
   /** The gates to score (rubric required-gates + judgeable Munich controls). */
   gates: JudgeGate[];
 }
@@ -64,6 +69,12 @@ ${fence(ctx.title || '(sans titre)', dataMarker)}
 
 ## Corps du document
 ${fence(ctx.body || '(vide)', dataMarker)}
+
+## Métadonnées de provenance DÉCLARÉES par le document
+Ces champs font partie du document au même titre que son corps : ils sont sa confiance déclarée, ses
+sources typées et ses errata. Une rubrique à zéro est une DÉCLARATION (« aucun erratum »), pas une
+absence de rubrique. Ne conclus pas à l'absence d'un élément qui figure ici.
+${fence(ctx.provenance || '(aucune métadonnée fournie)', dataMarker)}
 
 ## Gates à évaluer (un verdict par gate, reprends target_kind + target_id à l'identique)
 ${gatesList || '- (aucun gate fourni)'}

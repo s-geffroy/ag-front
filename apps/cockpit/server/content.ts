@@ -112,14 +112,57 @@ async function readRawDoc(
 
 /** Raw markdown body + title for a document (frontmatter stripped). Used to feed the editorial
  *  contradiction LLM the actual text — never the sanitized HTML (ADR 0039). */
+/**
+ * Métadonnées de PROVENANCE d'un document, rendues lisibles pour un juge.
+ *
+ * POURQUOI ELLES SORTENT D'ICI. `readContentSource` jetait le frontmatter et ne rendait que le
+ * corps. Le juge LLM (ADR 0068) était donc chargé de contrôler la véracité (Munich 1) et le sourcing
+ * sur un document dont on lui CACHAIT la confiance déclarée, la liste des sources et les errata.
+ * Constaté le 2026-08-12 sur le dossier Mer Rouge : verdict `fail` sur Munich 1 au motif qu'« aucun
+ * champ explicite de confiance » n'était présent — alors que le frontmatter porte `confidence:
+ * moyen` et sept sources typées. Le juge avait raison sur ce qu'il voyait ; il ne voyait pas tout.
+ */
+export function provenanceSummary(data: Record<string, unknown>): string {
+  const lines: string[] = [];
+  const push = (k: string, v: unknown) => {
+    if (v !== undefined && v !== null && v !== '') lines.push(`${k}: ${String(v)}`);
+  };
+  push('date', data.date);
+  push('confidence_declaree', data.confidence);
+  push('access', data.access);
+  const sources = Array.isArray(data.sources) ? data.sources : [];
+  if (sources.length > 0) {
+    lines.push(`sources_declarees: ${sources.length}`);
+    for (const raw of sources as Record<string, unknown>[]) {
+      const bits = [raw.label, raw.type, raw.url].filter(Boolean).map(String);
+      if (bits.length) lines.push(`  - ${bits.join(' | ')}`);
+    }
+  } else {
+    lines.push('sources_declarees: 0');
+  }
+  const corrections = Array.isArray(data.corrections) ? data.corrections : [];
+  // Une liste vide est DÉCLARÉE vide : « aucun erratum » n'est pas « rubrique absente » (ADR 0077).
+  lines.push(`corrections_declarees: ${corrections.length}`);
+  for (const c of corrections as Record<string, unknown>[]) {
+    const bits = [c.date, c.note ?? c.label].filter(Boolean).map(String);
+    if (bits.length) lines.push(`  - ${bits.join(' | ')}`);
+  }
+  return lines.join('\n');
+}
+
 export async function readContentSource(
   type: ContentType,
   slug: string,
-): Promise<{ title: string; body: string; full: boolean } | null> {
+): Promise<{ title: string; body: string; provenance: string; full: boolean } | null> {
   const found = await readRawDoc(type, slug);
   if (!found) return null;
   const { data, content } = matter(found.raw);
-  return { title: String(data.title ?? slug), body: content, full: found.full };
+  return {
+    title: String(data.title ?? slug),
+    body: content,
+    provenance: provenanceSummary(data as Record<string, unknown>),
+    full: found.full,
+  };
 }
 
 export async function readContent(

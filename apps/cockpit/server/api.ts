@@ -516,6 +516,7 @@ export function createApiRouter(): Router {
           contentType: type,
           title: src.title,
           body: src.body,
+          provenance: src.provenance,
         });
         const report = ContradictionReport.parse({
           ...analysis,
@@ -625,6 +626,7 @@ export function createApiRouter(): Router {
         contentType: type,
         title: src.title,
         body: src.body,
+        provenance: src.provenance,
         gates,
       });
       const report = JudgeReport.parse({
