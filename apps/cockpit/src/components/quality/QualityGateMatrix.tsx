@@ -4,6 +4,7 @@ import type { Deliverable, DeliverableType } from '@ag/schema/cockpit';
 import { useCockpit } from '@/store';
 import { qualityAlerts } from '@/lib/calculations';
 import { contentRefFromLinks, typeLabel } from '@/lib/display';
+import { publishReadiness } from '@/lib/publish';
 import { contradictionForDeliverable, maxSeverity, severityTone } from '@/lib/contradiction';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { GateBadge } from '@/components/common';
@@ -100,10 +101,26 @@ export function QualityGateMatrix({ typeFilter }: { typeFilter?: DeliverableType
                         return (
                           <Link
                             to={`/lire/${ref.type}/${ref.slug}`}
-                            className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
-                            title="Lire le document et sa contradiction red-team"
+                            className={
+                              publishReadiness(state.deliverables, ref.type, ref.slug).ready
+                                ? 'inline-flex items-center gap-1 text-xs font-medium text-status-on_track hover:underline'
+                                : 'inline-flex items-center gap-1 text-xs text-accent hover:underline'
+                            }
+                            /* Le lecteur est AUSSI l'endroit où l'on publie, et rien ne le disait :
+                               un « Lire » se lit comme une invitation à lire. Quand toutes les portes
+                               sont vertes, l'étiquette annonce donc le geste suivant plutôt que le
+                               précédent — c'est le chaînon qui manquait entre « mes portes sont
+                               vertes » et « où est-ce que je clique ». */
+                            title={
+                              publishReadiness(state.deliverables, ref.type, ref.slug).ready
+                                ? 'Toutes les portes sont validées — lire une dernière fois, puis publier depuis cette page'
+                                : 'Lire le document et sa contradiction red-team'
+                            }
                           >
-                            <BookOpen className="h-3.5 w-3.5" /> Lire
+                            <BookOpen className="h-3.5 w-3.5" />{' '}
+                            {publishReadiness(state.deliverables, ref.type, ref.slug).ready
+                              ? 'Lire & publier'
+                              : 'Lire'}
                             {report ? (
                               <Badge
                                 tone={severityTone(maxSeverity(report))}

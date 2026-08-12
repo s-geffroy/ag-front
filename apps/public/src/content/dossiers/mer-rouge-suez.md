@@ -9,7 +9,7 @@ summary: >-
   trois scénarios et seuils de bascule, avec implications pour les directions risques
   et résilience.
 access: public
-published: false
+published: true
 confidence: moyen
 corrections: []
 sources:
