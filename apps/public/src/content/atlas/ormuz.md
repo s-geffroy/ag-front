@@ -70,7 +70,10 @@ golfe d’Oman puis à la mer d’Arabie. Large de ~33 km au plus étroit, il n�
 navigation de 3 km, séparés par une zone tampon. C’est le point de passage **le moins substituable de
 l’économie mondiale** : contrairement à Bab el-Mandeb, qui se contourne par le Cap au prix de dix à
 seize jours, Ormuz **n’a pas de route maritime alternative**. Ce qui sort du Golfe passe par là, ou ne
-sort que par pipeline.
+sort que par pipeline — et la capacité de ces pipelines est chiffrée plus bas : **3,5 à 5,5 Mb/j
+disponibles** contre **20,7 Mb/j** de pétrole en transit, et **rien du tout** pour le GNL. « Pas
+d’alternative » n’est donc pas une figure de style mais un **déficit mesuré d’environ 14 Mb/j**
+(voir _Alternatives / bypass_).
 
 ## Nœuds principaux
 

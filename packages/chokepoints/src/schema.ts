@@ -1066,8 +1066,13 @@ export const NewsClusterChokepoint = z
      * 2026-08-12) que ce champ porte la SALIENCE GLOBALE du regroupement, recopiée à l'identique sur
      * chaque objet lié. Deux objets d'un même regroupement portent donc toujours la même valeur.
      * Ne pas l'afficher à côté d'un corridor : cela laisse croire à une pondération qui n'existe pas.
+     *
+     * RENOMMÉ `cluster_salience` dans le 1.0.0 (leur 0028), pour dire enfin ce qu'il est. Les deux
+     * noms sont acceptés : l'ancien pour les charges utiles antérieures, le nouveau pour la suite.
+     * Ne pas retirer `relevance` avant que la rétention amont (14 jours) ait purgé l'ancien format.
      */
     relevance: z.number().nullish(),
+    cluster_salience: z.number().nullish(),
   })
   .passthrough();
 export type NewsClusterChokepoint = z.infer<typeof NewsClusterChokepoint>;

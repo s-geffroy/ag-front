@@ -67,7 +67,9 @@ export function toPromotedItem(
     affected_chokepoints: (cluster.affected_chokepoints ?? []).map((c) => ({
       chokepoint_id: c.chokepoint_id,
       canonical_name: c.canonical_name ?? '',
-      relevance: c.relevance ?? undefined,
+      // Le 1.0.0 renomme `relevance` en `cluster_salience` ; on lit le nouveau nom d'abord et on
+      // retombe sur l'ancien tant que la rétention amont sert encore des charges utiles 0.18.0.
+      relevance: c.cluster_salience ?? c.relevance ?? undefined,
     })),
     article_count: cluster.article_count ?? undefined,
     first_seen: cluster.first_seen ?? '',
