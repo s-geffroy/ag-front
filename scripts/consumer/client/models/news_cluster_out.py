@@ -15,8 +15,10 @@ from typing import Union
 import datetime
 
 if TYPE_CHECKING:
+  from ..models.news_topic_break import NewsTopicBreak
   from ..models.news_cluster_chokepoint import NewsClusterChokepoint
   from ..models.news_source_ref import NewsSourceRef
+  from ..models.news_cluster_country import NewsClusterCountry
 
 
 
@@ -36,6 +38,10 @@ class NewsClusterOut:
 
         Attributes:
             cluster_id (str):
+            topic_id (Union[None, Unset, str]):
+            topic_matched_by (Union[None, Unset, str]):
+            topic_match_rule (Union[None, Unset, str]):
+            topic_break (Union['NewsTopicBreak', None, Unset]):
             headline (Union[None, Unset, str]):
             summary_text (Union[None, Unset, str]):
             event_category (Union[None, Unset, str]):
@@ -43,6 +49,8 @@ class NewsClusterOut:
             salience_score (Union[None, Unset, float]):
             article_count (Union[Unset, int]):  Default: 0.
             source_domains (Union[Unset, list[str]]):
+            countries (Union[Unset, list['NewsClusterCountry']]):
+            outlets_without_country (Union[Unset, int]):  Default: 0.
             articles (Union[Unset, list['NewsSourceRef']]):
             affected_chokepoints (Union[Unset, list['NewsClusterChokepoint']]):
             first_seen (Union[None, Unset, datetime.date]):
@@ -56,6 +64,10 @@ class NewsClusterOut:
      """
 
     cluster_id: str
+    topic_id: Union[None, Unset, str] = UNSET
+    topic_matched_by: Union[None, Unset, str] = UNSET
+    topic_match_rule: Union[None, Unset, str] = UNSET
+    topic_break: Union['NewsTopicBreak', None, Unset] = UNSET
     headline: Union[None, Unset, str] = UNSET
     summary_text: Union[None, Unset, str] = UNSET
     event_category: Union[None, Unset, str] = UNSET
@@ -63,6 +75,8 @@ class NewsClusterOut:
     salience_score: Union[None, Unset, float] = UNSET
     article_count: Union[Unset, int] = 0
     source_domains: Union[Unset, list[str]] = UNSET
+    countries: Union[Unset, list['NewsClusterCountry']] = UNSET
+    outlets_without_country: Union[Unset, int] = 0
     articles: Union[Unset, list['NewsSourceRef']] = UNSET
     affected_chokepoints: Union[Unset, list['NewsClusterChokepoint']] = UNSET
     first_seen: Union[None, Unset, datetime.date] = UNSET
@@ -77,9 +91,37 @@ class NewsClusterOut:
 
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.news_topic_break import NewsTopicBreak
         from ..models.news_cluster_chokepoint import NewsClusterChokepoint
         from ..models.news_source_ref import NewsSourceRef
+        from ..models.news_cluster_country import NewsClusterCountry
         cluster_id = self.cluster_id
+
+        topic_id: Union[None, Unset, str]
+        if isinstance(self.topic_id, Unset):
+            topic_id = UNSET
+        else:
+            topic_id = self.topic_id
+
+        topic_matched_by: Union[None, Unset, str]
+        if isinstance(self.topic_matched_by, Unset):
+            topic_matched_by = UNSET
+        else:
+            topic_matched_by = self.topic_matched_by
+
+        topic_match_rule: Union[None, Unset, str]
+        if isinstance(self.topic_match_rule, Unset):
+            topic_match_rule = UNSET
+        else:
+            topic_match_rule = self.topic_match_rule
+
+        topic_break: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.topic_break, Unset):
+            topic_break = UNSET
+        elif isinstance(self.topic_break, NewsTopicBreak):
+            topic_break = self.topic_break.to_dict()
+        else:
+            topic_break = self.topic_break
 
         headline: Union[None, Unset, str]
         if isinstance(self.headline, Unset):
@@ -118,6 +160,17 @@ class NewsClusterOut:
             source_domains = self.source_domains
 
 
+
+        countries: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.countries, Unset):
+            countries = []
+            for countries_item_data in self.countries:
+                countries_item = countries_item_data.to_dict()
+                countries.append(countries_item)
+
+
+
+        outlets_without_country = self.outlets_without_country
 
         articles: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.articles, Unset):
@@ -188,6 +241,14 @@ class NewsClusterOut:
         field_dict.update({
             "cluster_id": cluster_id,
         })
+        if topic_id is not UNSET:
+            field_dict["topic_id"] = topic_id
+        if topic_matched_by is not UNSET:
+            field_dict["topic_matched_by"] = topic_matched_by
+        if topic_match_rule is not UNSET:
+            field_dict["topic_match_rule"] = topic_match_rule
+        if topic_break is not UNSET:
+            field_dict["topic_break"] = topic_break
         if headline is not UNSET:
             field_dict["headline"] = headline
         if summary_text is not UNSET:
@@ -202,6 +263,10 @@ class NewsClusterOut:
             field_dict["article_count"] = article_count
         if source_domains is not UNSET:
             field_dict["source_domains"] = source_domains
+        if countries is not UNSET:
+            field_dict["countries"] = countries
+        if outlets_without_country is not UNSET:
+            field_dict["outlets_without_country"] = outlets_without_country
         if articles is not UNSET:
             field_dict["articles"] = articles
         if affected_chokepoints is not UNSET:
@@ -229,10 +294,62 @@ class NewsClusterOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.news_topic_break import NewsTopicBreak
         from ..models.news_cluster_chokepoint import NewsClusterChokepoint
         from ..models.news_source_ref import NewsSourceRef
+        from ..models.news_cluster_country import NewsClusterCountry
         d = dict(src_dict)
         cluster_id = d.pop("cluster_id")
+
+        def _parse_topic_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        topic_id = _parse_topic_id(d.pop("topic_id", UNSET))
+
+
+        def _parse_topic_matched_by(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        topic_matched_by = _parse_topic_matched_by(d.pop("topic_matched_by", UNSET))
+
+
+        def _parse_topic_match_rule(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        topic_match_rule = _parse_topic_match_rule(d.pop("topic_match_rule", UNSET))
+
+
+        def _parse_topic_break(data: object) -> Union['NewsTopicBreak', None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                topic_break_type_0 = NewsTopicBreak.from_dict(data)
+
+
+
+                return topic_break_type_0
+            except: # noqa: E722
+                pass
+            return cast(Union['NewsTopicBreak', None, Unset], data)
+
+        topic_break = _parse_topic_break(d.pop("topic_break", UNSET))
+
 
         def _parse_headline(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -288,6 +405,18 @@ class NewsClusterOut:
 
         source_domains = cast(list[str], d.pop("source_domains", UNSET))
 
+
+        countries = []
+        _countries = d.pop("countries", UNSET)
+        for countries_item_data in (_countries or []):
+            countries_item = NewsClusterCountry.from_dict(countries_item_data)
+
+
+
+            countries.append(countries_item)
+
+
+        outlets_without_country = d.pop("outlets_without_country", UNSET)
 
         articles = []
         _articles = d.pop("articles", UNSET)
@@ -405,6 +534,10 @@ class NewsClusterOut:
 
         news_cluster_out = cls(
             cluster_id=cluster_id,
+            topic_id=topic_id,
+            topic_matched_by=topic_matched_by,
+            topic_match_rule=topic_match_rule,
+            topic_break=topic_break,
             headline=headline,
             summary_text=summary_text,
             event_category=event_category,
@@ -412,6 +545,8 @@ class NewsClusterOut:
             salience_score=salience_score,
             article_count=article_count,
             source_domains=source_domains,
+            countries=countries,
+            outlets_without_country=outlets_without_country,
             articles=articles,
             affected_chokepoints=affected_chokepoints,
             first_seen=first_seen,

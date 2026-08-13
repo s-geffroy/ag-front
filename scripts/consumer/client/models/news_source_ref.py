@@ -6,6 +6,7 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..models.news_source_ref_country_source import NewsSourceRefCountrySource
 from ..types import UNSET, Unset
 from typing import cast, Union
 from typing import Union
@@ -29,6 +30,8 @@ class NewsSourceRef:
             outlet (Union[None, Unset, str]):
             source_id (Union[None, Unset, str]):
             observed_on (Union[None, Unset, str]):
+            country (Union[None, Unset, str]):
+            country_source (Union[Unset, NewsSourceRefCountrySource]):  Default: NewsSourceRefCountrySource.UNKNOWN.
      """
 
     title: Union[None, Unset, str] = UNSET
@@ -36,6 +39,8 @@ class NewsSourceRef:
     outlet: Union[None, Unset, str] = UNSET
     source_id: Union[None, Unset, str] = UNSET
     observed_on: Union[None, Unset, str] = UNSET
+    country: Union[None, Unset, str] = UNSET
+    country_source: Union[Unset, NewsSourceRefCountrySource] = NewsSourceRefCountrySource.UNKNOWN
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -70,6 +75,17 @@ class NewsSourceRef:
         else:
             observed_on = self.observed_on
 
+        country: Union[None, Unset, str]
+        if isinstance(self.country, Unset):
+            country = UNSET
+        else:
+            country = self.country
+
+        country_source: Union[Unset, str] = UNSET
+        if not isinstance(self.country_source, Unset):
+            country_source = self.country_source.value
+
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -85,6 +101,10 @@ class NewsSourceRef:
             field_dict["source_id"] = source_id
         if observed_on is not UNSET:
             field_dict["observed_on"] = observed_on
+        if country is not UNSET:
+            field_dict["country"] = country
+        if country_source is not UNSET:
+            field_dict["country_source"] = country_source
 
         return field_dict
 
@@ -143,12 +163,34 @@ class NewsSourceRef:
         observed_on = _parse_observed_on(d.pop("observed_on", UNSET))
 
 
+        def _parse_country(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        country = _parse_country(d.pop("country", UNSET))
+
+
+        _country_source = d.pop("country_source", UNSET)
+        country_source: Union[Unset, NewsSourceRefCountrySource]
+        if isinstance(_country_source,  Unset):
+            country_source = UNSET
+        else:
+            country_source = NewsSourceRefCountrySource(_country_source)
+
+
+
+
         news_source_ref = cls(
             title=title,
             url=url,
             outlet=outlet,
             source_id=source_id,
             observed_on=observed_on,
+            country=country,
+            country_source=country_source,
         )
 
 

@@ -7,7 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.event_signal_out import EventSignalOut
+from ...models.event_signal_list import EventSignalList
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Unset
 from typing import cast
@@ -46,16 +46,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[HTTPValidationError, list['EventSignalOut']]]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[EventSignalList, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = EventSignalOut.from_dict(response_200_item_data)
+        response_200 = EventSignalList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if response.status_code == 422:
@@ -70,7 +65,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[HTTPValidationError, list['EventSignalOut']]]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[EventSignalList, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -86,11 +81,14 @@ def sync_detailed(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 500,
 
-) -> Response[Union[HTTPValidationError, list['EventSignalOut']]]:
+) -> Response[Union[EventSignalList, HTTPValidationError]]:
     """ Get Chokepoint Event Signals
 
      Raw append-only event-signal stream for this chokepoint (USGS hazards + GDELT media, ADR 0042).
     The aggregated view is the event_pressure result in /chokepoints/{id}/analysis.
+
+    Counted since 1.0.0 (ADR 0098). This is the endpoint that made the case: Hormuz holds 6488 signals
+    and served 500 by default, in a response indistinguishable from Malacca's complete 53.
 
     Args:
         chokepoint_id (str):
@@ -102,7 +100,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['EventSignalOut']]]
+        Response[Union[EventSignalList, HTTPValidationError]]
      """
 
 
@@ -126,11 +124,14 @@ def sync(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 500,
 
-) -> Optional[Union[HTTPValidationError, list['EventSignalOut']]]:
+) -> Optional[Union[EventSignalList, HTTPValidationError]]:
     """ Get Chokepoint Event Signals
 
      Raw append-only event-signal stream for this chokepoint (USGS hazards + GDELT media, ADR 0042).
     The aggregated view is the event_pressure result in /chokepoints/{id}/analysis.
+
+    Counted since 1.0.0 (ADR 0098). This is the endpoint that made the case: Hormuz holds 6488 signals
+    and served 500 by default, in a response indistinguishable from Malacca's complete 53.
 
     Args:
         chokepoint_id (str):
@@ -142,7 +143,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['EventSignalOut']]
+        Union[EventSignalList, HTTPValidationError]
      """
 
 
@@ -161,11 +162,14 @@ async def asyncio_detailed(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 500,
 
-) -> Response[Union[HTTPValidationError, list['EventSignalOut']]]:
+) -> Response[Union[EventSignalList, HTTPValidationError]]:
     """ Get Chokepoint Event Signals
 
      Raw append-only event-signal stream for this chokepoint (USGS hazards + GDELT media, ADR 0042).
     The aggregated view is the event_pressure result in /chokepoints/{id}/analysis.
+
+    Counted since 1.0.0 (ADR 0098). This is the endpoint that made the case: Hormuz holds 6488 signals
+    and served 500 by default, in a response indistinguishable from Malacca's complete 53.
 
     Args:
         chokepoint_id (str):
@@ -177,7 +181,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['EventSignalOut']]]
+        Response[Union[EventSignalList, HTTPValidationError]]
      """
 
 
@@ -201,11 +205,14 @@ async def asyncio(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 500,
 
-) -> Optional[Union[HTTPValidationError, list['EventSignalOut']]]:
+) -> Optional[Union[EventSignalList, HTTPValidationError]]:
     """ Get Chokepoint Event Signals
 
      Raw append-only event-signal stream for this chokepoint (USGS hazards + GDELT media, ADR 0042).
     The aggregated view is the event_pressure result in /chokepoints/{id}/analysis.
+
+    Counted since 1.0.0 (ADR 0098). This is the endpoint that made the case: Hormuz holds 6488 signals
+    and served 500 by default, in a response indistinguishable from Malacca's complete 53.
 
     Args:
         chokepoint_id (str):
@@ -217,7 +224,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['EventSignalOut']]
+        Union[EventSignalList, HTTPValidationError]
      """
 
 

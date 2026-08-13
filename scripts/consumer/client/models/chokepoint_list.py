@@ -23,10 +23,16 @@ T = TypeVar("T", bound="ChokepointList")
 
 @_attrs_define
 class ChokepointList:
-    """ 
+    """ The chokepoint page. `count` is the PAGE size and always was; `total_count` is how many match.
+
+    Nobody ever reported the ambiguity, which is the point: a field named `count` next to `items` reads as
+    a total until the day someone paginates and the numbers stop adding up (ADR 0098). `count` is kept —
+    removing it would break every consumer — but it is no longer the only number here.
+
         Attributes:
             count (int):
             include_tainted (bool):
+            total_count (Union[Unset, int]):  Default: 0.
             attribution_notice (Union[Unset, str]):  Default: 'Records may require source attribution. Redistribution-
                 restricted (tainted) records are excluded by default; pass include_tainted=true to include them.'.
             items (Union[Unset, list['ChokepointSummary']]):
@@ -34,6 +40,7 @@ class ChokepointList:
 
     count: int
     include_tainted: bool
+    total_count: Union[Unset, int] = 0
     attribution_notice: Union[Unset, str] = 'Records may require source attribution. Redistribution-restricted (tainted) records are excluded by default; pass include_tainted=true to include them.'
     items: Union[Unset, list['ChokepointSummary']] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -44,6 +51,8 @@ class ChokepointList:
         count = self.count
 
         include_tainted = self.include_tainted
+
+        total_count = self.total_count
 
         attribution_notice = self.attribution_notice
 
@@ -63,6 +72,8 @@ class ChokepointList:
             "count": count,
             "include_tainted": include_tainted,
         })
+        if total_count is not UNSET:
+            field_dict["total_count"] = total_count
         if attribution_notice is not UNSET:
             field_dict["attribution_notice"] = attribution_notice
         if items is not UNSET:
@@ -80,6 +91,8 @@ class ChokepointList:
 
         include_tainted = d.pop("include_tainted")
 
+        total_count = d.pop("total_count", UNSET)
+
         attribution_notice = d.pop("attribution_notice", UNSET)
 
         items = []
@@ -95,6 +108,7 @@ class ChokepointList:
         chokepoint_list = cls(
             count=count,
             include_tainted=include_tainted,
+            total_count=total_count,
             attribution_notice=attribution_notice,
             items=items,
         )

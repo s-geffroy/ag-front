@@ -143,13 +143,48 @@ describe('chokepoints client — v0.2.0 additive surface', () => {
         jsonResponse({
           chokepoint_id: 'p0_x',
           disclaimer: 'derived',
-          engines: [{ key: 'criticality_score', columns: ['a'], rows: [[1]] }],
-          relations: [],
-          claims: [],
+          engines: [
+            {
+              key: 'criticality_score',
+              title: 'Criticité',
+              description: 'Score composite',
+              columns: ['flow_volume_score'],
+              rows: [{ flow_volume_score: 5, proposed_priority_class: 'P0' }],
+              generated_at: '2026-08-13T12:17:50.917890Z',
+            },
+          ],
+          relations: [{ other: 'p0_y', arrow: '→', strength_score: 2 }],
+          claims: [{ claim_text: 'x', sources: [] }],
         }),
     });
     const a = await client.getChokepointAnalysis('p0_x');
-    expect(a.engines[0]!.key).toBe('criticality_score');
+    const block = a.engines[0]!;
+    expect(block.key).toBe('criticality_score');
+    // L'union est discriminée sur `key` : brancher dessus donne des lignes typées, pas du `unknown`.
+    if (block.key !== 'criticality_score') throw new Error('discriminant perdu');
+    expect(block.rows[0]!.proposed_priority_class).toBe('P0');
+    expect(block.generated_at).toBe('2026-08-13T12:17:50.917890Z');
+    expect(a.relations[0]!.other).toBe('p0_y');
+  });
+
+  // 1.6.0 — `claims[].sources` valait `null` pour une revendication sans aucune source ; il vaut `[]`.
+  // La revendication existe et rien ne l'appuie : c'est CONNU, pas inconnu. Les deux formes doivent
+  // passer tant que des charges utiles antérieures peuvent se présenter.
+  it('accepte claims[].sources en tableau vide comme en null', async () => {
+    const client = createChokepointsClient({
+      baseUrl: 'https://host/api',
+      token: 't',
+      fetchImpl: async () =>
+        jsonResponse({
+          chokepoint_id: 'p0_x',
+          engines: [],
+          relations: [],
+          claims: [{ claim_text: 'sans source', sources: [] }, { claim_text: 'ancienne forme' }],
+        }),
+    });
+    const a = await client.getChokepointAnalysis('p0_x');
+    expect(a.claims[0]!.sources).toEqual([]);
+    expect(a.claims[1]!.sources ?? null).toBe(null);
   });
 
   // 0.15.0 — the dedicated consensus endpoint replaces the /analysis projection (ADR 0071). It is the

@@ -38,6 +38,7 @@ class NewsFeedOut:
             include_tainted (Union[Unset, bool]):  Default: False.
             items (Union[Unset, list['NewsClusterOut']]):
             run_notes (Union[Unset, list[str]]):
+            model_notes (Union[Unset, list[str]]):
             disclaimer (Union[Unset, str]):  Default: "Derived news context (ADR 0076): media articles grouped by event and
                 summarised by an LLM. Candidate/derived output, never canonical and never human-validated. The prose (headline,
                 summary) is model-authored and may be wrong; every fact below it — the article list, counts, outlets, dates and
@@ -55,6 +56,7 @@ class NewsFeedOut:
     include_tainted: Union[Unset, bool] = False
     items: Union[Unset, list['NewsClusterOut']] = UNSET
     run_notes: Union[Unset, list[str]] = UNSET
+    model_notes: Union[Unset, list[str]] = UNSET
     disclaimer: Union[Unset, str] = "Derived news context (ADR 0076): media articles grouped by event and summarised by an LLM. Candidate/derived output, never canonical and never human-validated. The prose (headline, summary) is model-authored and may be wrong; every fact below it — the article list, counts, outlets, dates and chokepoint links — is recomputed server-side from the collected signals. Press coverage is NEVER proof of a closure: it is capped at `stress` by the regime engine, so a cluster reporting a strait 'closed' records what media REPORT, not an established fact."
     attribution_notice: Union[Unset, str] = 'Records may require source attribution. Redistribution-restricted (tainted) records are excluded by default; pass include_tainted=true to include them.'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -101,6 +103,12 @@ class NewsFeedOut:
 
 
 
+        model_notes: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.model_notes, Unset):
+            model_notes = self.model_notes
+
+
+
         disclaimer = self.disclaimer
 
         attribution_notice = self.attribution_notice
@@ -123,6 +131,8 @@ class NewsFeedOut:
             field_dict["items"] = items
         if run_notes is not UNSET:
             field_dict["run_notes"] = run_notes
+        if model_notes is not UNSET:
+            field_dict["model_notes"] = model_notes
         if disclaimer is not UNSET:
             field_dict["disclaimer"] = disclaimer
         if attribution_notice is not UNSET:
@@ -193,6 +203,9 @@ class NewsFeedOut:
         run_notes = cast(list[str], d.pop("run_notes", UNSET))
 
 
+        model_notes = cast(list[str], d.pop("model_notes", UNSET))
+
+
         disclaimer = d.pop("disclaimer", UNSET)
 
         attribution_notice = d.pop("attribution_notice", UNSET)
@@ -205,6 +218,7 @@ class NewsFeedOut:
             include_tainted=include_tainted,
             items=items,
             run_notes=run_notes,
+            model_notes=model_notes,
             disclaimer=disclaimer,
             attribution_notice=attribution_notice,
         )

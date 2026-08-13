@@ -7,7 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.actor_control_out import ActorControlOut
+from ...models.actor_control_list import ActorControlList
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Unset
 from typing import cast
@@ -43,16 +43,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[HTTPValidationError, list['ActorControlOut']]]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[ActorControlList, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = ActorControlOut.from_dict(response_200_item_data)
+        response_200 = ActorControlList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if response.status_code == 422:
@@ -67,7 +62,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[HTTPValidationError, list['ActorControlOut']]]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[ActorControlList, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +77,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[HTTPValidationError, list['ActorControlOut']]]:
+) -> Response[Union[ActorControlList, HTTPValidationError]]:
     """ Get Chokepoint Actors
 
      Validated actor↔chokepoint control edges for this object (canonical, ADR 0041/0043).
@@ -96,7 +91,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['ActorControlOut']]]
+        Response[Union[ActorControlList, HTTPValidationError]]
      """
 
 
@@ -118,7 +113,7 @@ def sync(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[HTTPValidationError, list['ActorControlOut']]]:
+) -> Optional[Union[ActorControlList, HTTPValidationError]]:
     """ Get Chokepoint Actors
 
      Validated actor↔chokepoint control edges for this object (canonical, ADR 0041/0043).
@@ -132,7 +127,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['ActorControlOut']]
+        Union[ActorControlList, HTTPValidationError]
      """
 
 
@@ -149,7 +144,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[HTTPValidationError, list['ActorControlOut']]]:
+) -> Response[Union[ActorControlList, HTTPValidationError]]:
     """ Get Chokepoint Actors
 
      Validated actor↔chokepoint control edges for this object (canonical, ADR 0041/0043).
@@ -163,7 +158,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['ActorControlOut']]]
+        Response[Union[ActorControlList, HTTPValidationError]]
      """
 
 
@@ -185,7 +180,7 @@ async def asyncio(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[HTTPValidationError, list['ActorControlOut']]]:
+) -> Optional[Union[ActorControlList, HTTPValidationError]]:
     """ Get Chokepoint Actors
 
      Validated actor↔chokepoint control edges for this object (canonical, ADR 0041/0043).
@@ -199,7 +194,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['ActorControlOut']]
+        Union[ActorControlList, HTTPValidationError]
      """
 
 

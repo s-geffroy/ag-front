@@ -29,7 +29,14 @@ export type ChokepointSummary = z.infer<typeof ChokepointSummary>;
 
 export const ChokepointList = z
   .object({
+    /**
+     * TAILLE DE LA PAGE, et elle l'a toujours été — jamais le total. Personne n'avait signalé
+     * l'ambiguïté, ce qui est précisément le problème : un champ nommé `count` à côté d'`items` se lit
+     * comme un total jusqu'au jour où l'on pagine. `total_count` (1.0.0) est le vrai total.
+     */
     count: z.number().optional(),
+    /** Total réel du filtre, calculé AVANT la limite. Absent des charges utiles antérieures à 1.0.0. */
+    total_count: z.number().nullish(),
     include_tainted: z.boolean().optional(),
     attribution_notice: z.string().optional(),
     items: z.array(ChokepointSummary).default([]),
@@ -346,6 +353,13 @@ export const EpisodeOut = z
     severity: z.string().nullish(),
     affected_flows: z.array(z.string()).default([]),
     object_count: z.number().nullish(),
+    /**
+     * CE QUE NOUS EN AVONS FAIT, pas ce que fait le monde — `status` dit le second (1.2.0, leur 0030).
+     * La couche épisode est entièrement curée à la main : aucun moteur n'y écrit, chaque ligne naît
+     * `candidate`. Les 19 épisodes du corpus le sont, Ormuz compris — ils ne se valident pas eux-mêmes
+     * en publiant. Ne jamais lire un épisode `candidate` comme un fait établi.
+     */
+    validation_status: z.string().nullish(),
   })
   .passthrough();
 export type EpisodeOut = z.infer<typeof EpisodeOut>;
@@ -493,6 +507,19 @@ export const CviAssessmentOut = z
     scale: z.string(),
     global_level: z.string().nullish(),
     dimensions: z.record(z.string(), CviDimensionScoreOut).nullish(),
+    /**
+     * Sous une règle du maximum, UNE dimension décide. Sans ces quatre champs (0.19.0), un verdict
+     * reposant sur une seule dimension peu fiable est indiscernable d'un verdict reposant sur sept.
+     *
+     * ILS NE FONT PAS UN CLASSEMENT. Mesuré le 2026-08-13 sur les huit corridors de l'Atlas :
+     * `global_level` vaut `critique` pour les huit et `binding_dimension` vaut `exposition` pour sept.
+     * Le seul écart est la route du Cap (`cout_contournement`, confiance basse, 4 dimensions sur 7).
+     * `dimensions_evaluated` mesure une COUVERTURE, jamais une gravité — l'afficher comme telle.
+     */
+    binding_dimension: z.string().nullish(),
+    binding_confidence: z.string().nullish(),
+    dimensions_evaluated: z.number().nullish(),
+    dimensions_total: z.number().nullish(),
     methodology_documented: z.boolean().nullish(),
     status: z.string().nullish(),
     engine_version: z.string().nullish(),
@@ -589,29 +616,342 @@ export function signalAttachmentRuleIsReviewed(row: { attachment_rule?: string |
   return rule == null || rule === DETERMINISTIC_SIGNAL_ATTACHMENT_RULE;
 }
 
-/** /chokepoints/{id}/analysis → full typed engine output + relations + claims. */
+// ─────────────────────────────────────────────────────────────────────────────────────────────────
+// GET /chokepoints/{id}/analysis — TYPÉ depuis le contrat 1.6.0
+// ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * De 0.2.0 à 1.5.0, le schéma de réponse de cet endpoint était `{}` : tout ce qu'il servait était
+ * invisible au contrat lisible par machine. C'est pourquoi `pressure_score` apparaissait ZÉRO fois
+ * dans `openapi.json` et pourquoi nous avons dû MESURER un champ pour apprendre qu'il existait.
+ *
+ * TOUS LES CHAMPS DE LIGNE SONT OPTIONNELS, et c'est voulu : ce sont des tables analytiques, un
+ * moteur écrit ce qu'il a pu calculer et laisse le reste à `null`. Prétendre l'inverse dans le schéma
+ * serait la fabrication que nous refusons dans la donnée.
+ */
+
+/**
+ * ATTENTION — `pressure_score` EXISTE DEUX FOIS dans ce document, et ce n'est pas la même grandeur.
+ * Ici (`regime_assessment`) c'est une SOMME NON BORNÉE de sévérité × qualité de source amplifiée par
+ * la criticité ; dans `AnalysisEventPressureRow` c'est une valeur BORNÉE 0–100. Le même jour, Ormuz
+ * valait 295,01 dans l'une et 100 dans l'autre. La collision de noms est un défaut qu'ils ont
+ * divulgué en typant l'endpoint — un dictionnaire non typé la cachait derrière un seul nom.
+ *
+ * CE SCORE N'EST PAS UNE CLÉ DE TRI. Il se compare à trois seuils (stress 1, disruption 3, closure 5)
+ * et n'est plus différencié au-delà ; sa magnitude suit alors LE VOLUME DE LEUR COLLECTE, laquelle
+ * varie pour des raisons éditoriales étrangères à la pression. Nous l'avons appris en triant une page
+ * publique dessus, et nous avons retiré ce tri le 2026-08-13.
+ *
+ * `0.0` EST UNE MESURE, PAS UN DÉFAUT : chaque zéro porte `contributing_signals: 0`, un régime a été
+ * calculé et tout signal qui aurait pu l'alimenter avait dépassé son délai de validité. Mais aucun
+ * signal vivant n'est pas la même chose qu'un calme.
+ */
+export const AnalysisControlConcentrationRow = z
+  .object({
+    actor_count: z.number().nullish(),
+    by_actor: z.unknown().nullish(),
+    hhi: z.number().nullish(),
+    state_count: z.number().nullish(),
+    top_actor_id: z.string().nullish(),
+    top_actor_share: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisControlConcentrationRow = z.infer<typeof AnalysisControlConcentrationRow>;
+
+export const AnalysisCorroborationRow = z
+  .object({
+    best_tier: z.string().nullish(),
+    corroboration_score: z.number().nullish(),
+    credibility_grade: z.number().nullish(),
+    independent_origin_count: z.number().nullish(),
+    matched_count: z.number().nullish(),
+    reliability_grade: z.string().nullish(),
+    result_status: z.string().nullish(),
+    signal_claim_id: z.string().nullish(),
+  })
+  .passthrough();
+export type AnalysisCorroborationRow = z.infer<typeof AnalysisCorroborationRow>;
+
+export const AnalysisCriticalityScoreRow = z
+  .object({
+    economic_cascade_score: z.number().nullish(),
+    flow_volume_score: z.number().nullish(),
+    geopolitical_risk_score: z.number().nullish(),
+    infrastructure_fragility_score: z.number().nullish(),
+    proposed_priority_class: z.string().nullish(),
+    source_confidence_score: z.number().nullish(),
+    substitution_difficulty_score: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisCriticalityScoreRow = z.infer<typeof AnalysisCriticalityScoreRow>;
+
+export const AnalysisEventPressureRow = z
+  .object({
+    by_domain: z.unknown().nullish(),
+    pressure_score: z.number().nullish(),
+    signal_count: z.number().nullish(),
+    top_domain: z.string().nullish(),
+  })
+  .passthrough();
+export type AnalysisEventPressureRow = z.infer<typeof AnalysisEventPressureRow>;
+
+export const AnalysisEvidenceQualityRow = z
+  .object({
+    evidence_score: z.number().nullish(),
+    high_quality_source_count: z.number().nullish(),
+    license_risk: z.string().nullish(),
+    missing_evidence_flags: z.array(z.string()).nullish(),
+    source_count: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisEvidenceQualityRow = z.infer<typeof AnalysisEvidenceQualityRow>;
+
+export const AnalysisExposedTradeLossRow = z
+  .object({
+    closure_days: z.number().nullish(),
+    confidence: z.string().nullish(),
+    daily_loss_rate_usd: z.number().nullish(),
+    divergence_flag: z.boolean().nullish(),
+    expected_value_at_risk_usd: z.number().nullish(),
+    exposed_value_usd: z.number().nullish(),
+    scenario_closure_loss_usd: z.number().nullish(),
+    value_source: z.string().nullish(),
+  })
+  .passthrough();
+export type AnalysisExposedTradeLossRow = z.infer<typeof AnalysisExposedTradeLossRow>;
+
+export const AnalysisFlowExposureRow = z
+  .object({
+    estimated_volume: z.number().nullish(),
+    exposed_flow_type: z.string().nullish(),
+    exposure_score: z.number().nullish(),
+    quantification_status: z.string().nullish(),
+    unit: z.string().nullish(),
+  })
+  .passthrough();
+export type AnalysisFlowExposureRow = z.infer<typeof AnalysisFlowExposureRow>;
+
+export const AnalysisFlowValueRow = z
+  .object({
+    confidence: z.string().nullish(),
+    flow_type: z.string().nullish(),
+    method: z.string().nullish(),
+    price_ref: z.string().nullish(),
+    value_usd: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisFlowValueRow = z.infer<typeof AnalysisFlowValueRow>;
+
+export const AnalysisNetworkCentralityRow = z
+  .object({
+    articulation_point: z.boolean().nullish(),
+    betweenness: z.number().nullish(),
+    cascade_impact_if_removed: z.number().nullish(),
+    eigenvector: z.number().nullish(),
+    isolated_subnetworks_count: z.number().nullish(),
+    pagerank: z.number().nullish(),
+    reachable_nodes_lost: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisNetworkCentralityRow = z.infer<typeof AnalysisNetworkCentralityRow>;
+
+export const AnalysisPredictionConsensusRow = z
+  .object({
+    attachment_rules: z.array(z.string()).nullish(),
+    consensus_probability: z.number().nullish(),
+    market_count: z.number().nullish(),
+    max_probability_change_24h: z.number().nullish(),
+    observed_window_end: z.string().nullish(),
+    signal_family: z.string().nullish(),
+    total_liquidity: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisPredictionConsensusRow = z.infer<typeof AnalysisPredictionConsensusRow>;
+
+export const AnalysisRegimeAssessmentRow = z
+  .object({
+    contributing_signals: z.number().nullish(),
+    lifecycle_phase: z.string().nullish(),
+    observed_window_end: z.string().nullish(),
+    operational_state: z.string().nullish(),
+    pressure_score: z.number().nullish(),
+    vetoes_applied: z.unknown().nullish(),
+  })
+  .passthrough();
+export type AnalysisRegimeAssessmentRow = z.infer<typeof AnalysisRegimeAssessmentRow>;
+
+export const AnalysisRiskStateRow = z
+  .object({
+    assessment_status: z.string().nullish(),
+    impact_score: z.number().nullish(),
+    probability_score: z.number().nullish(),
+    risk_family: z.string().nullish(),
+    risk_severity: z.string().nullish(),
+    triggers: z.array(z.string()).nullish(),
+    vulnerability_score: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisRiskStateRow = z.infer<typeof AnalysisRiskStateRow>;
+
+export const AnalysisSubstitutionScoreRow = z
+  .object({
+    affected_flows: z.array(z.string()).nullish(),
+    best_alternative: z.string().nullish(),
+    global_substitution_difficulty_score: z.number().nullish(),
+    worst_constraint: z.string().nullish(),
+  })
+  .passthrough();
+export type AnalysisSubstitutionScoreRow = z.infer<typeof AnalysisSubstitutionScoreRow>;
+
+export const AnalysisSystemCascadeRow = z
+  .object({
+    alternative_routes: z.array(z.string()).nullish(),
+    cascade_score: z.number().nullish(),
+    key_dependency_objects: z.array(z.string()).nullish(),
+  })
+  .passthrough();
+export type AnalysisSystemCascadeRow = z.infer<typeof AnalysisSystemCascadeRow>;
+
+export const AnalysisWeaponizabilityRow = z
+  .object({
+    betweenness: z.number().nullish(),
+    control_share: z.number().nullish(),
+    dependency: z.number().nullish(),
+    leverage_score: z.number().nullish(),
+    substitution_factor: z.number().nullish(),
+    top_actor_id: z.string().nullish(),
+    top_actor_leverage: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisWeaponizabilityRow = z.infer<typeof AnalysisWeaponizabilityRow>;
+
+export const AnalysisRelationOut = z
+  .object({
+    affected_flows: z.array(z.string()).nullish(),
+    analytical_effect: z.array(z.string()).nullish(),
+    arrow: z.string(),
+    directionality: z.string().nullish(),
+    other: z.string(),
+    relation_type: z.string().nullish(),
+    strength_score: z.number().nullish(),
+  })
+  .passthrough();
+export type AnalysisRelationOut = z.infer<typeof AnalysisRelationOut>;
+
+export const AnalysisClaimOut = z
+  .object({
+    claim_text: z.string().nullish(),
+    claim_type: z.string().nullish(),
+    confidence_score: z.number().nullish(),
+    sources: z.array(z.string()).nullish(),
+    verification_status: z.string().nullish(),
+  })
+  .passthrough();
+export type AnalysisClaimOut = z.infer<typeof AnalysisClaimOut>;
+
+/**
+ * Un bloc de moteur. `generated_at` est arrivé en 1.5.0 et il faut LE LIRE AVANT LA VALEUR : un moteur
+ * n'émet que pour les objets qui avaient une entrée dans la passe, et celui qui en sort GARDE SA LIGNE
+ * PRÉCÉDENTE, servie comme si elle était courante. Le 2026-08-13, huit lignes `regime_assessment`
+ * dataient du 12/07 ou du 01/07 — un `pressure_score: 0` de juillet et le même zéro calculé le jour
+ * même ne disent pas la même chose, et sans la date ils sont une seule valeur.
+ */
+function analysisBlock<K extends string, R extends z.ZodTypeAny>(key: K, row: R) {
+  return z
+    .object({
+      key: z.literal(key),
+      title: z.string(),
+      description: z.string(),
+      columns: z.array(z.string()).default([]),
+      rows: z.array(row).default([]),
+      generated_at: z.string().nullish(),
+    })
+    .passthrough();
+}
+
+export const AnalysisControlConcentrationBlock = analysisBlock(
+  'control_concentration',
+  AnalysisControlConcentrationRow,
+);
+export const AnalysisCorroborationBlock = analysisBlock('corroboration', AnalysisCorroborationRow);
+export const AnalysisCriticalityScoreBlock = analysisBlock(
+  'criticality_score',
+  AnalysisCriticalityScoreRow,
+);
+export const AnalysisEventPressureBlock = analysisBlock('event_pressure', AnalysisEventPressureRow);
+export const AnalysisEvidenceQualityBlock = analysisBlock(
+  'evidence_quality',
+  AnalysisEvidenceQualityRow,
+);
+export const AnalysisExposedTradeLossBlock = analysisBlock(
+  'exposed_trade_loss',
+  AnalysisExposedTradeLossRow,
+);
+export const AnalysisFlowExposureBlock = analysisBlock('flow_exposure', AnalysisFlowExposureRow);
+export const AnalysisFlowValueBlock = analysisBlock('flow_value', AnalysisFlowValueRow);
+export const AnalysisNetworkCentralityBlock = analysisBlock(
+  'network_centrality',
+  AnalysisNetworkCentralityRow,
+);
+export const AnalysisPredictionConsensusBlock = analysisBlock(
+  'prediction_consensus',
+  AnalysisPredictionConsensusRow,
+);
+export const AnalysisRegimeAssessmentBlock = analysisBlock(
+  'regime_assessment',
+  AnalysisRegimeAssessmentRow,
+);
+export const AnalysisRiskStateBlock = analysisBlock('risk_state', AnalysisRiskStateRow);
+export const AnalysisSubstitutionScoreBlock = analysisBlock(
+  'substitution_score',
+  AnalysisSubstitutionScoreRow,
+);
+export const AnalysisSystemCascadeBlock = analysisBlock('system_cascade', AnalysisSystemCascadeRow);
+export const AnalysisWeaponizabilityBlock = analysisBlock(
+  'weaponizability',
+  AnalysisWeaponizabilityRow,
+);
+
+/**
+ * `sources` valait `null` pour une revendication sans aucune source — `array_agg(...) FILTER (...)`
+ * rend NULL plutôt qu'un tableau vide — et vaut `[]` depuis 1.6.0. C'est le rendu véridique : la
+ * revendication existe et rien ne l'appuie, ce qui est *connu*, pas inconnu. Seul changement de fil
+ * de cette version. Trouvé en appelant l'API vivante contre les données de production — leurs
+ * fixtures donnent une source à chaque revendication, donc aucun test ne pouvait l'attraper.
+ */
 export const ChokepointAnalysis = z
   .object({
     chokepoint_id: z.string(),
     disclaimer: z.string().nullish(),
+    /** Union discriminée sur `key` : brancher dessus et les lignes sont typées. */
     engines: z
       .array(
-        z
-          .object({
-            key: z.string(),
-            title: z.string().nullish(),
-            description: z.string().nullish(),
-            columns: z.array(z.string()).default([]),
-            rows: z.array(z.unknown()).default([]),
-          })
-          .passthrough(),
+        z.discriminatedUnion('key', [
+          AnalysisEvidenceQualityBlock,
+          AnalysisCriticalityScoreBlock,
+          AnalysisSubstitutionScoreBlock,
+          AnalysisFlowExposureBlock,
+          AnalysisRiskStateBlock,
+          AnalysisSystemCascadeBlock,
+          AnalysisControlConcentrationBlock,
+          AnalysisRegimeAssessmentBlock,
+          AnalysisEventPressureBlock,
+          AnalysisPredictionConsensusBlock,
+          AnalysisNetworkCentralityBlock,
+          AnalysisCorroborationBlock,
+          AnalysisFlowValueBlock,
+          AnalysisWeaponizabilityBlock,
+          AnalysisExposedTradeLossBlock,
+        ]),
       )
       .default([]),
-    relations: z.array(z.unknown()).default([]),
-    claims: z.array(z.unknown()).default([]),
+    relations: z.array(AnalysisRelationOut).default([]),
+    claims: z.array(AnalysisClaimOut).default([]),
   })
   .passthrough();
 export type ChokepointAnalysis = z.infer<typeof ChokepointAnalysis>;
+/** Nom du composant au contrat ; `ChokepointAnalysis` est le nôtre, gardé pour les consommateurs. */
+export const ChokepointAnalysisOut = ChokepointAnalysis;
 
 /**
  * The one attachment rule we accept as a basis for a public number: the market NAMES the object, or
@@ -1052,6 +1392,19 @@ export const NewsSourceRef = z
     outlet: z.string().nullish(),
     source_id: z.string().nullish(),
     observed_on: z.string().nullish(),
+    /**
+     * Pays de l'ÉDITEUR, ISO 3166-1 alpha-2, DÉCLARÉ — jamais déduit du domaine (1.3.0, leur 0031).
+     * Le champ est toujours présent : un champ absent se lirait « pas de pays », un `null` à côté de
+     * `country_source: "unknown"` se lit « nous ne savons pas », et ce sont deux phrases différentes.
+     * `country_source` vaut `registry` ou `unknown`, il n'y a pas de troisième valeur.
+     *
+     * COUVERTURE ANNONCÉE : 14 % des articles portent un pays déclaré, 86 % restent `unknown`. C'est
+     * plus bas que les 33 % que notre propre déduction par TLD produisait — et c'est le progrès : nos
+     * 33 % portaient un biais concentré sur un pays, que nous avions démontré nous-mêmes. Un plancher
+     * honnête bat une distribution fausse. Ne jamais recalculer le pays ici.
+     */
+    country: z.string().nullish(),
+    country_source: z.string().nullish(),
   })
   .passthrough();
 export type NewsSourceRef = z.infer<typeof NewsSourceRef>;
@@ -1076,6 +1429,45 @@ export const NewsClusterChokepoint = z
   })
   .passthrough();
 export type NewsClusterChokepoint = z.infer<typeof NewsClusterChokepoint>;
+
+/**
+ * Combien de MÉDIAS DISTINCTS d'un pays donné couvrent un regroupement — pas combien d'articles
+ * (1.3.0). Une dépêche d'agence reprise par quarante stations locales est une histoire en quarante
+ * endroits, pas quarante sources indépendantes.
+ *
+ * NE JAMAIS RENDRE `countries` SANS `outlets_without_country`. Un agrégat qui tait ses inconnus est
+ * exactement l'objet contre lequel nous leur écrivions : sur le plus gros regroupement d'Ormuz du
+ * 2026-08-13, 8 médias déclaraient un pays et 29 n'en déclaraient aucun.
+ */
+export const NewsClusterCountry = z
+  .object({
+    code: z.string(),
+    outlets: z.number(),
+  })
+  .passthrough();
+export type NewsClusterCountry = z.infer<typeof NewsClusterCountry>;
+
+/**
+ * Renseigné UNIQUEMENT quand un prédécesseur a été approché sans être atteint (1.4.0) — donc
+ * `topic_matched_by: "new"` + `topic_break: null` = sujet neuf, le même + un `topic_break` = chaîne
+ * cassée. `topic_matched_by` garde délibérément ses deux valeurs : élargir une énumération de réponse
+ * casserait un consommateur qui la lit strictement, et nous la lisons strictement à dessein.
+ *
+ * `candidate_urls_dropped_by_cap` est la moitié honnête de la réponse à notre objection : le
+ * recouvrement ne peut PAS être recalculé avant plafonnement (un regroupement n'existe que sur ce que
+ * le modèle a reçu), donc ce champ dit combien d'articles du prédécesseur le plafond a tenus hors de
+ * vue. Il ne répare pas la rupture de capacité, il la rend constatable — et distingue une chaîne
+ * cassée par le plafond d'une chaîne cassée par l'actualité.
+ */
+export const NewsTopicBreak = z
+  .object({
+    best_containment: z.number(),
+    shared_urls: z.number(),
+    candidate_urls: z.number(),
+    candidate_urls_dropped_by_cap: z.number(),
+  })
+  .passthrough();
+export type NewsTopicBreak = z.infer<typeof NewsTopicBreak>;
 
 /**
  * One event (not one article). CANDIDATE, NEVER A CONFIRMED INCIDENT: a news cluster reports what
@@ -1107,6 +1499,25 @@ export const NewsClusterOut = z
     license_taint: z.boolean().nullish(),
     status: z.string().nullish(),
     generated_at: z.string().nullish(),
+    /**
+     * SECONDE IDENTITÉ, à côté de `cluster_id` qui ne change pas de sens (1.1.0, leur 0029).
+     * `cluster_id` ne survit pas à une passe — nous l'avions mesuré, 0 identifiant commun sur 15.
+     * `topic_id` dure tant que le sujet reçoit des articles, et sa règle de clôture est TROIS JOURS,
+     * la fenêtre de regroupement elle-même ; l'identifiant est ensuite clos et jamais réutilisé.
+     *
+     * MAIS IL N'EST PAS STABLE POUR AUTANT, et ils l'écrivent : il est aussi stable que la partition
+     * du modèle, qui ne l'est pas. Régime permanent mesuré 80–87 % sur les passes du cron, avec une
+     * passe à 50 % où le corpus était identique et le modèle a produit 30 regroupements puis 101.
+     * GARDER LE REPLI PAR URL — c'est leur consigne, pas seulement notre prudence. Les regroupements
+     * antérieurs au 2026-08-13 portent `topic_id: null` (la rétention à 14 jours les purge).
+     */
+    topic_id: z.string().nullish(),
+    topic_matched_by: z.string().nullish(),
+    topic_match_rule: z.string().nullish(),
+    topic_break: NewsTopicBreak.nullish(),
+    /** Voir NewsClusterCountry : les deux champs ne se rendent jamais l'un sans l'autre. */
+    countries: z.array(NewsClusterCountry).default([]),
+    outlets_without_country: z.number().nullish(),
   })
   .passthrough();
 export type NewsClusterOut = z.infer<typeof NewsClusterOut>;
@@ -1128,6 +1539,17 @@ export const NewsFeedOut = z
     include_tainted: z.boolean().nullish(),
     items: z.array(NewsClusterOut).default([]),
     run_notes: z.array(z.string()).default([]),
+    /**
+     * LA PROSE DU MODÈLE SUR SA PROPRE PASSE, séparée de `run_notes` depuis 1.0.0. Les deux ne
+     * faisaient qu'une liste : une phrase écrite par un modèle était indiscernable d'un décompte
+     * calculé par leur code, dans un champ que ce contrat demande de rendre à un humain qui décide de
+     * publier. Nous l'avions trouvé par le symptôme bénin — le mot hébreu « בלבד » au milieu d'une
+     * note française partie dans notre Slack ; le défaut était le mélange.
+     *
+     * Borné à 300 caractères par note, NON VÉRIFIÉ, JAMAIS UN FAIT. `run_notes` ne contient plus que
+     * leurs comptes déterministes. Si l'on rend les deux, les distinguer visuellement.
+     */
+    model_notes: z.array(z.string()).default([]),
     disclaimer: z.string().nullish(),
     attribution_notice: z.string().nullish(),
   })
@@ -1148,3 +1570,191 @@ export type NewsFeedOut = z.infer<typeof NewsFeedOut>;
 export function mayBeTruncated(rows: readonly unknown[], requestedLimit: number): boolean {
   return rows.length >= requestedLimit;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────────
+// ENVELOPPES COMPTÉES (contrat 1.0.0) — treize ressources qui répondaient par un TABLEAU NU
+// ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Un tableau nu ne peut pas dire « voici tout » plutôt que « voici ce que j'ai trouvé ». Mesuré chez
+ * eux : `event-signals` servait **500 lignes sur un corridor qui en portait 6488**, et **53 sur un
+ * corridor qui en portait 53**, dans deux réponses de forme identique. Six de ces listes n'avaient
+ * aucune limite et rendaient des tables entières sans le dire.
+ *
+ * L'enveloppe porte `returned`, `total_count` (un vrai `count(*)` calculé AVANT la limite — jamais la
+ * taille de page), `truncated`, `limit` (la limite réellement appliquée, `null` quand il n'y en a pas)
+ * et `generated_at`. Une liste vide devient une phrase : `total_count: 0, truncated: false` ne dit pas
+ * la même chose que `total_count: 4000, truncated: true`.
+ *
+ * `total_count` compte ce que le filtre a trouvé, **teinte comprise** — une ligne retenue par la règle
+ * de licence n'est ni dans `items` ni dans le compte. Un compte qui trahirait ce que la garde de
+ * teinte retient serait une fuite, pas de l'honnêteté.
+ *
+ * CES SCHÉMAS NE SONT PAS LE CHEMIN DE LECTURE. `readListEnvelope` (`list-envelope.ts`) reste le seul
+ * point d'entrée : il accepte encore le tableau nu, parce qu'une charge utile antérieure à la bascule
+ * peut toujours se présenter, et surtout parce qu'il refuse de déduire un total d'une longueur reçue.
+ * Ces objets décrivent la forme servie et gardent la couverture de contrat honnête (ADR 0066).
+ *
+ * `returned` est redondant avec `items.length` — et c'est justement ce qui le rend utile : un écart
+ * entre les deux est le signe que la charge utile a été tronquée en chemin, pas en amont.
+ */
+export const ActorControlList = z
+  .object({
+    chokepoint_id: z.string(),
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(ActorControlOut).default([]),
+  })
+  .passthrough();
+export type ActorControlList = z.infer<typeof ActorControlList>;
+
+export const ActorList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(ActorOut).default([]),
+  })
+  .passthrough();
+export type ActorList = z.infer<typeof ActorList>;
+
+export const AlertList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(AlertOut).default([]),
+  })
+  .passthrough();
+export type AlertList = z.infer<typeof AlertList>;
+
+export const AnalyticalResultList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(AnalyticalResultOut).default([]),
+  })
+  .passthrough();
+export type AnalyticalResultList = z.infer<typeof AnalyticalResultList>;
+
+export const EngineRunList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(EngineRunOut).default([]),
+  })
+  .passthrough();
+export type EngineRunList = z.infer<typeof EngineRunList>;
+
+export const EpisodeList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(EpisodeOut).default([]),
+  })
+  .passthrough();
+export type EpisodeList = z.infer<typeof EpisodeList>;
+
+export const EventSignalList = z
+  .object({
+    chokepoint_id: z.string(),
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(EventSignalOut).default([]),
+  })
+  .passthrough();
+export type EventSignalList = z.infer<typeof EventSignalList>;
+
+export const FlowChokepointList = z
+  .object({
+    flow_type: z.string(),
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(FlowChokepointOut).default([]),
+  })
+  .passthrough();
+export type FlowChokepointList = z.infer<typeof FlowChokepointList>;
+
+export const RelationList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(RelationOut).default([]),
+  })
+  .passthrough();
+export type RelationList = z.infer<typeof RelationList>;
+
+export const RiskChokepointList = z
+  .object({
+    risk_type: z.string(),
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(RiskChokepointOut).default([]),
+  })
+  .passthrough();
+export type RiskChokepointList = z.infer<typeof RiskChokepointList>;
+
+export const SourceList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(SourceOut).default([]),
+  })
+  .passthrough();
+export type SourceList = z.infer<typeof SourceList>;
+
+export const StrategicSystemList = z
+  .object({
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(StrategicSystemOut).default([]),
+  })
+  .passthrough();
+export type StrategicSystemList = z.infer<typeof StrategicSystemList>;
+
+export const SystemChokepointList = z
+  .object({
+    system_id: z.string(),
+    returned: z.number(),
+    total_count: z.number(),
+    truncated: z.boolean(),
+    limit: z.number().nullish(),
+    generated_at: z.string(),
+    items: z.array(ChokepointSummary).default([]),
+  })
+  .passthrough();
+export type SystemChokepointList = z.infer<typeof SystemChokepointList>;

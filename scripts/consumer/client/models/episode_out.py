@@ -24,7 +24,14 @@ T = TypeVar("T", bound="EpisodeOut")
 
 @_attrs_define
 class EpisodeOut:
-    """ 
+    """ A dated disruption tied to the objects it hit.
+
+    `status` (ongoing/ended) says what the world is doing; `validation_status` says what WE have done
+    about it. The layer is hand-curated — no engine writes an episode — so every row starts as a
+    `candidate` and stays one until a human rules. Without the second field, a candidate an analyst has
+    never looked at is indistinguishable from a validated fact, which is the defect ag-front reported one
+    level up (`0029`) and we found here while answering it.
+
         Attributes:
             episode_key (str):
             name (str):
@@ -35,6 +42,7 @@ class EpisodeOut:
             severity (Union[None, Unset, str]):
             affected_flows (Union[Unset, list[str]]):
             object_count (Union[Unset, int]):  Default: 0.
+            validation_status (Union[Unset, str]):  Default: 'candidate'.
      """
 
     episode_key: str
@@ -46,6 +54,7 @@ class EpisodeOut:
     severity: Union[None, Unset, str] = UNSET
     affected_flows: Union[Unset, list[str]] = UNSET
     object_count: Union[Unset, int] = 0
+    validation_status: Union[Unset, str] = 'candidate'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -92,6 +101,8 @@ class EpisodeOut:
 
         object_count = self.object_count
 
+        validation_status = self.validation_status
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -112,6 +123,8 @@ class EpisodeOut:
             field_dict["affected_flows"] = affected_flows
         if object_count is not UNSET:
             field_dict["object_count"] = object_count
+        if validation_status is not UNSET:
+            field_dict["validation_status"] = validation_status
 
         return field_dict
 
@@ -191,6 +204,8 @@ class EpisodeOut:
 
         object_count = d.pop("object_count", UNSET)
 
+        validation_status = d.pop("validation_status", UNSET)
+
         episode_out = cls(
             episode_key=episode_key,
             name=name,
@@ -201,6 +216,7 @@ class EpisodeOut:
             severity=severity,
             affected_flows=affected_flows,
             object_count=object_count,
+            validation_status=validation_status,
         )
 
 

@@ -7,7 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.alert_out import AlertOut
+from ...models.alert_list import AlertList
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Unset
 from typing import cast
@@ -62,16 +62,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[HTTPValidationError, list['AlertOut']]]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[AlertList, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = AlertOut.from_dict(response_200_item_data)
+        response_200 = AlertList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if response.status_code == 422:
@@ -86,7 +81,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[HTTPValidationError, list['AlertOut']]]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[AlertList, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -103,7 +98,7 @@ def sync_detailed(
     chokepoint_id: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 500,
 
-) -> Response[Union[HTTPValidationError, list['AlertOut']]]:
+) -> Response[Union[AlertList, HTTPValidationError]]:
     """ List Alerts
 
      Analytical alerts (ADR 0047). An alert is a trigger for review, not a conclusion. Live alerts
@@ -121,7 +116,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['AlertOut']]]
+        Response[Union[AlertList, HTTPValidationError]]
      """
 
 
@@ -147,7 +142,7 @@ def sync(
     chokepoint_id: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 500,
 
-) -> Optional[Union[HTTPValidationError, list['AlertOut']]]:
+) -> Optional[Union[AlertList, HTTPValidationError]]:
     """ List Alerts
 
      Analytical alerts (ADR 0047). An alert is a trigger for review, not a conclusion. Live alerts
@@ -165,7 +160,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['AlertOut']]
+        Union[AlertList, HTTPValidationError]
      """
 
 
@@ -186,7 +181,7 @@ async def asyncio_detailed(
     chokepoint_id: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 500,
 
-) -> Response[Union[HTTPValidationError, list['AlertOut']]]:
+) -> Response[Union[AlertList, HTTPValidationError]]:
     """ List Alerts
 
      Analytical alerts (ADR 0047). An alert is a trigger for review, not a conclusion. Live alerts
@@ -204,7 +199,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['AlertOut']]]
+        Response[Union[AlertList, HTTPValidationError]]
      """
 
 
@@ -230,7 +225,7 @@ async def asyncio(
     chokepoint_id: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 500,
 
-) -> Optional[Union[HTTPValidationError, list['AlertOut']]]:
+) -> Optional[Union[AlertList, HTTPValidationError]]:
     """ List Alerts
 
      Analytical alerts (ADR 0047). An alert is a trigger for review, not a conclusion. Live alerts
@@ -248,7 +243,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['AlertOut']]
+        Union[AlertList, HTTPValidationError]
      """
 
 

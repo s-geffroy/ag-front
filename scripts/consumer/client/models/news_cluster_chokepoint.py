@@ -21,16 +21,23 @@ T = TypeVar("T", bound="NewsClusterChokepoint")
 
 @_attrs_define
 class NewsClusterChokepoint:
-    """ 
+    """ A corridor this cluster was attached to.
+
+    `cluster_salience` is NOT a per-corridor relevance — it is the cluster's single global
+    `salience_score` (a model judgement, ADR 0076) copied onto every corridor link. It was called
+    `relevance` until 1.0.0, which asserted something the data does not carry: on a multi-corridor
+    cluster every link ties, so ordering by it degenerates. Renamed rather than filled, because we have
+    no per-corridor measure and inventing one would be the second mistake.
+
         Attributes:
             chokepoint_id (str):
             canonical_name (Union[None, Unset, str]):
-            relevance (Union[None, Unset, float]):
+            cluster_salience (Union[None, Unset, float]):
      """
 
     chokepoint_id: str
     canonical_name: Union[None, Unset, str] = UNSET
-    relevance: Union[None, Unset, float] = UNSET
+    cluster_salience: Union[None, Unset, float] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -43,11 +50,11 @@ class NewsClusterChokepoint:
         else:
             canonical_name = self.canonical_name
 
-        relevance: Union[None, Unset, float]
-        if isinstance(self.relevance, Unset):
-            relevance = UNSET
+        cluster_salience: Union[None, Unset, float]
+        if isinstance(self.cluster_salience, Unset):
+            cluster_salience = UNSET
         else:
-            relevance = self.relevance
+            cluster_salience = self.cluster_salience
 
 
         field_dict: dict[str, Any] = {}
@@ -57,8 +64,8 @@ class NewsClusterChokepoint:
         })
         if canonical_name is not UNSET:
             field_dict["canonical_name"] = canonical_name
-        if relevance is not UNSET:
-            field_dict["relevance"] = relevance
+        if cluster_salience is not UNSET:
+            field_dict["cluster_salience"] = cluster_salience
 
         return field_dict
 
@@ -79,20 +86,20 @@ class NewsClusterChokepoint:
         canonical_name = _parse_canonical_name(d.pop("canonical_name", UNSET))
 
 
-        def _parse_relevance(data: object) -> Union[None, Unset, float]:
+        def _parse_cluster_salience(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, float], data)
 
-        relevance = _parse_relevance(d.pop("relevance", UNSET))
+        cluster_salience = _parse_cluster_salience(d.pop("cluster_salience", UNSET))
 
 
         news_cluster_chokepoint = cls(
             chokepoint_id=chokepoint_id,
             canonical_name=canonical_name,
-            relevance=relevance,
+            cluster_salience=cluster_salience,
         )
 
 

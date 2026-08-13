@@ -7,6 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
+from ...models.chokepoint_analysis_out import ChokepointAnalysisOut
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Unset
 from typing import cast
@@ -42,9 +43,12 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[ChokepointAnalysisOut, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = response.json()
+        response_200 = ChokepointAnalysisOut.from_dict(response.json())
+
+
+
         return response_200
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
@@ -58,7 +62,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[ChokepointAnalysisOut, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,7 +77,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[Any, HTTPValidationError]]:
+) -> Response[Union[ChokepointAnalysisOut, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
      Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
@@ -90,7 +94,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, HTTPValidationError]]
+        Response[Union[ChokepointAnalysisOut, HTTPValidationError]]
      """
 
 
@@ -112,7 +116,7 @@ def sync(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[Any, HTTPValidationError]]:
+) -> Optional[Union[ChokepointAnalysisOut, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
      Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
@@ -129,7 +133,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, HTTPValidationError]
+        Union[ChokepointAnalysisOut, HTTPValidationError]
      """
 
 
@@ -146,7 +150,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[Any, HTTPValidationError]]:
+) -> Response[Union[ChokepointAnalysisOut, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
      Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
@@ -163,7 +167,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, HTTPValidationError]]
+        Response[Union[ChokepointAnalysisOut, HTTPValidationError]]
      """
 
 
@@ -185,7 +189,7 @@ async def asyncio(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[Any, HTTPValidationError]]:
+) -> Optional[Union[ChokepointAnalysisOut, HTTPValidationError]]:
     r""" Get Chokepoint Engine Analysis
 
      Full typed output of every chokepoint-scoped analytical engine for this chokepoint (latest
@@ -202,7 +206,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, HTTPValidationError]
+        Union[ChokepointAnalysisOut, HTTPValidationError]
      """
 
 

@@ -6,6 +6,7 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..models.cvi_assessment_binding_confidence_type_0 import CviAssessmentBindingConfidenceType0
 from ..models.cvi_assessment_global_level_type_0 import CviAssessmentGlobalLevelType0
 from ..models.cvi_assessment_scale import CviAssessmentScale
 from ..models.cvi_assessment_status import CviAssessmentStatus
@@ -44,6 +45,10 @@ class CviAssessment:
             dimensions (CviAssessmentDimensions):
             scale (Union[Unset, CviAssessmentScale]):  Default: CviAssessmentScale.VALUE_1.
             global_level (Union[CviAssessmentGlobalLevelType0, None, Unset]):
+            binding_dimension (Union[None, Unset, str]):
+            binding_confidence (Union[CviAssessmentBindingConfidenceType0, None, Unset]):
+            dimensions_evaluated (Union[Unset, int]):  Default: 0.
+            dimensions_total (Union[Unset, int]):  Default: 0.
             methodology_documented (Union[Unset, bool]):  Default: False.
             sources (Union[Unset, list[str]]):
             uncertainties (Union[Unset, list[str]]):
@@ -58,6 +63,10 @@ class CviAssessment:
     dimensions: 'CviAssessmentDimensions'
     scale: Union[Unset, CviAssessmentScale] = CviAssessmentScale.VALUE_1
     global_level: Union[CviAssessmentGlobalLevelType0, None, Unset] = UNSET
+    binding_dimension: Union[None, Unset, str] = UNSET
+    binding_confidence: Union[CviAssessmentBindingConfidenceType0, None, Unset] = UNSET
+    dimensions_evaluated: Union[Unset, int] = 0
+    dimensions_total: Union[Unset, int] = 0
     methodology_documented: Union[Unset, bool] = False
     sources: Union[Unset, list[str]] = UNSET
     uncertainties: Union[Unset, list[str]] = UNSET
@@ -86,6 +95,24 @@ class CviAssessment:
             global_level = self.global_level.value
         else:
             global_level = self.global_level
+
+        binding_dimension: Union[None, Unset, str]
+        if isinstance(self.binding_dimension, Unset):
+            binding_dimension = UNSET
+        else:
+            binding_dimension = self.binding_dimension
+
+        binding_confidence: Union[None, Unset, str]
+        if isinstance(self.binding_confidence, Unset):
+            binding_confidence = UNSET
+        elif isinstance(self.binding_confidence, CviAssessmentBindingConfidenceType0):
+            binding_confidence = self.binding_confidence.value
+        else:
+            binding_confidence = self.binding_confidence
+
+        dimensions_evaluated = self.dimensions_evaluated
+
+        dimensions_total = self.dimensions_total
 
         methodology_documented = self.methodology_documented
 
@@ -133,6 +160,14 @@ class CviAssessment:
             field_dict["scale"] = scale
         if global_level is not UNSET:
             field_dict["global_level"] = global_level
+        if binding_dimension is not UNSET:
+            field_dict["binding_dimension"] = binding_dimension
+        if binding_confidence is not UNSET:
+            field_dict["binding_confidence"] = binding_confidence
+        if dimensions_evaluated is not UNSET:
+            field_dict["dimensions_evaluated"] = dimensions_evaluated
+        if dimensions_total is not UNSET:
+            field_dict["dimensions_total"] = dimensions_total
         if methodology_documented is not UNSET:
             field_dict["methodology_documented"] = methodology_documented
         if sources is not UNSET:
@@ -193,6 +228,40 @@ class CviAssessment:
         global_level = _parse_global_level(d.pop("global_level", UNSET))
 
 
+        def _parse_binding_dimension(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        binding_dimension = _parse_binding_dimension(d.pop("binding_dimension", UNSET))
+
+
+        def _parse_binding_confidence(data: object) -> Union[CviAssessmentBindingConfidenceType0, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                binding_confidence_type_0 = CviAssessmentBindingConfidenceType0(data)
+
+
+
+                return binding_confidence_type_0
+            except: # noqa: E722
+                pass
+            return cast(Union[CviAssessmentBindingConfidenceType0, None, Unset], data)
+
+        binding_confidence = _parse_binding_confidence(d.pop("binding_confidence", UNSET))
+
+
+        dimensions_evaluated = d.pop("dimensions_evaluated", UNSET)
+
+        dimensions_total = d.pop("dimensions_total", UNSET)
+
         methodology_documented = d.pop("methodology_documented", UNSET)
 
         sources = cast(list[str], d.pop("sources", UNSET))
@@ -248,6 +317,10 @@ class CviAssessment:
             dimensions=dimensions,
             scale=scale,
             global_level=global_level,
+            binding_dimension=binding_dimension,
+            binding_confidence=binding_confidence,
+            dimensions_evaluated=dimensions_evaluated,
+            dimensions_total=dimensions_total,
             methodology_documented=methodology_documented,
             sources=sources,
             uncertainties=uncertainties,

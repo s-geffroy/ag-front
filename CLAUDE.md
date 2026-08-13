@@ -110,14 +110,20 @@ Layout:
 - `docker/` — `tools.Dockerfile`, `slides.Dockerfile`, `docker-compose.yml`, pinned Node stack.
 - `.claude/skills/` — adopted agent skills (see `docs/skills/README.md`).
 - `docs/decisions/` — ADRs.
-- **Chokepoints read API contract:** `docs/api-interface-contract_V5.md` is the current human
-  companion (API `0.8.0`); the machine truth is the pinned spec
+- **Chokepoints read API contract:** `docs/api-interface-contract_V6.md` is the current human
+  companion (API `1.6.0`); the machine truth is the pinned spec
   `scripts/consumer/contract/openapi.json`, kept in sync by `scripts/consumer/sync_contract.sh`.
-  The `_V2`/`_V3`/`_V4`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and
+  The `_V2`…`_V5`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and
   every field**; `packages/chokepoints/src/contract-coverage.test.ts` fails the build otherwise
-  (ADR 0066). **A schema-identical bump is possible** — `0.8.0` changed only the version literal and
-  the *data* served (CVI `resilience` now emitted for 6 corridors). The coverage guard is blind to
-  that by construction: read the producer's changelog, not just the diff.
+  (ADR 0066). Accepter une dérive, c'est **trois** gestes, pas un :
+  `cp contract/openapi.live.json contract/openapi.json` → `scripts/consumer/gen_client.sh`
+  (le client Python généré est versionné) → `scripts/consumer/check_client.sh` doit finir en
+  « pin matches live AND client matches pin ».
+  **Deux angles morts de la garde, tous deux vérifiés en vrai :** (1) elle ne fait échouer que sur les
+  champs **`required`** — le reste est un avertissement doux ; (2) **un bump peut être identique au
+  schéma** et ne changer que la *donnée* servie. Dans les deux cas : lire le changelog du producteur,
+  pas seulement le diff. Leur outil de dépôt **refuse d'écrire tant qu'un de nos messages n'est pas
+  acquitté**, et `publish_contract` dépose un avis sur le canal à chaque version publiée.
 
 ## Exchanging files with ag-back (srv1305127) — ADR 0067
 

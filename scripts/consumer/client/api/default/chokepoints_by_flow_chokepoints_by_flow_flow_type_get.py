@@ -7,7 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.flow_chokepoint_out import FlowChokepointOut
+from ...models.flow_chokepoint_list import FlowChokepointList
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Unset
 from typing import cast
@@ -43,16 +43,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[HTTPValidationError, list['FlowChokepointOut']]]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[FlowChokepointList, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = FlowChokepointOut.from_dict(response_200_item_data)
+        response_200 = FlowChokepointList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if response.status_code == 422:
@@ -67,7 +62,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[HTTPValidationError, list['FlowChokepointOut']]]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[FlowChokepointList, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +77,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[HTTPValidationError, list['FlowChokepointOut']]]:
+) -> Response[Union[FlowChokepointList, HTTPValidationError]]:
     """ Chokepoints By Flow
 
     Args:
@@ -94,7 +89,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['FlowChokepointOut']]]
+        Response[Union[FlowChokepointList, HTTPValidationError]]
      """
 
 
@@ -116,7 +111,7 @@ def sync(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[HTTPValidationError, list['FlowChokepointOut']]]:
+) -> Optional[Union[FlowChokepointList, HTTPValidationError]]:
     """ Chokepoints By Flow
 
     Args:
@@ -128,7 +123,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['FlowChokepointOut']]
+        Union[FlowChokepointList, HTTPValidationError]
      """
 
 
@@ -145,7 +140,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[HTTPValidationError, list['FlowChokepointOut']]]:
+) -> Response[Union[FlowChokepointList, HTTPValidationError]]:
     """ Chokepoints By Flow
 
     Args:
@@ -157,7 +152,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['FlowChokepointOut']]]
+        Response[Union[FlowChokepointList, HTTPValidationError]]
      """
 
 
@@ -179,7 +174,7 @@ async def asyncio(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[HTTPValidationError, list['FlowChokepointOut']]]:
+) -> Optional[Union[FlowChokepointList, HTTPValidationError]]:
     """ Chokepoints By Flow
 
     Args:
@@ -191,7 +186,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['FlowChokepointOut']]
+        Union[FlowChokepointList, HTTPValidationError]
      """
 
 

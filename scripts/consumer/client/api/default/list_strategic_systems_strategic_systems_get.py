@@ -7,7 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.strategic_system_out import StrategicSystemOut
+from ...models.strategic_system_list import StrategicSystemList
 from typing import cast
 
 
@@ -30,16 +30,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[list['StrategicSystemOut']]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[StrategicSystemList]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = StrategicSystemOut.from_dict(response_200_item_data)
+        response_200 = StrategicSystemList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if client.raise_on_unexpected_status:
@@ -48,7 +43,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[list['StrategicSystemOut']]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[StrategicSystemList]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -61,7 +56,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
 
-) -> Response[list['StrategicSystemOut']]:
+) -> Response[StrategicSystemList]:
     """ List Strategic Systems
 
     Raises:
@@ -69,7 +64,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[list['StrategicSystemOut']]
+        Response[StrategicSystemList]
      """
 
 
@@ -87,7 +82,7 @@ def sync(
     *,
     client: AuthenticatedClient,
 
-) -> Optional[list['StrategicSystemOut']]:
+) -> Optional[StrategicSystemList]:
     """ List Strategic Systems
 
     Raises:
@@ -95,7 +90,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        list['StrategicSystemOut']
+        StrategicSystemList
      """
 
 
@@ -108,7 +103,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
 
-) -> Response[list['StrategicSystemOut']]:
+) -> Response[StrategicSystemList]:
     """ List Strategic Systems
 
     Raises:
@@ -116,7 +111,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[list['StrategicSystemOut']]
+        Response[StrategicSystemList]
      """
 
 
@@ -134,7 +129,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
 
-) -> Optional[list['StrategicSystemOut']]:
+) -> Optional[StrategicSystemList]:
     """ List Strategic Systems
 
     Raises:
@@ -142,7 +137,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        list['StrategicSystemOut']
+        StrategicSystemList
      """
 
 

@@ -7,7 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.source_out import SourceOut
+from ...models.source_list import SourceList
 from typing import cast
 
 
@@ -30,16 +30,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[list['SourceOut']]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[SourceList]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = SourceOut.from_dict(response_200_item_data)
+        response_200 = SourceList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if client.raise_on_unexpected_status:
@@ -48,7 +43,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[list['SourceOut']]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[SourceList]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -61,7 +56,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
 
-) -> Response[list['SourceOut']]:
+) -> Response[SourceList]:
     """ List Sources
 
     Raises:
@@ -69,7 +64,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[list['SourceOut']]
+        Response[SourceList]
      """
 
 
@@ -87,7 +82,7 @@ def sync(
     *,
     client: AuthenticatedClient,
 
-) -> Optional[list['SourceOut']]:
+) -> Optional[SourceList]:
     """ List Sources
 
     Raises:
@@ -95,7 +90,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        list['SourceOut']
+        SourceList
      """
 
 
@@ -108,7 +103,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
 
-) -> Response[list['SourceOut']]:
+) -> Response[SourceList]:
     """ List Sources
 
     Raises:
@@ -116,7 +111,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[list['SourceOut']]
+        Response[SourceList]
      """
 
 
@@ -134,7 +129,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
 
-) -> Optional[list['SourceOut']]:
+) -> Optional[SourceList]:
     """ List Sources
 
     Raises:
@@ -142,7 +137,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        list['SourceOut']
+        SourceList
      """
 
 

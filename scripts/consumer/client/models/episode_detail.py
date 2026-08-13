@@ -37,6 +37,7 @@ class EpisodeDetail:
             severity (Union[None, Unset, str]):
             affected_flows (Union[Unset, list[str]]):
             object_count (Union[Unset, int]):  Default: 0.
+            validation_status (Union[Unset, str]):  Default: 'candidate'.
             members (Union[Unset, list['EpisodeMemberOut']]):
      """
 
@@ -49,6 +50,7 @@ class EpisodeDetail:
     severity: Union[None, Unset, str] = UNSET
     affected_flows: Union[Unset, list[str]] = UNSET
     object_count: Union[Unset, int] = 0
+    validation_status: Union[Unset, str] = 'candidate'
     members: Union[Unset, list['EpisodeMemberOut']] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -97,6 +99,8 @@ class EpisodeDetail:
 
         object_count = self.object_count
 
+        validation_status = self.validation_status
+
         members: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.members, Unset):
             members = []
@@ -126,6 +130,8 @@ class EpisodeDetail:
             field_dict["affected_flows"] = affected_flows
         if object_count is not UNSET:
             field_dict["object_count"] = object_count
+        if validation_status is not UNSET:
+            field_dict["validation_status"] = validation_status
         if members is not UNSET:
             field_dict["members"] = members
 
@@ -208,6 +214,8 @@ class EpisodeDetail:
 
         object_count = d.pop("object_count", UNSET)
 
+        validation_status = d.pop("validation_status", UNSET)
+
         members = []
         _members = d.pop("members", UNSET)
         for members_item_data in (_members or []):
@@ -228,6 +236,7 @@ class EpisodeDetail:
             severity=severity,
             affected_flows=affected_flows,
             object_count=object_count,
+            validation_status=validation_status,
             members=members,
         )
 

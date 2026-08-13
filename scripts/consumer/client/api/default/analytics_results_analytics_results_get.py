@@ -7,7 +7,7 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.analytical_result_out import AnalyticalResultOut
+from ...models.analytical_result_list import AnalyticalResultList
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Unset
 from typing import cast
@@ -70,16 +70,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[HTTPValidationError, list['AnalyticalResultOut']]]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[AnalyticalResultList, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = AnalyticalResultOut.from_dict(response_200_item_data)
+        response_200 = AnalyticalResultList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if response.status_code == 422:
@@ -94,7 +89,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[HTTPValidationError, list['AnalyticalResultOut']]]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[AnalyticalResultList, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -112,7 +107,7 @@ def sync_detailed(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 200,
 
-) -> Response[Union[HTTPValidationError, list['AnalyticalResultOut']]]:
+) -> Response[Union[AnalyticalResultList, HTTPValidationError]]:
     """ Analytics Results
 
      Read-only view of derived (candidate) analytical results. Taint-aware via the
@@ -130,7 +125,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['AnalyticalResultOut']]]
+        Response[Union[AnalyticalResultList, HTTPValidationError]]
      """
 
 
@@ -158,7 +153,7 @@ def sync(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 200,
 
-) -> Optional[Union[HTTPValidationError, list['AnalyticalResultOut']]]:
+) -> Optional[Union[AnalyticalResultList, HTTPValidationError]]:
     """ Analytics Results
 
      Read-only view of derived (candidate) analytical results. Taint-aware via the
@@ -176,7 +171,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['AnalyticalResultOut']]
+        Union[AnalyticalResultList, HTTPValidationError]
      """
 
 
@@ -199,7 +194,7 @@ async def asyncio_detailed(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 200,
 
-) -> Response[Union[HTTPValidationError, list['AnalyticalResultOut']]]:
+) -> Response[Union[AnalyticalResultList, HTTPValidationError]]:
     """ Analytics Results
 
      Read-only view of derived (candidate) analytical results. Taint-aware via the
@@ -217,7 +212,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['AnalyticalResultOut']]]
+        Response[Union[AnalyticalResultList, HTTPValidationError]]
      """
 
 
@@ -245,7 +240,7 @@ async def asyncio(
     include_tainted: Union[Unset, bool] = False,
     limit: Union[Unset, int] = 200,
 
-) -> Optional[Union[HTTPValidationError, list['AnalyticalResultOut']]]:
+) -> Optional[Union[AnalyticalResultList, HTTPValidationError]]:
     """ Analytics Results
 
      Read-only view of derived (candidate) analytical results. Taint-aware via the
@@ -263,7 +258,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['AnalyticalResultOut']]
+        Union[AnalyticalResultList, HTTPValidationError]
      """
 
 

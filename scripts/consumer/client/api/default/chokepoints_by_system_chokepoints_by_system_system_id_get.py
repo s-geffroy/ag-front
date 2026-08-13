@@ -7,8 +7,8 @@ from ...client import AuthenticatedClient, Client
 from ...types import Response, UNSET
 from ... import errors
 
-from ...models.chokepoint_summary import ChokepointSummary
 from ...models.http_validation_error import HTTPValidationError
+from ...models.system_chokepoint_list import SystemChokepointList
 from ...types import UNSET, Unset
 from typing import cast
 from typing import Union
@@ -43,16 +43,11 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[HTTPValidationError, list['ChokepointSummary']]]:
+def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Union[HTTPValidationError, SystemChokepointList]]:
     if response.status_code == 200:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in (_response_200):
-            response_200_item = ChokepointSummary.from_dict(response_200_item_data)
+        response_200 = SystemChokepointList.from_dict(response.json())
 
 
-
-            response_200.append(response_200_item)
 
         return response_200
     if response.status_code == 422:
@@ -67,7 +62,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[HTTPValidationError, list['ChokepointSummary']]]:
+def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Union[HTTPValidationError, SystemChokepointList]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +77,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[HTTPValidationError, list['ChokepointSummary']]]:
+) -> Response[Union[HTTPValidationError, SystemChokepointList]]:
     """ Chokepoints By System
 
     Args:
@@ -94,7 +89,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['ChokepointSummary']]]
+        Response[Union[HTTPValidationError, SystemChokepointList]]
      """
 
 
@@ -116,7 +111,7 @@ def sync(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[HTTPValidationError, list['ChokepointSummary']]]:
+) -> Optional[Union[HTTPValidationError, SystemChokepointList]]:
     """ Chokepoints By System
 
     Args:
@@ -128,7 +123,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['ChokepointSummary']]
+        Union[HTTPValidationError, SystemChokepointList]
      """
 
 
@@ -145,7 +140,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Response[Union[HTTPValidationError, list['ChokepointSummary']]]:
+) -> Response[Union[HTTPValidationError, SystemChokepointList]]:
     """ Chokepoints By System
 
     Args:
@@ -157,7 +152,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, list['ChokepointSummary']]]
+        Response[Union[HTTPValidationError, SystemChokepointList]]
      """
 
 
@@ -179,7 +174,7 @@ async def asyncio(
     client: AuthenticatedClient,
     include_tainted: Union[Unset, bool] = False,
 
-) -> Optional[Union[HTTPValidationError, list['ChokepointSummary']]]:
+) -> Optional[Union[HTTPValidationError, SystemChokepointList]]:
     """ Chokepoints By System
 
     Args:
@@ -191,7 +186,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, list['ChokepointSummary']]
+        Union[HTTPValidationError, SystemChokepointList]
      """
 
 
