@@ -34,6 +34,7 @@ export const cviLevelTone: Record<string, Tone> = {
 
 export const familyLabel: Record<string, string> = {
   maritime: 'Corridor maritime',
+  terrestre: 'Corridor terrestre',
   chokepoint: 'Chokepoint',
   cable_numerique: 'Câbles / numérique',
   semi_conducteurs: 'Semi-conducteurs',

@@ -1153,5 +1153,251 @@
       }
     ],
     "internal_notes": "LEÇON À RETENIR : le contrefactuel était servi depuis 0.9.0 et le cockpit avait un panneau pour l'afficher. Nous avons quand même écrit un handoff demandant la mesure — la donnée était sur notre propre écran et personne ne l'avait ouverte. Un chiffre affiché n'est pas un chiffre consommé. Le site public N'AFFICHE PAS le CVI de l'API (CviMeter lit cvi_level de nos fiches éditoriales), donc la saturation n'a jamais fuité en public."
+  },
+  {
+    "id": "deliv_atlas_panama_fiche",
+    "title": "Fiche Atlas — Canal de Panama",
+    "description": "Fiche Atlas sur le canal de Panama : capacité réglée par l'hydrologie du lac Gatún, restrictions de tirant d'eau, et report vers Suez qui déplace l'exposition au lieu de la réduire.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P1",
+    "progress": 10,
+    "deadline": "2026-10-15",
+    "next_action": "CADRÉE le 2026-08-13 : angle, périmètre et grandeurs à chiffrer figés dans docs/cadrage-atlas/panama.md ; squelette créé en published:false. Prochaine étape : le sourcing externe (pplx search → fetch-url --facts → verify --answer) pour combler les grandeurs que la base ne porte pas, puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/panama"
+      }
+    ],
+    "internal_notes": "Cadrage : docs/cadrage-atlas/panama.md. Base bien fournie — métriques PortWatch (30 transits/j), reroute_deltas chiffrés vers Suez, épisode sécheresse 2023-2024 clos. Limite : quatre flux sur cinq sans volume (qualitative_scored) ; seul le grain est chiffré, et sur exercice fiscal ACP, pas l'année civile. CVI critique 7/7, liante capacite_perturbation motivée par un HHI ≈ 100 sur un acteur, avec réserve écrite par la base."
+  },
+  {
+    "id": "deliv_atlas_singapour_fiche",
+    "title": "Fiche Atlas — Détroit de Singapour",
+    "description": "Fiche Atlas sur le détroit de Singapour : la densité plutôt que le verrou — congestion cotée 5/5/5 par la base, accident à vulnérabilité 5, reports Lombok et Sunda.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P1",
+    "progress": 10,
+    "deadline": "2026-10-31",
+    "next_action": "CADRÉE le 2026-08-13 : angle, périmètre et grandeurs à chiffrer figés dans docs/cadrage-atlas/singapour.md ; squelette créé en published:false. Prochaine étape : le sourcing externe (pplx search → fetch-url --facts → verify --answer) pour combler les grandeurs que la base ne porte pas, puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/singapour"
+      }
+    ],
+    "internal_notes": "Cadrage : docs/cadrage-atlas/singapour.md. Frontière avec atlas/malacca.md tranchée au cadrage : Malacca porte le volume énergétique, Singapour la densité et le hub — à respecter sous peine de contradiction entre les deux fiches. Limite : AUCUNE métrique PortWatch sur cet objet, et brut/produits raffinés sont derived_from_system (dérivés du système Malacca–Singapour), jamais à présenter comme une mesure du détroit."
+  },
+  {
+    "id": "deliv_atlas_gibraltar_fiche",
+    "title": "Fiche Atlas — Détroit de Gibraltar",
+    "description": "Fiche Atlas sur le détroit de Gibraltar : un passage dont le flux le plus important est l'accès naval, et dont le contournement ne remplace rien — il fait renoncer à la Méditerranée.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P1",
+    "progress": 10,
+    "deadline": "2026-11-14",
+    "next_action": "CADRÉE le 2026-08-13 : angle, périmètre et grandeurs à chiffrer figés dans docs/cadrage-atlas/gibraltar.md ; squelette créé en published:false. Prochaine étape : le sourcing externe (pplx search → fetch-url --facts → verify --answer) pour combler les grandeurs que la base ne porte pas, puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/gibraltar"
+      }
+    ],
+    "internal_notes": "Cadrage : docs/cadrage-atlas/gibraltar.md. Limite structurante : les cinq flux sont qualitative_scored, la base ne porte AUCUN volume — la fiche ne pourra afficher aucune magnitude sans source externe, et doit le déclarer plutôt que l'estimer. Seule grandeur solide : 130,5 navires/j (PortWatch 2026-08). Le détour à +21,74 j ne vaut que pour les paires O-D pouvant éviter entièrement la Méditerranée."
+  },
+  {
+    "id": "deliv_atlas_route_du_cap_fiche",
+    "title": "Fiche Atlas — Route du Cap de Bonne-Espérance",
+    "description": "Fiche Atlas sur la route du Cap : le contournement des autres corridors, dont la vulnérabilité est la crise d'un voisin — et dont l'alternative déclarée est le corridor qu'il remplace.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P1",
+    "progress": 10,
+    "deadline": "2026-11-28",
+    "next_action": "CADRÉE le 2026-08-13 : angle, périmètre et grandeurs à chiffrer figés dans docs/cadrage-atlas/route-du-cap.md ; squelette créé en published:false. Prochaine étape : le sourcing externe (pplx search → fetch-url --facts → verify --answer) pour combler les grandeurs que la base ne porte pas, puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/route-du-cap"
+      }
+    ],
+    "internal_notes": "Cadrage : docs/cadrage-atlas/route-du-cap.md. Seul corridor de la vague avec un épisode OUVERT (red_sea_houthi_crisis_2024) : les constats doivent être datés. Limites : aucun reroute_deltas (la base ne chiffre pas de sortie si la route sature), et CVI à 4 dimensions évaluées sur 7 avec une dimension liante (cout_contournement) en confiance basse — c'est le seul des huit corridors dont la liante n'est pas exposition. Toute affirmation adossée au CVI porte cette réserve."
+  },
+  {
+    "id": "deliv_atlas_trans_caspien_fiche",
+    "title": "Fiche Atlas — Corridor médian / Trans-Caspien",
+    "description": "Fiche Atlas sur le corridor médian Europe–Caucase–Asie centrale–Chine : une chaîne de ruptures de charge dont la contrainte est l'addition des jonctions, pas un point unique.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 10,
+    "deadline": "2026-12-15",
+    "next_action": "CADRÉE le 2026-08-13 : angle, périmètre et grandeurs à chiffrer figés dans docs/cadrage-atlas/trans-caspien.md ; squelette créé en published:false. Prochaine étape : le sourcing externe, majoritaire ici (la base ne porte qu'un ancrage), puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/trans-caspien"
+      }
+    ],
+    "internal_notes": "Cadrage : docs/cadrage-atlas/trans-caspien.md. L'objet de base est P1 : loadChokepoints() ne charge que les P0, donc NI page de base NI entrée d'index — ne pas écrire de lien vers /atlas/chokepoints/<id>. La base est quasi vide sur cet objet : 3 flux qualitative_scored, 4 risques à cotation identique 3/4/3 sans déclencheur, aucune alternative, aucune métrique, aucun épisode. Fiche écrite à ~90 % sur sources externes — budget de sourcing nettement supérieur à la vague 1. Piège : les volumes du corridor sont souvent annoncés par des opérateurs qui le promeuvent."
+  },
+  {
+    "id": "deliv_atlas_cables_mer_rouge_fiche",
+    "title": "Fiche Atlas — Câbles sous-marins de la mer Rouge",
+    "description": "Fiche Atlas sur la couche numérique de l'isthme égyptien : les câbles sous-marins reliant Méditerranée et mer Rouge, leur concentration d'atterrissage et leur substituabilité réelle.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 10,
+    "deadline": "2026-12-31",
+    "next_action": "CADRÉE le 2026-08-13 : angle, périmètre et grandeurs à chiffrer figés dans docs/cadrage-atlas/cables-sous-marins-mer-rouge.md ; squelette créé en published:false. Prochaine étape : le sourcing externe, majoritaire ici (la base ne porte qu'un ancrage), puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/cables-sous-marins-mer-rouge"
+      }
+    ],
+    "internal_notes": "Cadrage : docs/cadrage-atlas/cables-sous-marins-mer-rouge.md. L'objet de base est P2 : mêmes conséquences que le Trans-Caspien (pas de page de base, pas d'index). Base encore plus pauvre : 1 flux (submarine_data, importance déclarée 2/5), 3 risques à 2/3/2 sans déclencheur, rien d'autre. Point à instruire : la thèse suppose une criticité que la base cote basse — si les sources confirment la thèse, écrire le désaccord avec la base plutôt que le taire. S'articule avec atlas/mer-rouge-suez.md sans la répéter : pas de crise houthie, pas de primes d'assurance."
   }
 ]
