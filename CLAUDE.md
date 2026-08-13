@@ -82,7 +82,16 @@ docker compose -f docker/docker-compose.yml run --rm tools agent-browser open ht
 
 Layout:
 
-- `apps/public/` — public site (`www.applied-geopolitics.com`).
+- `apps/public/` — public site (`www.applied-geopolitics.com`). **Internal search** (ADR 0080) is
+  built by the `ag:search` Astro integration, which indexes the finished `dist/` with Pagefind — so a
+  withheld document is absent from the index by construction, with no publication rule to replicate.
+  Two invariants: `search()` **MUST stay registered after `plaquette()`** in `astro.config.mjs`
+  (that hook moves an unpublished `dist/plaquette/` out of the served tree, and indexing first would
+  publish it through the search box), and a page enters the index only via `data-pagefind-body`, set
+  on `<main>` from the `searchable` prop of `layouts/Base.astro` (default `true`; pass
+  `searchable={false}` to keep a page out). The integration re-reads the index it just wrote and
+  fails the build if it is incomplete — Pagefind has been observed truncating `pagefind-entry.json`
+  to 0 bytes, which leaves the overlay looking alive while every query dies.
 - `apps/cockpit/` — internal cockpit (`src/{data,types,lib,components,pages}`).
 - `apps/hdde-api/` — HDDE backend (Express + SQLite; `server/{db,auth,routers,engine,llm,exports,integrations}`,
   `domain_packs/`). `apps/hdde-web/` — HDDE SPA (React + Vite). ADRs 0032–0035.

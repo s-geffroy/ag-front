@@ -18,8 +18,21 @@ interface Props {
   image?: string;
   /** When present, emit Article structured data (long-form pages). */
   article?: { publishedTime?: string; modifiedTime?: string; section?: string };
+  /**
+   * Whether this page enters the site search index (ADR 0080). Opting in on <main> is what keeps
+   * header/footer chrome out of every result — Pagefind indexes only pages carrying the attribute,
+   * and only that subtree. Default on; the handful of pages that are not documents opt out.
+   */
+  searchable?: boolean;
 }
-const { title, description = site.positioning, type = 'website', image, article } = Astro.props;
+const {
+  title,
+  description = site.positioning,
+  type = 'website',
+  image,
+  article,
+  searchable = true,
+} = Astro.props;
 const fullTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.baseline}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 // Default to the site card rather than leaving it undefined: an unset og:image is not a neutral
@@ -129,7 +142,11 @@ if (article) {
   </head>
   <body class="flex min-h-full flex-col">
     <Header />
-    <main class="flex-1">
+    <main
+      class="flex-1"
+      data-pagefind-body={searchable ? '' : undefined}
+      data-pagefind-meta={searchable ? `title:${title ?? site.name}` : undefined}
+    >
       <slot />
     </main>
     <Footer />

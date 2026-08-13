@@ -1,0 +1,296 @@
+---
+/**
+ * Internal site search (ADR 0080). Magnifier in the header, command-palette overlay.
+ *
+ * The index is Pagefind's, built from `dist/` by `integrations/search.mjs` — it therefore contains
+ * exactly what the site publishes and nothing else (a withheld document never reaches `dist`).
+ *
+ * No island: this site has no UI framework anywhere, so this is an Astro component plus a bundled
+ * client script, the same shape as `pages/atlas/carte.astro`.
+ */
+---
+
+<button
+  id="search-open"
+  type="button"
+  aria-label="Rechercher dans le site"
+  title="Rechercher ( / )"
+  class="inline-flex h-8 w-8 items-center justify-center rounded-[2px] text-muted hover:bg-subtle hover:text-ink"
+>
+  <svg
+    class="h-4 w-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="11" cy="11" r="7"></circle>
+    <path d="m20 20-3.5-3.5"></path>
+  </svg>
+</button>
+
+<dialog
+  id="search-dialog"
+  aria-label="Recherche dans le site"
+  class="mx-auto mt-[10vh] w-[min(42rem,92vw)] border border-hairline bg-canvas p-0 text-ink shadow-lg"
+>
+  <div class="flex items-center gap-3 border-b border-hairline px-4 py-3">
+    <svg
+      class="h-4 w-4 shrink-0 text-muted"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="m20 20-3.5-3.5"></path>
+    </svg>
+    <input
+      id="search-input"
+      type="text"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Rechercher un corridor, une note, une méthode…"
+      aria-label="Termes de recherche"
+      aria-controls="search-results"
+      class="w-full border-0 bg-transparent p-0 text-base text-ink placeholder:text-muted focus:outline-none focus:ring-0"
+    />
+    <kbd
+      class="hidden shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-muted sm:block"
+      >Échap</kbd
+    >
+  </div>
+
+  <p id="search-status" class="sr-only" role="status" aria-live="polite"></p>
+
+  <ul id="search-results" class="max-h-[60vh] overflow-y-auto"></ul>
+
+  <div id="search-empty" class="hidden px-4 py-8 text-center">
+    <p class="text-sm text-muted">
+      Aucun résultat pour <span id="search-empty-q" class="text-ink"></span>.
+    </p>
+    <a
+      href="/contact"
+      class="mt-3 inline-block border-b border-accent text-sm text-ink hover:text-accent"
+    >
+      Poser la question à un analyste
+    </a>
+  </div>
+
+  <div id="search-hint" class="px-4 py-8 text-center text-sm text-muted">
+    Corridors, points de passage, notes, dossiers, méthode.
+  </div>
+</dialog>
+
+<style>
+  #search-dialog::backdrop {
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(2px);
+  }
+  /* Pagefind returns excerpts with <mark> around the match. */
+  #search-results :global(mark) {
+    background: transparent;
+    color: rgb(var(--accent));
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  import { rankResults } from '../lib/search';
+
+  // Every element below is emitted by this component's own template above, so it is present by
+  // construction. Typing them as nullable only pushed guards into each closure without buying real
+  // safety — if one were missing the component would be broken, and a console TypeError says so.
+  const openBtn = document.getElementById('search-open') as HTMLButtonElement;
+  const dialog = document.getElementById('search-dialog') as HTMLDialogElement;
+  const input = document.getElementById('search-input') as HTMLInputElement;
+  const list = document.getElementById('search-results') as HTMLUListElement;
+  const status = document.getElementById('search-status') as HTMLElement;
+  const empty = document.getElementById('search-empty') as HTMLElement;
+  const emptyQ = document.getElementById('search-empty-q') as HTMLElement;
+  const hint = document.getElementById('search-hint') as HTMLElement;
+
+  // Runtime path: /pagefind/pagefind.js is written after `astro build`, so it does not exist at
+  // bundle time. Held in a variable + @vite-ignore so Vite never tries to resolve it.
+  const PAGEFIND_URL = '/pagefind/pagefind.js';
+  const MAX_RESULTS = 12;
+
+  type PagefindDoc = { url: string; excerpt?: string; meta?: { title?: string } };
+  type PagefindResult = { data: () => Promise<PagefindDoc> };
+  type Engine = {
+    search: (q: string) => Promise<{ results: PagefindResult[] }>;
+    options?: (o: Record<string, unknown>) => Promise<void>;
+  };
+
+  let engine: Engine | null = null;
+  let engineFailed = false;
+  let seq = 0;
+  let active = -1;
+
+  async function ensureEngine(): Promise<Engine | null> {
+    if (engine || engineFailed) return engine;
+    try {
+      const mod = (await import(/* @vite-ignore */ PAGEFIND_URL)) as Engine;
+      if (typeof mod.options === 'function') await mod.options({ excerptLength: 25 });
+      engine = mod;
+    } catch {
+      // Expected under `astro dev`: the index only exists in a built site. Say so rather than
+      // leaving the overlay mute.
+      engineFailed = true;
+      hint.textContent =
+        'Index de recherche indisponible ici — il est produit au build (npm run build, puis npm run preview).';
+    }
+    return engine;
+  }
+
+  function show(el: HTMLElement, on: boolean) {
+    el.classList.toggle('hidden', !on);
+  }
+
+  function reset() {
+    list.innerHTML = '';
+    active = -1;
+    show(empty, false);
+    show(hint, true);
+  }
+
+  function items(): HTMLAnchorElement[] {
+    return Array.from(list.querySelectorAll<HTMLAnchorElement>('a[data-result]'));
+  }
+
+  function highlight(next: number) {
+    const all = items();
+    if (!all.length) return;
+    active = (next + all.length) % all.length;
+    all.forEach((a, i) => {
+      a.classList.toggle('bg-subtle', i === active);
+      if (i === active) a.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  function render(results: (PagefindDoc & { badge: string })[], query: string) {
+    list.innerHTML = '';
+    active = -1;
+
+    if (!results.length) {
+      emptyQ.textContent = `« ${query} »`;
+      show(empty, true);
+      show(hint, false);
+      status.textContent = 'Aucun résultat.';
+      return;
+    }
+
+    show(empty, false);
+    show(hint, false);
+
+    for (const r of results) {
+      const li = document.createElement('li');
+      li.className = 'border-b border-hairline last:border-0';
+
+      const a = document.createElement('a');
+      a.href = r.url;
+      a.dataset.result = '';
+      a.className = 'block px-4 py-3 hover:bg-subtle';
+
+      const badge = document.createElement('span');
+      badge.className = 'font-mono text-[10px] uppercase tracking-[0.16em] text-muted';
+      badge.textContent = r.badge;
+
+      const title = document.createElement('div');
+      title.className = 'mt-1 font-serif text-base font-bold text-ink';
+      title.textContent = r.meta?.title ?? r.url;
+
+      const excerpt = document.createElement('p');
+      excerpt.className = 'mt-1 text-sm leading-snug text-muted';
+      // Pagefind escapes the source text and injects only its own highlight tags. The excerpt is
+      // derived from our own rendered HTML, so nothing third-party reaches this string.
+      excerpt.innerHTML = r.excerpt ?? '';
+
+      a.append(badge, title, excerpt);
+      li.append(a);
+      list.append(li);
+    }
+
+    status.textContent = `${results.length} résultat${results.length > 1 ? 's' : ''}.`;
+  }
+
+  async function run(query: string) {
+    const mine = ++seq;
+    const q = query.trim();
+    if (q.length < 2) {
+      reset();
+      return;
+    }
+    const pf = await ensureEngine();
+    if (!pf || mine !== seq) return;
+
+    const found = await pf.search(q);
+    if (mine !== seq) return;
+
+    const data = await Promise.all(found.results.slice(0, 40).map((r) => r.data()));
+    if (mine !== seq) return;
+
+    render(rankResults(data).slice(0, MAX_RESULTS), q);
+  }
+
+  let timer: number | undefined;
+  input.addEventListener('input', () => {
+    window.clearTimeout(timer);
+    const value = input.value;
+    timer = window.setTimeout(() => void run(value), 120);
+  });
+
+  function open() {
+    if (dialog.open) return;
+    dialog.showModal();
+    input.value = '';
+    reset();
+    input.focus();
+    void ensureEngine(); // warm the index while the first keystrokes land
+  }
+
+  openBtn.addEventListener('click', open);
+
+  // The dialog element gives Escape and the focus trap for free; only the openers are ours.
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      open();
+      return;
+    }
+    if (e.key !== '/' || dialog.open || e.metaKey || e.ctrlKey || e.altKey) return;
+    const el = document.activeElement as HTMLElement | null;
+    if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+    e.preventDefault();
+    open();
+  });
+
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlight(active + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlight(active - 1);
+    } else if (e.key === 'Enter') {
+      const target = items()[active];
+      if (target) {
+        e.preventDefault();
+        window.location.href = target.href;
+      }
+    }
+  });
+
+  // A click on the backdrop (i.e. outside the panel) closes.
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+
+  dialog.addEventListener('close', () => openBtn.focus());
+</script>

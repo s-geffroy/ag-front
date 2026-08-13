@@ -17,7 +17,7 @@ const { page } = Astro.props;
 const sections = page.sections.map((s) => ({ heading: s.heading, blocks: groupBody(s.body) }));
 ---
 
-<Base title={page.title} description={page.description}>
+<Base title={page.title} description={page.description} searchable={false}>
   <Section width="prose" class="py-14">
     <p class="eyebrow">Informations légales</p>
     <h1 class="mt-4 font-serif text-title font-bold">{page.title}</h1>

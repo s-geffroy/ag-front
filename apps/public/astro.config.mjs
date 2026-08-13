@@ -5,6 +5,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { plaquette } from './integrations/plaquette.mjs';
+import { search } from './integrations/search.mjs';
 
 // Plaquette publication gate (ADR 0073), read at config time because @astrojs/sitemap needs it before
 // the build starts. The integration itself re-reads the manifest and is the authority; this only keeps
@@ -30,6 +31,10 @@ export default defineConfig({
       filter: (url) => plaquettePublished || !/\/plaquette\/?$/.test(url),
     }),
     plaquette(),
+    // MUST stay after plaquette(): that integration moves an unpublished dist/plaquette/ out of the
+    // served tree in its own astro:build:done hook, and Astro runs same-named hooks in registration
+    // order. Indexing first would publish a withheld page through the search box (ADR 0080).
+    search(),
   ],
   vite: {
     resolve: {
