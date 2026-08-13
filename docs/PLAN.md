@@ -197,6 +197,30 @@ d'ag-back un verdict sur dix dossiers ouverts.
   5 `bas`), **enveloppe comptée** sur huit listes en `1.0.0`, `topic_id` accepté, pays du média en
   ISO. Deux corrections qui nous visent, toutes deux fondées.
 
+### Phase 10 — Le premier document publié, et une bascule subie — ✅ FAIT (2026-08-12 → 13)
+
+- **Le dossier Mer Rouge / Suez est en ligne.** Porte `human_review_done` validée le 2026-08-12 à
+  11:34:50, publication à 11:39:18, site reconstruit à 11:41 — toutes deux signées. **Première fois
+  que la voie `resolvePublish` complète est parcourue de bout en bout.** `/dossiers` n'est plus vide
+  et le CTA d'accueil, conditionné à `dossiers[0]`, a cessé de disparaître.
+- **Le relecteur ne lisait pas le document publié.** Le cockpit sert la version interne (16,5 Ko), la
+  publication expédie la version publique (4,5 Ko) : la réécriture du 22 juillet n'avait été portée
+  que dans la seconde. Signer aurait validé après lecture du document périmé — celui-là même que la
+  porte avait attrapé en juillet.
+- **Trois aveuglements du juge, levés l'un après l'autre.** Il ne recevait ni le frontmatter (donc ni
+  la confiance déclarée, ni les sources), ni le registre `[Cxx]` que le document nomme, ni le champ
+  `verdict` que la page publique rend **en tête**. Il reprochait donc l'absence de ce qu'on lui
+  cachait. Après correction : dossier 7 pass / 1 uncertain, et les quatre fiches Atlas instruites.
+- **Deux fiches chiffrées** — Ormuz (20,7 Mb/j en transit, 3,5-5,5 disponibles, ~14 non
+  contournables, **rien** pour le GNL) et mer Rouge (scission mesurée des deux côtés ; le report vers
+  le Cap **est** désormais mesuré, 266 transits du 27/07 au 02/08).
+- **Le contrat 1.0.0 a été servi avant son annonce**, le 2026-08-12 à 11:05:05 UTC. Treize ressources
+  sont passées au format enveloppe, nos `z.array().parse()` ont cessé de parser, et **le site est
+  tombé de 131 à 48 pages sans une erreur** : la dégradation gracieuse a traité un changement de
+  forme comme une panne réseau. C'est l'ADR 0077 retourné contre nous — une absence servie comme un
+  fait. Corrigé, avec une cause aggravante de notre côté : trente lectures de fiche en parallèle,
+  livrées la veille, expiraient et emportaient le reste de la construction.
+
 ## Reste à faire (gouvernance — ADR _Proposed_)
 
 - **ADR 0044 (Proposed)** — cycle de vie & confidentialité des données client : rétention, purge, DSAR,
@@ -274,10 +298,15 @@ Aucune n'est un chantier. Chacune est un blanc à remplir, et toutes échouent e
 
 ### 2. Ce qu'attend l'amont, et ce qu'il va casser
 
-- **Bascule `1.0.0`** — enveloppe comptée sur huit listes, `topic_id`, pays du média. Notre lecture
-  accepte déjà les deux formes (`readListEnvelope`), donc il n'y a rien à faire **le jour J** si la
-  forme livrée est celle annoncée. À vérifier ce jour-là : la garde de couverture intégrale (ADR 0066)
-  est **aveugle** à un changement qui ne touche pas les champs requis.
+- **Bascule `1.0.0` — elle a eu lieu, et avant son annonce.** Servie le 2026-08-12 à 11:05:05 UTC,
+  annoncée le 13. Absorbée : `parseList` accepte les deux formes, `relevance` → `cluster_salience`
+  lit les deux noms. La leçon n'est pas « ils ont mal annoncé » — c'est que **notre `readListEnvelope`
+  existait depuis la veille et n'était branché nulle part**. Une tolérance écrite mais non câblée ne
+  protège de rien.
+- **`topic_id` est servi** (contrat 1.1.0, additif) et **non branché**. Chaînage par containment de
+  Simpson, règle et seuils déclarés dans la charge utile. Ils recommandent eux-mêmes de **garder
+  notre repli par URL** : leur chaînage n'est pas parfait, et les clusters antérieurs portent
+  `topic_id` nul.
 - **Désaturation du CVI** — la dimension `concentration` est retirée. Deux objets sur trois vont
   changer de niveau. Toute affirmation CVI publiée ou vendue qui supposait la saturation doit être
   reprise à la livraison.
@@ -285,16 +314,26 @@ Aucune n'est un chantier. Chacune est un blanc à remplir, et toutes échouent e
   spécifié** dans `openapi 0.18.0`, et il n'est déclaré que pour dix corridors sur trente. Handoff
   `0034` déposé, sans réponse.
 
-### 3. Les portes, toujours
+### 3. Les portes des fiches Atlas
 
-Le dossier Mer Rouge reste à **une porte** de la publication, et les trois fiches Atlas fondatrices
-attendent la leur. La chaîne a été exercée depuis — sur une promotion d'actualité, pas sur un
-document éditorial. C'est un dérisquage réel, mais partiel : la voie `resolvePublish` complète
-(sources + contradiction + conformité + revue humaine + CVI justifié) n'a toujours pas été parcourue
-une seule fois.
+Le dossier est publié ; **les quatre fiches Atlas ne le sont pas**. Elles sont instruites — juge
+relancé, contradictions passées, deux d'entre elles chiffrées — et il ne reste que des portes
+**nominatives** :
 
-Restent aussi quatre rapports de contradiction `pending` et deux jugements LLM en échec sur la
-rubrique `sources`.
+| Fiche | Portes restantes |
+| --- | --- |
+| Mer Rouge / Suez | `compliance_done` · `human_review_done` · `cvi_justified` |
+| Ormuz | `contradiction_done` · `compliance_done` · `human_review_done` |
+| Malacca | les quatre |
+| Taïwan | les quatre |
+
+Un arbitrage éditorial attend sur **Malacca** : une affirmation structurante sur Lombok s'appuie sur
+« littérature recherche-défense — appréciation », qui n'est individualisée dans aucune des six
+sources déclarées. Le document signale lui-même la faiblesse. Sourcer, adoucir, ou accepter en
+consignant la réserve — c'est un jugement, pas un défaut mécanique.
+
+Et une mise en garde sur `cvi_justified` : l'indice amont **est en train d'être désaturé**. Un
+`critique` justifié aujourd'hui repose sur une mesure qui change.
 
 ### 4. Puis les deux chantiers de code restants
 
@@ -302,8 +341,13 @@ rubrique `sources`.
 paiement → provisioning). Ce sont les seuls chantiers structurants encore au stade design ; le second
 conditionne la vente des trois paliers déjà affichés sur `/offres`.
 
-> Le fil du 2026-08-10 — le **statut épistémique d'une absence** — a tenu deux jours de plus, et il
-> s'est retourné contre nous deux fois. Nous avons demandé à ag-back de mesurer un contrefactuel
+> Le fil du 2026-08-10 — le **statut épistémique d'une absence** — tient toujours, et il s'est
+> retourné contre nous **quatre fois**. Les deux dernières sont les plus coûteuses : un juge qui
+> reproche l'absence de ce qu'on lui cache, et une dégradation gracieuse qui a servi 48 pages pour
+> 131 sans lever une erreur. Un `catch` écrit pour survivre à une panne réseau ne doit pas avaler un
+> changement de forme.
+>
+> Les deux premières restent : Nous avons demandé à ag-back de mesurer un contrefactuel
 > **que notre propre cockpit affichait déjà** ; et nous avons affirmé qu'`incertitude` entrait dans
 > la contrainte liante sans le vérifier contre le comportement observé. Un chiffre affiché n'est pas
 > un chiffre consommé, et une lecture de spécification n'est pas une mesure.
