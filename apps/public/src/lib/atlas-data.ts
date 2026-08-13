@@ -338,8 +338,14 @@ export async function loadCorridorPressure(
     return out;
   }
   const client = createChokepointsClient(cfg);
-  await Promise.all(
-    ids.map(async (id) => {
+  // CONCURRENCE BORNÉE. Lancer les trente lectures d'un coup a saturé l'amont au build du
+  // 2026-08-13 : les fiches expiraient l'une après l'autre ET les appels suivants tombaient avec
+  // elles — le site est passé de 131 à 48 pages. Un tri d'affichage ne doit pas pouvoir emporter le
+  // reste de la construction. Quatre à la fois, et un échec reste local.
+  const QUEUE = 4;
+  const queue = [...ids];
+  const worker = async () => {
+    for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
       try {
         const fiche = (await client.getChokepointFiche(id)) as {
           regime?: { pressure_score?: number | null };
@@ -352,8 +358,9 @@ export async function loadCorridorPressure(
         console.warn(`[atlas] pression indisponible pour ${id} :`, (err as Error).message);
         out.set(id, null);
       }
-    }),
-  );
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(QUEUE, ids.length) }, worker));
   pressureCache = out;
   return out;
 }

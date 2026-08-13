@@ -44,6 +44,16 @@ sources:
   - label: Reuters — Le trafic à Ormuz se réduit alors que les marchés observent les pourparlers Iran-Oman (7 août 2026)
     type: presse_specialisee
     url: https://www.reuters.com/
+  - label: >-
+      AIE — Strait of Hormuz : capacité de contournement disponible estimée à 3,5–5,5 Mb/j
+      (Petroline plafonné à 5 Mb/j en maximum théorique, ADCOP 1,5–1,8 Mb/j)
+    type: institutionnel
+    url: https://www.iea.org/about/oil-security-and-emergency-response/strait-of-hormuz
+  - label: >-
+      US EIA — Amid regional conflict, the Strait of Hormuz remains critical oil chokepoint
+      (flux total 20,9 Mb/j au S1 2025 ; capacité de contournement mobilisable en cas d'interruption)
+    type: institutionnel
+    url: https://www.eia.gov/todayinenergy/detail.php?id=65504
   - label: US EIA — Short-Term Energy Outlook, communiqué du 4 juillet 2026 (fermetures de production, prévision Brent)
     type: institutionnel
     url: https://www.eia.gov/outlooks/steo/
@@ -106,14 +116,37 @@ Chiffres 2024 (US EIA, via la base chokepoints), avant la crise :
 Les trois contournements référencés sont tous **candidats**, tous à **pénalité de capacité élevée** :
 
 - **Petroline (East-West, Arabie saoudite)** vers les terminaux mer Rouge — faisabilité moyenne.
-  Renvoie le problème vers un corridor lui-même perturbé (voir la fiche Mer Rouge / Suez).
-- **Habshan-Fujaïrah (Émirats)** — faisabilité moyenne ; sort du Golfe sans passer le détroit, mais
-  ne couvre qu’une fraction du débit.
+  **Capacité nominale contestée** : Aramco annonce **7 Mb/j**, l’AIE retient **5 Mb/j** comme maximum
+  théorique, et le port d’exportation de Yanbu plafonne autour de **4,5 Mb/j**. L’ouvrage n’a jamais
+  été exploité durablement à 7. Il renvoie en outre le problème vers un corridor lui-même perturbé
+  (voir la fiche Mer Rouge / Suez).
+- **Habshan-Fujaïrah / ADCOP (Émirats)** — faisabilité moyenne ; sort du Golfe sans passer le détroit.
+  **1,5 Mb/j**, jusqu’à **1,8 Mb/j** selon l’AIE. Un second tube est en construction, qui porterait
+  l’ensemble à ~3,6 Mb/j — **capacité future, pas disponible aujourd’hui**.
 - **Réserves stratégiques et effacement de la demande** — faisabilité **faible**. Ce n’est pas un
   contournement, c’est un délai.
 
-Aucune combinaison des trois n’approche les ~20 Mb/j en jeu. La substitution est partielle par
-construction.
+### Ce que la substitution couvre, chiffres à l’appui
+
+| | Volume | Fondement |
+| --- | --- | --- |
+| Pétrole transitant par Ormuz | **20,7 Mb/j** (brut 14,6 + raffinés 6,1) | base chokepoints, 2024, `official_reported` ; concordant avec l’EIA (20,9 Mb/j, S1 2025) |
+| Capacité de contournement **nominale** | **6,5 à 8,8 Mb/j** | Petroline 5–7 + ADCOP 1,5–1,8 |
+| Capacité **disponible** avant la crise | **3,5 à 5,5 Mb/j** | AIE / EIA — capacité inutilisée, pas nominale |
+| Volume effectivement acheminé depuis la crise | **~6,5 Mb/j** | les deux tubes tournent quasi à plein (juillet 2026) |
+| **Reste non contournable** | **~14 Mb/j** | différence des deux lignes précédentes |
+
+Autrement dit : au débit constaté aujourd’hui, les contournements absorbent **moins d’un tiers** du
+pétrole qui passait par Ormuz. À capacité nominale maximale — jamais atteinte — ils en absorberaient
+au mieux **43 %**.
+
+**Et le GNL n’a aucun contournement.** Les **10,5 Gpc/j** de gaz liquéfié qui franchissent le détroit
+ne disposent d’**aucune route de substitution opérationnelle** : le GNL qatari sort exclusivement par
+Ormuz. L’asymétrie est le fait structurant de cette fiche — le pétrole est partiellement
+contournable, le gaz ne l’est pas du tout.
+
+C’est ce qui fonde le verdict de « moins substituable au monde » : non pas l’absence d’alternative,
+mais un **déficit chiffré d’environ 14 Mb/j** sur le pétrole et de **la totalité** du GNL.
 
 ## Seuils d’alerte
 

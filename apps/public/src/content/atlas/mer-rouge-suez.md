@@ -33,6 +33,25 @@ sources:
   - label: Suez Canal Authority — Traffic Statistics, Annual Report 2025 (série des transits)
     type: institutionnel
     url: https://www.suezcanal.gov.eg/English/Navigation/Pages/NavigationStatistics.aspx
+  - label: >-
+      Ahram Online — Recettes du canal de Suez en hausse de 23 % à 4,67 Md$ sur l'exercice 2025/26
+      (10 août 2026)
+    type: presse_specialisee
+    url: https://english.ahram.org.eg/NewsContent/1/1235/571808/Egypt/Urban--Transport/
+  - label: >-
+      Middle East Observer — Deuxième trimestre 2026 : 3 580 navires (+7,7 %), 169 Mt de tonnage net
+      (+18,3 %) (5 août 2026)
+    type: presse_specialisee
+    url: https://meobserver.news/ports/2026/08/05/suez-canal-recovery-gains-momentum-as-q
+  - label: >-
+      Lloyd's List Intelligence — Red Sea Brief : 266 transits du 27 juillet au 2 août 2026, retour
+      au niveau du début 2026 (données préliminaires)
+    type: presse_specialisee
+    url: https://www.lloydslistintelligence.com/resources/blog/red-sea-brief-6-august-2026
+  - label: >-
+      Reuters / Kpler — Comptage journalier des navires marchands à Bab el-Mandeb, 1er-5 août 2026
+      (28 → 18 → 1) ; données commerciales, très volatiles
+    type: presse_specialisee
   - label: "World Shipping Council — Red Sea: necessary capacity and current transit (janv. 2026)"
     type: rapport_entreprise
     url: https://www.worldshipping.org/
@@ -104,7 +123,14 @@ Système maritime reliant la Méditerranée (canal de Suez, Port-Saïd) à la me
 **Bab el-Mandeb** et au golfe d’Aden. En temps normal il porte ≈ 15 % du commerce maritime mondial et
 ≈ 22 % du trafic conteneurisé (2023). Depuis les attaques houthies d’octobre 2023, il n’a pas fermé : il
 s’est **scindé en deux corridors** — l’un, régional et pétrolier, largement rétabli ; l’autre, celui des
-mégaporteurs Asie–Europe, quasi vidé et durablement dérouté par le Cap.
+mégaporteurs Asie–Europe, quasi vidé et durablement dérouté par le Cap. **Les deux segments se
+mesurent séparément** : côté énergie, le canal a retrouvé son trafic — recettes de **4,67 Md$** sur
+l’exercice 2025/26, en **hausse de 23 %**, et **3 580 navires** au deuxième trimestre 2026 (+7,7 %)
+pour **169 Mt** de tonnage net (+18,3 %), avril 2026 marquant la meilleure recette mensuelle depuis
+début 2024. Côté conteneurs, **le Cap reste la route par défaut** pour l’Asie–Europe : CMA CGM, après
+avoir mené le retour, s’est retiré de la plupart des transits, et Maersk a annulé son service MECL
+prévu par la mer Rouge. Le même corridor est donc **rétabli pour les uns et abandonné pour les
+autres**.
 
 > **État au 10 août 2026.** L’accalmie est terminée. Depuis le 22 juillet 2026, des **pétroliers sont de
 > nouveau attaqués** : l’*Encelia* a pris feu à l’avant — attaque **confirmée par l’agence de presse
@@ -114,8 +140,15 @@ mégaporteurs Asie–Europe, quasi vidé et durablement dérouté par le Cap.
 >
 > **Le motif a changé.** Les Houthis n’invoquent plus le lien avec Israël mais une **interdiction de
 > navigation visant les navires saoudiens**. Le ciblage est donc plus étroit qu’en 2023-24 : à ce stade,
-> il vise un pavillon et un armateur, non le trafic Asie–Europe indistinctement. Ce que cela fait au
-> report vers le Cap n’est **pas encore mesuré**.
+> il vise un pavillon et un armateur, non le trafic Asie–Europe indistinctement. **Premières mesures,
+> à manier avec prudence** : le suivi préliminaire du 27 juillet au 2 août recense **266 transits**,
+> soit un retour au niveau du **début 2026** — c’est-à-dire l’effacement du sursaut qu’avait provoqué
+> la perturbation d’Ormuz, et non un effondrement supplémentaire. Le comptage journalier à
+> Bab el-Mandeb est en revanche **très volatil** : 28 navires le vendredi, 27 le samedi, 18 le
+> dimanche, et **un seul** le mercredi 5 août (Kpler). Ces chiffres sont **préliminaires et d’origine
+> commerciale** ; ils indiquent une stabilisation basse, pas une tendance établie. Ce qui reste non
+> mesuré est l’effet **par segment** : aucun décompte public ne sépare encore le report des
+> conteneurs de celui des tankers depuis le 22 juillet.
 
 ## Nœuds principaux
 

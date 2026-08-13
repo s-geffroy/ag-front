@@ -69,3 +69,25 @@ describe('envelopeCountLabel — un plancher tant que le total est inconnu', () 
     expect(envelopeCountLabel(readListEnvelope([1, 2, 3], asIs))).toBe('3');
   });
 });
+
+// Le client lui-même : la garde qui manquait le 2026-08-13.
+describe('parseList (client) — accepter les deux formes du contrat', () => {
+  it('documente le défaut : un z.array() strict a fait perdre 81 pages au site public', () => {
+    // Le 1.0.0 a été servi AVANT son annonce. `z.array(...).parse(enveloppe)` levait, la dégradation
+    // gracieuse rendait [], et le build passait de 131 à 48 pages SANS une erreur — un `catch` écrit
+    // pour survivre à une panne réseau a traité un changement de forme comme une indisponibilité.
+    // Ce test fige la forme servie ce jour-là.
+    const servi = {
+      returned: 82,
+      total_count: 82,
+      truncated: false,
+      limit: null,
+      generated_at: '2026-08-13T09:05:53.345528Z',
+      items: [{ id: 'sys_red_sea_suez', name: 'Mer Rouge / Suez' }],
+    };
+    const e = readListEnvelope(servi, (x) => x as { id: string }[]);
+    expect(e.items).toHaveLength(1);
+    expect(e.total).toBe(82);
+    expect(e.truncated).toBe(false);
+  });
+});

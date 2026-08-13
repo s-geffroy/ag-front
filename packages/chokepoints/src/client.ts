@@ -360,6 +360,28 @@ export const CONSUMERS: Record<string, ConsumerSurface[]> = {
  * excluded — the public build never opts in. The Bearer token must never reach the browser; intended
  * for build-time (public) or server-side (cockpit) use on a tailnet host.
  */
+/**
+ * Parse une liste servie SOIT en tableau nu (contrat ≤ 0.18.0) SOIT dans l'enveloppe comptée
+ * introduite par le 1.0.0 (`returned` / `total_count` / `truncated` / `limit` / `generated_at`).
+ *
+ * POURQUOI CETTE FONCTION EXISTE, ET CE QU'ELLE A COÛTÉ DE NE PAS EXISTER. Le 1.0.0 a été servi le
+ * 2026-08-12 à 11:05:05 UTC, AVANT son annonce. Nos `z.array(...).parse()` ont cessé de parser, et
+ * la dégradation gracieuse de `loadStrategicSystems` a fait le reste : le site public est passé de
+ * 131 à 48 pages — 81 pages disparues **sans une erreur**, parce qu'un `catch` conçu pour survivre à
+ * une panne réseau a traité un changement de forme comme une indisponibilité.
+ *
+ * On accepte donc les deux formes, sans condition de version : le contrat peut rebasculer, et un
+ * consommateur qui exige une forme précise casse à chaque fois.
+ */
+function parseList<S extends z.ZodTypeAny>(schema: S, raw: unknown): z.output<S>[] {
+  if (Array.isArray(raw)) return z.array(schema).parse(raw);
+  if (raw && typeof raw === 'object') {
+    const items = (raw as { items?: unknown }).items;
+    if (Array.isArray(items)) return z.array(schema).parse(items);
+  }
+  return z.array(schema).parse(raw); // laisse zod produire l'erreur, plutôt que de rendre [] en silence
+}
+
 export function createChokepointsClient(opts: ChokepointsClientOptions): ChokepointsClient {
   const fetchImpl = opts.fetchImpl ?? fetch;
   const base = opts.baseUrl.replace(/\/+$/, '');
@@ -446,14 +468,14 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       return ChokepointList.parse(await get('/chokepoints/nearby', params));
     },
     async chokepointsByFlow(flowType) {
-      return z.array(FlowChokepointOut).parse(await get(`/chokepoints/by-flow/${enc(flowType)}`));
+      return parseList(FlowChokepointOut, await get(`/chokepoints/by-flow/${enc(flowType)}`));
     },
     async chokepointsByRisk(riskType) {
-      return z.array(RiskChokepointOut).parse(await get(`/chokepoints/by-risk/${enc(riskType)}`));
+      return parseList(RiskChokepointOut, await get(`/chokepoints/by-risk/${enc(riskType)}`));
     },
     async chokepointsBySystem(systemId) {
       // The live endpoint returns a BARE array of summaries (not a ChokepointList envelope).
-      return z.array(ChokepointSummary).parse(await get(`/chokepoints/by-system/${enc(systemId)}`));
+      return parseList(ChokepointSummary, await get(`/chokepoints/by-system/${enc(systemId)}`));
     },
     async getChokepointAnalysis(id) {
       return ChokepointAnalysis.parse(await get(`/chokepoints/${enc(id)}/analysis`));
@@ -467,12 +489,13 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       );
     },
     async getChokepointActors(id) {
-      return z.array(ActorControlOut).parse(await get(`/chokepoints/${enc(id)}/actors`));
+      return parseList(ActorControlOut, await get(`/chokepoints/${enc(id)}/actors`));
     },
     async getChokepointEventSignals(id, limit) {
-      return z
-        .array(EventSignalOut)
-        .parse(await get(`/chokepoints/${enc(id)}/event-signals`, { limit }));
+      return parseList(
+        EventSignalOut,
+        await get(`/chokepoints/${enc(id)}/event-signals`, { limit }),
+      );
     },
     async getChokepointPerceptionSignals(id, limit) {
       return PerceptionSignalList.parse(
@@ -480,45 +503,43 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
       );
     },
     async listActors() {
-      return z.array(ActorOut).parse(await get('/actors'));
+      return parseList(ActorOut, await get('/actors'));
     },
     async listRelations() {
-      return z.array(RelationOut).parse(await get('/relations'));
+      return parseList(RelationOut, await get('/relations'));
     },
     async listStrategicSystems() {
-      return z.array(StrategicSystemOut).parse(await get('/strategic-systems'));
+      return parseList(StrategicSystemOut, await get('/strategic-systems'));
     },
     async getStrategicSystem(id) {
       return StrategicSystemDetail.parse(await get(`/strategic-systems/${enc(id)}`));
     },
     async listEpisodes() {
-      return z.array(EpisodeOut).parse(await get('/episodes'));
+      return parseList(EpisodeOut, await get('/episodes'));
     },
     async getEpisode(key) {
       return EpisodeDetail.parse(await get(`/episodes/${enc(key)}`));
     },
     async listSources() {
-      return z.array(SourceOut).parse(await get('/sources'));
+      return parseList(SourceOut, await get('/sources'));
     },
     async getVocabularies() {
       return VocabulariesOut.parse(await get('/vocabularies'));
     },
     async listAlerts(params) {
-      return z
-        .array(AlertOut)
-        .parse(await get('/alerts', params as Record<string, string | number | undefined>));
+      return parseList(
+        AlertOut,
+        await get('/alerts', params as Record<string, string | number | undefined>),
+      );
     },
     async listAnalyticsResults(params) {
-      return z
-        .array(AnalyticalResultOut)
-        .parse(
-          await get('/analytics/results', params as Record<string, string | number | undefined>),
-        );
+      return parseList(
+        AnalyticalResultOut,
+        await get('/analytics/results', params as Record<string, string | number | undefined>),
+      );
     },
     async listEngineRuns(engineId) {
-      return z
-        .array(EngineRunOut)
-        .parse(await get('/analytics/engine-runs', { engine_id: engineId }));
+      return parseList(EngineRunOut, await get('/analytics/engine-runs', { engine_id: engineId }));
     },
     async getChokepointCviAssessment(id) {
       return CviAssessmentOut.parse(await get(`/chokepoints/${enc(id)}/cvi-assessment`));
