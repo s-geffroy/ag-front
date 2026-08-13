@@ -131,8 +131,23 @@ export function provenanceSummary(data: Record<string, unknown>): string {
     if (v !== undefined && v !== null && v !== '') lines.push(`${k}: ${fmt(v)}`);
   };
   push('date', data.date);
+  push('mise_a_jour', data.updated);
   push('confidence_declaree', data.confidence);
+  push('cvi_level_declare', data.cvi_level);
   push('access', data.access);
+  // DÉCLARATIONS ÉDITORIALES, pas de simples métadonnées. Sur une fiche Atlas, le `verdict` EST
+  // l'ouverture du document — la page publique le rend en tête, avant tout corps de texte. Ne pas le
+  // transmettre faisait échouer la rubrique « la fiche commence par un verdict » sur trois fiches
+  // qui en portent une : le juge voyait s'ouvrir « Définition du corridor » et concluait, à raison
+  // sur ce qu'il voyait, qu'aucun verdict n'ouvrait la fiche. Troisième occurrence du même défaut.
+  if (typeof data.strategic_question === 'string') {
+    lines.push(`question_strategique: ${data.strategic_question.trim()}`);
+  }
+  if (typeof data.verdict === 'string') {
+    lines.push(
+      `verdict_declare (rendu EN TÊTE de la page publique):\n  ${data.verdict.trim().replace(/\n/g, '\n  ')}`,
+    );
+  }
   const sources = Array.isArray(data.sources) ? data.sources : [];
   if (sources.length > 0) {
     lines.push(`sources_declarees: ${sources.length}`);
