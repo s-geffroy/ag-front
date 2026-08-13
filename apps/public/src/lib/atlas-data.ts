@@ -312,60 +312,6 @@ export function corridorNewsSignal(
 }
 
 /**
- * Pression déclarée par la base pour chaque corridor (`regime.pressure_score` de la fiche).
- *
- * POURQUOI CE CHAMP ET PAS UN AUTRE. Les deux critères d'importance attendus sont inertes ici :
- * `/atlas` n'affiche que des P0, donc `priority_class` ne départage rien ; et le CVI est saturé à
- * `critique` sur tout le corpus (handoff ag-back 0026, sans réponse). La pression est le seul signal
- * ordinal que la base porte — mesuré le 2026-08-12 : Ormuz 263.8, Suez 59.9, Panama 8.3.
- *
- * ELLE N'EST DÉCLARÉE QUE POUR UN TIERS DES CORRIDORS (10 sur 30). Les autres reçoivent `null`, et
- * `null` ne vaut PAS zéro : un corridor sans mesure n'est pas un corridor sous faible pression, il
- * est un corridor qu'on n'a pas mesuré (ADR 0077). Le classement les traite à part au lieu de les
- * enterrer sous un score qu'ils n'ont pas.
- */
-let pressureCache: Map<string, number | null> | null = null;
-
-export async function loadCorridorPressure(
-  ids: readonly string[],
-): Promise<Map<string, number | null>> {
-  if (pressureCache) return pressureCache;
-  const out = new Map<string, number | null>();
-  const cfg = config();
-  if (!cfg) {
-    for (const id of ids) out.set(id, null);
-    pressureCache = out;
-    return out;
-  }
-  const client = createChokepointsClient(cfg);
-  // CONCURRENCE BORNÉE. Lancer les trente lectures d'un coup a saturé l'amont au build du
-  // 2026-08-13 : les fiches expiraient l'une après l'autre ET les appels suivants tombaient avec
-  // elles — le site est passé de 131 à 48 pages. Un tri d'affichage ne doit pas pouvoir emporter le
-  // reste de la construction. Quatre à la fois, et un échec reste local.
-  const QUEUE = 4;
-  const queue = [...ids];
-  const worker = async () => {
-    for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
-      try {
-        const fiche = (await client.getChokepointFiche(id)) as {
-          regime?: { pressure_score?: number | null };
-        };
-        const v = fiche.regime?.pressure_score;
-        out.set(id, typeof v === 'number' ? v : null);
-      } catch (err) {
-        // Une fiche injoignable donne `null`, pas 0 : l'échec réseau ne doit pas se lire comme une
-        // mesure basse.
-        console.warn(`[atlas] pression indisponible pour ${id} :`, (err as Error).message);
-        out.set(id, null);
-      }
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(QUEUE, ids.length) }, worker));
-  pressureCache = out;
-  return out;
-}
-
-/**
  * Classe les corridors : ceux qui portent une actualité récente d'abord, la plus fraîche en tête,
  * puis les autres dans l'ordre habituel (priorité, puis nom).
  *
@@ -374,14 +320,19 @@ export async function loadCorridorPressure(
  * veut pas dire « rien ne s'y passe », seulement « personne n'a promu » (ADR 0077). Les corridors
  * sans actualité gardent donc exactement l'ordre qu'ils avaient : on ajoute une tête de liste, on ne
  * réorganise pas le reste.
+ *
+ * IL N'Y A PAS DE RANG DE GRAVITÉ ICI, ET C'EST DÉLIBÉRÉ. Un tri par `regime.pressure_score` a
+ * existé jusqu'au 2026-08-13 ; le producteur l'a désavoué (message d'échange 0033, `448257592ed0`) :
+ * ce score se compare à trois seuils et n'est plus différencié au-delà, si bien que sa magnitude
+ * suit le VOLUME DE LEUR COLLECTE — laquelle varie pour des raisons éditoriales étrangères à la
+ * pression. Le classement paraissait juste sur les corridors bien couverts et se serait inversé sur
+ * un corridor sous-collecté, sans que rien ne le signale. Les deux autres clés candidates sont
+ * inertes : `priority_class` (la page n'affiche que des P0) et le CVI (`critique` sur les trente
+ * P0, vérifié le 2026-08-13). Aucune clé ne départage ces corridors : la page le dit au lecteur.
  */
 export function sortCorridorsByNews<
   T extends { id: string; priority?: string | null; name: string },
->(
-  items: readonly T[],
-  now: Date = new Date(),
-  pressure: ReadonlyMap<string, number | null> = new Map(),
-): T[] {
+>(items: readonly T[], now: Date = new Date()): T[] {
   const signal = new Map<string, string>();
   for (const c of items) {
     const s = corridorNewsSignal(c.id, now);
@@ -394,18 +345,9 @@ export function sortCorridorsByNews<
     if (da && db) return db.localeCompare(da);
     if (da) return -1;
     if (db) return 1;
-    // 2. Pression déclarée, décroissante. Un corridor SANS mesure ne passe pas derrière un corridor
-    //    mesuré à 0 : il passe derrière tous les mesurés, parce qu'on ne sait pas où le placer —
-    //    et on le dit au lecteur plutôt que de lui vendre un rang.
-    const pa = pressure.get(a.id);
-    const pb = pressure.get(b.id);
-    const ma = typeof pa === 'number';
-    const mb = typeof pb === 'number';
-    if (ma && mb && pa !== pb) return (pb as number) - (pa as number);
-    if (ma !== mb) return ma ? -1 : 1;
-    // 2 bis. La classe de priorité. Inerte sur /atlas, qui n'affiche que des P0 — gardée quand même :
-    //        elle est le critère d'importance canonique, et la page pourrait un jour élargir sa
-    //        requête. La retirer aurait été supprimer une règle juste parce que ses données le sont.
+    // 2. La classe de priorité. Inerte sur /atlas, qui n'affiche que des P0 — gardée quand même :
+    //    elle est le critère d'importance canonique, et la page pourrait un jour élargir sa requête.
+    //    La retirer aurait été supprimer une règle juste parce que ses données le sont.
     const prio = (a.priority ?? 'P9').localeCompare(b.priority ?? 'P9');
     if (prio !== 0) return prio;
     // 3. Ordre alphabétique.

@@ -374,47 +374,39 @@ describe('sortCorridorsByNews — une tête de liste, pas une réorganisation', 
   });
 });
 
-describe('sortCorridorsByNews — trois niveaux, dont un mesuré à moitié', () => {
+describe('sortCorridorsByNews — aucun rang de gravité', () => {
+  // RÉGRESSION 2026-08-13. Un tri par `regime.pressure_score` classait cette page ; le producteur
+  // l'a désavoué (échange 0033) : la magnitude du score suit le volume de LEUR collecte, donc le
+  // classement s'inverse sur un corridor sous-collecté sans que rien ne le signale. Ces tests
+  // fixent qu'aucun rang de gravité ne revient par la porte de derrière : à actualité égale, seuls
+  // la classe de priorité puis le nom départagent.
   const HORMUZ = 'p0_maritime_strait_strait_of_hormuz';
   const at = new Date('2026-08-12T09:00:00Z');
   const items = [
-    { id: 'z_sans', priority: 'P0', name: 'Zoulou sans mesure' },
-    { id: 'a_sans', priority: 'P0', name: 'Alpha sans mesure' },
-    { id: 'b_faible', priority: 'P0', name: 'Bravo pression basse' },
-    { id: 'c_forte', priority: 'P0', name: 'Charlie pression forte' },
+    { id: 'z_zoulou', priority: 'P0', name: 'Zoulou' },
+    { id: 'a_alpha', priority: 'P0', name: 'Alpha' },
+    { id: 'b_bravo', priority: 'P0', name: 'Bravo' },
     { id: HORMUZ, priority: 'P0', name: 'Zulu actualité' },
   ];
-  const pressure = new Map<string, number | null>([
-    ['b_faible', 8.3],
-    ['c_forte', 263.8],
-    ['a_sans', null],
-    ['z_sans', null],
-    [HORMUZ, 14.5],
-  ]);
 
-  it('applique les trois niveaux dans l’ordre demandé', () => {
-    expect(sortCorridorsByNews(items, at, pressure).map((c) => c.id)).toEqual([
-      HORMUZ, // 1. actualité, malgré une pression moyenne
-      'c_forte', // 2. pression décroissante
-      'b_faible',
-      'a_sans', // 3. alphabétique, entre non-mesurés
-      'z_sans',
+  it('classe par actualité puis par nom, sans autre critère', () => {
+    expect(sortCorridorsByNews(items, at).map((c) => c.id)).toEqual([
+      HORMUZ, // 1. seule l'actualité fait une tête de liste
+      'a_alpha', // 2. puis l'alphabétique, à priorité égale
+      'b_bravo',
+      'z_zoulou',
     ]);
   });
 
-  it('place les non-mesurés APRÈS les mesurés, y compris après un score de zéro', () => {
-    const p = new Map<string, number | null>([
-      ['b_faible', 0],
-      ['a_sans', null],
-    ]);
-    const deux = [items[1], items[2]];
-    expect(sortCorridorsByNews(deux, at, p).map((c) => c.id)).toEqual(['b_faible', 'a_sans']);
+  it('n’accepte plus de troisième argument de classement', () => {
+    expect(sortCorridorsByNews.length).toBe(1);
   });
 
-  it('retombe sur l’alphabétique quand aucune pression n’est connue', () => {
-    expect(sortCorridorsByNews([items[0], items[1]], at, new Map()).map((c) => c.id)).toEqual([
-      'a_sans',
-      'z_sans',
-    ]);
+  it('la priorité départage avant le nom', () => {
+    const mixte = [
+      { id: 'p2_a', priority: 'P2', name: 'Alpha' },
+      { id: 'p0_z', priority: 'P0', name: 'Zoulou' },
+    ];
+    expect(sortCorridorsByNews(mixte, at).map((c) => c.id)).toEqual(['p0_z', 'p2_a']);
   });
 });
