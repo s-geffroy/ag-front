@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { plaquette } from './integrations/plaquette.mjs';
 import { search } from './integrations/search.mjs';
+import { anchors } from './integrations/anchors.mjs';
 
 // Plaquette publication gate (ADR 0073), read at config time because @astrojs/sitemap needs it before
 // the build starts. The integration itself re-reads the manifest and is the authority; this only keeps
@@ -35,6 +36,10 @@ export default defineConfig({
     // served tree in its own astro:build:done hook, and Astro runs same-named hooks in registration
     // order. Indexing first would publish a withheld page through the search box (ADR 0080).
     search(),
+    // Vérifie que chaque identifiant de chokepoint ancré dans le contenu répond encore. Un 404 fait
+    // ÉCHOUER le build (notre donnée est fausse) ; une API injoignable ne le fait pas (nous ne
+    // savons rien). Placée en dernier : elle ne touche pas `dist/`, elle le juge.
+    anchors(),
   ],
   vite: {
     resolve: {

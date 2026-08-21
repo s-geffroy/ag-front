@@ -1,0 +1,24 @@
+# Identifiants de chokepoints épinglés par app-geo (ag-front)
+#
+# Déposé à la demande d'ag-back (leur 0054) pour être gelé dans un test chez eux : un
+# identifiant retiré ou renommé devient rouge chez EUX avant d'être vide chez NOUS.
+#
+# DÉRIVÉ, jamais écrit à la main — voir apps/public/src/lib/pinned-ids.ts. La garde
+# `pinned-ids.test.ts` échoue si ce fichier diverge du contenu.
+#
+# Ne figurent ici que les ancrages VIVANTS. Les paquets HDDE déjà exportés et nos messages
+# archivés portent des identifiants d'époque : ce sont des traces, elles gardent le nom sous
+# lequel elles ont été écrites.
+#
+# Relevé le 2026-08-21 — 11 identifiants.
+p0_maritime_canal_panama_canal	apps/public/src/content/atlas/panama.md
+p0_maritime_passage_cape_of_good_hope_route	apps/public/src/content/atlas/route-du-cap.md
+p0_maritime_strait_bab_el_mandeb_strait	apps/public/src/content/atlas/mer-rouge-suez.md
+p0_maritime_strait_singapore_strait	apps/public/src/content/atlas/singapour.md
+p0_maritime_strait_strait_of_gibraltar	apps/public/src/content/atlas/gibraltar.md
+p0_maritime_strait_strait_of_hormuz	apps/public/src/content/atlas/ormuz.md
+p0_maritime_strait_strait_of_malacca	apps/public/src/content/atlas/malacca.md
+p0_maritime_strait_taiwan_strait	apps/public/src/content/atlas/taiwan.md
+p1_maritime_route_system_eastern_mediterranean_system	apps/public/src/content/atlas/mediterranee-orientale.md
+p1_multimodal_corridor_system_trans_caspian_middle_corridor	apps/public/src/content/atlas/trans-caspien.md
+p2_submarine_cable_corridor_egypt_red_sea_mediterranean_cable_corridor	apps/public/src/content/atlas/cables-sous-marins-mer-rouge.md
