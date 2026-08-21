@@ -60,7 +60,10 @@ describe('actualiteFeed — un seul fil, veille et publications mêlées', () =>
     // Le défaut de homepageVeille, qui testait l'âge du plus récent puis coupait sans revérifier :
     // elle pouvait afficher un item de mars à côté d'un item d'hier, sous un titre « Actualité ».
     const feed = actualiteFeed(
-      [cand({ href: '/notes/frais' }), cand({ href: '/notes/mars', at: '2026-03-02T00:00:00.000Z' })],
+      [
+        cand({ href: '/notes/frais' }),
+        cand({ href: '/notes/mars', at: '2026-03-02T00:00:00.000Z' }),
+      ],
       now,
     );
     expect(feed.map((e) => e.href)).toEqual(['/notes/frais']);
@@ -88,12 +91,7 @@ describe('actualiteFeed — un seul fil, veille et publications mêlées', () =>
       ),
       now,
     );
-    expect(feed.map((e) => e.href)).toEqual([
-      '/notes/20',
-      '/notes/19',
-      '/notes/18',
-      '/notes/17',
-    ]);
+    expect(feed.map((e) => e.href)).toEqual(['/notes/20', '/notes/19', '/notes/18', '/notes/17']);
   });
 
   it('départage les ex æquo de façon déterministe', () => {
@@ -139,9 +137,13 @@ describe('actualiteFeed — un seul fil, veille et publications mêlées', () =>
   });
 
   it('accepte une limite explicite', () => {
-    const feed = actualiteFeed([cand({ href: '/a' }), cand({ href: '/b', at: '2026-08-19T00:00:00.000Z' })], now, {
-      limit: 1,
-    });
+    const feed = actualiteFeed(
+      [cand({ href: '/a' }), cand({ href: '/b', at: '2026-08-19T00:00:00.000Z' })],
+      now,
+      {
+        limit: 1,
+      },
+    );
     expect(feed.map((e) => e.href)).toEqual(['/a']);
   });
 });
