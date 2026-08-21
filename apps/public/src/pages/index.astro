@@ -6,20 +6,58 @@ import EntryCard from '../components/EntryCard.astro';
 import Pill from '../components/Pill.astro';
 import CorridorChain from '../components/CorridorChain.astro';
 import ChartFrame from '../components/ChartFrame.astro';
-import VeilleStrip from '../components/VeilleStrip.astro';
+import ActualiteBlock from '../components/ActualiteBlock.astro';
 import { doctrineChain, offers } from '../lib/site';
 import { accessLabel, accessTone, formatDate } from '../lib/labels';
+import { loadVeille, veilleIsPublic } from '../lib/veille';
+import { actualiteFeed, veilleCandidates, type ActualiteCandidate } from '../lib/actualite';
 
-const atlas = (await getCollection('atlas', ({ data }) => data.published))
-  .sort((a, b) => a.data.priority.localeCompare(b.data.priority))
-  .slice(0, 3);
-const notes = (await getCollection('notes', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
+// Une seule horloge pour toute la page : deux `new Date()` peuvent tomber de part et d'autre d'une
+// bascule de fraîcheur et faire dire deux choses différentes à la même page.
+const now = new Date();
+
+// Les collections en ENTIER pour le fil ; les tranches de trois restent pour les grilles plus bas.
+const atlasAll = (await getCollection('atlas', ({ data }) => data.published)).sort((a, b) =>
+  a.data.priority.localeCompare(b.data.priority),
+);
+const atlas = atlasAll.slice(0, 3);
+const notesAll = (await getCollection('notes', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const notes = notesAll.slice(0, 3);
 const dossiers = (await getCollection('dossiers', ({ data }) => data.published)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 const lead = dossiers[0];
+
+// LA PAGE LIT, LE MODULE FUSIONNE. `astro:content` n'entre pas dans src/lib — sans quoi la règle du
+// fil ne serait plus exécutable sous vitest, et un test qu'on ne peut pas lancer n'est pas une garde.
+// Les filtres de publication sont ceux des grilles : !draft pour les notes, published pour le reste.
+const candidats: ActualiteCandidate[] = [
+  ...veilleCandidates(loadVeille()),
+  ...dossiers.map((d) => ({
+    kind: 'dossier' as const,
+    href: `/dossiers/${d.slug}`,
+    title: d.data.title,
+    line: d.data.summary,
+    at: d.data.date,
+  })),
+  ...notesAll.map((n) => ({
+    kind: 'note' as const,
+    href: `/notes/${n.slug}`,
+    title: n.data.title,
+    line: n.data.summary,
+    at: n.data.date,
+  })),
+  ...atlasAll.map((f) => ({
+    kind: 'fiche' as const,
+    href: `/atlas/${f.slug}`,
+    title: f.data.title,
+    line: f.data.verdict,
+    at: f.data.updated,
+  })),
+];
+const actualite = actualiteFeed(candidats, now);
 ---
 
 <Base>
@@ -45,8 +83,10 @@ const lead = dossiers[0];
     </ChartFrame>
   </Section>
 
-  <!-- Veille: renders only while fresh (21 days), nothing at all past that — see VeilleStrip.astro -->
-  <VeilleStrip />
+  <!-- Fil d'actualité : veille promue + publications, ≤ 21 jours. Entièrement absent quand rien
+       n'est frais — voir ActualiteBlock.astro. Le lien vers /veille est gardé : cette page peut
+       quitter le build alors que le fil, lui, est plein. -->
+  <ActualiteBlock entries={actualite} veilleHref={veilleIsPublic() ? '/veille' : undefined} />
 
   <!-- Doctrine chain as an instrumented corridor -->
   <Section class="bg-graticule border-y border-line bg-surface py-9">
@@ -54,7 +94,9 @@ const lead = dossiers[0];
     <CorridorChain steps={doctrineChain} />
   </Section>
 
-  <!-- Lead briefing: the founding dossier -->
+  <!-- Le dossier de référence — PAS une actualité : il est permanent, et c'est le fil ci-dessus qui
+       porte ce qui vient de bouger. L'eyebrow disait « À la une », une formule d'actualité posée sur
+       un dossier vieux de deux mois ; les deux blocs se concurrençaient pour la même promesse. -->
   {
     lead ? (
       <Section class="pt-16">
@@ -63,7 +105,7 @@ const lead = dossiers[0];
           class="group block border-l-2 border-accent bg-surface p-6 transition-colors hover:bg-subtle md:p-8"
         >
           <div class="flex flex-wrap items-center gap-3">
-            <span class="eyebrow">À la une · Dossier</span>
+            <span class="eyebrow">Dossier de référence</span>
             <Pill tone={accessTone[lead.data.access]}>{accessLabel[lead.data.access]}</Pill>
           </div>
           <h2 class="mt-4 max-w-3xl font-serif text-title font-semibold text-ink group-hover:text-accent">

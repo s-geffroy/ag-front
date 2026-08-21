@@ -98,3 +98,41 @@ describe('publishableLegalPages', () => {
     }
   });
 });
+
+describe('attribution — nommée là où elle oblige, absente là où elle ne disait rien', () => {
+  // Garde de source, du même grain volontairement grossier que celle de veille.test.ts : les
+  // composants .astro ne se testent pas au rendu ici, mais la règle qui compte est vérifiable au
+  // texte. Le badge « Attribution requise » s'affichait sur LES TRENTE cartes de /atlas sans nommer
+  // une seule source : il ne dischargeait aucune obligation et consommait l'accent que porte
+  // maintenant le point d'actualité. La notice du producteur, elle, parle à l'intégrateur et
+  // arrivait en anglais au bout d'un paragraphe français. Les deux sont partis. L'attribution
+  // NOMINATIVE, qui oblige vraiment, doit rester — c'est ce que les deux derniers cas tiennent.
+  const source = async (rel: string) => {
+    const { readFileSync } = await import('node:fs');
+    const { fileURLToPath } = await import('node:url');
+    const src = readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
+    // On ignore les commentaires : ils parlent légitimement de ce qui a été retiré, pour dire
+    // pourquoi il ne doit pas revenir.
+    return src
+      .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*(\/\/|\*).*$/gm, '');
+  };
+
+  it('la liste /atlas ne porte plus ni le badge ni la notice du producteur', async () => {
+    const code = await source('../pages/atlas/index.astro');
+    expect(code).not.toMatch(/Attribution requise/);
+    expect(code).not.toMatch(/attributionNotice/);
+    expect(code).not.toMatch(/include_tainted/);
+  });
+
+  it('la fiche corridor porte toujours l’attribution nominative', async () => {
+    const code = await source('../pages/atlas/chokepoints/[id].astro');
+    expect(code).toMatch(/summary\.attributions/);
+  });
+
+  it('les mentions légales portent toujours la clause de réutilisation', () => {
+    const texte = legalPages.flatMap((p) => p.sections.flatMap((s) => s.body)).join('\n');
+    expect(texte).toMatch(/attributions doivent être conservées/);
+  });
+});

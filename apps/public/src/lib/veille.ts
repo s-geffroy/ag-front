@@ -17,7 +17,13 @@ import { PromotedNewsItem, type PromotedNewsItem as PromotedNewsItemT } from '@a
 import promotedNewsRaw from '../data/promoted-news.json';
 import { nav, type NavItem } from './site';
 
-/** Past this age, the homepage strip is not stale — it is absent. Arbitrated 2026-08-10. */
+/**
+ * Past this age, a freshness surface is not stale — it is absent. Arbitrated 2026-08-10.
+ *
+ * `homepageVeille` used to live here and consume it; the homepage now runs a UNIFIED feed (veille +
+ * editorial publications) whose rule is `lib/actualite.ts`, which imports this constant rather than
+ * copying its value. The constant stays here, with the arbitration that produced it.
+ */
 export const HOMEPAGE_MAX_AGE_DAYS = 21;
 
 export interface VeilleEntry {
@@ -76,24 +82,6 @@ export function veilleIsPublic(): boolean {
 /** The most recent promotion date, or null when there is none — the page's freshness stamp. */
 export function lastReviewedAt(entries: VeilleEntry[] = loadVeille()): Date | null {
   return entries.find((e) => e.promotedAt)?.promotedAt ?? null;
-}
-
-/**
- * The homepage strip: the newest `limit` entries, or NOTHING AT ALL when the freshest promotion is
- * older than `maxAgeDays`. Returning a short list of old items would be the stale failure this
- * module exists to prevent — on the site's most-seen page.
- */
-export function homepageVeille(
-  now: Date,
-  limit = 3,
-  maxAgeDays = HOMEPAGE_MAX_AGE_DAYS,
-): VeilleEntry[] {
-  const entries = loadVeille();
-  const newest = lastReviewedAt(entries);
-  if (!newest) return [];
-  const ageDays = (now.getTime() - newest.getTime()) / 86_400_000;
-  if (ageDays > maxAgeDays) return [];
-  return entries.slice(0, limit);
 }
 
 /**

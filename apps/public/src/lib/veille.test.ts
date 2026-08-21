@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const store: Record<string, unknown> = {};
 vi.mock('../data/promoted-news.json', () => ({ default: store }));
 
-const { loadVeille, veilleIsPublic, lastReviewedAt, homepageVeille, HOMEPAGE_MAX_AGE_DAYS } =
+const { loadVeille, veilleIsPublic, lastReviewedAt, HOMEPAGE_MAX_AGE_DAYS } =
   await import('./veille');
 
 const item = (o: Record<string, unknown> = {}) => ({
@@ -88,38 +88,12 @@ describe('loadVeille', () => {
   });
 });
 
-describe('homepageVeille — tombe vers le vide, jamais vers le périmé', () => {
-  const now = new Date('2026-08-10T12:00:00.000Z');
-
-  it('shows the newest few while fresh', () => {
-    setStore({
-      hormuz: [
-        item({ cluster_id: 'a', promoted_at: '2026-08-09T00:00:00.000Z' }),
-        item({ cluster_id: 'b', promoted_at: '2026-08-08T00:00:00.000Z' }),
-        item({ cluster_id: 'c', promoted_at: '2026-08-07T00:00:00.000Z' }),
-        item({ cluster_id: 'd', promoted_at: '2026-08-06T00:00:00.000Z' }),
-      ],
-    });
-    expect(homepageVeille(now).map((e) => e.item.cluster_id)).toEqual(['a', 'b', 'c']);
-  });
-
-  it('returns NOTHING past the ceiling — not a short list of old items', () => {
-    // The whole point: on the most-seen page of the site, absence beats a stale block.
-    setStore({ hormuz: [item({ promoted_at: '2026-07-01T00:00:00.000Z' })] });
-    expect(homepageVeille(now)).toEqual([]);
-  });
-
-  it('uses 21 days, and is inclusive at the boundary', () => {
+describe('HOMEPAGE_MAX_AGE_DAYS', () => {
+  it('vaut 21 jours', () => {
+    // La règle qui le CONSOMME vit maintenant dans lib/actualite.ts (fil unifié), et son test
+    // vérifie que les trois constantes de fraîcheur du site n'ont pas divergé. Ici on tient
+    // seulement la valeur arbitrée, à côté de la docstring qui dit d'où elle vient.
     expect(HOMEPAGE_MAX_AGE_DAYS).toBe(21);
-    setStore({ hormuz: [item({ promoted_at: '2026-07-20T12:00:00.000Z' })] }); // exactement 21 j
-    expect(homepageVeille(now)).toHaveLength(1);
-    setStore({ hormuz: [item({ promoted_at: '2026-07-20T11:00:00.000Z' })] }); // 21 j + 1 h
-    expect(homepageVeille(now)).toEqual([]);
-  });
-
-  it('is empty when nothing carries a usable date', () => {
-    setStore({ hormuz: [item({ promoted_at: 'pas-une-date' })] });
-    expect(homepageVeille(now)).toEqual([]);
   });
 });
 
@@ -130,7 +104,11 @@ describe('ADR 0074 — la prose du modèle ne doit atteindre aucune surface publ
   // place la plus visible, validé par quelqu'un n'ayant lu que des titres. C'est le défaut retiré.
   const surfaces = [
     '../components/atlas/PromotedNewsBlock.astro',
-    '../components/VeilleStrip.astro',
+    '../components/ActualiteBlock.astro',
+    // L'adaptateur veille → fil d'actualité : c'est lui qui choisit le champ publié.
+    '../lib/actualite.ts',
+    // La page compose le fil ; elle ne doit pas contourner l'adaptateur pour lire l'item brut.
+    '../pages/index.astro',
     '../pages/veille/[...page].astro',
     '../pages/veille/rss.xml.js',
   ];

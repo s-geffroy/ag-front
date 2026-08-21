@@ -17,9 +17,16 @@ const fiches = (await getCollection('atlas', ({ data }) => data.published)).sort
 );
 
 const chokepoints = await loadChokepoints();
+// Une seule horloge pour la page : le tri et l'affichage tiraient chacun leur `new Date()` et
+// pouvaient donc se contredire à la seconde de bascule des 21 jours — une carte classée en tête
+// pour son actualité, mais rendue sans elle.
+const now = new Date();
 // Deux niveaux seulement : âge de l'actualité, puis ordre alphabétique. Il n'y a pas de rang de
 // gravité — voir sortCorridorsByNews, qui dit pourquoi aucune clé de la base n'en fournit un.
-const nodes = sortCorridorsByNews(chokepoints.items, new Date());
+const nodes = sortCorridorsByNews(chokepoints.items, now);
+// Calculé une fois par corridor, relu deux fois par carte : le point et la pilule datée sortent du
+// MÊME signal. Jamais un point sans sa date, jamais une date sans son point.
+const news = new Map(nodes.map((c) => [c.id, corridorNewsSignal(c.id, now)] as const));
 ---
 
 <Base
@@ -68,37 +75,53 @@ const nodes = sortCorridorsByNews(chokepoints.items, new Date());
               Carte interactive →
             </a>
           </div>
-          <p class="-mt-2 mb-5 max-w-prose text-sm text-muted">
+          <p class="-mt-2 mb-2 max-w-prose text-sm text-muted">
             Cœur stratégique extrait de la base de données des chokepoints (plusieurs centaines de nœuds
             P0–P3, lecture seule). <strong>Ces corridors ne sont pas classés par gravité</strong> :
             aucune donnée de la base ne les départage — le CVI vaut « critique » pour les trente, et
             la classe de priorité les rassemble toutes dans P0. L'ordre est donc : actualité des trois
             dernières semaines, puis ordre alphabétique. Et l'absence d'actualité signifie qu'aucune
             couverture n'a été retenue, pas que le corridor est calme.
-            {chokepoints.attributionNotice ??
-              'Géométrie schématique, sans valeur navigationnelle ou juridique.'}
+          </p>
+          {/* Notre phrase, pas celle du producteur. `attribution_notice` est un disclaimer adressé
+              à l'INTÉGRATEUR — « pass include_tainted=true » est une instruction d'API — servi en
+              anglais, et il ne nomme aucune source : collé au bout d'un paragraphe français, il
+              parlait au mauvais lecteur dans la mauvaise langue. Les trois faits ci-dessous sont
+              vérifiables ici : la géométrie (mentions légales), l'exclusion des enregistrements à
+              licence restreinte (loadChokepoints appelle en scope `read`, sans include_tainted), et
+              l'attribution nominative (rendue sur /atlas/chokepoints/<id>). */}
+          <p class="mb-5 max-w-prose text-xs text-muted">
+            Géométrie schématique, sans valeur navigationnelle ni juridique. Les enregistrements dont
+            la licence restreint la redistribution sont exclus de cette liste ; les attributions
+            exigées par les sources figurent sur la fiche de chaque corridor.
           </p>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {nodes.map((c) => (
-              <EntryCard
-                href={`/atlas/chokepoints/${c.id}`}
-                kicker={humanize(c.family) || 'Chokepoint'}
-                title={c.name}
-                summary={c.region ? `Région : ${c.region}` : 'Nœud canonique de la base chokepoints.'}
-              >
-                {c.priority ? <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill> : null}
-                {c.attributions.length ? <Pill tone="neutral">Attribution requise</Pill> : null}
-                {/* Actualité récente, DATÉE : « 2 promotions » ne dit rien, « actualité du 11 août »
-                    dit tout. Absente au-delà de 21 jours (corridorNewsSignal) — un signal qui ne
-                    s'éteint jamais cesse d'en être un, et son absence ne dit pas « corridor calme ». */}
-                {(() => {
-                  const news = corridorNewsSignal(c.id);
-                  return news ? (
-                    <Pill tone="accent">● Actualité du {newsSignalLabel(news.promotedAt)}</Pill>
-                  ) : null;
-                })()}
-              </EntryCard>
-            ))}
+            {nodes.map((c) => {
+              const signal = news.get(c.id);
+              return (
+                <EntryCard
+                  href={`/atlas/chokepoints/${c.id}`}
+                  kicker={humanize(c.family) || 'Chokepoint'}
+                  title={c.name}
+                  summary={c.region ? `Région : ${c.region}` : 'Nœud canonique de la base chokepoints.'}
+                  signal={Boolean(signal)}
+                >
+                  {c.priority ? <Pill tone={priorityTone[c.priority] ?? 'neutral'}>{c.priority}</Pill> : null}
+                  {/* Il y avait ici un badge « Attribution requise », rendu dès que
+                      `required_attributions` était non vide — donc sur LES TRENTE cartes. Il ne
+                      départageait rien et, surtout, il ne nommait aucune source : il ne dischargeait
+                      donc aucune obligation de licence tout en consommant l'accent. L'attribution qui
+                      oblige est nominative et vit sur la fiche du corridor, plus les mentions légales.
+                      Actualité récente, DATÉE : « 2 promotions » ne dit rien, « actualité du 11 août »
+                      dit tout. Absente au-delà de 21 jours — un signal qui ne s'éteint jamais cesse
+                      d'en être un, et son absence ne dit pas « corridor calme ». La pastille de la
+                      carte suit exactement la même condition, et porte le même signal. */}
+                  {signal ? (
+                    <Pill tone="accent">● Actualité du {newsSignalLabel(signal.promotedAt)}</Pill>
+                  ) : null}
+                </EntryCard>
+              );
+            })}
           </div>
         </div>
       ) : null

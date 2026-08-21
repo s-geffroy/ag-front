@@ -60,3 +60,4 @@ decisions are numbered sequentially from 0003. Gaps are intentional.
 | [0078](0078-intitule-du-modele-pour-choisir-jamais-pour-publier.md) | Model headline shown to CHOOSE a subject, never published (amends 0074) | Accepted |
 | [0079](0079-brouillon-machine-impose-a-reecrire.md) | LLM draft pre-fills the note; publishable as-is, origin recorded (amended same day) | Accepted |
 | [0080](0080-recherche-interne-du-site-public.md) | Site search indexes the built `dist/`, so publication gating holds by construction | Accepted |
+| [0081](0081-fil-d-actualite-unifie.md) | Unified freshness feed (veille + publications, 21 d); attribution badge that named no source removed | Accepted |

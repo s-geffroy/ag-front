@@ -10,13 +10,34 @@ interface Props {
   access?: string;
   date?: Date;
   cvi?: 'bas' | 'modere' | 'eleve' | 'critique';
+  /**
+   * Carte porteuse d'une actualité récente : pastille accent en haut à droite.
+   *
+   * Ne dit PAS « important » — dit « quelque chose de daté est arrivé ici », et rien de plus.
+   * DÉCORATIVE au sens de l'accessibilité, et c'est délibéré : l'information est déjà portée EN
+   * TEXTE par la pilule datée du pied de carte, donc le signal ne repose jamais sur la couleur
+   * seule et le lecteur d'écran n'entend pas une pastille sans contenu. Un point sans sa date à
+   * côté serait un signal qu'on ne peut ni lire ni situer.
+   */
+  signal?: boolean;
 }
-const { href, kicker, title, summary, access, date, cvi } = Astro.props;
+const { href, kicker, title, summary, access, date, cvi, signal = false } = Astro.props;
 const hasSlot = Astro.slots.has('default');
 const hasFooter = Boolean(cvi || date || hasSlot);
 ---
 
 <a href={href} class="card-link group">
+  {
+    signal ? (
+      /* `.card` est déjà `relative` (global.css). Posée en absolu plutôt qu'en flux : la rangée du
+         haut porte le kicker et la pilule d'accès, et une carte ne doit pas dépendre du fait
+         qu'elle n'a PAS d'accès pour trouver où mettre son point.
+         right-2/top-2 = 8 px, soit à l'intérieur de l'équerre de survol (`.card-link::before` :
+         12 px depuis le coin, traits de 2 px collés aux bords). Six pixels les séparent, donc les
+         deux marques accent coexistent au survol sans jamais se toucher. */
+      <span class="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-accent" aria-hidden="true" />
+    ) : null
+  }
   <div class="mb-3 flex items-center justify-between gap-2">
     {kicker ? <span class="label">{kicker}</span> : <span></span>}
     {access ? <Pill tone={accessTone[access]}>{accessLabel[access] ?? access}</Pill> : null}

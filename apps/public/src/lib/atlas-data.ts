@@ -24,6 +24,18 @@ export type AtlasChokepoint = {
 export type ChokepointsLoad = {
   ok: boolean;
   items: AtlasChokepoint[];
+  /**
+   * `attribution_notice` du contrat : parsé et conservé, DÉLIBÉRÉMENT NON RENDU.
+   *
+   * C'est un disclaimer adressé à l'INTÉGRATEUR (« pass `include_tainted=true` » est une instruction
+   * d'API), servi en anglais, et il ne nomme aucune source — l'afficher ne dischargeait donc rien.
+   * L'obligation réelle est `required_attributions`, par enregistrement, rendue nominativement sur
+   * /atlas/chokepoints/<id>, plus la clause de réutilisation des mentions légales.
+   *
+   * Le champ reste consommé parce que l'ADR 0066 fait de la lecture intégrale du contrat un
+   * invariant de build : le retirer parce qu'une page a cessé de l'afficher est précisément le
+   * geste que cette ADR interdit.
+   */
   attributionNotice?: string;
 };
 
