@@ -15,7 +15,7 @@ regions:
 access: public
 published: false
 corrections: []
-updated: 2026-08-10
+updated: 2026-08-21
 confidence: moyen
 cvi_level: eleve
 chokepoint_id: p0_maritime_strait_bab_el_mandeb_strait
@@ -116,6 +116,19 @@ sources:
     type: institutionnel
     url: https://dbce.org/wp-content/uploads/2026/08/Update-079-JMIC-Advisory-Note-02-August.pdf
 ---
+
+Le corridor mer Rouge / Suez / Bab el-Mandeb n’a ni rouvert ni fermé : il trie, et son critère n’est plus
+la distance, mais la prime d’assurance. Après l’effondrement des transits — **26 434 navires en 2023,
+12 758 en 2025** —, une bascule bimodale s’est opérée : les porte-conteneurs de **7 500 EVP et plus** ne
+représentaient plus que **5,7 %** de leur niveau de 2023, tandis que ceux de moins de 7 500 EVP retrouvaient
+**91 %** de leur trafic. Côté énergétique, les flux de brut par Bab el-Mandeb sont passés d’environ
+8,7 millions de barils par jour en 2023 à 4,0 millions sur janvier-août 2024, avec une réserve sur les
+données AIS, une possible sous-estimation des tankers naviguant transpondeur éteint. La menace, un temps
+contenue, est redevenue active : la reprise des frappes le 22 juillet 2026 contre des pétroliers saoudiens a
+conduit le Joint Maritime Information Centre à relever l’alerte régionale à SEVERE le 2 août 2026. Pourtant,
+si la surprime de risque de guerre — passée d’environ 0,05 % avant octobre 2023 à 1 % début 2024, puis
+redescendue à 0,2 % après le cessez-le-feu d’octobre 2025 — a connu des variations marquées, la couverture
+est restée disponible et abordable, ce qui nuance l’idée d’une route devenue inassurable.
 
 ## Définition du corridor
 

@@ -13,7 +13,7 @@ regions:
 access: public
 published: false
 corrections: []
-updated: 2026-07-14
+updated: 2026-08-21
 confidence: moyen
 cvi_level: critique
 chokepoint_id: p0_maritime_strait_taiwan_strait
@@ -54,6 +54,20 @@ sources:
   - label: "ASPI — A blockade of Taiwan would cripple China's economy (route Est plus exposée aux typhons)"
     type: analyse_secondaire
 ---
+
+Taïwan incarne un chokepoint dont la criticité tient moins au détroit qu'à la capacité de production de
+semi-conducteurs avancés et à son irremplaçabilité à court terme. En 2023, l'île concentre **environ 68 %**
+de la capacité mondiale de fonderie sur les nœuds 16 nm et plus fins, et **environ 80 %** des procédés en
+lithographie EUV (7 nm et au-delà), selon les estimations de capacité installée de TrendForce. TSMC y
+détiendrait **plus de 90 %** du marché du 3 nm et 70 à 80 % de celui du 5 nm, toujours d'après TrendForce —
+mais ces parts, calculées par nœud, ne reflètent pas une statistique officielle de production par pays. Le
+détroit de Taïwan n'en constitue pas moins un passage significatif : 48 % des 5 400 porte-conteneurs
+opérationnels l'ont traversé entre janvier et juillet 2022, et environ 88 % du décile des plus gros porteurs,
+selon les données AIS compilées par Bloomberg. Pourtant, la menace principale ne réside pas dans un blocage
+logistique, mais dans l'absence de substitut rapide : les fabs de remplacement, comme celles de TSMC en
+Arizona ou de JASM au Japon, ont nécessité **3 à 5 ans** de construction, souvent sur des nœuds moins
+avancés. Si la concentration est écrasante, elle n'est pas absolue — Samsung produit du 3 nm en Corée depuis
+2022, et Intel développe sa génération 18A aux États-Unis.
 
 ## Définition du nœud
 

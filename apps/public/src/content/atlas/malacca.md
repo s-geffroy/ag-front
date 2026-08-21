@@ -15,7 +15,7 @@ regions:
 access: public
 published: false
 corrections: []
-updated: 2026-07-14
+updated: 2026-08-21
 confidence: moyen
 cvi_level: eleve
 chokepoint_id: p0_maritime_strait_strait_of_malacca
@@ -49,6 +49,20 @@ sources:
     type: analyse_secondaire
     url: https://www.eria.org/publications/
 ---
+
+La vulnérabilité du détroit de Malacca tient à une concentration : un volume vital transite par un passage
+unique, sans alternative de capacité équivalente. Selon l'US Energy Information Administration, il voit passer
+**environ 23,2 millions de barils par jour** de pétrole et liquides ainsi qu'**environ 9,2 milliards de pieds
+cubes par jour** de gaz naturel liquéfié au premier semestre 2025, ce qui en fait le **premier chokepoint
+pétrolier mondial**, devant Ormuz et ses quelque 20,9 millions de barils quotidiens. La Chine absorbe à elle
+seule **48 %** du pétrole empruntant ce passage, d'après la même source. Le détroit de Lombok, voie de
+contournement, est profond, de l'ordre de 1 000 mètres, et permissif ; il accueille les plus gros pétroliers
+et vraquiers que Malacca ne prend pas (littérature recherche-défense — appréciation). L'allongement de la
+navigation de l'ordre de un à quatre jours réduit le nombre de rotations annuelles et immobilise davantage de
+navires, ce qui borne le volume réacheminable. Le pipeline Chine-Myanmar, seule alternative terrestre
+quantifiée, ne représente qu'**environ 400 000 barils par jour**, soit à peine **2 %** du débit de Malacca.
+Cette vulnérabilité est structurelle et se traduit en distance, en délai et en coût, non en rupture brutale.
+Aucune source publique ne chiffre la capacité de report réellement absorbable par les routes alternatives.
 
 ## Définition du corridor
 

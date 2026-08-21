@@ -111,6 +111,20 @@ sources:
     url: https://www.aljazeera.com/news/2026/8/12/as-strait-of-hormuz-transit-drops-trump-again-says-us-has-control
 ---
 
+Le détroit d’Ormuz n’est pas fermé mais sous autorisation depuis qu’un cessez-le-feu a clos la première
+phase de la crise le 7 avril 2026, instaurant un régime dégradé et non une fermeture continue. Deux acteurs
+revendiquent de délivrer cette autorisation : Washington affirme contrôler l’accès maritime, Téhéran le
+maintenir fermé tant que blocus, sanctions et gels d’avoirs ne sont pas levés — aucune source publique ne
+départage ces revendications. Le trafic s’est effondré à **2,5 transits journaliers moyens en août 2026**
+(métrique PortWatch), contre plus de 130 navires par jour avant février 2026 (Reuters), un plancher observé
+qui ignore les navires passant transpondeur éteint. Ces volumes mesurent l’enjeu : **20,7 millions de barils
+de pétrole par jour** (14,6 de brut, 6,1 de produits raffinés, données 2024) et **10,5 milliards de pieds
+cubes de GNL** transitent par Ormuz, corridor dont la non-substituabilité tient à l’absence de toute route
+maritime alternative. Les pipelines Petroline et Habshan-Fujaïrah offrent une capacité de contournement de
+3,5 à 5,5 millions de barils par jour, laissant **environ 14 millions de barils sans alternative**, tandis
+que le GNL ne dispose d’aucune route de substitution opérationnelle. Le pétrole est ainsi partiellement
+contournable, alors que le gaz ne l’est pas du tout.
+
 ## Définition du corridor
 
 Bras de mer entre l’Iran et le sultanat d’Oman (péninsule de Musandam) reliant le golfe Persique au
