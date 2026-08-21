@@ -16,8 +16,49 @@
  *     les cas simples retombe sur son JSON. Rien n'est masqué, rien n'est interprété.
  */
 
+import type { Tone } from './display';
+
 /** Au-delà, une chaîne cesse d'être une étiquette et devient un paragraphe. */
 const INLINE_MAX = 90;
+
+/**
+ * Les cinq verdicts SFIM, tels que `/vocabularies#sfim_verdicts` les publie — et tels que leur ADR
+ * 0054 les définit : « diagnostiquer, flux par flux, s'il faut INTEGRATE / STABILIZE / FRAGMENT /
+ * DISINTEGRATE / MONITOR une dépendance stratégique ».
+ *
+ * L'écran colorait jusqu'ici FAIRE / TESTER / ABANDONNER : le vocabulaire du protocole **VERDICT**
+ * (`@ag/verdict`), une autre méthode, qui ne sortira jamais de cette API. Personne ne l'avait vu
+ * parce que `verdict` est `null` sur les sept unités servies — un mappage faux ne se voit pas tant
+ * qu'aucune donnée ne le traverse.
+ *
+ * Casse significative : leur ADR 0114 range ces termes parmi ceux qui « ne sont pas tout-minuscules
+ * et ne doivent pas le devenir ».
+ */
+const SFIM_VERDICTS = ['INTEGRATE', 'STABILIZE', 'FRAGMENT', 'DISINTEGRATE', 'MONITOR'] as const;
+
+export function isSfimVerdict(decision?: string | null): boolean {
+  return !!decision && (SFIM_VERDICTS as readonly string[]).includes(decision);
+}
+
+/**
+ * La couleur porte la VALIDATION, jamais la décision.
+ *
+ * Leur vocabulaire ne publie aucun ordre de gravité entre les cinq verdicts, et `DISINTEGRATE` n'est
+ * pas « pire » qu'`INTEGRATE` : ce sont cinq prescriptions, pas une échelle. Teinter la décision
+ * reviendrait à inventer une sémantique que l'amont n'a pas écrite. Ce qui se colore légitimement est
+ * l'axe dont nous portons la doctrine — candidat contre fait validé : leur propre serveur pose
+ * `awaiting_analyst_verdict = verdict_status != "accepted"` (`web/sfim.py`), et bascule un verdict de
+ * `reviewed` à `accepted` seulement quand leur porte de preuve s'ouvre (deux validateurs distincts
+ * pour un `DISINTEGRATE` ou un flux P0).
+ *
+ * Un terme absent de leur propre vocabulaire est une anomalie, pas un cas neutre : il ressort.
+ */
+export function sfimVerdictTone(decision?: string | null, status?: string | null): Tone {
+  if (!isSfimVerdict(decision)) return 'blocked';
+  if (status === 'accepted') return 'on_track';
+  if (status === 'reviewed') return 'at_risk';
+  return 'neutral';
+}
 
 export type SfuFieldKind =
   | { kind: 'empty' }

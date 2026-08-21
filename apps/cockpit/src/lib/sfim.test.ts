@@ -1,5 +1,54 @@
 import { describe, it, expect } from 'vitest';
-import { scoredDimensionRange, sfuFieldKind } from './sfim';
+import { isSfimVerdict, scoredDimensionRange, sfimVerdictTone, sfuFieldKind } from './sfim';
+
+describe('isSfimVerdict', () => {
+  it('accepts the five terms of their published `sfim_verdicts`', () => {
+    for (const v of ['INTEGRATE', 'STABILIZE', 'FRAGMENT', 'DISINTEGRATE', 'MONITOR']) {
+      expect(isSfimVerdict(v)).toBe(true);
+    }
+  });
+
+  it('rejects the VERDICT protocol vocabulary, which is a different method entirely', () => {
+    // Le défaut corrigé : l'écran SFIM colorait FAIRE / TESTER / ABANDONNER, qui appartiennent au
+    // protocole VERDICT (`@ag/verdict`) et ne sortiront jamais de cette API.
+    expect(isSfimVerdict('FAIRE')).toBe(false);
+    expect(isSfimVerdict('TESTER')).toBe(false);
+    expect(isSfimVerdict('ABANDONNER')).toBe(false);
+  });
+
+  it('is case-sensitive — their ADR 0114 forbids lowercasing these terms', () => {
+    expect(isSfimVerdict('integrate')).toBe(false);
+  });
+
+  it('rejects an absent decision', () => {
+    expect(isSfimVerdict(null)).toBe(false);
+    expect(isSfimVerdict(undefined)).toBe(false);
+  });
+});
+
+describe('sfimVerdictTone', () => {
+  it('marks a term outside their own vocabulary as an anomaly, whatever its status', () => {
+    expect(sfimVerdictTone('FAIRE', 'accepted')).toBe('blocked');
+    expect(sfimVerdictTone('ANYTHING', 'candidate')).toBe('blocked');
+  });
+
+  it('colours the VALIDATION, not the decision: only `accepted` is a human-signed verdict', () => {
+    // `awaiting_analyst_verdict = verdict_status != "accepted"` chez eux (web/sfim.py). Aucune des
+    // cinq décisions n'est « bonne » ou « mauvaise » — leur vocabulaire ne publie aucun ordre.
+    expect(sfimVerdictTone('DISINTEGRATE', 'accepted')).toBe('on_track');
+    expect(sfimVerdictTone('INTEGRATE', 'accepted')).toBe('on_track');
+  });
+
+  it('flags a reviewed-but-unaccepted verdict — leur porte ne s’est pas ouverte', () => {
+    expect(sfimVerdictTone('DISINTEGRATE', 'reviewed')).toBe('at_risk');
+  });
+
+  it('leaves a machine candidate neutral — it asserts nothing yet', () => {
+    expect(sfimVerdictTone('MONITOR', 'candidate')).toBe('neutral');
+    expect(sfimVerdictTone('MONITOR', null)).toBe('neutral');
+    expect(sfimVerdictTone('MONITOR', 'un_statut_inconnu')).toBe('neutral');
+  });
+});
 
 describe('scoredDimensionRange', () => {
   it('reads the measured spread rather than a hard-coded count', () => {

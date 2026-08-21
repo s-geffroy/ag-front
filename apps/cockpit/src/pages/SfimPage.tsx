@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 import { Badge, Separator, Sheet } from '@/components/ui';
 import { PageHeader } from '@/components/common';
 import { Disclaimer, PanelTitle, humanize } from '@/components/chokepoints/panels';
-import { scoredDimensionRange, sfuFieldKind } from '@/lib/sfim';
+import { isSfimVerdict, scoredDimensionRange, sfimVerdictTone, sfuFieldKind } from '@/lib/sfim';
 
 /**
  * SFIM — Strategic Flow Units (ADR 0054), the prescription layer parallel to chokepoints.
@@ -19,15 +19,6 @@ import { scoredDimensionRange, sfuFieldKind } from '@/lib/sfim';
  * them would make an unpopulated pipeline look finished, and an engine score is a candidate, not a
  * validated fact, so its provenance is shown per dimension.
  */
-
-const verdictTone = (v?: string | null) =>
-  v === 'FAIRE'
-    ? 'on_track'
-    : v === 'ABANDONNER'
-      ? 'blocked'
-      : v === 'TESTER'
-        ? 'at_risk'
-        : 'neutral';
 
 const prioTone = (p?: string | null) =>
   p === 'P0' ? 'blocked' : p === 'P1' ? 'at_risk' : 'neutral';
@@ -127,9 +118,10 @@ export function SfimPage() {
                 <td className="px-3 py-2 text-muted">{s.dimensions_scored ?? 0}</td>
                 <td className="px-3 py-2">
                   {s.verdict ? (
-                    <Badge tone={verdictTone(s.verdict)}>
+                    <Badge tone={sfimVerdictTone(s.verdict, s.verdict_status)}>
                       {s.verdict}
                       {s.verdict_status ? ` (${s.verdict_status})` : ''}
+                      {isSfimVerdict(s.verdict) ? '' : ' · hors vocabulaire'}
                     </Badge>
                   ) : (
                     <span className="text-xs text-muted">non rédigé</span>
@@ -266,8 +258,14 @@ function VerdictBlock({ verdict }: { verdict: SfuFicheOut['verdict'] }) {
     <div>
       <div className="mb-1 flex flex-wrap items-center gap-1.5">
         <PanelTitle>Verdict</PanelTitle>
-        <Badge tone={verdictTone(verdict.decision)}>{verdict.decision}</Badge>
+        <Badge tone={sfimVerdictTone(verdict.decision, verdict.status)}>{verdict.decision}</Badge>
         <Badge tone="neutral">{humanize(verdict.status)}</Badge>
+        {/* Un terme absent de leur propre `sfim_verdicts` se dit, il ne se devine pas à la couleur. */}
+        {isSfimVerdict(verdict.decision) ? null : (
+          <span className="text-[11px] text-status-blocked">
+            hors du vocabulaire `sfim_verdicts`
+          </span>
+        )}
         {verdict.confidence ? (
           <span className="text-[11px] text-muted">confiance {verdict.confidence}</span>
         ) : null}
