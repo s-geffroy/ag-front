@@ -13,6 +13,7 @@ import type {
   ChokepointAnalysis,
   ChokepointDetail,
   ChokepointList,
+  ChokepointState,
   CviAssessmentOut,
   CviCounterfactualOut,
   DerivedRelationGraphOut,
@@ -21,6 +22,7 @@ import type {
   StrategicFlowUnitList,
   SfuFicheOut,
   SfuVerdictOut,
+  StateSummaryOut,
   SystemResilienceOut,
   VocabulariesOut,
 } from '@ag/chokepoints';
@@ -266,6 +268,13 @@ export const api = {
     fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/analysis`).then(
       asJson<ChokepointAnalysis>,
     ),
+  // 1.7.0 — l'état courant d'un objet. Les trois pourcentages ne se lisent qu'ensemble, et ne se
+  // comparent PAS entre objets : passer par `stateReading()`, jamais par les champs bruts.
+  getCorridorState: (id: string) =>
+    fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/state`).then(asJson<ChokepointState>),
+  // Vue parc : un décompte de catégories, pas une moyenne.
+  getStateSummary: () =>
+    fetch('/api/explore/analytics/state-summary').then(asJson<StateSummaryOut>),
   getCorridorPerception: (id: string) =>
     fetch(`/api/explore/chokepoints/${encodeURIComponent(id)}/perception-signals`).then(
       asJson<PerceptionSignalList>,

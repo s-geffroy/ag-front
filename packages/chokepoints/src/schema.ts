@@ -738,6 +738,21 @@ export const AnalysisFlowValueRow = z
     method: z.string().nullish(),
     price_ref: z.string().nullish(),
     value_usd: z.number().nullish(),
+    /**
+     * 1.9.0 — COMMENT le volume brut a atteint l'unité du prix, en clair :
+     * « 14.6 million_barrels_per_day x 3.65e+08 -> 5.329e+09 bbl/year ».
+     *
+     * Il existe parce que le moteur ne lisait PAS `volume_unit` : Ormuz déclare 14,6 millions de
+     * barils par JOUR, le brut vaut ~78 $/baril, et la valeur servie était **1 144,64 $**. Quatorze
+     * virgule six barils. Le plus grave n'était pas l'ordre de grandeur mais l'incohérence interne —
+     * Singapour (41,12 millions d'EVP/an) et un autre objet conteneur étaient servis à 10⁶ d'écart
+     * d'échelle l'un de l'autre, sans que rien ne le dise.
+     *
+     * Une unité inconvertible est désormais **omise** plutôt que multipliée. `volume_basis` rend le
+     * chiffre recalculable au lieu d'affirmé : à afficher avec la valeur, ou à ne pas afficher la
+     * valeur.
+     */
+    volume_basis: z.string().nullish(),
   })
   .passthrough();
 export type AnalysisFlowValueRow = z.infer<typeof AnalysisFlowValueRow>;
@@ -865,6 +880,21 @@ function analysisBlock<K extends string, R extends z.ZodTypeAny>(key: K, row: R)
       columns: z.array(z.string()).default([]),
       rows: z.array(row).default([]),
       generated_at: z.string().nullish(),
+      /**
+       * 1.7.0 — LE VERDICT, quand 1.5.0 n'avait donné que de quoi le rendre. `generated_at` expose le
+       * défaut à un lecteur qui pense à comparer deux dates ; `stale` FAIT la comparaison. Vrai quand
+       * le moteur a recalculé SANS cet objet : `generated_at < engine_last_emitted_at`, interne à la
+       * donnée — ni horloge murale ni TTL, parce que la ligne vieille d'un mois d'un moteur mensuel est
+       * parfaitement courante et que seule la dernière passe du moteur tranche.
+       *
+       * Mesuré chez eux le 2026-08-13 : 28 objets sur cinq moteurs étaient servis avec des lignes de
+       * juillet (`network_centrality` 10, `regime_assessment` 9, `event_pressure` 7,
+       * `exposed_trade_loss` 1, `flow_value` 1). Le drapeau ne les rend pas fraîches — il empêche le
+       * périmé de passer pour du frais. À LIRE AVANT LA VALEUR, et à AFFICHER avec elle.
+       */
+      stale: z.boolean().nullish(),
+      /** La PREUVE du drapeau, servie à côté de lui pour qu'on vérifie au lieu de croire. */
+      engine_last_emitted_at: z.string().nullish(),
     })
     .passthrough();
 }
@@ -1043,6 +1073,15 @@ export const PredictionConsensusList = z
   .object({
     chokepoint_id: z.string(),
     consensus: z.array(PerceptionConsensusOut).default([]),
+    /* Enveloppe comptée (1.9.0). `count` reste servi comme alias de `returned` : rien ne casse.
+       `truncated: false` + `limit: null` sur une liste qui ne plafonne pas est le but — « ceci est
+       tout » est une phrase que la réponse doit pouvoir dire, sans qu'on ait à savoir lesquels de
+       leurs endpoints paginent. */
+    returned: z.number().nullish(),
+    total_count: z.number().nullish(),
+    truncated: z.boolean().nullish(),
+    limit: z.number().nullish(),
+    generated_at: z.string().nullish(),
     /**
      * API 0.18.0 — the cardinality floor the PRODUCER applied before serving (ADR 0087 their side,
      * 0072 ours). Required, with no default, and present even when `consensus` is empty, so an empty
@@ -1113,10 +1152,26 @@ export type PerceptionSignalOut = z.infer<typeof PerceptionSignalOut>;
  * gets 403, whatever `include_tainted` says. Only the cockpit holds that token — HDDE and the public
  * site must read the derived `prediction_consensus` block of /analysis instead (ADR 0013/0035).
  */
+/**
+ * `/chokepoints/{id}/perception-signals` rendait **200 lignes sur 30 021** (Détroits turcs) en
+ * écrivant `count: 200` — indiscernable d'un objet qui en porte exactement 200. C'est notre défaut
+ * `0029`, sur le voisin immédiat de l'endpoint qui l'avait motivé, et leur ADR 0098 le déclarait
+ * corrigé partout. 1.9.0 le corrige ici, avec un vrai `count(*) OVER ()` évalué AVANT le LIMIT.
+ */
 export const PerceptionSignalList = z
   .object({
     chokepoint_id: z.string(),
     count: z.number().nullish(),
+    /* Enveloppe comptée (1.9.0). `count` reste servi comme alias de `returned` : rien ne casse.
+       `truncated: false` + `limit: null` sur une liste qui ne plafonne pas est le but — « ceci est
+       tout » est une phrase que la réponse doit pouvoir dire, sans qu'on ait à savoir lesquels de
+       leurs endpoints paginent. */
+    returned: z.number().nullish(),
+    total_count: z.number().nullish(),
+    truncated: z.boolean().nullish(),
+    limit: z.number().nullish(),
+    generated_at: z.string().nullish(),
+
     consensus: z.array(PerceptionConsensusOut).default([]),
     signals: z.array(PerceptionSignalOut).default([]),
     disclaimer: z.string().nullish(),
@@ -1140,6 +1195,15 @@ export const ChokepointAnalysisSummary = z
 export const ChokepointAnalysisList = z
   .object({
     count: z.number().nullish(),
+    /* Enveloppe comptée (1.9.0). `count` reste servi comme alias de `returned` : rien ne casse.
+       `truncated: false` + `limit: null` sur une liste qui ne plafonne pas est le but — « ceci est
+       tout » est une phrase que la réponse doit pouvoir dire, sans qu'on ait à savoir lesquels de
+       leurs endpoints paginent. */
+    returned: z.number().nullish(),
+    total_count: z.number().nullish(),
+    truncated: z.boolean().nullish(),
+    limit: z.number().nullish(),
+    generated_at: z.string().nullish(),
     disclaimer: z.string().nullish(),
     items: z.array(ChokepointAnalysisSummary).default([]),
   })
@@ -1206,6 +1270,15 @@ export type StrategicFlowUnitSummary = z.infer<typeof StrategicFlowUnitSummary>;
 export const StrategicFlowUnitList = z
   .object({
     count: z.number().nullish(),
+    /* Enveloppe comptée (1.9.0). `count` reste servi comme alias de `returned` : rien ne casse.
+       `truncated: false` + `limit: null` sur une liste qui ne plafonne pas est le but — « ceci est
+       tout » est une phrase que la réponse doit pouvoir dire, sans qu'on ait à savoir lesquels de
+       leurs endpoints paginent. */
+    returned: z.number().nullish(),
+    total_count: z.number().nullish(),
+    truncated: z.boolean().nullish(),
+    limit: z.number().nullish(),
+    generated_at: z.string().nullish(),
     disclaimer: z.string().nullish(),
     items: z.array(StrategicFlowUnitSummary).default([]),
   })
@@ -1266,9 +1339,34 @@ export type SfuCompletenessOut = z.infer<typeof SfuCompletenessOut>;
  * `controlled` holds ~48 named lists (priority_classes, families, flow_types, risk_types, …); the
  * other blocks are lookup tables. Prefer driving UI filters from this rather than hard-coding lists.
  */
+/**
+ * Une entrée de `controlled`. Elle N'EST PLUS TOUJOURS UNE LISTE, et c'est le genre de changement
+ * qu'aucune garde ne voit : la réponse de `/vocabularies` est un dict non typé au contrat, il n'y a
+ * donc aucune propriété de schéma à comparer et `openapi_diff` reste muet. Ils nous l'ont dit à la
+ * main (leur `0044`) — « si vous parsez l'un des deux comme une liste, il faut adapter ; le silence
+ * d'une garde n'est pas une garantie ».
+ *
+ * Mesuré contre la production le 2026-08-21, trois formes coexistent :
+ *
+ * - **liste de termes** — le cas ordinaire, la grande majorité des vocabulaires ;
+ * - **table terme → famille** — `flow_type_families` (`Afghanistan_transit` → `trade_corridor`) ;
+ * - **table palier → classes** — `sfim_tier_crosswalk` (`tier_1` → `[S1_institutional, …]`) ;
+ * - **table de tables** — `_index`, qui n'était pas annoncé du tout.
+ *
+ * Les deux premières servaient jusqu'en 1.9.0 des `sorted()` sur un dictionnaire, c'est-à-dire la
+ * liste de leurs propres clefs : un contenu vide qui avait l'air d'un contenu.
+ */
+export const ControlledVocabularyEntry = z.union([
+  z.array(z.string()),
+  z.record(z.string(), z.string()),
+  z.record(z.string(), z.array(z.string())),
+  z.record(z.string(), z.record(z.string(), z.string())),
+]);
+export type ControlledVocabularyEntry = z.infer<typeof ControlledVocabularyEntry>;
+
 export const VocabulariesOut = z
   .object({
-    controlled: z.record(z.string(), z.array(z.string())).default({}),
+    controlled: z.record(z.string(), ControlledVocabularyEntry).default({}),
     control_dimensions: z
       .array(
         z
@@ -1292,10 +1390,19 @@ export const VocabulariesOut = z
 export type VocabulariesOut = z.infer<typeof VocabulariesOut>;
 
 /**
- * One candidate edge of the derived systemic graph (ADR 0065), extracted from the analysis fiches.
- * STRICTLY distinct from the canonical `/relations`: these are file-backed candidates pending human
- * validation, never canonical. A target flagged `external_candidate` is a COVERAGE GAP — an object
- * the corpus does not contain — not a corpus object. Never merge into seed/ without validation.
+ * One candidate edge of the derived systemic graph (ADR 0065). STRICTLY distinct from the canonical
+ * `/relations`: candidates pending human validation, never canonical. Never merge into seed/ without
+ * validation.
+ *
+ * DEPUIS 2.1.0, L'ENDPOINT NE SERT PLUS LE MÊME GRAPHE. Il servait le fichier
+ * `seed/strategic_relations_candidates.yaml` (769 arêtes, dont 333 vers un nom hors corpus) ; il sert
+ * désormais `analytics.derived_relation` — **le graphe que les moteurs lisent** (1 346 arêtes). Aucun
+ * champ n'a bougé, donc aucune garde de schéma ne le voit : c'est le CONTENU qui a changé.
+ *
+ * Conséquence directe : les 333 cibles `external_candidate` ont disparu. `to_status` vaut désormais
+ * toujours `in_corpus` — le champ reste, il ne varie plus, et le paramètre du même nom est accepté et
+ * ignoré. Une branche qui teste `to_status === 'external_candidate'` est morte : elle ne peut plus
+ * être vraie.
  */
 export const DerivedRelationOut = z
   .object({
@@ -1312,6 +1419,17 @@ export const DerivedRelationOut = z
     affected_flows: z.array(z.string()).default([]),
     evidence_file: z.string().nullish(),
     evidence_quote: z.string().nullish(),
+    /**
+     * 2.1.0 — QUELLE RÈGLE a produit l'arête : `derived:fiche-extraction` (une fiche rédigée par un
+     * humain l'affirme) ou l'une des trois inférences SQL — `derived:eez-colocation`,
+     * `derived:system-comembership`, `derived:shared-country`.
+     *
+     * Le graphe est à ~30 % d'analyse assertée et ~70 % d'inférence géographique. « Une fiche
+     * l'affirme » et « les deux objets touchent la même ZEE » ne sont pas la même prétention : un
+     * lecteur qui pèse une arête doit savoir de quel tas elle vient, et le graphe fichier ne pouvait
+     * pas le dire puisqu'il ne contenait que la première.
+     */
+    origin: z.string().nullish(),
   })
   .passthrough();
 export type DerivedRelationOut = z.infer<typeof DerivedRelationOut>;
@@ -1324,6 +1442,12 @@ export const DerivedRelationGraphOut = z
     status: z.string().nullish(),
     generated_from: z.string().nullish(),
     items: z.array(DerivedRelationOut).default([]),
+    /** 2.1.0 — le décompte par règle de production. À rendre AVEC le graphe : sans lui, ~70 %
+     *  d'inférence géographique se lit comme de l'analyse assertée. */
+    by_origin: z.record(z.number()).nullish(),
+    total_count: z.number().nullish(),
+    truncated: z.boolean().nullish(),
+    limit: z.number().nullish(),
     disclaimer: z.string().nullish(),
   })
   .passthrough();
@@ -1550,6 +1674,14 @@ export const NewsFeedOut = z
      * leurs comptes déterministes. Si l'on rend les deux, les distinguer visuellement.
      */
     model_notes: z.array(z.string()).default([]),
+    /**
+     * 1.9.0 — la fenêtre DEMANDÉE et celle qui a été APPLIQUÉE. Une valeur au-dessus de la fenêtre de
+     * collecte de l'agrégateur ne peut pas rendre davantage : une seule passe est servie, et cette
+     * passe n'a jamais vu de signaux plus anciens. Ils rapportent l'écart plutôt que de substituer en
+     * silence — donc `since=30` répondant sur 14 jours se constate au lieu de se deviner.
+     */
+    since_days_requested: z.number().nullish(),
+    since_days_effective: z.number().nullish(),
     disclaimer: z.string().nullish(),
     attribution_notice: z.string().nullish(),
   })
@@ -1758,3 +1890,123 @@ export const SystemChokepointList = z
   })
   .passthrough();
 export type SystemChokepointList = z.infer<typeof SystemChokepointList>;
+
+/* ---- État courant d'un objet (1.7.0, ADR amont 0107/0108) ------------------------------------ */
+
+/**
+ * UNE composante de `/chokepoints/{id}/state`. Six existent — `regime`, `event_pressure`, `cvi`,
+ * `prediction_consensus`, `media_attention`, `news` — et la charge utile sert la même forme pour
+ * toutes : les champs qui ne concernent pas la composante valent `null`. C'est délibéré chez eux, et
+ * commode ici : un seul schéma, aucune union à discriminer.
+ *
+ * `status` vaut **`observed` | `stale` | `no_data`**, et il n'y a pas de quatrième valeur. Une
+ * composante sans rien derrière dit `no_data` ; elle ne retombe JAMAIS sur une valeur par défaut,
+ * parce qu'une absence de signal n'est pas du calme.
+ */
+export const StateComponent = z
+  .object({
+    status: z.string(),
+    tension: z.number().nullish(),
+    confidence: z.number().nullish(),
+    generated_at: z.string().nullish(),
+    engine_last_emitted_at: z.string().nullish(),
+    observed_window_end: z.string().nullish(),
+    /* regime */
+    operational_state: z.string().nullish(),
+    lifecycle_phase: z.string().nullish(),
+    contributing_signals: z.number().nullish(),
+    /* event_pressure — servi avec son signal_count, et NE NOURRIT PAS tension_pct (voir plus bas) */
+    pressure_score: z.number().nullish(),
+    signal_count: z.number().nullish(),
+    top_domain: z.string().nullish(),
+    /* cvi */
+    global_level: z.string().nullish(),
+    binding_dimension: z.string().nullish(),
+    dimensions_evaluated: z.number().nullish(),
+    dimensions_total: z.number().nullish(),
+    /* prediction_consensus */
+    signal_family: z.string().nullish(),
+    market_count: z.number().nullish(),
+    consensus_probability: z.number().nullish(),
+    /* media_attention — 1.9.0 ajoute review_status : une alerte écartée par un analyste ne doit pas
+       piloter la tension pour toujours, et le champ est servi pour qu'on le vérifie. */
+    level: z.string().nullish(),
+    trigger_summary: z.string().nullish(),
+    review_status: z.string().nullish(),
+    /* news — 1.9.0 ajoute run_id : de quelle passe vient le compte. */
+    cluster_count: z.number().nullish(),
+    run_id: z.string().nullish(),
+    last_seen: z.string().nullish(),
+  })
+  .passthrough();
+export type StateComponent = z.infer<typeof StateComponent>;
+
+/** Le décompte qui donne son dénominateur à `coverage_pct`, et le nombre de composantes qui ont
+ *  effectivement nourri `tension_pct` — les deux ne sont pas le même nombre. */
+export const StateCoverage = z
+  .object({
+    observed: z.number(),
+    stale: z.number(),
+    no_data: z.number(),
+    total: z.number(),
+    tension_components_used: z.number(),
+  })
+  .passthrough();
+export type StateCoverage = z.infer<typeof StateCoverage>;
+
+/**
+ * `GET /chokepoints/{id}/state` — l'état courant d'UN objet, rassemblé, avec l'âge de chaque part.
+ *
+ * TROIS RÈGLES, ET AUCUNE N'EST DÉCORATIVE.
+ *
+ * 1. **`no_data` sort du dénominateur, ce n'est jamais un zéro.** Un objet à `{observed: 0,
+ *    no_data: 6}` est une réponse valide : elle dit « nous ne savons rien de cet objet », pas « tout
+ *    va bien ». Une absence qui deviendrait un zéro affirmerait le calme depuis un trou.
+ * 2. **Les trois pourcentages ne se séparent pas.** `tension_pct: 75` seul est un piège ;
+ *    `{tension 75, coverage 17, confidence 30}` est une information. Leur sérialiseur ne sert jamais
+ *    l'un sans les autres et ils nous demandent de ne pas les découpler à l'affichage — `stateReading`
+ *    ci-dessous existe pour rendre ce découplage difficile.
+ * 3. **CELA NE SE TRIE PAS.** Ces pourcentages ne sont PAS comparables entre objets : deux objets
+ *    reposent sur des composantes disponibles différentes. Chaque réponse le répète dans son champ
+ *    `comparability`, et c'est la même mise en garde que `pressure_score` — que nous avons retiré du
+ *    classement public le jour où nous l'avons comprise (ADR 0049 amont, et notre propre `bd5633c`).
+ *    Pour une vue parc, `/analytics/state-summary` sert un DÉCOMPTE DE CATÉGORIES, pas une moyenne.
+ *
+ * `event_pressure` est servi comme composante mais **ne nourrit pas** `tension_pct` : sa magnitude
+ * suit le volume de collecte, pas la sévérité (Ormuz 295 sur 308 signaux, Taïwan 1,28 sur 2).
+ */
+export const ChokepointState = z
+  .object({
+    chokepoint_id: z.string(),
+    canonical_name: z.string(),
+    priority_class: z.string().nullish(),
+    components: z.record(StateComponent).default({}),
+    coverage_pct: z.number(),
+    tension_pct: z.number().nullish(),
+    confidence_pct: z.number().nullish(),
+    coverage: StateCoverage,
+    comparability: z.string(),
+  })
+  .passthrough();
+export type ChokepointState = z.infer<typeof ChokepointState>;
+
+/**
+ * `GET /analytics/state-summary` — la vue parc, et elle est un **décompte de catégories**, jamais une
+ * moyenne. Elle compte les objets dont le régime dépasse `open`, et sert `objects_without_regime` à
+ * côté de la part : la majeure partie du noyau n'a aucune évaluation de régime, et une part calculée
+ * sur les quelques objets couverts ne doit pas se lire comme une part du noyau.
+ *
+ * `stale_regime_rows` est le compte de leur propre aveu, servi en continu plutôt qu'annoncé une fois.
+ */
+export const StateSummaryOut = z
+  .object({
+    share_above_normal_pct: z.number().nullish(),
+    objects_above_normal: z.number(),
+    objects_with_regime: z.number(),
+    objects_without_regime: z.number(),
+    core_total: z.number(),
+    stale_regime_rows: z.number(),
+    generated_at: z.string(),
+  })
+  .passthrough();
+export type StateSummaryOut = z.infer<typeof StateSummaryOut>;

@@ -251,7 +251,7 @@ export function createApiRouter(): Router {
   );
   explore.get(
     '/analytics/engine-runs',
-    proxy((c, req) => c.listEngineRuns(str(req.query.engine_id))),
+    proxy((c, req) => c.listEngineRuns(str(req.query.engine_id), num(req.query.limit))),
   );
   explore.get(
     '/chokepoint-analyses',
@@ -313,6 +313,13 @@ export function createApiRouter(): Router {
   explore.get(
     '/exports/geojson',
     proxy((c) => c.exportGeoJson()),
+  );
+  // Vue parc (1.7.0) : un DÉCOMPTE DE CATÉGORIES, jamais une moyenne. `objects_without_regime` est
+  // servi à côté de la part parce que c'est le seul dénominateur honnête — la majeure partie du
+  // noyau n'a aucune évaluation de régime.
+  explore.get(
+    '/analytics/state-summary',
+    proxy((c) => c.getStateSummary()),
   );
 
   // /chokepoints/* — literal-second-segment routes MUST precede the :id ones.
@@ -390,6 +397,13 @@ export function createApiRouter(): Router {
   explore.get(
     '/chokepoints/:id/cvi-assessment',
     proxy((c, req) => c.getChokepointCviAssessment(req.params.id)),
+  );
+  // 1.7.0 — l'état courant d'un objet, avec l'âge de chaque part. Rien n'y est recalculé : six
+  // composantes, chacune `observed` | `stale` | `no_data`, et trois pourcentages qui ne se séparent
+  // pas. NE SE TRIE PAS entre objets, la réponse le redit dans son champ `comparability`.
+  explore.get(
+    '/chokepoints/:id/state',
+    proxy((c, req) => c.getChokepointState(req.params.id)),
   );
 
   // Text endpoints (NDJSON stream, raw Markdown). Same taint gate, different content type.

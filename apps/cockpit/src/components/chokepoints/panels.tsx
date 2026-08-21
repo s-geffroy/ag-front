@@ -4,6 +4,8 @@ import type {
   ChokepointAnalysis,
   CviAssessmentOut,
   CviCounterfactualOut,
+  ChokepointState,
+  StateSummaryOut,
   DerivedRelationGraphOut,
   FlowOut,
   GeometryOut,
@@ -18,6 +20,7 @@ import {
   familyPluralitySurvivesDeduplication,
   familyQuestionDiversity,
   signalAttachmentRuleIsReviewed,
+  stateReading,
   PUBLISHABLE_MIN_MARKET_COUNT,
 } from '@ag/chokepoints';
 import { Badge, Separator } from '@/components/ui';
@@ -517,7 +520,26 @@ export function EngineBlocks({ analysis }: { analysis: ChokepointAnalysis }) {
           <div className="flex flex-wrap items-baseline gap-1.5">
             <span className="text-sm font-medium">{e.title ?? humanize(e.key)}</span>
             <Badge tone="neutral">{e.rows.length}</Badge>
+            {/* PÉRIMÉ, LU AVANT LA VALEUR (1.7.0). `stale` est vrai quand le moteur a recalculé SANS
+                cet objet : la ligne servie est celle d'une passe antérieure, et rien ne la
+                distinguait d'une ligne du jour. Mesuré chez eux le 13/08 : 28 objets sur cinq
+                moteurs étaient servis avec des lignes de juillet. Le drapeau ne les rend pas
+                fraîches — il empêche le périmé de passer pour du frais. */}
+            {e.stale ? (
+              <Badge tone="at_risk">
+                <span title="Le moteur a recalculé sans cet objet : cette ligne vient d'une passe antérieure.">
+                  périmé
+                </span>
+              </Badge>
+            ) : null}
           </div>
+          {/* La PREUVE du drapeau, servie à côté de lui : on vérifie au lieu de croire. */}
+          {e.generated_at || e.engine_last_emitted_at ? (
+            <p className="text-[11px] text-muted">
+              ligne {e.generated_at ?? '—'} · dernière passe du moteur{' '}
+              {e.engine_last_emitted_at ?? '—'}
+            </p>
+          ) : null}
           {e.description ? <p className="text-[11px] text-muted">{e.description}</p> : null}
           <div className="mt-1 overflow-x-auto">
             <table className="w-full text-[11px]">
@@ -553,6 +575,102 @@ export function EngineBlocks({ analysis }: { analysis: ChokepointAnalysis }) {
         {analysis.relations.length} relations · {analysis.claims.length} claims.
       </p>
       <Disclaimer text={analysis.disclaimer} />
+    </div>
+  );
+}
+
+/* ---- État courant (1.7.0, ADR amont 0107/0108) ---------------------------- */
+
+/**
+ * `GET /chokepoints/{id}/state` — six composantes et trois pourcentages, servis ensemble.
+ *
+ * TROIS INTERDITS, TENUS ICI ET PAS SEULEMENT ÉCRITS. (1) La couverture ouvre la lecture, parce
+ * qu'elle dit combien de terrain il y a sous les deux autres chiffres. (2) Les trois ne se
+ * découplent pas : `stateReading` fabrique la phrase entière, il n'existe pas de rendu « tension
+ * seule ». (3) Cela ne se compare pas entre objets — deux objets reposent sur des composantes
+ * différentes — et l'avertissement de l'amont est affiché tel qu'il arrive, pas résumé.
+ *
+ * `no_data` n'est pas un zéro : un objet à zéro composante observée dit « nous ne savons rien de cet
+ * objet », jamais « tout va bien ». C'est la même faute que nous avons commise en triant `/atlas` sur
+ * `pressure_score`, qui mesurait le volume de NOTRE collecte.
+ */
+export function StatePanel({ state }: { state: ChokepointState }) {
+  const r = stateReading(state);
+  const components = Object.entries(state.components ?? {});
+  return (
+    <div>
+      <div className="mb-1 flex flex-wrap items-center gap-1.5">
+        <PanelTitle>État courant</PanelTitle>
+        {r.knowsNothing ? <Badge tone="at_risk">aucune composante observée</Badge> : null}
+      </div>
+      {/* Les trois chiffres en une phrase, dans cet ordre. Aucun n'est affichable seul. */}
+      <p className="text-sm tabular-nums">{r.label}</p>
+      {r.knowsNothing ? (
+        <p className="mt-1 text-[11px] text-status-at_risk">
+          Nous ne savons rien de cet objet. Ce n'est pas du calme : une composante absente sort du
+          dénominateur, elle ne devient jamais un zéro.
+        </p>
+      ) : null}
+      <ul className="mt-2 space-y-0.5 text-[11px]">
+        {components.map(([name, c]) => (
+          <li key={name} className="flex flex-wrap items-center gap-1.5">
+            <span className="font-medium">{humanize(name)}</span>
+            <Badge
+              tone={
+                c.status === 'no_data' ? 'neutral' : c.status === 'stale' ? 'at_risk' : 'neutral'
+              }
+            >
+              {humanize(c.status)}
+            </Badge>
+            {c.tension != null ? <span className="text-muted">tension {c.tension}</span> : null}
+            {/* event_pressure est servi AVEC son signal_count et ne nourrit PAS la tension : sa
+                magnitude suit le volume de collecte, pas la sévérité (Ormuz 295 sur 308 signaux,
+                Taïwan 1,28 sur 2). Le compte est donc affiché à côté, jamais le score seul. */}
+            {c.pressure_score != null ? (
+              <span className="text-muted">
+                pression {c.pressure_score} sur {c.signal_count ?? '—'} signaux (hors tension)
+              </span>
+            ) : null}
+            {c.generated_at ? <span className="text-muted">· {c.generated_at}</span> : null}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-[11px] text-muted">
+        {state.coverage.observed} observée(s) · {state.coverage.stale} périmée(s) ·{' '}
+        {state.coverage.no_data} sans donnée, sur {state.coverage.total}.{' '}
+        {state.coverage.tension_components_used} ont nourri la tension.
+      </p>
+      <Disclaimer text={state.comparability} />
+    </div>
+  );
+}
+
+/**
+ * `GET /analytics/state-summary` — la vue parc. Un DÉCOMPTE DE CATÉGORIES, pas une moyenne, et le
+ * dénominateur honnête est affiché avec la part : la majeure partie du noyau n'a aucune évaluation
+ * de régime, et une part calculée sur les quelques objets couverts ne se lit pas comme une part du
+ * noyau. `stale_regime_rows` est leur propre aveu, servi en continu.
+ */
+export function StateSummaryPanel({ summary }: { summary: StateSummaryOut }) {
+  return (
+    <div>
+      <div className="mb-1 flex flex-wrap items-center gap-1.5">
+        <PanelTitle>État du parc</PanelTitle>
+        {summary.stale_regime_rows > 0 ? (
+          <Badge tone="at_risk">{summary.stale_regime_rows} régime(s) périmé(s)</Badge>
+        ) : null}
+      </div>
+      <p className="text-sm tabular-nums">
+        {summary.objects_above_normal} objet(s) au-dessus de « open », sur{' '}
+        {summary.objects_with_regime} évalué(s)
+        {summary.share_above_normal_pct != null ? ` (${summary.share_above_normal_pct} %)` : ''}
+      </p>
+      <p className="mt-1 text-[11px] text-muted">
+        <strong>{summary.objects_without_regime}</strong> objets du noyau n'ont AUCUNE évaluation de
+        régime, sur {summary.core_total}. La part ci-dessus porte sur les évalués, pas sur le noyau
+        — les deux dénominateurs ne se confondent pas.
+      </p>
+      <p className="mt-1 text-[11px] text-muted">Calculé le {summary.generated_at}.</p>
     </div>
   );
 }

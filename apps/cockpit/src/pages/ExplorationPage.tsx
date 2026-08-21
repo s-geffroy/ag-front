@@ -18,6 +18,8 @@ import {
   NewsPanel,
   PerceptionPanel,
   RisksPanel,
+  StatePanel,
+  StateSummaryPanel,
   SystemResiliencePanel,
 } from '@/components/chokepoints/panels';
 
@@ -222,6 +224,13 @@ function ResourceExplorer() {
           Chercher
         </Button>
       </form>
+
+      {/* Vue parc : un décompte de catégories, jamais une moyenne — et son dénominateur honnête
+          (les objets SANS évaluation de régime) est affiché avec la part, pas sous elle. */}
+      <Separator />
+      <GlobalResource load={api.getStateSummary} absent="État du parc : non calculé.">
+        {(sum) => <StateSummaryPanel summary={sum} />}
+      </GlobalResource>
 
       <Separator />
       <GlobalResource
@@ -535,6 +544,19 @@ function CorridorApiPanel({ id }: { id: string }) {
 
   return (
     <div className="space-y-5">
+      {/* L'ÉTAT COURANT EN PREMIER, et pas par goût de mise en page : il porte l'âge de chaque
+          composante et dit ce qu'on ne sait pas de cet objet. Lire une valeur de moteur sans savoir
+          si sa ligne a été recalculée, c'est ce qui leur a fait servir 28 objets avec des lignes de
+          juillet — et à nous les afficher sans le voir. */}
+      <Resource
+        id={id}
+        load={api.getCorridorState}
+        absent="État : aucune composante pour ce corridor."
+      >
+        {(st) => <StatePanel state={st} />}
+      </Resource>
+
+      <Separator />
       <Resource
         id={id}
         load={api.getCorridorCvi}

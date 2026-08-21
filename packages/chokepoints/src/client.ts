@@ -35,6 +35,8 @@ import {
   DerivedRelationGraphOut,
   CviCounterfactualOut,
   NewsFeedOut,
+  ChokepointState,
+  StateSummaryOut,
 } from './schema';
 import type {
   FlowChokepointOut as FlowChokepointOutT,
@@ -67,6 +69,8 @@ import type {
   DerivedRelationGraphOut as DerivedRelationGraphOutT,
   CviCounterfactualOut as CviCounterfactualOutT,
   NewsFeedOut as NewsFeedOutT,
+  ChokepointState as ChokepointStateT,
+  StateSummaryOut as StateSummaryOutT,
 } from './schema';
 
 /**
@@ -173,7 +177,14 @@ export type ChokepointsClient = {
   getVocabularies(): Promise<VocabulariesOutT>;
   listAlerts(params?: AlertParams): Promise<AlertOutT[]>;
   listAnalyticsResults(params?: AnalyticsParams): Promise<AnalyticalResultOutT[]>;
-  listEngineRuns(engineId?: string): Promise<EngineRunOutT[]>;
+  /**
+   * GET /analytics/engine-runs — `analytics.engine_run` est la seule table append-only derrière un
+   * endpoint de liste (~140 lignes/jour). Depuis 1.8.0 elle PLAFONNE à 200 par défaut (max 1000) et
+   * trie du plus récent au plus ancien : lire « tous les runs » en un appel n'est plus possible, et
+   * l'enveloppe le dit (`total_count`, `truncated`). Ce client rend les items ; la vue brute de
+   * l'Explorateur montre l'enveloppe, qui est l'endroit où la troncature se constate.
+   */
+  listEngineRuns(engineId?: string, limit?: number): Promise<EngineRunOutT[]>;
   getChokepointCviAssessment(id: string): Promise<CviAssessmentOutT>;
   listChokepointAnalyses(params?: {
     priority_class?: string;
@@ -216,6 +227,23 @@ export type ChokepointsClient = {
    * floor held — an aggregate can be checked, the engine constant it replaced could not.
    */
   getChokepointPredictionConsensus(id: string): Promise<PredictionConsensusListT>;
+  // --- 1.7.0 ---
+  /**
+   * GET /chokepoints/{id}/state — l'état courant d'un objet en une lecture : six composantes, chacune
+   * `observed` | `stale` | `no_data`, et trois pourcentages qui ne se séparent pas. Rien n'y est
+   * recalculé : l'endpoint rassemble ce que les moteurs ont écrit et attache l'âge de chaque part.
+   *
+   * NE SE TRIE PAS. Deux objets reposent sur des composantes disponibles différentes, donc leurs
+   * chiffres ne sont pas commensurables — chaque réponse le redit dans `comparability`. Passer par
+   * `stateReading()` plutôt que par les champs bruts : il fabrique la phrase entière.
+   */
+  getChokepointState(id: string): Promise<ChokepointStateT>;
+  /**
+   * GET /analytics/state-summary — la vue parc, et c'est un DÉCOMPTE DE CATÉGORIES, pas une moyenne.
+   * `objects_without_regime` est servi à côté de la part parce que c'est le seul dénominateur
+   * honnête : la majeure partie du noyau n'a aucune évaluation de régime.
+   */
+  getStateSummary(): Promise<StateSummaryOutT>;
 };
 
 /**
@@ -276,6 +304,9 @@ export const COVERED_PATHS = [
   '/chokepoints/{chokepoint_id}/news',
   // 0.15.0
   '/chokepoints/{chokepoint_id}/prediction-consensus',
+  // 1.7.0 (pre-wired: le pin est encore en 1.6.0, la garde est unidirectionnelle pin ⊆ covered)
+  '/chokepoints/{chokepoint_id}/state',
+  '/analytics/state-summary',
 ] as const;
 
 /** A product surface that actually reads an endpoint. The client itself is NOT a consumer. */
@@ -538,8 +569,11 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
         await get('/analytics/results', params as Record<string, string | number | undefined>),
       );
     },
-    async listEngineRuns(engineId) {
-      return parseList(EngineRunOut, await get('/analytics/engine-runs', { engine_id: engineId }));
+    async listEngineRuns(engineId, limit) {
+      return parseList(
+        EngineRunOut,
+        await get('/analytics/engine-runs', { engine_id: engineId, limit }),
+      );
     },
     async getChokepointCviAssessment(id) {
       return CviAssessmentOut.parse(await get(`/chokepoints/${enc(id)}/cvi-assessment`));
@@ -604,6 +638,14 @@ export function createChokepointsClient(opts: ChokepointsClientOptions): Chokepo
           params as Record<string, string | number | undefined>,
         ),
       );
+    },
+
+    // --- 1.7.0 : l'état courant, et l'âge de chaque part ---
+    async getChokepointState(id) {
+      return ChokepointState.parse(await get(`/chokepoints/${enc(id)}/state`));
+    },
+    async getStateSummary() {
+      return StateSummaryOut.parse(await get('/analytics/state-summary'));
     },
   };
 }

@@ -1399,5 +1399,87 @@
       }
     ],
     "internal_notes": "Cadrage : docs/cadrage-atlas/cables-sous-marins-mer-rouge.md. L'objet de base est P2 : mêmes conséquences que le Trans-Caspien (pas de page de base, pas d'index). Base encore plus pauvre : 1 flux (submarine_data, importance déclarée 2/5), 3 risques à 2/3/2 sans déclencheur, rien d'autre. Point à instruire : la thèse suppose une criticité que la base cote basse — si les sources confirment la thèse, écrire le désaccord avec la base plutôt que le taire. S'articule avec atlas/mer-rouge-suez.md sans la répéter : pas de crise houthie, pas de primes d'assurance."
+  },
+  {
+    "id": "deliv_atlas_minerais_critiques_fiche",
+    "title": "Fiche Atlas — Corridor des minerais critiques",
+    "description": "Fiche Atlas sur les minerais critiques : la contrainte est l'étape de séparation, pas l'extraction — le minerai a plusieurs origines, le raffinage n'en a presque qu'une.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 10,
+    "deadline": "2026-12-15",
+    "next_action": "CADRÉE le 2026-08-21 : angle, périmètre et grandeurs figés dans docs/cadrage-atlas/minerais-critiques.md ; squelette créé en published:false, sans chokepoint_id. Prochaine étape : sourcing externe majoritaire (part chinoise de la SÉPARATION, capacités hors Chine), puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/minerais-critiques"
+      }
+    ],
+    "internal_notes": "DÉGELÉE le 2026-08-21 par leur 0040. Elle était gelée faute d'objet-corridor : nous avions cherché dans /chokepoints, où les 32 critical_supply sont tous des sites. L'unité-corridor est la SFU, servie sur /strategic-flows depuis la 0.7.0. Ancrage : sfu_critical_minerals_v1 (P1, scoped). PAS de chokepoint_id : notre modèle n'a pas de clef vers une SFU, et l'amont refuse Ganzhou comme point d'ancrage — donc ni bloc consensus, ni actualité promue. Base MINCE : 2 routes, 6 nœuds, 3 dimensions sur 10 toutes engine_auto (4,8 / 5,0 / 5,0), aucun verdict, un seul acteur canonique (Indonésie), et le moteur control_concentration ne couvre AUCUN de ces nœuds. Cadrage : docs/cadrage-atlas/minerais-critiques.md."
+  },
+  {
+    "id": "deliv_atlas_gnl_fiche",
+    "title": "Fiche Atlas — Corridors GNL",
+    "description": "Fiche Atlas sur le GNL : pas un corridor mais une cargaison — et à Ormuz, le brut a deux contournements quand le gaz n'en a aucun.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 10,
+    "deadline": "2026-12-15",
+    "next_action": "CADRÉE le 2026-08-21 : angle, périmètre et grandeurs figés dans docs/cadrage-atlas/gnl.md ; squelette créé en published:false, sans chokepoint_id. Prochaine étape : re-sourcer l'asymétrie gaz/pétrole à Ormuz (EIA, AIE, GIIGNL) — c'est le cœur de la fiche —, puis la porte sources_ok. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/gnl"
+      }
+    ],
+    "internal_notes": "DÉGELÉE le 2026-08-21 par leurs 0040 et 0051. Nous ne voyions qu'une lane ; ils ont mesuré 29 objets portant le flux LNG dont 15 P0 (28 aujourd'hui, la 4.0.0 ayant fusionné le couloir GNL d'Ormuz dans le détroit). Notre propre 0036 formulait déjà l'hypothèse juste — le GNL se lit par flow_type — et nous avons gelé en attendant confirmation d'un fait que nous avions écrit. PAS de chokepoint_id, et c'est la thèse : le corridor GNL n'a pas de nœud à nommer. Ancrage secondaire sfu_gulf_oil_lng_hormuz_v1 (P0, l'artère seule). NE JAMAIS sommer les volumes entre objets. Fait central à re-sourcer : l'absence de gazoduc de contournement d'Ormuz est une note de flux de l'amont, pas une source. Cadrage : docs/cadrage-atlas/gnl.md."
   }
 ]
