@@ -1,4 +1,5 @@
 ---
+draft: true
 title: 'Assurance maritime : le signal faible que les entreprises regardent trop peu'
 date: 2026-05-26
 summary: >-
@@ -21,12 +22,16 @@ corrections: []
 sources:
   - label: Lloyd’s Market Association — Joint War Committee (zones à risque listées)
     type: presse_specialisee
-  - label: S&P Global Market Intelligence — cotations war-risk
+    url: https://lmalloyds.com/committee/joint-war-committee/
+  - label: S&P Global Commodity Insights — actualité war-risk shipping
     type: presse_specialisee
+    url: https://www.spglobal.com/energy/en/news-research/latest-news/shipping
   - label: IMF PortWatch (déroutements Suez / Cap)
     type: donnees_ouvertes
+    url: https://portwatch.imf.org/
   - label: Suivi de trafic AIS (MarineTraffic)
     type: donnees_ouvertes
+    url: https://www.marinetraffic.com/
 ---
 
 Depuis fin 2023, les primes de risque guerre sur la mer Rouge ont bondi, et une part
@@ -47,6 +52,12 @@ est fin, chiffré, et il précède souvent l’événement médiatique.
    confirme — le détour n’est plus une prudence, c’est la nouvelle norme.
 3. **Part de navires déroutés** : au-delà d’un seuil, la congestion sur les routes
    alternatives devient à son tour le problème (délais, capacité, coût du carburant).
+
+> **Fait / analyse / opinion.** La hausse des primes de risque guerre en mer Rouge depuis fin 2023
+> et le report d’une part du trafic vers le cap de Bonne-Espérance sont des **faits rapportés** par
+> les sources citées, non reconfirmés par nos soins. La lecture de la prime comme signal avancé et
+> les trois seuils ci-dessus relèvent de l’**analyse**. La comparaison avec le suivi du prix du
+> pétrole par une direction financière est une **opinion** argumentée.
 
 > Diagnostic provisoire — données fragmentées, à valider. Aucune affirmation structurante
 > sans source ou marqueur d’incertitude.

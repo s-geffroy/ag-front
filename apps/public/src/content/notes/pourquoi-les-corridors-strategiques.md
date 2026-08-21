@@ -1,4 +1,5 @@
 ---
+draft: true
 title: Pourquoi les corridors sont redevenus des objets stratégiques
 date: 2026-05-12
 summary: >-
@@ -20,10 +21,13 @@ corrections: []
 sources:
   - label: UNCTAD — Review of Maritime Transport
     type: institutionnel
+    url: https://unctad.org/topic/transport-and-trade-logistics/review-of-maritime-transport
   - label: IMF PortWatch (suivi des escales et déroutements)
     type: donnees_ouvertes
+    url: https://portwatch.imf.org/
   - label: Lloyd’s List (presse spécialisée shipping)
     type: presse_specialisee
+    url: https://lloydslist.com/
 ---
 
 Fin 2023, deux corridors ont vacillé presque en même temps : la **mer Rouge**, sous les
@@ -50,14 +54,17 @@ seuils de rupture, pas par ses tracés.
 - Suivre des **signaux** mesurables — primes, déroutements, restrictions — plutôt que des
   récits.
 
-C’est précisément l’objet de l’Atlas et de la méthode CVI : rendre la vulnérabilité d’un
-corridor lisible, sourcée et actionnable, au lieu d’une intuition géopolitique.
+> **Fait / analyse / opinion.** Les perturbations de fin 2023 en mer Rouge et au canal de Panama
+> sont des **faits rapportés** par les sources citées, non reconfirmés par nos soins. La lecture
+> d’un corridor comme système de dépendances, et non comme tracé, relève de l’**analyse**. Les
+> trois recommandations ci-dessus sont une **opinion** argumentée.
 
 > Diagnostic provisoire — la lecture temps réel des flux reste partielle. Aucune
 > affirmation structurante sans source ou marqueur d’incertitude.
 
 ## Pour aller plus loin
 
-- La méthode : [comment le CVI mesure la vulnérabilité d’un corridor](/methode-cvi).
+- Rendre cette vulnérabilité lisible, sourcée et actionnable plutôt qu’intuitive, c’est l’objet de
+  l’Atlas et de la méthode CVI : [comment le CVI mesure la vulnérabilité d’un corridor](/methode-cvi).
 - Le vocabulaire précis : [un corridor n’est pas une route](/notes/un-corridor-nest-pas-une-route).
 - Les corridors travaillés : [l’Atlas stratégique](/atlas).
