@@ -139,7 +139,8 @@ export function provenanceSummary(data: Record<string, unknown>): string {
   // l'ouverture du document — la page publique le rend en tête, avant tout corps de texte. Ne pas le
   // transmettre faisait échouer la rubrique « la fiche commence par un verdict » sur trois fiches
   // qui en portent une : le juge voyait s'ouvrir « Définition du corridor » et concluait, à raison
-  // sur ce qu'il voyait, qu'aucun verdict n'ouvrait la fiche. Troisième occurrence du même défaut.
+  // sur ce qu'il voyait, qu'aucun verdict n'ouvrait la fiche. Troisième occurrence du même défaut ;
+  // la quatrième, sur les notes, est traitée juste en dessous. `provenance.test.ts` garde les deux.
   if (typeof data.strategic_question === 'string') {
     lines.push(`question_strategique: ${data.strategic_question.trim()}`);
   }
@@ -147,6 +148,25 @@ export function provenanceSummary(data: Record<string, unknown>): string {
     lines.push(
       `verdict_declare (rendu EN TÊTE de la page publique):\n  ${data.verdict.trim().replace(/\n/g, '\n  ')}`,
     );
+  }
+  // MÊME DÉFAUT, QUATRIÈME OCCURRENCE (2026-08-21). Sur une note, `signals`,
+  // `decision_implication` et `blind_spot` ne sont pas des métadonnées de suivi : la page publique
+  // les REND, sous « Signaux à suivre », « Implication décisionnelle — » et « Angle mort — »
+  // (`pages/notes/[slug].astro`). Les taire faisait noter au juge une rubrique `three_signals` sur
+  // un corps qui ne les répète pas : `fail` sur `un-corridor-nest-pas-une-route`, qui en déclare
+  // pourtant trois. Règle générale : tout champ rendu au lecteur doit être vu par le juge.
+  // Une liste vide est DÉCLARÉE vide (même doctrine qu'ADR 0077) ; une rubrique absente reste tue.
+  if (Array.isArray(data.signals)) {
+    lines.push(`signaux_declares (rendus sous « Signaux à suivre »): ${data.signals.length}`);
+    for (const s of data.signals) lines.push(`  - ${String(s).trim()}`);
+  }
+  if (typeof data.decision_implication === 'string' && data.decision_implication.trim() !== '') {
+    lines.push(
+      `implication_decisionnelle (rendue sur la page): ${data.decision_implication.trim()}`,
+    );
+  }
+  if (typeof data.blind_spot === 'string' && data.blind_spot.trim() !== '') {
+    lines.push(`angle_mort_declare (rendu sur la page): ${data.blind_spot.trim()}`);
   }
   const sources = Array.isArray(data.sources) ? data.sources : [];
   if (sources.length > 0) {
