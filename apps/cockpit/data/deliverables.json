@@ -1481,5 +1481,46 @@
       }
     ],
     "internal_notes": "DÉGELÉE le 2026-08-21 par leurs 0040 et 0051. Nous ne voyions qu'une lane ; ils ont mesuré 29 objets portant le flux LNG dont 15 P0 (28 aujourd'hui, la 4.0.0 ayant fusionné le couloir GNL d'Ormuz dans le détroit). Notre propre 0036 formulait déjà l'hypothèse juste — le GNL se lit par flow_type — et nous avons gelé en attendant confirmation d'un fait que nous avions écrit. PAS de chokepoint_id, et c'est la thèse : le corridor GNL n'a pas de nœud à nommer. Ancrage secondaire sfu_gulf_oil_lng_hormuz_v1 (P0, l'artère seule). NE JAMAIS sommer les volumes entre objets. Fait central à re-sourcer : l'absence de gazoduc de contournement d'Ormuz est une note de flux de l'amont, pas une source. Cadrage : docs/cadrage-atlas/gnl.md."
+  },
+  {
+    "id": "deliv_atlas_mediterranee_orientale_fiche",
+    "title": "Fiche Atlas — Méditerranée orientale",
+    "description": "Fiche Atlas sur le bassin est-méditerranéen : il n'a pas de contournement mais quatre sorties, et ce qui lui est propre est la superposition de quatre flux sur le même plan d'eau.",
+    "type": "atlas_fiche",
+    "pillar": "production",
+    "status": "framing",
+    "priority": "P2",
+    "progress": 10,
+    "deadline": "2026-12-15",
+    "next_action": "CADRÉE le 2026-08-21 : angle, périmètre et grandeurs figés dans docs/cadrage-atlas/mediterranee-orientale.md ; squelette créé en published:false. Prochaine étape : établir que la superposition ajoute quelque chose aux fiches de Suez et des Détroits turcs — si elle n'ajoute rien, la fiche n'a pas de raison d'être et il faut le dire. Aucune porte n'est cochée.",
+    "impact": "atlas",
+    "offer": "basic",
+    "quality_gate_status": "not_started",
+    "gates": {
+      "sources_ok": false,
+      "llm_draft_done": false,
+      "contradiction_done": false,
+      "compliance_done": false,
+      "human_review_done": false
+    },
+    "munich": {
+      "1": "todo",
+      "2": "todo",
+      "3": "todo",
+      "4": "todo",
+      "5": "todo",
+      "6": "todo",
+      "7": "todo",
+      "8": "todo",
+      "9": "todo",
+      "10": "todo"
+    },
+    "links": [
+      {
+        "label": "Squelette (hors-ligne)",
+        "url": "/atlas/mediterranee-orientale"
+      }
+    ],
+    "internal_notes": "DÉGELÉE le 2026-08-21 par leur 0051. L'objet p1_maritime_route_system_eastern_mediterranean_system a été CRÉÉ pour nous, et il est déclaré mince : needs_source / not_validated, aucune source du registre ne couvre le bassin comme unité d'analyse (les quatre citées portent les flux qui le traversent), volumes nuls, scores qualitatifs. 4 flux non quantifiés (conteneurs 4, gaz 4, données 4, brut 3), 1 seul risque (military_escalation), aucune alternative, aucune métrique. ANGLE MORT : GET /chokepoints/{id} ne sert AUCUN validation_status — la minceur n'est pas lisible depuis l'objet, elle nous a été dite dans un message et doit être portée en dur. Objet P1 : ni page de base ni entrée d'index. NE PAS sommer les volumes des quatre sorties. Cadrage : docs/cadrage-atlas/mediterranee-orientale.md."
   }
 ]

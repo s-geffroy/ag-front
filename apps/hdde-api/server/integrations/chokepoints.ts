@@ -151,7 +151,16 @@ const isTainted = (it: unknown): boolean =>
 function degrade<T>(label: string, fallback: T): (err: unknown) => T {
   return (err: unknown) => {
     const status = err instanceof ChokepointsApiError ? err.status : 0;
-    if (status !== 404) {
+    // Un 422 depuis 2.2.0 n'est pas une panne de l'amont : c'est une valeur de filtre que NOUS avons
+    // envoyée et qui n'existe pas, avec la liste des valeurs admises dans le corps. Le dire
+    // autrement, sinon il se range parmi les incidents réseau et personne ne corrige l'appel.
+    if (status === 422) {
+      console.error(
+        `[hdde] chokepoints ${label} → 422: a filter value WE sent does not exist (the response ` +
+          `lists the admissible values). This is our call to fix, not an upstream outage.`,
+        err,
+      );
+    } else if (status !== 404) {
       console.error(
         `[hdde] chokepoints ${label} failed (${status || 'network'}) — degrading to empty. ` +
           `This is NOT an empty dataset; it is a failure.`,
@@ -395,6 +404,7 @@ export async function fetchDerivedRelations(
               to_status: e.to_status,
               relation_type: e.relation_type,
               strength_score: e.strength_score ?? undefined,
+              origin: e.origin ?? undefined,
             })),
           }
         : null,

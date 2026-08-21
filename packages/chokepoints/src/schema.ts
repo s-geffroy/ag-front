@@ -706,12 +706,26 @@ export const AnalysisEvidenceQualityRow = z
   .passthrough();
 export type AnalysisEvidenceQualityRow = z.infer<typeof AnalysisEvidenceQualityRow>;
 
+/**
+ * `divergence_flag` A ÉTÉ RETIRÉ EN 2.0.0, et nous ne le remplaçons pas.
+ *
+ * Il annonçait le contrôle d'une stratégie de valorisation par l'autre. Il comparait deux grandeurs
+ * qui ne sont pas la même : Oxford `exposed_value_usd` compte TOUT le commerce routé par le passage,
+ * leur prix × volume ne somme que les flux qu'ils ont chiffrés — pour Ormuz, le brut seul. Mesuré le
+ * 2026-08-14 : vrai pour **5 objets sur les 5** qui portent les deux sources, et corriger le défaut
+ * d'unités (qui a pourtant déplacé les valeurs de six à huit ordres de grandeur) ne l'a pas fait
+ * basculer une fois. Un drapeau qui ne peut pas être faux n'informe pas.
+ *
+ * Ce qui reste pour juger une valeur est plus solide et se lit ensemble : `value_source` dit d'où
+ * elle vient, `confidence` ce qu'elle vaut, `volume_basis` comment le volume a atteint l'unité du
+ * prix. Nous n'avions jamais affiché ce drapeau — la vraie leçon est en amont : il a vécu parce
+ * qu'un contrôle interne cohérent avec lui-même ne voit pas une erreur cohérente avec elle-même.
+ */
 export const AnalysisExposedTradeLossRow = z
   .object({
     closure_days: z.number().nullish(),
     confidence: z.string().nullish(),
     daily_loss_rate_usd: z.number().nullish(),
-    divergence_flag: z.boolean().nullish(),
     expected_value_at_risk_usd: z.number().nullish(),
     exposed_value_usd: z.number().nullish(),
     scenario_closure_loss_usd: z.number().nullish(),

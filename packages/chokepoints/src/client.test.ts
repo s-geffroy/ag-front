@@ -697,6 +697,30 @@ describe('chokepoints client — 0.3.0 / 0.4.0 additive surface', () => {
     expect((err as ChokepointsApiError).isNotFound).toBe(false);
   });
 
+  it('un filtre invalide (422) est une erreur, pas un jeu de données vide', async () => {
+    // 2.2.0 : `?family=<valeur inexistante>` rendait 200 avec une liste vide — indiscernable de « il
+    // n'y en a pas ». Il rend 422 avec la liste des valeurs admises. Mesuré contre la production le
+    // 2026-08-21 : `family=nexistepas` → 422, `family=Maritime_Chokepoint` → 200 (la casse est
+    // tolérée depuis la même version). Le piège serait de dégrader ce 422 vers `[]` et de retrouver
+    // exactement l'ambiguïté que l'amont vient de lever.
+    const client = createChokepointsClient({
+      baseUrl: 'https://api.test',
+      token: 't',
+      fetchImpl: (async () =>
+        jsonResponse(
+          { detail: "unknown family: 'nexistepas'. Known values: ['air_cargo_gateway', ...]" },
+          422,
+        )) as unknown as typeof fetch,
+    });
+    const err = (await client
+      .listChokepoints({ family: 'nexistepas' })
+      .catch((e: unknown) => e)) as ChokepointsApiError | undefined;
+    expect(err).toBeInstanceOf(ChokepointsApiError);
+    expect(err?.isInvalidFilter).toBe(true);
+    expect(err?.isNotFound).toBe(false);
+    expect(err?.isForbidden).toBe(false);
+  });
+
   it('distinguishes a 404 (absent) from a 403 (wrong scope)', async () => {
     const client = createChokepointsClient({
       baseUrl: 'https://host/api',

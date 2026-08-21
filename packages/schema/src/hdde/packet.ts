@@ -104,8 +104,17 @@ export const PacketPayload = z.object({
     })
     .optional(),
   // Candidate systemic edges from the DERIVED graph (GET /derived/relations, ADR 0065) — pending
-  // human validation, strictly distinct from the canonical /relations. A `to_status` of
-  // `external_candidate` marks a coverage gap, not a corpus object.
+  // human validation, strictly distinct from the canonical /relations.
+  //
+  // `to_status` VAUT DÉSORMAIS TOUJOURS `in_corpus` : depuis le contrat 2.1.0 l'endpoint sert la
+  // table que lisent les moteurs, dont les deux extrémités sont des clefs étrangères, et les 333
+  // cibles `external_candidate` ont disparu avec le fichier YAML. Le champ reste, il ne varie plus.
+  //
+  // Ce qui pèse une arête est maintenant `origin` : `derived:fiche-extraction` est une affirmation
+  // portée par une fiche rédigée ; les trois autres (`eez-colocation`, `system-comembership`,
+  // `shared-country`) sont des inférences SQL. Le graphe est à ~70 % de la seconde catégorie — un
+  // red team qui reçoit les deux sans distinction pondère de l'inférence géographique comme de
+  // l'analyse.
   corridor_relations: z
     .object({
       disclaimer: z.string().optional(),
@@ -117,6 +126,7 @@ export const PacketPayload = z.object({
             to_status: z.string(),
             relation_type: z.string(),
             strength_score: z.number().optional(),
+            origin: z.string().optional(),
           }),
         )
         .default([]),

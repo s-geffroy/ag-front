@@ -2,7 +2,7 @@
 import Base from '../../../layouts/Base.astro';
 import Section from '../../../components/Section.astro';
 import Pill from '../../../components/Pill.astro';
-import { humanize, priorityTone } from '../../../lib/labels';
+import { humanize, priorityTone, validationStatusLabel } from '../../../lib/labels';
 import {
   loadChokepoints,
   loadChokepointDetail,
@@ -131,7 +131,9 @@ const ongoing = ongoingEpisodes(detail);
                     <span class="font-medium">{a.description}</span>
                     {a.feasibility ? ` — faisabilité : ${humanize(a.feasibility)}` : ''}
                     {a.capacity_penalty ? ` · pénalité de capacité : ${humanize(String(a.capacity_penalty))}` : ''}
-                    {a.validation_status ? ` · ${humanize(a.validation_status)}` : ''}
+                    {a.validation_status
+                      ? ` · ${validationStatusLabel[a.validation_status] ?? humanize(a.validation_status)}`
+                      : ''}
                     {a.substitution_note ? <div class="text-muted">{a.substitution_note}</div> : null}
                   </li>
                 ))}

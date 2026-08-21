@@ -99,6 +99,18 @@ export class ChokepointsApiError extends Error {
   get isForbidden(): boolean {
     return this.status === 403;
   }
+  /**
+   * DEPUIS 2.2.0, une valeur de filtre inconnue rend 422 AU LIEU DE 200 AVEC UNE LISTE VIDE — et le
+   * corps porte la liste des valeurs admises. C'est le changement le plus utile de cette version :
+   * avant, « il n'y en a pas » et « votre question ne veut rien dire » se lisaient pareil, et seule
+   * la seconde méritait d'être corrigée.
+   *
+   * Ce n'est donc JAMAIS une donnée vide : c'est notre bug, chez nous, et il ne se dégrade pas en
+   * silence. Même famille de faute que le 403 pris pour un jeu vide (ADR 0035).
+   */
+  get isInvalidFilter(): boolean {
+    return this.status === 422;
+  }
 }
 
 export type ChokepointsClientOptions = {

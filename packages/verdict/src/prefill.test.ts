@@ -443,30 +443,56 @@ describe('derived corridor context → candidates (ADR 0057/0065)', () => {
     expect(r.swot.filter((s) => s.source_kind === 'analysis')).toEqual([]);
   });
 
-  it('flags an out-of-corpus relation target as a coverage gap', () => {
+  /**
+   * Ce test testait « hors corpus », une mention que le contrat 2.1.0 a rendue impossible : l'endpoint
+   * sert désormais la table que lisent les moteurs, dont les deux extrémités sont des clefs
+   * étrangères, et `to_status` vaut toujours `in_corpus`. Il vérifie maintenant la distinction qui
+   * l'a remplacée, et qui est celle qui pèse : une arête AFFIRMÉE par une fiche rédigée n'est pas une
+   * arête INFÉRÉE par co-localisation, et ~70 % du graphe est de la seconde espèce.
+   */
+  it('distingue une arête inférée d’une arête affirmée par une fiche', () => {
     const r = buildCandidates({
       packet: packet({
         corridor_relations: {
           edges: [
             {
-              to: 'autres_hubs_pacifique_nord',
-              to_label: 'autres hubs Pacifique Nord',
-              to_status: 'external_candidate',
+              to: 'p1_dar_es_salaam',
+              to_label: 'Dar es Salaam',
+              to_status: 'in_corpus',
               relation_type: 'dependency',
               strength_score: 4,
+              origin: 'derived:shared-country',
             },
-            { to: 'p0_suez', to_status: 'in_corpus', relation_type: 'alternative_route' },
+            {
+              to: 'p0_suez',
+              to_status: 'in_corpus',
+              relation_type: 'alternative_route',
+              origin: 'derived:fiche-extraction',
+            },
           ],
         },
       }),
     } satisfies PrefillInput);
-    const gap = r.swot.find(
-      (s) => s.source_ref === 'relation:dependency:autres_hubs_pacifique_nord',
-    );
-    expect(gap?.statement).toContain('hors corpus');
-    expect(gap?.source_kind).toBe('relation');
-    const inCorpus = r.swot.find((s) => s.source_ref === 'relation:alternative_route:p0_suez');
-    expect(inCorpus?.statement).not.toContain('hors corpus');
+    const inferred = r.swot.find((s) => s.source_ref === 'relation:dependency:p1_dar_es_salaam');
+    expect(inferred?.statement).toContain('inférée');
+    expect(inferred?.statement).toContain('shared country');
+    expect(inferred?.source_kind).toBe('relation');
+    const asserted = r.swot.find((s) => s.source_ref === 'relation:alternative_route:p0_suez');
+    expect(asserted?.statement).not.toContain('inférée');
+  });
+
+  it('une arête sans origine n’est pas présentée comme affirmée par défaut', () => {
+    // L'amont peut servir `origin: null` sur une arête ancienne. Rien n'est alors annoncé — ni
+    // « inférée » ni « affirmée » — parce que nous ne le savons pas.
+    const r = buildCandidates({
+      packet: packet({
+        corridor_relations: {
+          edges: [{ to: 'p0_suez', to_status: 'in_corpus', relation_type: 'dependency' }],
+        },
+      }),
+    } satisfies PrefillInput);
+    const e = r.swot.find((s) => s.source_ref === 'relation:dependency:p0_suez');
+    expect(e?.statement).not.toContain('inférée');
   });
 
   it('carries the GLOBAL ENA regime as systemic context, never as a corridor score', () => {

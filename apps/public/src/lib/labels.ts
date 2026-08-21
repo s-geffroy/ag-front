@@ -43,6 +43,24 @@ export const familyLabel: Record<string, string> = {
   minerais_critiques: 'Minerais critiques',
 };
 
+/**
+ * `validation_status`, en français et sur une page publique.
+ *
+ * L'échelle amont est `not_validated | validated | retracted` depuis le contrat 2.4.0 — auparavant
+ * les objets disaient `not_validated` et les acteurs, épisodes, alternatives et unités de flux
+ * disaient `candidate`, deux orthographes de la même décision. La normalisation est la bonne, mais
+ * elle a fait entrer « not validated » en anglais sur `/atlas/chokepoints/<id>`, là où `humanize()`
+ * se contente de retirer les tirets bas.
+ *
+ * « Non validé » n'est pas une nuance de présentation : c'est la phrase qui dit à un lecteur que ce
+ * qu'il lit est un candidat. Elle doit être dans sa langue.
+ */
+export const validationStatusLabel: Record<string, string> = {
+  not_validated: 'non validé',
+  validated: 'validé',
+  retracted: 'rétracté',
+};
+
 export const sourceTypeLabel: Record<string, string> = {
   institutionnel: 'Institutionnel',
   donnees_ouvertes: 'Données ouvertes',

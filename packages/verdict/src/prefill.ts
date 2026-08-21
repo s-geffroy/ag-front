@@ -389,12 +389,21 @@ export function buildCandidates(input: PrefillInput): PrefillResult {
   }
 
   // --- Derived candidate edges (/derived/relations) → Threats ---------------------------------
-  // Cascade paths out of this corridor, pending human validation. An `external_candidate` target is a
-  // COVERAGE GAP (an object the corpus lacks), which is itself worth flagging to the analyst.
+  // Cascade paths out of this corridor, pending human validation.
+  //
+  // La mention « hors corpus » a été retirée : elle testait `to_status === 'external_candidate'`, une
+  // valeur que le contrat 2.1.0 a fait disparaître avec le graphe fichier. Elle ne pouvait plus être
+  // vraie, donc elle n'annonçait plus rien. Ce qui la remplace n'est pas une lacune mais une
+  // PRÉTENTION : une arête extraite d'une fiche est une affirmation humaine, une arête inférée par
+  // co-localisation n'en est pas une — et ~70 % du graphe est de la seconde espèce. L'analyste doit
+  // le lire sur la menace elle-même, sinon il arbitre sur une inférence géographique en croyant
+  // arbitrer sur une analyse.
   for (const edge of packet.corridor_relations?.edges ?? []) {
     const target = edge.to_label ?? edge.to;
     const gap =
-      edge.to_status === 'external_candidate' ? ' [hors corpus — couverture à compléter]' : '';
+      edge.origin && !edge.origin.endsWith('fiche-extraction')
+        ? ` [inférée — ${edge.origin.replace('derived:', '').replace(/-/g, ' ')}]`
+        : '';
     const strength = edge.strength_score != null ? ` (force ${edge.strength_score})` : '';
     swot.push(
       swotItem(

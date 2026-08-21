@@ -2,8 +2,13 @@
 
 - **Slug** : `trans-caspien` · **Livrable** : `deliv_atlas_trans_caspien_fiche` · **Objet base** :
   `p1_multimodal_corridor_system_trans_caspian_middle_corridor` (**P1**, `land_chokepoint` /
-  `multimodal_corridor_system`)
-- **Relevé base** : 2026-08-13 · **Statut** : à cadrer
+  `multimodal_corridor`)
+- **Relevé base** : 2026-08-13, `type` revérifié le 2026-08-21 · **Statut** : à cadrer
+
+> Le `type` servi était `multimodal_corridor_system` au relevé ; le contrat 2.3.0 (2026-08-14) a
+> normalisé la colonne — 125 valeurs libres deviennent 59, et celle-ci devient `multimodal_corridor`.
+> **L'identifiant, lui, n'a pas bougé** : il porte encore l'ancienne chaîne dans son préfixe, et c'est
+> normal — un identifiant est stable, il ne se relit pas comme une description.
 
 ## Limite à porter dès le cadrage : l'objet est P1
 

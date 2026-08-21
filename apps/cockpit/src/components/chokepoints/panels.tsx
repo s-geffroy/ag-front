@@ -464,19 +464,40 @@ export function PerceptionPanel({ p }: { p: PerceptionSignalList }) {
  * Derived candidate graph (ADR 0065) — NOT canonical, distinct from /relations. A target flagged
  * `external_candidate` is a COVERAGE GAP: an object the corpus does not contain.
  */
+/**
+ * DEPUIS 2.1.0, CE PANNEAU NE MONTRE PLUS LE MÊME GRAPHE. L'endpoint servait le fichier de
+ * candidats (769 arêtes, dont 333 vers un nom hors corpus) ; il sert la table `derived_relation` —
+ * celle que `network_centrality` et `system_cascade` lisent réellement pour produire la
+ * `betweenness` affichée ailleurs dans cet écran. Aucun champ n'a bougé : c'est le contenu.
+ *
+ * Deux conséquences ici. Le décompte « hors corpus » a disparu avec les cibles : `to_status` vaut
+ * désormais toujours `in_corpus`, la branche qui le testait ne pouvait plus être vraie et affichait
+ * un zéro permanent. Et ~936 arêtes d'inférence géographique sont apparues — d'où `by_origin`,
+ * affiché EN TÊTE : « une fiche rédigée par un humain l'affirme » et « les deux objets touchent la
+ * même ZEE » ne sont pas la même prétention, et le graphe est à ~70 % de la seconde.
+ */
 export function DerivedRelationsPanel({ g }: { g: DerivedRelationGraphOut }) {
-  const gaps = g.items.filter((e) => e.to_status === 'external_candidate').length;
+  const byOrigin = Object.entries(g.by_origin ?? {}).sort((a, b) => b[1] - a[1]);
   return (
     <div>
       <div className="mb-1 flex flex-wrap items-center gap-1.5">
         <PanelTitle>Relations dérivées (candidates)</PanelTitle>
         <Badge tone="neutral">{g.edge_count_total} arêtes</Badge>
-        {gaps ? <Badge tone="at_risk">{gaps} hors corpus</Badge> : null}
       </div>
       <p className="mb-1.5 text-[11px] text-muted">
-        Extraites des fiches d'analyse, en attente de validation humaine. Une cible « hors corpus »
-        est une <strong>lacune de couverture</strong>, pas un objet du corpus.
+        Le graphe que <strong>lisent les moteurs</strong>, en attente de validation humaine. Une
+        arête extraite d'une fiche est une affirmation ; une arête inférée par co-localisation n'en
+        est pas une. La répartition ci-dessous dit de quel tas vient ce que vous lisez.
       </p>
+      {byOrigin.length ? (
+        <div className="mb-1.5 flex flex-wrap gap-1.5">
+          {byOrigin.map(([origin, n]) => (
+            <Badge key={origin} tone={origin.endsWith('fiche-extraction') ? 'neutral' : 'at_risk'}>
+              {humanize(origin.replace('derived:', ''))} : {n}
+            </Badge>
+          ))}
+        </div>
+      ) : null}
       <ul className="space-y-1 text-sm">
         {g.items.map((e, i) => (
           <li key={i}>
@@ -484,8 +505,12 @@ export function DerivedRelationsPanel({ g }: { g: DerivedRelationGraphOut }) {
               <span className="text-xs text-muted">{e.from_object_id}</span>
               <span aria-hidden>→</span>
               <span className="font-medium">{e.to_label ?? e.to}</span>
-              {e.to_status === 'external_candidate' ? (
-                <Badge tone="at_risk">hors corpus</Badge>
+              {/* La règle qui a produit l'arête, sur l'arête. Une inférence SQL et une extraction de
+                  fiche ne se pèsent pas pareil, et rien d'autre ne les distingue. */}
+              {e.origin ? (
+                <Badge tone={e.origin.endsWith('fiche-extraction') ? 'neutral' : 'at_risk'}>
+                  {humanize(e.origin.replace('derived:', ''))}
+                </Badge>
               ) : null}
               <Badge tone="neutral">{humanize(e.relation_type)}</Badge>
               {e.strength_score != null ? (
