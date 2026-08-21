@@ -511,3 +511,72 @@ La fiche reste `published: false`.
 Les **14 actes nominatifs** du §H sont inchangés — un rafraîchissement de contenu n'en coche aucun.
 Ce qui change, c'est qu'il reste **une** décision d'auteur au lieu de deux : la fraîcheur est réglée,
 le verdict à deux guichetiers ne l'est pas.
+
+---
+
+## J. Le verdict est tranché — 2026-08-21
+
+Décision d'auteur rendue : **deux guichetiers**. Le verdict rendu en tête de la page publique dit
+désormais :
+
+> Ormuz n'est pas fermé : il est devenu un passage sous autorisation, et l'autorisation est
+> revendiquée des deux côtés. Le trafic s'est effondré à ~2,5 transits par jour. Washington dit tenir
+> l'accès par un blocus naval qu'il se déclare capable de maintenir indéfiniment ; Téhéran dit tenir
+> le détroit jusqu'à la levée de ce blocus. Aucune source publique ne les départage. Le chokepoint le
+> moins substituable du monde est passé de goulet physique à péage politique — et le péage a deux
+> guichets.
+
+Ce que la décision **conserve** : le cœur de l'ancien verdict (« de goulet physique, il est passé à
+péage politique ») et le chiffre d'effondrement. Ce qu'elle **corrige** : l'attribution du contrôle à
+Téhéran seul, et la mention d'une coordination avec Mascate que le blocage des pourparlers a périmée.
+Ce qu'elle **refuse d'affirmer** : laquelle des deux mains commande le débit — le verdict le dit
+explicitement plutôt que de choisir.
+
+**Longueur tenue en famille.** Première rédaction à 636 caractères, resserrée à **494** — les trois
+autres fiches P0 tiennent entre 324 et 397. Le champ est rendu en tête de page, il doit rester un
+bloc d'ouverture, pas un paragraphe.
+
+### J.1 Le corps suit, sinon on recrée le défaut qu'on corrige
+
+Trois passages étaient écrits sur l'hypothèse d'un acteur unique :
+
+- **Vulnérabilités** — le bullet devient « *Passage sous autorisation, revendiqué des deux côtés* » et
+  expose les deux côtés séparément. La formule de Lloyd's List reste citée telle quelle, suivie de ce
+  qu'elle ne dit plus : **qui** tient le guichet.
+- **Scénario 1 (« Réouverture négociée »)** — suppose désormais **deux levées et non une** :
+  conditions iraniennes satisfaites *et* blocus naval retiré. Le précédent qui resterait est
+  « actionnable, et par plus d'un acteur ».
+- **Scénario 2 (« Péage institutionnalisé »)** — « un péage à deux guichets se négocie deux fois ».
+
+### J.2 Effet mesuré
+
+Juge : `strategic_verdict` **pass 0.91**, et sa justification ne porte plus sur le rendu mais sur le
+contenu. Munich 3 remonte de 0.68 à **0.76**, Munich 8 de 0.70 à **0.78** ; Munich 1 reste à 0.72,
+Munich 7 à 0.67 — toujours les mêmes réserves de principe, sans affirmation nommée.
+
+**Red team : le finding le plus sévère de toute l'instruction apparaît ici — severity 5.** Il vise :
+« *les deux revendications portent sur le même passage et aucune source ne permet de trancher* », au
+motif que « *l'absence de sources indépendantes laisse une incertitude majeure non résolue* ».
+
+C'est exact, et c'est **déclaré trois fois** dans la fiche — au verdict, dans le bloc d'état, dans le
+*Niveau de confiance*. La red team ne signale pas un défaut : elle mesure le poids de la lacune, et
+elle a raison de le placer au maximum. Une incertitude sur **qui contrôle le passage le moins
+substituable du monde** est effectivement l'inconnue la plus lourde de la fiche. Elle se déclare, elle
+ne se comble pas : aucune source publique n'existe.
+
+_Arbitrage proposé :_ **angle mort assumé, de sévérité maximale** — à porter comme tel au journal
+quand `contradiction_done` sera posé, et non à traiter comme un défaut rédactionnel.
+
+Les trois autres findings sont connus : le déficit de 14 Mb/j (dérivation dont le tableau montre
+l'arithmétique), « pas de route maritime alternative » (quatrième formulation du même reproche, la
+fiche compare et chiffre), la projection du scénario 3 (déjà rattachée au registre prospectif et
+déclarée sans série publique).
+
+### J.3 État
+
+`updated: 2026-08-21`, verdict 494 caractères, 17 sources, volet machine **0 violation**, build 129
+pages et 12/12 ancrages. Fiche toujours `published: false`.
+
+**Les deux décisions d'auteur sont rendues** — la fraîcheur au §I, le verdict ici. Il ne reste que
+les **14 actes nominatifs** : 10 contrôles Munich, puis `contradiction_done`, `compliance_done`,
+`cvi_justified`, `human_review_done`.

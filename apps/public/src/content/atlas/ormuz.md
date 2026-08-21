@@ -1,12 +1,13 @@
 ---
 title: Détroit d’Ormuz
 verdict: >-
-  Ormuz n’est pas fermé : il est devenu un passage sous autorisation. Le trafic
-  s’est effondré à ~2,5 transits par jour, et la variable qui décide n’est plus
-  la sécurité de la navigation mais la négociation — Téhéran lie la réouverture
-  à des concessions, coordonne un tracé avec Mascate et examine un régime de
-  droits de passage. Le chokepoint le moins substituable du monde a changé de
-  nature : de goulet physique, il est passé à péage politique.
+  Ormuz n’est pas fermé : il est devenu un passage sous autorisation, et
+  l’autorisation est revendiquée des deux côtés. Le trafic s’est effondré à
+  ~2,5 transits par jour. Washington dit tenir l’accès par un blocus naval qu’il
+  se déclare capable de maintenir indéfiniment ; Téhéran dit tenir le détroit
+  jusqu’à la levée de ce blocus. Aucune source publique ne les départage. Le
+  chokepoint le moins substituable du monde est passé de goulet physique à péage
+  politique — et le péage a deux guichets.
 family: maritime
 priority: P0
 regions:
@@ -182,13 +183,17 @@ Chiffres 2024 (US EIA, via la base chokepoints), avant la crise :
 
 - **Non-substituabilité** — c’est la vulnérabilité première, et elle est géographique, non politique.
   Aucun réacheminement maritime n’existe. Les seules échappatoires sont deux pipelines et les stocks.
-- **Passage sous autorisation** — la nature du risque a changé. L’Iran **lie la réouverture à des
+- **Passage sous autorisation, revendiqué des deux côtés** — la nature du risque a changé, et depuis
+  la mi-août elle a changé une seconde fois. Côté iranien : Téhéran **lie la réouverture à des
   concessions américaines**, a convenu de **coordonnées de route avec Mascate** (Reuters, 5 août
   2026, citant le ministère iranien), et son Parlement **examine un cadre législatif** sur la
-  sécurité et le passage, jusqu’à d’éventuels droits de transit. Le détroit fonctionne moins comme
-  une zone de combat que comme un **guichet** — une lecture qui n’est pas la nôtre seule : le CRS
-  reprend la formule de **Lloyd’s List du 25 mars 2026**, « *Tehran’s 'toll booth' system is now
-  controlling Hormuz traffic* ».
+  sécurité et le passage, jusqu’à d’éventuels droits de transit. Côté américain : Washington déclare
+  pouvoir maintenir **indéfiniment un blocus naval de l’Iran** et affirme contrôler l’accès maritime.
+  Chacun dit tenir le passage, et les pourparlers sont au point mort. Le détroit fonctionne moins
+  comme une zone de combat que comme un **guichet** — une lecture qui n’est pas la nôtre seule : le
+  CRS reprend la formule de **Lloyd’s List du 25 mars 2026**, « *Tehran’s 'toll booth' system is now
+  controlling Hormuz traffic* ». Ce que cette formule ne dit plus, c’est **qui tient le guichet** :
+  au 21 août, deux acteurs le revendiquent et aucune source publique ne les départage.
 - **Assurance et disponibilité de la couverture** — le risque `insurance_cost_spike` est évalué à
   impact 4 dans la base. Nous ne disposons **d’aucune série primaire de primes** sur la période :
   cette dimension est nommée, pas mesurée.
@@ -244,11 +249,14 @@ mais un **déficit chiffré d’environ 14 Mb/j** sur le pétrole et de **la tot
 ## Scénarios
 
 1. **Réouverture négociée** — le passage se rétablit contre concessions ; l’EIA anticipe un retour
-   *proche des niveaux d’avant-conflit fin 2026*. Le corridor rouvre, mais **le précédent reste** :
-   la démonstration qu’Ormuz est actionnable aura été faite.
+   *proche des niveaux d’avant-conflit fin 2026*. Ce scénario suppose désormais **deux levées et non
+   une** — les conditions iraniennes satisfaites et le blocus naval américain retiré — et les
+   pourparlers sont au point mort. Le corridor rouvrirait, mais **le précédent resterait** : la
+   démonstration qu’Ormuz est actionnable aura été faite, et par plus d’un acteur.
 2. **Péage institutionnalisé** — le régime d’autorisation se formalise (droits de transit, tracé
    convenu). Le détroit fonctionne, à un coût et sous une dépendance politique nouveaux. C’est le
-   scénario que le cadre législatif à l’examen rend le plus lisible.
+   scénario que le cadre législatif à l’examen rend le plus lisible — étant entendu qu’un péage à
+   deux guichets se négocie deux fois.
 3. **Ré-escalade** — reprise des frappes, minage, fermeture longue. *Dans cette hypothèse* — et ce
    qui suit est une projection, non une mesure : les pipelines satureraient, les réserves
    s’épuiseraient, et la contrainte redeviendrait physique. Nous ne disposons d’aucune série publique
