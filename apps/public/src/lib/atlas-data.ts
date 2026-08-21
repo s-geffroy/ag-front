@@ -11,6 +11,7 @@ import {
 } from '@ag/chokepoints';
 import { PromotedNewsItem, type PromotedNewsItem as PromotedNewsItemT } from '@ag/schema/content';
 import promotedNewsRaw from '../data/promoted-news.json';
+import { corridorNameFr } from './corridor-names';
 
 export type AtlasChokepoint = {
   id: string;
@@ -49,7 +50,10 @@ function config(): { baseUrl: string; token: string } | null {
 function toAtlas(c: ChokepointSummary): AtlasChokepoint {
   return {
     id: c.id,
-    name: c.canonical_name,
+    // Le nom français quand nous l'avons décidé, sinon le `canonical_name` anglais tel quel. La
+    // base ne sert qu'un nom, sans locale : voir corridor-names.ts pour pourquoi c'est une table
+    // explicite et non une traduction.
+    name: corridorNameFr(c.id, c.canonical_name),
     family: c.family,
     priority: c.priority_class,
     region: c.macro_region ?? undefined,

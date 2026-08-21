@@ -15,6 +15,7 @@
 
 import { PromotedNewsItem, type PromotedNewsItem as PromotedNewsItemT } from '@ag/schema/content';
 import promotedNewsRaw from '../data/promoted-news.json';
+import { corridorNameFr } from './corridor-names';
 import { nav, type NavItem } from './site';
 
 /**
@@ -61,7 +62,9 @@ export function loadVeille(): VeilleEntry[] {
       out.push({
         item,
         corridorId,
-        corridorName: named?.canonical_name || corridorId,
+        // Même table que l'Atlas : un corridor porte UN nom sur tout le site, sinon le fil
+        // d'accueil et la fiche vers laquelle il pointe s'appelleraient différemment.
+        corridorName: corridorNameFr(corridorId, named?.canonical_name || corridorId),
         promotedAt: parseDate(item.promoted_at),
       });
     }

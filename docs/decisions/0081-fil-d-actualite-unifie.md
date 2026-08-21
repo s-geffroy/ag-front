@@ -105,9 +105,9 @@ légitimement dans le fil **et** restera la référence en dessous : deux affirm
 - La garde ADR 0074 couvre maintenant `ActualiteBlock.astro`, `lib/actualite.ts` et
   `pages/index.astro` : la page compose le fil, elle ne doit pas contourner l'adaptateur.
 
-## Reste ouvert
+## Reste ouvert — tranché le jour même par [0082](0082-noms-francais-des-corridors.md)
 
-Les corridors s'affichent sous leur **`canonical_name` anglais** — « Strait of Hormuz »,
+Les corridors s'affichaient sous leur **`canonical_name` anglais** — « Strait of Hormuz »,
 « Panama Canal » — sur `/atlas` comme, désormais, en titre serif des lignes du fil d'accueil, sur un
 site dont la langue première est le français. La base ne sert pas de libellé français et nous n'en
 fabriquons pas : ce serait une donnée dérivée présentée comme canonique. Le choix — table de
