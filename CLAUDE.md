@@ -55,6 +55,25 @@ This file is a living document; refine it as real structure lands.
 - Seeds are **candidates pending validation**, not facts. Priority promotion (P0…) needs sourced, human-validated evidence.
 - Geometry is schematic unless explicitly validated — never imply navigational or legal precision.
 
+## Rédaction : ce qui va chez Mistral, et ce qui n'y va pas
+
+La politique globale (`~/.claude/CLAUDE.md` + Skill `mistral-redaction`) délègue la prose
+substantielle à Mistral Large 3. Elle s'applique ici **avec une réserve** : la prose éditoriale
+d'Applied Geopolitics y va, les **données canoniques n'y vont jamais**.
+
+- **Passe par `mistral_write` / `mistral_revise`** : le corps rédigé des fiches Atlas, des Notes,
+  des dossiers, les textes du site public, la copy des plaquettes, les introductions et conclusions
+  de note de méthode.
+- **Ne passe jamais par Mistral** : les enregistrements canoniques et tout champ structuré — JSON de
+  données, valeurs et niveaux CVI, seeds, front-matter, métadonnées, identifiants d'ancrage, code,
+  configuration, tableaux de données. La section « Data integrity » ci-dessus prime : un modèle
+  rédactionnel n'écrit pas une donnée.
+
+Corollaire pratique : les faits **validés** entrent dans le brief via `facts_to_preserve`, jamais
+dans le corps de la demande. Ce que Mistral n'a pas reçu, il ne doit pas l'inventer — et un chiffre
+qu'il produirait de lui-même resterait un **candidat en attente de validation humaine**, jamais un
+fait, exactement comme une sortie `pplx` ou `agent-browser`.
+
 ## Tech (current leaning — open to challenge)
 
 Monorepo (`apps/`) with a shared `tools` service (Node + agent-browser/Chrome).
