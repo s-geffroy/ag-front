@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { verifyIndex } from './search.mjs';
+import { verifyIndex, withheldPlaquetteLeak } from './search.mjs';
 
 /**
  * These cases reproduce a real partial write: Pagefind returned from `writeFiles()` leaving
@@ -100,5 +100,59 @@ describe('verifyIndex', () => {
       }),
     );
     expect(verifyIndex(dir)).toMatch(/fragment count \(5\).*page count \(9\)/);
+  });
+});
+
+/**
+ * La garde d'ordre d'enregistrement. Elle a crié au loup le 2026-08-21, jour où les deux familles
+ * sont passées en ligne : elle avertissait « if no family is published… » alors que deux l'étaient,
+ * parce qu'elle ne regardait que l'existence du répertoire. Ces cas fixent ce qu'elle doit distinguer.
+ */
+describe('withheldPlaquetteLeak', () => {
+  /** Un faux dépôt : un `dist/` et un `presentations/` avec les manifestes demandés. */
+  function scene({ pageBuilt, families }) {
+    const dist = join(dir, 'dist');
+    const presentations = join(dir, 'presentations');
+    mkdirSync(dist, { recursive: true });
+    if (pageBuilt) mkdirSync(join(dist, 'plaquette'), { recursive: true });
+    for (const [family, published] of Object.entries(families)) {
+      mkdirSync(join(presentations, family), { recursive: true });
+      writeFileSync(
+        join(presentations, family, 'manifest.json'),
+        JSON.stringify({ family, published }),
+      );
+    }
+    return { dist, presentations };
+  }
+
+  it('se tait quand une famille est publiée — la page a le droit d’être là', () => {
+    const { dist, presentations } = scene({
+      pageBuilt: true,
+      families: { commercial: true, methode: false },
+    });
+    expect(withheldPlaquetteLeak(dist, presentations)).toBeNull();
+  });
+
+  it('se tait quand la page a été retirée, rien n’étant publié', () => {
+    const { dist, presentations } = scene({
+      pageBuilt: false,
+      families: { commercial: false, methode: false },
+    });
+    expect(withheldPlaquetteLeak(dist, presentations)).toBeNull();
+  });
+
+  it('parle quand la page est là ET que rien n’est publié — l’ordre est cassé', () => {
+    const { dist, presentations } = scene({
+      pageBuilt: true,
+      families: { commercial: false, methode: false },
+    });
+    expect(withheldPlaquetteLeak(dist, presentations)).toContain('NO family is published');
+  });
+
+  it('traite un manifeste illisible comme non publié — le doute ne publie pas', () => {
+    const { dist, presentations } = scene({ pageBuilt: true, families: {} });
+    mkdirSync(join(presentations, 'commercial'), { recursive: true });
+    writeFileSync(join(presentations, 'commercial', 'manifest.json'), '{ pas du json');
+    expect(withheldPlaquetteLeak(dist, presentations)).toContain('NO family is published');
   });
 });

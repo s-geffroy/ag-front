@@ -15,12 +15,63 @@ import { join } from 'node:path';
  * own `astro:build:done` to physically MOVE `dist/plaquette/` out of the served tree when no family
  * is published. Indexing first would put a deliberately withheld page into the search results.
  *
+ * `withheldPlaquetteLeak()` guards that invariant rather than trusting it — see its own note for why
+ * the check must read the manifests instead of merely testing that the directory exists.
+ *
  * Only pages carrying `data-pagefind-body` are indexed (set on <main> by `layouts/Base.astro`), so
  * header and footer chrome never match a query and the opted-out pages never appear.
  */
 
 /** Files Pagefind must always emit, whatever the corpus. */
 const REQUIRED = ['pagefind.js', 'pagefind-entry.json'];
+
+const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
+const PRESENTATIONS_DIR = join(REPO_ROOT, 'presentations');
+
+/** Which plaquette families are published, read from the same manifests `plaquette()` obeys. */
+function publishedFamilies(presentationsDir = PRESENTATIONS_DIR) {
+  if (!existsSync(presentationsDir)) return [];
+  return readdirSync(presentationsDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .filter((d) => existsSync(join(presentationsDir, d.name, 'manifest.json')))
+    .filter((d) => {
+      try {
+        return (
+          JSON.parse(readFileSync(join(presentationsDir, d.name, 'manifest.json'), 'utf-8'))
+            .published === true
+        );
+      } catch {
+        return false;
+      }
+    })
+    .map((d) => d.name);
+}
+
+/**
+ * Is a WITHHELD `/plaquette` about to be indexed? Returns a message, or `null` when all is well.
+ *
+ * The first version of this check only asked whether `dist/plaquette/` existed — and warned every
+ * time it did, including when a family was legitimately published and the gate had run correctly.
+ * It fired on 2026-08-21, the day both families went online, saying « if no family is published… »
+ * while two were. A warning that cries wolf stops being read, which costs more than it saves.
+ *
+ * The directory's presence is not the signal; presence WITHOUT a published family is. And that state
+ * is not a doubt to report, it is a certainty: `plaquette()` moves the whole directory out when
+ * nothing is published, so finding it there means its hook has not run — the registration order is
+ * wrong and the next line of code would publish a withheld page through the search box. Hence a
+ * throw rather than a warning, on the same reasoning as `plaquette()`'s own: a page that must not be
+ * public reaching the index is worse than a red build.
+ */
+export function withheldPlaquetteLeak(dist, presentationsDir = PRESENTATIONS_DIR) {
+  if (!existsSync(join(dist, 'plaquette'))) return null;
+  const published = publishedFamilies(presentationsDir);
+  if (published.length > 0) return null;
+  return (
+    'dist/plaquette/ is present while NO family is published — plaquette() has not run, so ' +
+    'ag:search must be registered AFTER it in astro.config.mjs. Indexing now would publish a ' +
+    'withheld page through the search box.'
+  );
+}
 
 /**
  * Pagefind occasionally returns from `writeFiles()` with some outputs still truncated to 0 bytes —
@@ -98,12 +149,11 @@ export function search({ attempts = 3 } = {}) {
         const dist = fileURLToPath(dir);
         const outputPath = join(dist, 'pagefind');
 
-        // Guard the ordering invariant rather than trusting it: if the plaquette gate has not run
-        // yet, a withheld page is still on disk and would be indexed.
-        if (existsSync(join(dist, 'plaquette'))) {
-          logger.warn(
-            'dist/plaquette/ is still present — if no family is published, ag:search must be registered AFTER plaquette() in astro.config.mjs.',
-          );
+        // Guard the ordering invariant rather than trusting it.
+        const leak = withheldPlaquetteLeak(dist);
+        if (leak) {
+          logger.error(leak);
+          throw new Error(`[ag:search] ${leak}`);
         }
 
         let problem = null;
