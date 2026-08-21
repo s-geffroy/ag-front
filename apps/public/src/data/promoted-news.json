@@ -946,5 +946,194 @@
       "promoted_by": "Sylvain Geffroy (via Slack)",
       "promoted_at": "2026-08-21T11:14:56.765Z"
     }
+  ],
+  "p0_maritime_canal_panama_canal": [
+    {
+      "articles": [
+        {
+          "title": "Panama canal to reduce shipping as El Ni&#xF1;o strikes vital route",
+          "url": "https://www.theguardian.com/world/2026/aug/21/panama-canal-reduce-shipping-el-nino-drought",
+          "outlet": "theguardian.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping over El Nino-fueled drought",
+          "url": "https://www.thedailystar.net/news/world/news/panama-canal-reduce-shipping-over-el-nino-fueled-drought-4253226",
+          "outlet": "thedailystar.net",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal cuts shipping over El Ni&#xF1;o-fuelled drought",
+          "url": "https://www.rte.ie/news/2026/0821/1588720-el-nino-panama/",
+          "outlet": "rte.ie",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal To Cap Daily Transits",
+          "url": "https://www.marinelink.com/news/panama-canal-cap-daily-transits-542311",
+          "outlet": "marinelink.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping over El Nino-fueled drought",
+          "url": "https://www.manilatimes.net/2026/08/21/world/asia-oceania/panama-canal-to-reduce-shipping-over-el-nino-fueled-drought/2409714",
+          "outlet": "manilatimes.net",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping over El Nino-fueled drought",
+          "url": "https://www.jamaicaobserver.com/2026/08/20/panama-canal-reduce-shipping-el-nino-fueled-drought/",
+          "outlet": "jamaicaobserver.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping over El Nino-fueled drought",
+          "url": "https://www.hurriyetdailynews.com/panama-canal-to-reduce-shipping-over-el-nino-fueled-drought-225878",
+          "outlet": "hurriyetdailynews.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal is running low on water, and it's rationing ships to cope: What that means for global shipping",
+          "url": "https://www.hindustantimes.com/ht-explainers/panama-canal-el-nino-america-drought-west-asia-iran-war-us-commercial-shipping-strait-of-hormuz-trade-chokepoints-101787287371017.html",
+          "outlet": "hindustantimes.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping over El Nino-fuelled drought",
+          "url": "https://www.freemalaysiatoday.com/category/world/2026/08/21/panama-canal-to-reduce-shipping-over-el-nino-fuelled-drought",
+          "outlet": "freemalaysiatoday.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping as El Ni&#xF1;o fuels drought in lakes",
+          "url": "https://www.euronews.com/2026/08/21/panama-canal-to-reduce-shipping-as-el-nino-fuels-drought-in-lakes-that-feed-waterway",
+          "outlet": "euronews.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to cap ship transits due to El Nino drought",
+          "url": "https://www.dw.com/en/panama-canal-el-nino/a-78453054",
+          "outlet": "dw.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to cap daily transits, anticipating severe El Ni&#xF1;o",
+          "url": "https://www.dailymaverick.co.za/article/2026-08-21-panama-canal-to-cap-daily-transits-anticipating-severe-el-nino/",
+          "outlet": "dailymaverick.co.za",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "El Ni&#xF1;o: Panama Canal to cut number of ships passing through",
+          "url": "https://www.bbc.com/news/articles/cwyl0jkxxryo",
+          "outlet": "bbc.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to cut number of ships passing through due to El Ni&#xF1;o",
+          "url": "https://www.bbc.co.uk/news/articles/cwyl0jkxxryo",
+          "outlet": "bbc.co.uk",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to limit shipping ahead of extreme weather during El Nino",
+          "url": "https://www.aljazeera.com/news/2026/8/21/panama-canal-to-limit-shipping-ahead-of-extreme-weather-during-el-nino",
+          "outlet": "aljazeera.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal cuts daily capacity",
+          "url": "https://splash247.com/panama-canal-cuts-daily-capacity/",
+          "outlet": "splash247.com",
+          "source_id": "splash247",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "El Ni&#xF1;o Forces Panama Canal to Cut Ship Traffic",
+          "url": "https://slguardian.org/el-nino-forces-panama-canal-to-cut-ship-traffic/",
+          "outlet": "slguardian.org",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal Cuts Daily Transit Slots as Water Levels Fall",
+          "url": "https://shipandbunker.com/news/am/561276-panama-canal-cuts-daily-transit-slots-as-water-levels-fall",
+          "outlet": "shipandbunker.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping over El Nino-fueled drought",
+          "url": "https://news.tuoitre.vn/panama-canal-to-reduce-shipping-over-el-nino-fueled-drought-103260821103147312.htm",
+          "outlet": "news.tuoitre.vn",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to reduce shipping over El Nino-fueled drought",
+          "url": "https://news.am/en/news/1056744",
+          "outlet": "news.am",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to cap daily transits, anticipating severe El Ni&#xF1;o",
+          "url": "https://mymixfm.com/2026/08/20/panama-canal-to-cap-daily-transits-anticipating-severe-el-nino/",
+          "outlet": "mymixfm.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal to Cap Ship Transits Due to El Nino Drought",
+          "url": "https://en.tempo.co/read/2118018/panama-canal-to-cap-ship-transits-due-to-el-nino-drought",
+          "outlet": "en.tempo.co",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Panama Canal Begins Reducing Daily Transits Due to Declining Water Levels",
+          "url": "https://maritime-executive.com/article/panama-canal-begins-reducing-daily-transits-due-to-declining-water-levels",
+          "outlet": "maritime-executive.com",
+          "source_id": "maritime_executive",
+          "observed_on": "2026-08-20"
+        }
+      ],
+      "affected_chokepoints": [
+        {
+          "chokepoint_id": "p0_maritime_canal_panama_canal",
+          "canonical_name": "Panama Canal",
+          "relevance": 0.82
+        }
+      ],
+      "article_count": 23,
+      "first_seen": "2026-08-20",
+      "last_seen": "2026-08-21",
+      "generated_at": "2026-08-21T12:15:42.445595Z",
+      "editorial_note": "La réduction des transits quotidiens par le canal de Panama en raison d'El Niño impose aux chargeurs de reconsidérer leurs calendriers de livraison pour éviter des retards dans les flux de conteneurs et de céréales.",
+      "note_origin": "draft_accepted",
+      "headline": "Le canal de Panama réduit ou plafonne les transits face à la sécheresse liée à El Niño",
+      "summary_text": "Plusieurs médias rapportent que le canal de Panama prévoit de réduire ou plafonner les transits quotidiens. Les titres l'attribuent à la baisse des niveaux d'eau et à une sécheresse associée à El Niño.",
+      "event_category": "weather",
+      "salience_score": 0.82,
+      "cluster_id": "84b80f1f-1a1e-4e1f-a2f6-d40020d33130",
+      "run_id": "",
+      "taint_class": "cleared_only",
+      "promoted_by": "sge (via Slack)",
+      "promoted_at": "2026-08-21T13:08:57.135Z"
+    }
   ]
 }
