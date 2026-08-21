@@ -62,3 +62,30 @@ Faire de la **traçabilité de la validation** une garde de premier ordre.
   et l'audit hard-veto.
 - Léger surcoût de schéma (colonnes validateur + table de journal), justifié par l'auditabilité exigée
   par la posture anti-prédiction et la valeur Premium.
+
+## Exception consignée — 2026-08-21 : une réécriture rétroactive, autorisée nommément
+
+Le garde-fou ci-dessus (« pas de réécriture rétroactive d'une validation ») a été **enfreint une
+fois**, sur autorisation explicite de l'opérateur, et cette section est la trace que le journal ne
+porte plus lui-même.
+
+**Ce qui a été réécrit.** L'entrée `val_0d38faa3-fea9-4e40-88e0-591236f7bc92`
+(`news_promotion`, cluster `84b80f1f-1a1e-4e1f-a2f6-d40020d33130`, canal de Panama,
+`validated_at: 2026-08-21T13:08:57.144Z`) portait `validated_by: "sge (via Slack)"`. Elle porte
+désormais `"Sylvain Geffroy (via Slack)"`. **Rien d'autre n'a changé** : ni la décision, ni
+l'horodatage, ni l'avant/après, ni `note_origin`. La personne n'a jamais varié — seule la
+configuration qui la nommait avait changé.
+
+**Pourquoi l'écart plutôt qu'une entrée de correction.** Le schéma `ValidationEntry` n'a pas de champ
+pour cela, et il n'est pas `strict()` : un champ ajouté à la main serait **silencieusement supprimé**
+à la première réécriture du magasin par le serveur. Une entrée d'annulation-remplacement, elle,
+aurait demandé un `target_kind` que l'énumération ne prévoit pas. La trace ne pouvait donc pas vivre
+dans le fichier ; elle vit ici et dans l'historique git.
+
+**Comment.** Édition directe du fichier, hors serveur : `POST /api/deliverables/:id/validate` refuse
+par construction toute mutation d'une entrée existante, et cette garde n'a pas été touchée.
+
+**La cause, qui reste à traiter.** L'identité du validateur a **deux sources indépendantes** —
+`config.json#operator` pour le cockpit, `SLACK_OPERATOR_NAME` pour le slackbot. Rien ne les lie, donc
+rien n'empêche qu'elles divergent, et c'est exactement ce qui s'est produit. Tant que la seconde ne
+dérive pas de la première, l'incident peut se reproduire.
