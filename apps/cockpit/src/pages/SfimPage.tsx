@@ -4,12 +4,16 @@ import { api } from '@/lib/api';
 import { Badge, Separator, Sheet } from '@/components/ui';
 import { PageHeader } from '@/components/common';
 import { Disclaimer, PanelTitle, humanize } from '@/components/chokepoints/panels';
+import { scoredDimensionRange, sfuFieldKind } from '@/lib/sfim';
 
 /**
  * SFIM — Strategic Flow Units (ADR 0054), the prescription layer parallel to chokepoints.
  *
- * Only 4 of the 10 dimensions have a deterministic engine source; the 6 judgment dimensions and the
- * verdict are AUTHORED by an analyst in the ag-back workbench. So since API 0.7.0 an SFU reads as
+ * At most 4 of the 10 dimensions have a deterministic engine source, and fewer when the inputs are
+ * missing — measured 2026-08-21 against production: 5 units at 4, 2 units at 3. The screen therefore
+ * states no fixed count; it reads the spread (`scoredDimensionRange`) and the fiche carries the
+ * denominator. The judgment dimensions and the verdict are AUTHORED by an analyst in the ag-back
+ * workbench. So since API 0.7.0 an SFU reads as
  * partially scored by a machine and awaiting a human decision — `verdict: null` is the designed
  * state, not a gap. The screen states that plainly rather than hiding the empty sections: hiding
  * them would make an unpopulated pipeline look finished, and an engine score is a candidate, not a
@@ -53,12 +57,15 @@ export function SfimPage() {
   // signs the verdict. Conflating them made the screen claim an engine-populated layer was empty.
   const withVerdict = (items ?? []).filter((s) => s.verdict).length;
   const enginePopulated = (items ?? []).some((s) => (s.dimensions_scored ?? 0) > 0);
+  // Mesuré, jamais écrit en dur : le sous-titre a annoncé « 4 dimensions sur 10 » pendant que deux
+  // unités sur sept n'en portaient que 3. Le dénominateur, lui, ne vit que sur la fiche.
+  const scored = scoredDimensionRange(items ?? []);
 
   return (
     <div className="flex h-full flex-col">
       <PageHeader
         title="Flux stratégiques (SFIM)"
-        subtitle="Couche de prescription : une unité de flux, une décision. Le moteur score 4 dimensions sur 10 ; les 6 autres et le verdict sont rédigés par un analyste côté ag-back."
+        subtitle="Couche de prescription : une unité de flux, une décision. Le moteur ne score que les dimensions déterministes ; les autres et le verdict sont rédigés par un analyste côté ag-back."
       />
 
       {error ? (
@@ -74,9 +81,10 @@ export function SfimPage() {
           {enginePopulated ? (
             <>
               Les {items.length} unités sont <strong>renseignées par le moteur</strong> (scoring
-              partiel, dimensions déterministes uniquement) ; aucune n'a encore de verdict analyste.
-              Le remplissage machine n'est pas une validation : la couche attend une décision
-              humaine.
+              partiel, dimensions déterministes uniquement
+              {scored ? ` : ${scored.label} dimensions scorées selon l'unité` : ''}) ; aucune n'a
+              encore de verdict analyste. Le remplissage machine n'est pas une validation : la
+              couche attend une décision humaine.
             </>
           ) : (
             <>
@@ -354,7 +362,19 @@ function ScoringBlock({
   );
 }
 
-/** Routes / actors / value chain / aggregates / integration are opaque producer-owned rows. */
+/**
+ * Routes / acteurs / chaîne de valeur / agrégats / intégration.
+ *
+ * Ces cinq blocs sont déclarés `items: {}` au contrat — le producteur ne promet aucune forme, et
+ * `aggregates` comme `integration` sont vides sur les sept unités servies aujourd'hui : nous n'avons
+ * jamais vu leur contenu. Un rendu par champ nommé serait donc une forme inventée par le
+ * consommateur, celle d'un jour donné, qui masquerait en silence toute clé ajoutée ensuite.
+ *
+ * D'où la règle : TOUTES les clés de chaque ligne sont rendues, dans l'ordre où le producteur les
+ * sert, et seule leur PRÉSENTATION dépend du type de la valeur (cf. `sfuFieldKind`). Une valeur dont
+ * la forme n'est pas présentable retombe sur son JSON. On remplace un mur de JSON par de la donnée
+ * lisible sans jamais décider à la place de l'amont ce qui mérite l'écran.
+ */
 function CountsBlock({ fiche }: { fiche: SfuFicheOut }) {
   const blocks: [string, unknown[]][] = [
     ['Routes', fiche.routes],
@@ -374,9 +394,13 @@ function CountsBlock({ fiche }: { fiche: SfuFicheOut }) {
               <Badge tone="neutral">{rows.length}</Badge>
             </div>
             {rows.length ? (
-              <pre className="mt-0.5 max-h-40 overflow-auto rounded-md border border-line bg-subtle p-2 text-[11px]">
-                {JSON.stringify(rows, null, 2)}
-              </pre>
+              <ul className="mt-1 space-y-1.5">
+                {rows.map((row, i) => (
+                  <li key={i} className="rounded-md border border-line bg-subtle p-2">
+                    <FicheRow row={row} />
+                  </li>
+                ))}
+              </ul>
             ) : (
               <span className="text-[11px] text-muted">vide côté producteur</span>
             )}
@@ -385,4 +409,57 @@ function CountsBlock({ fiche }: { fiche: SfuFicheOut }) {
       </ul>
     </div>
   );
+}
+
+/** Une ligne de bloc. Un objet se lit clé par clé ; tout le reste garde son JSON. */
+function FicheRow({ row }: { row: unknown }) {
+  if (typeof row !== 'object' || row === null || Array.isArray(row)) {
+    return <FicheValue value={row} />;
+  }
+  return (
+    <dl className="space-y-0.5">
+      {Object.entries(row as Record<string, unknown>).map(([k, v]) => (
+        <div key={k} className="flex flex-wrap items-baseline gap-x-1.5">
+          <dt className="text-[11px] uppercase tracking-wider text-muted">{humanize(k)}</dt>
+          <dd className="min-w-0 flex-1 text-[13px]">
+            <FicheValue value={v} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function FicheValue({ value }: { value: unknown }) {
+  const f = sfuFieldKind(value);
+  switch (f.kind) {
+    case 'empty':
+      // Une absence se dit ; elle ne se rend ni en « null » ni en blanc muet.
+      return <span className="text-muted">—</span>;
+    case 'scalar':
+      return <span>{f.text}</span>;
+    case 'text':
+      return <p className="leading-relaxed">{f.text}</p>;
+    case 'chips':
+      return (
+        <span className="flex flex-wrap gap-1">
+          {f.items.map((it, i) => (
+            <span
+              key={`${it}-${i}`}
+              // `break-all` : un identifiant de chokepoint est un seul mot de 60 caractères, qui
+              // sans cela pousse le tiroir en défilement horizontal et sort de l'écran.
+              className="max-w-full break-all rounded border border-line px-1 py-px font-mono text-[10px] text-muted"
+            >
+              {it}
+            </span>
+          ))}
+        </span>
+      );
+    case 'json':
+      return (
+        <pre className="max-h-40 overflow-auto rounded-md border border-line p-1.5 text-[11px]">
+          {f.json}
+        </pre>
+      );
+  }
 }
