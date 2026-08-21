@@ -9,6 +9,7 @@ import {
   NOTE_BLOCK_ID,
   NOTE_BLOCK_ID_DRAFT,
   outcomeFromCockpit,
+  pickEntry,
   parseSubmission,
   parsePick,
   validatedBy,
@@ -603,5 +604,23 @@ describe('Slack préserve l’état d’un bloc — l’identifiant doit changer
       issues: [{ path: ['validated_by'] }],
     });
     expect((ailleurs as { message: string }).message).toContain('validated_by');
+  });
+});
+
+describe('pickEntry — le bouton du flux vit sur un MESSAGE, plus dans une fenêtre', () => {
+  it('depuis une fenêtre déjà ouverte : on empile, et le canal a été vérifié à la porte', () => {
+    expect(pickEntry({ view: { id: 'V1' } }, 'C_OK')).toEqual({ ok: true, mode: 'push' });
+  });
+
+  it('depuis un message du canal autorisé : on OUVRE, car il n’y a aucune pile où empiler', () => {
+    expect(pickEntry({ channel: { id: 'C_OK' } }, 'C_OK')).toEqual({ ok: true, mode: 'open' });
+  });
+
+  it('depuis un message d’un AUTRE canal : refusé — un bouton transféré n’est pas une approbation', () => {
+    expect(pickEntry({ channel: { id: 'C_AILLEURS' } }, 'C_OK').ok).toBe(false);
+  });
+
+  it('sans canal ni fenêtre : refusé, jamais l’inverse', () => {
+    expect(pickEntry({}, 'C_OK').ok).toBe(false);
   });
 });

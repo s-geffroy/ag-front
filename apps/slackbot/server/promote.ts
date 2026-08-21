@@ -656,6 +656,31 @@ export function parseSubmission(view: {
 }
 
 /** Le bouton « Choisir » d'un sujet — ce que l'action rapporte. */
+/**
+ * D'où vient un clic « écrire », et a-t-il le droit d'exister.
+ *
+ * DEUX CHOSES CHANGENT quand le bouton passe d'une fenêtre à un message du flux au fil de l'eau :
+ *
+ * 1. `views.push` empile sur une fenêtre OUVERTE. Depuis un message il n'y a aucune pile — il faut
+ *    `views.open`, sans quoi Slack refuse et le clic ne produit rien de visible.
+ * 2. Le clic depuis une fenêtre avait déjà passé le contrôle du canal à la porte (le bouton
+ *    corridor). Depuis un message, ce contrôle n'a jamais eu lieu : un message partagé dans un autre
+ *    canal y porte un bouton fonctionnel. Or l'autorisation EST le canal privé — un bouton transféré
+ *    n'est pas une approbation.
+ */
+export type PickEntry = { ok: true; mode: 'open' | 'push' } | { ok: false; reason: string };
+
+export function pickEntry(
+  body: { view?: { id?: string } | null; channel?: { id?: string } | null },
+  allowedChannel: string | undefined,
+): PickEntry {
+  if (body.view?.id) return { ok: true, mode: 'push' };
+  if (!body.channel?.id) return { ok: false, reason: 'origine inconnue' };
+  if (!isAllowedChannel(body.channel.id, allowedChannel))
+    return { ok: false, reason: 'canal non autorisé' };
+  return { ok: true, mode: 'open' };
+}
+
 export function parsePick(value: string | undefined): PickPayload {
   const p = JSON.parse(value ?? '{}');
   if (!p.corridorId || !p.clusterId) throw new Error('pick incomplet');

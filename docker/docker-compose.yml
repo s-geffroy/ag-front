@@ -28,6 +28,14 @@ services:
       # (the block never renders even though the data path is wired). Set to '1' in docker/.env ONLY
       # after ag-back confirms the derived aggregate is redistributable on the open internet.
       ATLAS_CONSENSUS_PUBLIC: ${ATLAS_CONSENSUS_PUBLIC:-}
+      # Flux d'actualités au fil de l'eau (scripts/news-stream-cron.sh). Le sondeur poste lui-même
+      # dans le canal privé : il lui faut donc le jeton bot, comme au digest. Vide = le sondeur
+      # refuse de tourner, sauf en --dry-run.
+      SLACK_BOT_TOKEN: '${SLACK_BOT_TOKEN:-}'
+      SLACK_CHANNEL_ID: '${SLACK_CHANNEL_ID:-}'
+      # Annonces neuves par passe. VIDE = le défaut du code (5) — surtout pas 0 : `Number('')` vaut
+      # zéro, et un plafond à zéro éteint le flux en silence. C'est `maxPerRunFrom` qui garde ça.
+      NEWS_STREAM_MAX_PER_RUN: '${NEWS_STREAM_MAX_PER_RUN:-}'
     ports:
       - '127.0.0.1:5173:5173' # apps/cockpit dev server (Vite) — Phase 2
       - '127.0.0.1:4321:4321' # apps/public dev server (Astro) — Phase 3

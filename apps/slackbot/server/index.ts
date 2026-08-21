@@ -26,6 +26,7 @@ import {
   isAllowedChannel,
   outcomeFromCockpit,
   parsePick,
+  pickEntry,
   parseSubmission,
   validatedBy,
   type ClusterChoice,
@@ -124,10 +125,25 @@ app.action(PROMOTE_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
  * le brouillon arrive. La personne peut écrire pendant ce temps : le brouillon ne pré-remplit que
  * si le champ est encore vide, parce que Slack ne réinjecte pas la saisie en cours dans un
  * views.update.
+ *
+ * DEUX ORIGINES DEPUIS LE FLUX AU FIL DE L'EAU (`stream.ts`). Le bouton vient soit de la fenêtre de
+ * choix — on empile —, soit d'un MESSAGE du canal — il n'y a alors aucune pile, il faut ouvrir. Et
+ * dans ce second cas le contrôle du canal n'a jamais eu lieu à la porte : `pickEntry` le fait ici,
+ * parce qu'un bouton partagé dans un autre canal n'est pas une approbation.
  */
 app.action(PICK_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
   await ack();
-  const b = body as unknown as { trigger_id: string; actions?: { value?: string }[] };
+  const b = body as unknown as {
+    trigger_id: string;
+    view?: { id?: string } | null;
+    channel?: { id?: string } | null;
+    actions?: { value?: string }[];
+  };
+  const entry = pickEntry(b, CHANNEL);
+  if (!entry.ok) {
+    logger.warn(`[slackbot] clic « écrire » ignoré : ${entry.reason}`);
+    return;
+  }
   let pick: PickPayload;
   try {
     pick = parsePick(b.actions?.[0]?.value);
@@ -137,11 +153,11 @@ app.action(PICK_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
   }
   const title = pick.title;
 
-  const pushed = await client.views.push({
-    trigger_id: b.trigger_id,
-    view: buildWritingModal(pick, title),
-  });
-  const viewId = pushed.view?.id;
+  const opened =
+    entry.mode === 'push'
+      ? await client.views.push({ trigger_id: b.trigger_id, view: buildWritingModal(pick, title) })
+      : await client.views.open({ trigger_id: b.trigger_id, view: buildWritingModal(pick, title) });
+  const viewId = opened.view?.id;
   if (!viewId) return;
 
   // Le brouillon est un CONFORT : son échec ne doit jamais empêcher d'écrire. On laisse donc la

@@ -8,9 +8,11 @@
     "start": "tsx server/index.ts",
     "dev": "tsx watch server/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "stream": "tsx server/stream-run.ts"
   },
   "dependencies": {
+    "@ag/chokepoints": "*",
     "@slack/bolt": "^5.0.0"
   },
   "devDependencies": {
