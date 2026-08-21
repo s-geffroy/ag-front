@@ -15,7 +15,7 @@ regions:
 access: public
 published: false
 corrections: []
-updated: 2026-08-10
+updated: 2026-08-21
 confidence: moyen
 cvi_level: critique
 chokepoint_id: p0_maritime_strait_strait_of_hormuz
@@ -92,6 +92,22 @@ sources:
       (analyse)
     type: analyse_secondaire
     url: https://www.cfr.org/articles/another-hormuz-the-red-seas-threat-to-the-global-economy
+  - label: >-
+      Reuters — Le trafic ralentit à Ormuz après des attaques contre des pétroliers (17 août 2026,
+      données Kpler) : 5 navires de commerce le samedi 15, aucun le dimanche 16, contre 31 le
+      week-end précédent ; plus de 130 navires par jour avant la guerre de février
+    type: presse_specialisee
+    url: https://www.reuters.com/world/middle-east/shipping-via-hormuz-strait-slows-after-tanker-attacks-data-shows-2026-08-16/
+  - label: >-
+      Reuters — Washington menace d'accroître la pression économique ; deux navires de plus attaqués
+      à Ormuz (14 août 2026)
+    type: presse_specialisee
+    url: https://www.reuters.com/world/middle-east/us-warns-iran-it-will-step-up-economic-pressure-two-more-ships-attacked-hormuz-2026-08-14/
+  - label: >-
+      Al Jazeera — « As Strait of Hormuz transit drops, Trump again says US has 'control' »
+      (12 août 2026) : revendications concurrentes sur le contrôle du passage
+    type: presse_specialisee
+    url: https://www.aljazeera.com/news/2026/8/12/as-strait-of-hormuz-transit-drops-trump-again-says-us-has-control
 ---
 
 ## Définition du corridor
@@ -136,11 +152,31 @@ Chiffres 2024 (US EIA, via la base chokepoints), avant la crise :
 > a fermé cette phase. Ce qui dure depuis n’est donc pas une fermeture continue mais un **régime
 > dégradé post-cessez-le-feu** — c’est ce régime, et non une fermeture, que décrit cette fiche.
 >
-> **État au 10 août 2026.** Le trafic est effondré. La métrique PortWatch servie par la base
-> chokepoints donne **2,5 transits journaliers moyens** pour août 2026 — à comparer, même métrique et
+> **État au 21 août 2026.** Le trafic est effondré, et il s’est encore creusé au cours de la deuxième
+> semaine d’août. La métrique PortWatch servie par la base chokepoints donne **2,5 transits
+> journaliers moyens** pour août 2026 — relue le 21 août, inchangée — à comparer, même métrique et
 > même mois, à **36,5** pour Suez, **230,5** pour Malacca et **248** pour le détroit de Taïwan. Hors
 > site, **CNBC** situe le trafic à environ **90 % en dessous** de la moyenne journalière d’avant les
-> frappes (12 août 2026) et **Lloyd’s List Intelligence** à « plus de 90 % » sur les entrées du Golfe.
+> frappes (12 août) et **Lloyd’s List Intelligence** à « plus de 90 % » sur les entrées du Golfe. Le
+> point de comparaison d’avant-crise est désormais chiffré : **plus de 130 navires par jour**
+> franchissaient le détroit avant la guerre de février (Reuters).
+>
+> **Ce qui a changé depuis le 10 août.** Trois navires exploités par l’ADNOC ont été attaqués en
+> transit dans la semaine du 10, selon les Émirats. Le passage s’en est trouvé quasi arrêté : les
+> données Kpler relevées par Reuters comptent **5 navires de commerce le samedi 15 août et aucun le
+> dimanche 16**, contre **31** le week-end précédent. Les pourparlers américano-iraniens sont **au
+> point mort**, et le ministre iranien des Affaires étrangères a redit que la reprise du trafic
+> suppose que Washington satisfasse les conditions de Téhéran.
+>
+> **Et le guichet a maintenant deux guichetiers.** Les États-Unis ont déclaré pouvoir maintenir
+> **indéfiniment un blocus naval de l’Iran** et affirment contrôler l’accès maritime ; Téhéran affirme
+> de son côté contrôler le détroit et le maintenir fermé tant que le blocus, les sanctions et les gels
+> d’avoirs ne sont pas levés. **Les deux revendications portent sur le même passage** et aucune source
+> ne permet, à ce stade, d’établir laquelle détermine le débit constaté. C’est une **revendication
+> concurrente**, pas un fait partagé : nous la rapportons comme telle.
+>
+> **Réserve de mesure.** Certains navires passent transpondeur éteint et échappent au comptage
+> (Reuters / Kpler) : les chiffres ci-dessus sont un **plancher observé**, non un décompte exhaustif.
 
 ## Vulnérabilités
 
@@ -232,8 +268,8 @@ mais un **déficit chiffré d’environ 14 Mb/j** sur le pétrole et de **la tot
 
 Les deux crises se lisent ensemble, et pas seulement parce qu’elles sont simultanées.
 
-Le 22 juillet 2026, les Houthis ont ouvert une campagne contre la navigation **saoudienne**, déclarant
-une interdiction de navigation et affirmant le 5 août avoir refoulé **29 pétroliers saoudiens** en mer
+Les Houthis ont déclaré le **20 juillet 2026** un blocus naval visant l’Arabie saoudite, et ouvert
+deux jours plus tard une campagne contre la navigation **saoudienne**, affirmant le 5 août avoir refoulé **29 pétroliers saoudiens** en mer
 Rouge comme en mer d’Arabie — **revendication d’un belligérant**, rapportée par gCaptain qui précise
 que le chiffre n’a pas pu être vérifié de source indépendante. La tentative de **reproduire en mer
 Rouge le contrôle iranien sur Ormuz** est décrite par le ministre yéménite des Affaires étrangères
@@ -243,6 +279,11 @@ C’est le même geste stratégique appliqué à deux détroits : convertir un p
 et faire de l’autorisation un levier. La différence tient à la substituabilité — la mer Rouge se
 contourne par le Cap, Ormuz ne se contourne pas. Le levier y est donc, structurellement, beaucoup plus
 fort.
+
+Elle tient aussi à l’ampleur, et le week-end du 15-16 août le montre d’un même relevé : **49 transits
+de navires de commerce à Bab el-Mandeb** contre 55 la semaine précédente, quand Ormuz en comptait
+**5 puis zéro**. Le blocus houthi filtre un pavillon — aucune cargaison pétrolière saoudienne suivie
+n’y est passée ; celui d’Ormuz arrête le passage lui-même.
 
 > **Ce que nous ne concluons pas.** Une coordination opérationnelle entre Téhéran et Ansar Allah est
 > *évoquée dans l’analyse du Council on Foreign Relations citée en sources*, pas établie par nos
@@ -259,6 +300,11 @@ nous servons nous-mêmes.
 Plus faible sur trois points, tous nommés plutôt que comblés : l’**ampleur exacte du report** vers les
 pipelines, dont nous n’avons pas la mesure ; la **trajectoire des primes d’assurance**, sans série
 primaire ; et la **durée**, qui dépend d’une négociation dont l’issue n’est pas modélisable.
+
+S’y ajoute depuis la mi-août une **quatrième inconnue, et elle porte sur l’acteur** : Washington et
+Téhéran revendiquent l’un et l’autre de commander le passage. Aucune source publique ne permet de
+départager ce qui, du blocus naval américain ou des conditions iraniennes, détermine le débit
+constaté. Nous rapportons les deux revendications sans trancher entre elles.
 
 > **Fait / analyse.** Les volumes, les transits et les prix proviennent des sources citées (faits
 > **rapportés**, non reconfirmés par nos soins) ; les seuils, les scénarios et la lecture « passage

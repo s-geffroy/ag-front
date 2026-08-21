@@ -364,3 +364,150 @@ la proposition à **10/10**. Restent inchangés :
 2. **L'arbitrage des 5 findings red team** (§D refondu ci-dessus), puis `contradiction_done`.
 3. **Les 10 contrôles Munich**, puis `compliance_done`.
 4. **La décision de fraîcheur du §G.4**, puis `human_review_done`.
+
+---
+
+## H. Le gate manquant est créé — 2026-08-21
+
+La décision de gouvernance du §A est tranchée **dans le sens du gate**, pas du retrait de
+`cvi_level`. `deliv_atlas_ormuz_contexte` porte désormais :
+
+```
+gates: sources_ok ✓ · llm_draft_done ✓ · contradiction_done ✗ · compliance_done ✗
+       human_review_done ✗ · cvi_justified ✗   ← créé
+```
+
+`cvi_justified: z.boolean().optional()` (`packages/schema/src/cockpit/deliverable.ts:19`) : la clé
+était prévue, elle n'était simplement pas posée. Le champ est ajouté à `false`, à la même place que
+sur `deliv_atlas_red_sea_fiche`.
+
+**Vérifié, et c'est le point qui compte** — `resolvePublish` ne compte cette porte que si elle est
+**présente ET fausse**. Avant :
+
+```
+ormuz          missing: contradiction_done, compliance_done, human_review_done
+```
+
+Après :
+
+```
+ormuz          missing: contradiction_done, compliance_done, human_review_done, cvi_justified
+mer-rouge-suez missing: compliance_done, human_review_done, cvi_justified
+```
+
+La fiche ne peut plus être publiée avec un `critique` que personne n'a eu à défendre. L'inversion
+relevée au §A — la fiche qui affirme le plus était la seule sans porte — est corrigée.
+
+Le `blocker` du livrable, qui nommait déjà « justification CVI `critique` » dans la chaîne restante,
+le dit maintenant avec la porte en face.
+
+Contrôles : typecheck cockpit passe, 145 tests sur 17 fichiers au vert, `/api/state` sert bien les
+six portes.
+
+**La justification, elle, reste à poser** — c'est un acte nominatif, et la matière est au §A : le
+déficit chiffré de **~14 Mb/j** non contournable et l'absence **totale** de substitution pour les
+**10,5 Gpc/j** de GNL. C'est exactement l'argument qui plafonnait la mer Rouge à `eleve` (bypass
+fonctionnel) et qui, absent ici, fonde `critique`.
+
+Le décompte du §F passe de 13 à **14 actes nominatifs**.
+
+---
+
+## I. Bloc d'état rafraîchi — 2026-08-21
+
+La décision de fraîcheur du §G.4 est tranchée dans le sens du rafraîchissement. Chaîne de sourcing
+complète : `pplx search` → `pplx fetch-url --facts` → `pplx verify --answer`, puis vérification de
+chaque URL en navigateur réel.
+
+### I.1 Ce qui entre
+
+- **Notre propre métrique, relue** — `portwatch_avg_daily_transits = 2.5`, période `2026-08`,
+  interrogée sur l'API de lecture le 21 août : **inchangée**. La fiche le dit désormais.
+- **Un point de comparaison d'avant-crise chiffré** — **plus de 130 navires par jour** franchissaient
+  le détroit avant la guerre de février (Reuters). La fiche comparait jusqu'ici l'effondrement à
+  d'autres détroits, jamais à son propre passé.
+- **L'effondrement s'est creusé** — trois navires exploités par l'**ADNOC** attaqués en transit dans
+  la semaine du 10 août (déclaration émiratie) ; données Kpler relevées par Reuters : **5 navires de
+  commerce le samedi 15, aucun le dimanche 16**, contre **31** le week-end précédent.
+- **Les pourparlers sont au point mort** — là où l'état du 10 août décrivait une coordination de
+  tracé avec Mascate et des discussions « en phase finale ».
+- **Réserve de mesure** — certains navires passent transpondeur éteint : les comptages sont un
+  **plancher observé**, pas un décompte exhaustif. La fiche le dit maintenant.
+- **Précision de date** — le blocus houthi visant l'Arabie saoudite est **déclaré le 20 juillet**,
+  la campagne d'attaques s'ouvrant deux jours plus tard. La fiche datait tout du 22.
+- **Comparaison chiffrée des deux détroits** — sur le même week-end : **49 transits à Bab
+  el-Mandeb** (contre 55) quand Ormuz en comptait **5 puis zéro**. Le blocus houthi filtre un
+  pavillon ; celui d'Ormuz arrête le passage.
+
+Trois sources ajoutées (Reuters du 17 août, Reuters du 14, Al Jazeera du 12) : **17 sources**, une
+seule sans URL — la base chokepoints. Toutes ouvertes en navigateur réel.
+
+### I.2 Le fait qui change la lecture : le guichet a deux guichetiers
+
+Les États-Unis ont déclaré pouvoir maintenir **indéfiniment un blocus naval de l'Iran** et affirment
+contrôler l'accès maritime ; Téhéran affirme contrôler le détroit et le garder fermé tant que le
+blocus, les sanctions et les gels d'avoirs ne sont pas levés.
+
+La fiche rapporte **les deux revendications sans trancher** — aucune source publique ne permet
+d'établir laquelle détermine le débit constaté — et une **quatrième inconnue** est ajoutée à la
+section *Niveau de confiance* : elle ne porte plus sur une grandeur, mais sur **l'acteur**.
+
+> **Décision d'auteur, non prise ici.** Le `verdict` rendu en tête de page attribue le contrôle à
+> Téhéran seul : « *Téhéran lie la réouverture à des concessions, coordonne un tracé avec Mascate et
+> examine un régime de droits de passage* ». Le corps décrit maintenant une situation **à deux
+> parties**, dont l'une n'est pas nommée dans le verdict, et la coordination avec Mascate a été
+> suivie d'un blocage des pourparlers. **C'est le même défaut que celui relevé sur la fiche Mer
+> Rouge** — un verdict que son propre corps dépasse — et il se tranche de la même manière : par une
+> décision d'auteur, pas par une coche. Le cœur du verdict (« de goulet physique, il est passé à
+> péage politique ») n'est pas en cause ; c'est l'identité du péager qui n'est plus unique.
+
+### I.3 Effet mesuré — et une leçon sur la lecture du juge
+
+| Gate | Avant refresh | Après refresh |
+|---|---|---|
+| Munich 1 | pass 0.84 | **uncertain 0.72** |
+| Munich 2 | pass 0.96 | pass 0.94 |
+| Munich 3 | pass 0.90 | **uncertain 0.68** |
+| Munich 7 | uncertain 0.73 | uncertain 0.65 |
+| Munich 8 | uncertain 0.80 | uncertain 0.70 |
+| `strategic_verdict` | pass 0.90 | **pass 0.93** |
+
+**Le score baisse, la substance monte.** Il faut lire les motifs, pas les étiquettes : les quatre
+`uncertain` sont désormais des **réserves de principe**, sans exception —
+
+- Munich 1 : « *le texte seul ne permet pas de vérifier que chaque affirmation structurante possède
+  une source précise* » — plus aucune affirmation nommée, là où la première passe désignait
+  précisément « des sources externes non identifiées » ;
+- Munich 3 : « *l'absence de citation tronquée ne peut pas être vérifiée depuis le seul document* » ;
+- Munich 7 : « *ne permet pas d'établir que le paywall ne déforme pas l'analyse* » ;
+- Munich 8 : « *l'absence totale de plagiat ne peut pas être certifiée sur le texte seul* » — et la
+  citation retenue en preuve est notre propre qualification « revendication d'un belligérant ».
+
+Aucune de ces réserves ne sera jamais levée par une correction : elles décrivent la limite du juge,
+pas un défaut du document. **Troisième passe sur ce document dans la journée, et Munich 7 a fait
+`pass 0.86` → `uncertain 0.73` → `uncertain 0.65` sans qu'une seule ligne ait bougé sur ce terrain.**
+C'est la mise en garde d'ADR 0068 prise à l'envers : le biais d'automatisation ne consiste pas
+seulement à tamponner un `pass`, il consiste aussi à reculer devant un `uncertain` qui ne dit rien.
+
+### I.4 Red team — de 5 findings à 4
+
+Le finding sur le scénario 3 **a disparu** : le rattachement explicite au registre prospectif l'a
+levé. Les quatre restants :
+
+| Sév. | Objet | Arbitrage proposé |
+|---|---|---|
+| 4 | « pas de route maritime alternative du tout » | **À écarter** — troisième formulation du même reproche en trois passes ; la fiche chiffre le déficit et compare désormais aux autres chokepoints. |
+| 3 | Le déficit de ~14 Mb/j sans source propre | **À écarter** — c'est une **dérivation**, pas une donnée : le tableau montre l'arithmétique et source chaque ligne, la colonne *Fondement* disant « différence des deux lignes précédentes ». |
+| 3 | Revendications concurrentes sans moyen de départager | **Fondé et déjà déclaré deux fois** — dans le bloc d'état et dans le *Niveau de confiance*. Angle mort assumé. |
+| 2 | `insurance_cost_spike` cité sans série de primes | **Fondé et déjà déclaré** — c'est l'une des grandeurs que la fiche nomme plutôt que de combler. |
+
+Aucun ne conteste un chiffre. Deux à écarter, deux déjà assumés dans le texte.
+
+### I.5 État après refresh
+
+`updated: 2026-08-21`. Volet machine **0 violation**, 17 sources, build 129 pages et 12/12 ancrages.
+La fiche reste `published: false`.
+
+Les **14 actes nominatifs** du §H sont inchangés — un rafraîchissement de contenu n'en coche aucun.
+Ce qui change, c'est qu'il reste **une** décision d'auteur au lieu de deux : la fraîcheur est réglée,
+le verdict à deux guichetiers ne l'est pas.
