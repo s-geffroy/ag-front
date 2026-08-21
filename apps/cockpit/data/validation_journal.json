@@ -60,5 +60,29 @@
     "after": true,
     "validated_by": "Sylvain Geffroy",
     "validated_at": "2026-08-12T11:39:18.448Z"
+  },
+  {
+    "id": "val_01294773-2efa-4fe1-94fb-bcfe40a17387",
+    "deliverable_id": "plaquette/commercial",
+    "target_kind": "publication",
+    "target_id": "plaquette/commercial",
+    "decision": "validated",
+    "reserve": "Publication ordonnée par Sylvain Geffroy le 2026-08-21 après la resynchronisation du contrat chokepoints 1.6.0 -> 4.0.0. CE QUE CETTE SIGNATURE COUVRE, ET CE QU ELLE NE COUVRE PAS : les faits imprimes ont ete REMESURES le jour meme contre la production (corpus instruit 334 et non 313 - le metadata.total_count du seed amont etait perime a 314 ; CVI recompte objet par objet : 127 critique / 137 eleve / 65 modere / 5 bas la ou les 313 etaient tous en bande critique le 10 aout ; concentration 313/313 -> 15/334 ; 275 corridors sur 334 ne portent plus que deux dimensions). Les deux familles ont ete regenerees le 2026-08-21 (--date fixe, validation OOXML passee, QA 15 et 29 pages sans page muette). La relecture visuelle diapositive par diapositive n a PAS ete faite avant cette bascule : la decision porte sur la fraicheur et la justesse mesuree des chiffres, pas sur la mise en page.",
+    "before": false,
+    "after": true,
+    "validated_by": "Sylvain Geffroy",
+    "validated_at": "2026-08-21T09:44:26.158Z"
+  },
+  {
+    "id": "val_6a09a8db-a9ec-41e5-88dc-d341cfcdff3f",
+    "deliverable_id": "plaquette/methode",
+    "target_kind": "publication",
+    "target_id": "plaquette/methode",
+    "decision": "validated",
+    "reserve": "Publication ordonnée par Sylvain Geffroy le 2026-08-21 après la resynchronisation du contrat chokepoints 1.6.0 -> 4.0.0. CE QUE CETTE SIGNATURE COUVRE, ET CE QU ELLE NE COUVRE PAS : les faits imprimes ont ete REMESURES le jour meme contre la production (corpus instruit 334 et non 313 - le metadata.total_count du seed amont etait perime a 314 ; CVI recompte objet par objet : 127 critique / 137 eleve / 65 modere / 5 bas la ou les 313 etaient tous en bande critique le 10 aout ; concentration 313/313 -> 15/334 ; 275 corridors sur 334 ne portent plus que deux dimensions). Les deux familles ont ete regenerees le 2026-08-21 (--date fixe, validation OOXML passee, QA 15 et 29 pages sans page muette). La relecture visuelle diapositive par diapositive n a PAS ete faite avant cette bascule : la decision porte sur la fraicheur et la justesse mesuree des chiffres, pas sur la mise en page.",
+    "before": false,
+    "after": true,
+    "validated_by": "Sylvain Geffroy",
+    "validated_at": "2026-08-21T09:44:26.185Z"
   }
 ]
