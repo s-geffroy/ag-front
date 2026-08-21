@@ -41,9 +41,17 @@ for (const e of entries) {
     <p class="eyebrow">Veille</p>
     <h1 class="mt-4 font-serif text-title font-bold">Ce que nous suivons</h1>
     <p class="prose-ag mt-4">
+      {/*
+        « la phrase de l’analyste qui l’a retenue » — retiré le 2026-08-21. L’ADR 0079 amendé permet
+        de publier le brouillon machine tel quel, et les trois promotions du corpus portent toutes
+        `note_origin: draft_accepted` : la phrase affichée est celle du modèle, endossée. Retenir à
+        la main reste vrai et se dit ; écrire ne l’est plus. Ce que la signature prouve désormais est
+        l’ENDOSSEMENT, pas la rédaction — et le journal nominatif garde lequel des trois cas s’est
+        produit.
+      */}
       Regroupements d’articles retenus à la main sur les corridors que nous suivons. Chaque entrée
-      porte la phrase de l’analyste qui l’a retenue, et les titres des éditeurs, liés à la source.
-      Un candidat, jamais un incident confirmé.
+      porte une phrase courte, endossée nominativement par l’analyste qui a retenu le sujet, et les
+      titres des éditeurs, liés à la source. Un candidat, jamais un incident confirmé.
     </p>
     {
       reviewed ? (
