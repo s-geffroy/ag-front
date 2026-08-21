@@ -1132,7 +1132,7 @@
       "cluster_id": "84b80f1f-1a1e-4e1f-a2f6-d40020d33130",
       "run_id": "",
       "taint_class": "cleared_only",
-      "promoted_by": "sge (via Slack)",
+      "promoted_by": "Sylvain Geffroy (via Slack)",
       "promoted_at": "2026-08-21T13:08:57.135Z"
     }
   ]
