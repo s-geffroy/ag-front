@@ -51,10 +51,8 @@ import {
   findParaphrase,
   paraphraseCandidates,
   noteOrigin,
-  distinctTitles,
-  distinctOutlets,
 } from './promote-news';
-import { NoteDraftError, draftEditorialNote } from './llm/note-draft';
+import { NoteDraftError, draftContextFrom, draftEditorialNote } from './llm/note-draft';
 import {
   addUploads,
   getUpload,
@@ -919,10 +917,12 @@ export function createApiRouter(): Router {
   // the client body. Touches the publish sentinel so the host watcher ships it. Never runs the build.
   const CORRIDOR_ID_RE = /^[a-z0-9_]+$/i;
 
-  // --- Brouillon de note pour une promotion (ADR 0079) -------------------------------------------
-  // Rend un BROUILLON à réécrire, jamais une phrase publiable : la route de promotion ci-dessous
-  // reçoit ce même texte et REFUSE une note qui s'en approche. Le cluster est relu côté serveur —
-  // le corps de la requête ne porte qu'un identifiant, jamais du contenu.
+  // --- Brouillon de note pour une promotion (ADR 0079 amendé) ------------------------------------
+  // Rend un brouillon destiné à être réécrit — mais le publier tel quel est PERMIS depuis
+  // l'amendement du 2026-08-11, et `note_origin` le trace. Ce commentaire affirmait l'inverse
+  // jusqu'au 2026-08-21 (« REFUSE une note qui s'en approche »), ce que la route de promotion
+  // dément explicitement plus bas. Le cluster est relu côté serveur — le corps de la requête ne
+  // porte qu'un identifiant, jamais du contenu.
   r.post(
     '/promote-news/:corridorId/draft',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -966,19 +966,7 @@ export function createApiRouter(): Router {
         } catch (err) {
           console.error('[cockpit] fiche indisponible pour le brouillon', corridorId, err);
         }
-        const titles = distinctTitles(c);
-        const draft = await draftEditorialNote({
-          corridorName,
-          titles: titles.map((t) => t.title),
-          outlets: distinctOutlets(c),
-          countries: [],
-          countryUnknown: 0,
-          articles: c.article_count ?? (c.articles ?? []).length,
-          window: `${c.first_seen ?? '?'} → ${c.last_seen ?? '?'}`,
-          salience: c.salience_score ?? undefined,
-          eventCategory: c.event_category ?? undefined,
-          corridorFacts,
-        });
+        const draft = await draftEditorialNote(draftContextFrom(c, corridorName, corridorFacts));
         res.json(draft);
       } catch (err) {
         if (err instanceof NoteDraftError) {
