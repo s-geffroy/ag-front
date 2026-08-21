@@ -172,7 +172,12 @@ app.action(PICK_ACTION_PATTERN, async ({ ack, body, client, logger }) => {
       },
     );
     if (!r.ok) return;
-    const draft = (await r.json()) as { draft?: string; basis?: string[]; cannot_say?: string[] };
+    const draft = (await r.json()) as {
+      draft?: string;
+      what_this_coverage_adds?: string;
+      basis?: string[];
+      cannot_say?: string[];
+    };
     await client.views.update({
       view_id: viewId,
       view: buildWritingModalWithDraft(pick, title, {

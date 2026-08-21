@@ -557,8 +557,17 @@ export function buildWritingModal(pick: PickPayload, subjectTitle: string) {
 export function buildWritingModalWithDraft(
   pick: PickPayload,
   subjectTitle: string,
-  draft: { draft: string; basis?: string[]; cannot_say?: string[] },
+  draft: { draft: string; whatItAdds?: string; basis?: string[]; cannot_say?: string[] },
 ) {
+  /**
+   * Ce que CETTE couverture apporte que la précédente n'avait pas — la case que le modèle doit
+   * remplir avant d'écrire son brouillon (ADR 0079, prompt révisé le 2026-08-21). C'est le meilleur
+   * résumé dont dispose la personne au moment de juger, et il ne lui parvenait pas.
+   *
+   * Placé AU-DESSUS du champ, et marqué comme prose de modèle au même titre que l'intitulé : c'est
+   * une affirmation de machine sur une matière qu'elle n'a pas lue au-delà des titres (ADR 0078).
+   */
+  const adds = draft.whatItAdds?.trim();
   const notes = [
     draft.basis?.length ? `*Appuyé sur :* ${draft.basis.slice(0, 4).join(' · ')}` : null,
     draft.cannot_say?.length
@@ -583,6 +592,19 @@ export function buildWritingModalWithDraft(
           },
         ],
       },
+      ...(adds
+        ? [
+            {
+              type: 'context' as const,
+              elements: [
+                {
+                  type: 'mrkdwn' as const,
+                  text: `*Ce que cette couverture ajoute, selon le modèle :* ${adds}`,
+                },
+              ],
+            },
+          ]
+        : []),
       {
         type: 'input' as const,
         // Identifiant NEUF dès qu'il y a un brouillon : sans cela Slack garde le bloc d'origine,

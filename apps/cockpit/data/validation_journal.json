@@ -97,5 +97,18 @@
     "note_origin": "draft_accepted",
     "validated_by": "Sylvain Geffroy (via Slack)",
     "validated_at": "2026-08-21T10:44:41.902Z"
+  },
+  {
+    "id": "val_a272b3c3-73bf-4fa3-8702-3d9127590aae",
+    "deliverable_id": "news/p0_maritime_energy_trade_digital_system_red_sea_bab_el_mandeb_suez_system",
+    "target_kind": "news_promotion",
+    "target_id": "c7e7a1d2-61f7-4530-a4ed-58b17c3c52a0",
+    "decision": "validated",
+    "reserve": "",
+    "before": false,
+    "after": true,
+    "note_origin": "draft_accepted",
+    "validated_by": "Sylvain Geffroy (via Slack)",
+    "validated_at": "2026-08-21T11:14:56.776Z"
   }
 ]

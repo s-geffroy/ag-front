@@ -624,3 +624,33 @@ describe('pickEntry — le bouton du flux vit sur un MESSAGE, plus dans une fen�
     expect(pickEntry({}, 'C_OK').ok).toBe(false);
   });
 });
+
+describe('buildWritingModalWithDraft — ce que la couverture ajoute, sous les yeux avant d’écrire', () => {
+  const pick = { corridorId: 'c', clusterId: 'k', urls: ['https://a.com/1'], title: 'Sujet' };
+
+  it('affiche la ligne « ce que cette couverture ajoute », le meilleur résumé dont dispose la personne', () => {
+    const v = buildWritingModalWithDraft(pick, 'Sujet', {
+      draft: 'Une phrase.',
+      whatItAdds:
+        'La mort d’un chef mécanicien, là où les semaines précédentes ne comptaient que des coques.',
+      basis: ['un titre'],
+      cannot_say: [],
+    });
+    expect(JSON.stringify(v.blocks)).toContain('ne comptaient que des coques');
+  });
+
+  it('la marque comme du texte de MODÈLE — c’est une prose de machine, pas un fait établi (ADR 0078)', () => {
+    const v = buildWritingModalWithDraft(pick, 'Sujet', {
+      draft: 'Une phrase.',
+      whatItAdds: 'Quelque chose.',
+    });
+    const bloc = JSON.stringify(v.blocks);
+    const i = bloc.indexOf('Quelque chose.');
+    expect(bloc.slice(Math.max(0, i - 220), i + 220)).toMatch(/modèle/i);
+  });
+
+  it('n’ouvre aucun bloc quand la ligne est absente ou vide', () => {
+    const v = buildWritingModalWithDraft(pick, 'Sujet', { draft: 'Une phrase.', whatItAdds: '  ' });
+    expect(JSON.stringify(v.blocks)).not.toMatch(/couverture ajoute/i);
+  });
+});
