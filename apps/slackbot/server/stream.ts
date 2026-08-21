@@ -70,8 +70,14 @@ export const MAX_REMINDERS = 3;
  */
 export const DEFAULT_MAX_PER_RUN = 5;
 
-/** Seuil bas des P0. Le 2 dit « jamais sur une source unique » ; il ne vient pas de l'ADR 0072, qui compte des marchés. */
-export const P0_MIN_OUTLETS = 2;
+/**
+ * Seuil bas des P0. Parti à 2 — « jamais sur une source unique » —, relevé à 3 le 2026-08-21 après
+ * avoir vu ce que 2 servait vraiment : « Frais élevés du canal de Panama et transferts de GPL de
+ * navire à navire » et « Nouvelle demande de dommages dans le litige portuaire » valent une brève,
+ * pas une notification. La porte de la saillance reste ouverte en dessous, et c'est elle qui protège
+ * le cas « six navires » — trois médias, le fait le plus décisionnel du corridor.
+ */
+export const P0_MIN_OUTLETS = 3;
 /** Seuil des autres classes — `LOW_ECHO_UNDER` de `promote.ts`, la limite du « peu repris ». */
 export const OTHER_MIN_OUTLETS = 5;
 /** En dessous de ce nombre de médias, la saillance déclarée ne suffit plus, hors P0. */

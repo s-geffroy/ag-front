@@ -3,6 +3,228 @@
     {
       "articles": [
         {
+          "title": "Strait of Hormuz talks should involve intl. community: FM Of Japan And Oman",
+          "url": "https://www.spotlightnepal.com/2026/08/21/strait-hormuz-talks-should-involve-intl-community-fm-japan-and-oman/",
+          "outlet": "spotlightnepal.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "US vows toughest-ever Iran sanctions, presses China to help reopen Hormuz",
+          "url": "https://timesofindia.indiatimes.com/business/international-business/one-two-punch-us-vows-toughest-ever-iran-sanctions-presses-china-to-help-reopen-hormuz/articleshow/133390802.cms",
+          "outlet": "timesofindia.indiatimes.com",
+          "source_id": "times_of_india",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Trump's 'Economic D-Day' Against Iran: Toughest US Sanctions, China's Dilemma, Strait of Hormuz and Global Oil Price Shock Explained",
+          "url": "https://openthemagazine.com/world/trumps-economic-d-day-against-iran-what-it-means-for-china-hormuz-and-oil-prices",
+          "outlet": "openthemagazine.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "The Islamic Republic says Arab states should not be allowed to build pipelines that bypass the Strait of Hormuz",
+          "url": "https://freerepublic.com/focus/f-bloggers/4392554/posts",
+          "outlet": "freerepublic.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-21"
+        },
+        {
+          "title": "Trump team out on a limb with claim that oil is flowing through Strait of Hormuz",
+          "url": "https://www.washingtonexaminer.com/policy/energy-and-environment/4694549/trump-team-on-limb-claim-oil-flowing-hormuz/",
+          "outlet": "washingtonexaminer.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Gulf states push to break Iran deadlock and reopen Strait of Hormuz",
+          "url": "https://www.thenationalnews.com/news/gulf/2026/08/20/gulf-states-push-to-break-iran-deadlock-and-reopen-strait-of-hormuz/",
+          "outlet": "thenationalnews.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Trump claims control of Strait of Hormuz | New Spotlight Magazine",
+          "url": "https://www.spotlightnepal.com/2026/08/20/trump-claims-control-strait-hormuz/",
+          "outlet": "spotlightnepal.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "US urges China to back its ‘most crushing economic operation’ against Iran",
+          "url": "https://www.scmp.com/news/china/diplomacy/article/3364734/us-urges-china-back-its-most-crushing-economic-operation-against-iran?utm_source=rss_feed",
+          "outlet": "scmp.com",
+          "source_id": "scmp",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Trump says Strait of Hormuz blockade has been \"extremely effective,\" more sanctions against Iran possible",
+          "url": "https://www.news9.com/oklahoma-city-news/trump-says-more-sanctions-against-iran-possible",
+          "outlet": "news9.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Ghalibaf visits Iraq amid militia deadline, Strait of Hormuz tensions",
+          "url": "https://www.jpost.com/middle-east/article-906138",
+          "outlet": "jpost.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Strait of Hormuz Latest: US Says Waterway Open as Iran Loses Ground Amid Naval Blockade Standoff",
+          "url": "https://www.ibtimes.com.au/escalating-tensions-strait-hormuz-us-iran-standoff-1874306",
+          "outlet": "ibtimes.com.au",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Iran tells Trump to accept reality, says Strait of Hormuz cannot become US territory",
+          "url": "https://www.ibtimes.co.in/iran-tells-trump-accept-reality-says-strait-hormuz-cannot-become-us-territory-904890",
+          "outlet": "ibtimes.co.in",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Strait of Hormuz will remain under Iranian control: Leader's adviser",
+          "url": "https://www.globalsecurity.org/wmd/library/news/iran/2026/08/iran-260819-irna03.htm",
+          "outlet": "globalsecurity.org",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Strait of Hormuz may become less critical to global energy trade, Trump says",
+          "url": "https://www.azernews.az/region/262610.html",
+          "outlet": "azernews.az",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Oman says lasting security in Strait of Hormuz requires regional peace",
+          "url": "https://www.arabnews.com/node/2655312/middle-east",
+          "outlet": "arabnews.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "ممر هرمز الجنوبي.. حماية جوية أمريكية أم غطاء لتفاهمات خفية؟",
+          "url": "https://www.aljazeera.net/politics/2026/8/20/%d9%85%d9%85%d8%b1-%d9%87%d8%b1%d9%85%d8%b2-%d8%a7%d9%84%d8%ac%d9%86%d9%88%d8%a8%d9%8a-%d8%ad%d9%85%d8%a7%d9%8a%d8%a9-%d8%ac%d9%88%d9%8a%d8%a9-%d8%a3%d9%85%d8%b1%d9%8a%d9%83%d9%8a%d8%a9-%d8%a3%d9%85?traffic_source=rss",
+          "outlet": "aljazeera.net",
+          "source_id": "aljazeera_ar",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "كواليس غير معلنة.. ماذا بحث رئيس البرلمان الإيراني في بغداد؟",
+          "url": "https://www.aljazeera.net/politics/2026/8/20/%d9%83%d9%88%d8%a7%d9%84%d9%8a%d8%b3-%d8%ba%d9%8a%d8%b1-%d9%85%d8%b9%d9%84%d9%86%d8%a9-%d9%85%d8%a7%d8%b0%d8%a7-%d8%a8%d8%ad%d8%ab-%d8%b1%d8%a6%d9%8a%d8%b3?traffic_source=rss",
+          "outlet": "aljazeera.net",
+          "source_id": "aljazeera_ar",
+          "observed_on": "2026-08-20"
+        },
+        {
+          "title": "Why is Trump threatening to bomb Oman, the Iran mediator trying to clear Hormuz?",
+          "url": "https://www.scmp.com/news/world/united-states-canada/article/3364501/why-trump-threatening-bomb-oman-iran-mediator-trying-clear-hormuz?utm_source=rss_feed",
+          "outlet": "scmp.com",
+          "source_id": "scmp",
+          "observed_on": "2026-08-19"
+        },
+        {
+          "title": "Trump warns of punishment for any country that supports Iran: ‘economic warfare’",
+          "url": "https://www.scmp.com/news/world/middle-east/article/3364619/trump-warns-punishment-any-country-supports-iran-economic-warfare?utm_source=rss_feed",
+          "outlet": "scmp.com",
+          "source_id": "scmp",
+          "observed_on": "2026-08-19"
+        },
+        {
+          "title": "Iran warns Gulf nations against helping US as UAE halts trade ties",
+          "url": "https://www.scmp.com/news/world/middle-east/article/3364576/iran-warns-gulf-nations-against-helping-us-uae-halts-trade-ties?utm_source=rss_feed",
+          "outlet": "scmp.com",
+          "source_id": "scmp",
+          "observed_on": "2026-08-19"
+        },
+        {
+          "title": "إيران مباشر.. ترمب يعلن \"حربا اقتصادية\" غير مسبوقة ضد طهران",
+          "url": "https://www.aljazeera.net/news/liveblog/2026/8/20/%d8%a5%d9%8a%d8%b1%d8%a7%d9%86-%d9%85%d8%a8%d8%a7%d8%b4%d8%b1-%d8%aa%d8%b1%d9%85%d8%a8-%d9%8a%d9%82%d9%84%d9%84-%d9%85%d9%86-%d8%a3%d9%87%d9%85%d9%8a%d8%a9-%d9%85%d8%b6%d9%8a%d9%82?traffic_source=rss",
+          "outlet": "aljazeera.net",
+          "source_id": "aljazeera_ar",
+          "observed_on": "2026-08-19"
+        },
+        {
+          "title": "Iran claims control, ships choose Omani route: What's changing in Strait of Hormuz",
+          "url": "https://timesofindia.indiatimes.com/world/middle-east/iran-claims-control-ships-choose-omani-route-whats-changing-in-strait-of-hormuz/articleshow/133337697.cms",
+          "outlet": "timesofindia.indiatimes.com",
+          "source_id": "gdelt_gkg",
+          "observed_on": "2026-08-19"
+        },
+        {
+          "title": "Trump Takes Iran Hard Line as Hormuz Tensions Set New Normal",
+          "url": "https://gcaptain.com/trump-takes-iran-hard-line-as-hormuz-tensions-set-new-normal/",
+          "outlet": "gcaptain.com",
+          "source_id": "gcaptain",
+          "observed_on": "2026-08-19"
+        },
+        {
+          "title": "Trump posts map with Hormuz as ‘new US territory’, says no Iran talks planned",
+          "url": "https://www.scmp.com/news/world/middle-east/article/3364478/trump-posts-map-hormuz-new-us-territory-says-no-iran-talks-planned?utm_source=rss_feed",
+          "outlet": "scmp.com",
+          "source_id": "scmp",
+          "observed_on": "2026-08-18"
+        },
+        {
+          "title": "US strikes kept Iran’s fishermen off Hormuz. They can no longer afford to stay idle",
+          "url": "https://www.scmp.com/news/world/middle-east/article/3364408/us-strikes-kept-irans-fishermen-hormuz-they-can-no-longer-afford-stay-idle?utm_source=rss_feed",
+          "outlet": "scmp.com",
+          "source_id": "scmp",
+          "observed_on": "2026-08-18"
+        },
+        {
+          "title": "Middle East: No talks or conversations with Iran, Trump says",
+          "url": "https://www.dw.com/en/middle-east-no-talks-or-conversations-with-iran-trump-says/live-78419518?maca=en-rss-en-all-1573-xml-mrss",
+          "outlet": "dw.com",
+          "source_id": "dw_en",
+          "observed_on": "2026-08-18"
+        },
+        {
+          "title": "Trump says no talks planned with Iran amid anger over Iran-Oman Hormuz deal",
+          "url": "https://www.aljazeera.com/news/2026/8/18/no-talks-with-iran-says-trump-as-us-president-stews-over-hormuz-deal?traffic_source=rss",
+          "outlet": "aljazeera.com",
+          "source_id": "aljazeera_en",
+          "observed_on": "2026-08-18"
+        },
+        {
+          "title": "Trump Says No Talks are Taking Place With Iran and None are Scheduled",
+          "url": "https://gcaptain.com/trump-says-no-talks-are-taking-place-with-iran-and-none-are-scheduled/",
+          "outlet": "gcaptain.com",
+          "source_id": "gcaptain",
+          "observed_on": "2026-08-18"
+        }
+      ],
+      "affected_chokepoints": [
+        {
+          "chokepoint_id": "p0_maritime_strait_strait_of_hormuz",
+          "canonical_name": "Strait of Hormuz",
+          "relevance": 0.8
+        }
+      ],
+      "article_count": 28,
+      "first_seen": "2026-08-18",
+      "last_seen": "2026-08-21",
+      "generated_at": "2026-08-21T06:15:40.734129Z",
+      "editorial_note": "Les tensions actuelles autour du détroit d'Ormuz pourraient pousser les assureurs à augmenter les primes de risque pour les transports maritimes dans cette zone stratégique.",
+      "note_origin": "draft_accepted",
+      "headline": "Déclarations contradictoires et initiatives diplomatiques autour du détroit d'Ormuz",
+      "summary_text": "Les titres font état de sanctions américaines, d'appels à rouvrir le détroit et de prises de position iraniennes, omanaises et régionales. Ils rapportent aussi des affirmations divergentes sur le contrôle du détroit et sur l'existence de négociations.",
+      "event_category": "security",
+      "salience_score": 0.8,
+      "cluster_id": "4e98c193-cc16-438c-975a-e05b3f9ed937",
+      "run_id": "",
+      "taint_class": "cleared_only",
+      "promoted_by": "Sylvain Geffroy (via Slack)",
+      "promoted_at": "2026-08-21T10:44:41.889Z"
+    },
+    {
+      "articles": [
+        {
           "title": "Strait of Hormuz will not reopen until US' naval blockade: Iran",
           "url": "https://www.sentinelassam.com/more-news/international/strait-of-hormuz-will-not-reopen-until-us-naval-blockade-iran",
           "outlet": "sentinelassam.com",

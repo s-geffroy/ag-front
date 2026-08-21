@@ -107,9 +107,9 @@ describe('priorityOf — la classe se lit, elle ne se devine pas depuis un ident
 });
 
 describe('meetsThreshold — les P0 alertent tôt, le reste doit être porté', () => {
-  it('P0 : deux médias suffisent, un seul ne suffit pas', () => {
-    expect(meetsThreshold(cluster({ outlets: 2 }), 'P0')).toBe(true);
-    expect(meetsThreshold(cluster({ outlets: 1 }), 'P0')).toBe(false);
+  it('P0 : trois médias, pas deux — relevé le 2026-08-21 après avoir vu ce que deux servait', () => {
+    expect(meetsThreshold(cluster({ outlets: 3 }), 'P0')).toBe(true);
+    expect(meetsThreshold(cluster({ outlets: 2 }), 'P0')).toBe(false);
   });
 
   it('P0 : un sujet jugé saillant passe même très peu repris — c’est le cas « six navires »', () => {
@@ -185,10 +185,10 @@ describe('planStream — annoncer une fois, rappeler à l’emballement', () => 
   });
 
   it('plafonne les rappels, pour qu’un sujet qui enfle ne prenne pas le canal', () => {
-    // Départ à DEUX médias : éligible en P0, palier 0. Les quatre paliers restent donc tous à
+    // Départ à TROIS médias : éligible en P0, palier 0. Les quatre paliers restent donc tous à
     // franchir — sans plafond ce test compterait quatre rappels.
     let ledger: Ledger = planStream({
-      clusters: [cluster({ outlets: 2 })],
+      clusters: [cluster({ outlets: 3 })],
       ledger: {},
       classes,
       now: NOW,

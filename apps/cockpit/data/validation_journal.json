@@ -84,5 +84,18 @@
     "after": true,
     "validated_by": "Sylvain Geffroy",
     "validated_at": "2026-08-21T09:44:26.185Z"
+  },
+  {
+    "id": "val_712a37f8-3c5d-4050-98da-fe5a5822e301",
+    "deliverable_id": "news/p0_maritime_strait_strait_of_hormuz",
+    "target_kind": "news_promotion",
+    "target_id": "4e98c193-cc16-438c-975a-e05b3f9ed937",
+    "decision": "validated",
+    "reserve": "",
+    "before": false,
+    "after": true,
+    "note_origin": "draft_accepted",
+    "validated_by": "Sylvain Geffroy (via Slack)",
+    "validated_at": "2026-08-21T10:44:41.902Z"
   }
 ]
