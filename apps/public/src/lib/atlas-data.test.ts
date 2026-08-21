@@ -4,6 +4,7 @@ import {
   CONSENSUS_RELIABILITY,
   loadCorridorConsensus,
   corridorNewsSignal,
+  newsSignalFrom,
   newsSignalLabel,
   sortCorridorsByNews,
 } from './atlas-data';
@@ -320,28 +321,47 @@ describe('mandatory attribution + S5 disclaimer (ag-back 0018 §1)', () => {
   });
 });
 
-describe('corridorNewsSignal — un signal qui ne s’éteint pas cesse d’en être un', () => {
-  const HORMUZ = 'p0_maritime_strait_strait_of_hormuz';
-  // Le magasin réel porte une promotion du 2026-08-11 : les dates ci-dessous sont relatives à elle.
-  const promotedDay = new Date('2026-08-11T21:00:00Z');
+describe('newsSignalFrom — la règle, éprouvée sur des fixtures et non sur le magasin réel', () => {
+  /**
+   * CES TESTS ÉTAIENT COUPLÉS AU MAGASIN. Ils affirmaient « 11 août », la date de l'unique promotion
+   * du dépôt, et ils sont devenus rouges à la première promotion suivante — le 2026-08-21, dès que
+   * le flux au fil de l'eau a commencé à servir. Un test qui casse quand le produit marche est un
+   * test qui sera désactivé. La règle est donc éprouvée ici sur des données fabriquées ; le magasin
+   * n'est plus qu'un détail d'adaptateur.
+   */
+  const item = (promoted_at: string) => ({ promoted_at }) as never;
 
-  it('signale une promotion récente, et rend sa date', () => {
-    const s = corridorNewsSignal(HORMUZ, promotedDay);
-    expect(s).not.toBeNull();
-    expect(newsSignalLabel(s!.promotedAt)).toBe('11 août');
+  it('rend la promotion la plus RÉCENTE, pas la première rencontrée', () => {
+    const s = newsSignalFrom(
+      [item('2026-08-11T20:18:00Z'), item('2026-08-21T11:14:00Z')],
+      new Date('2026-08-21T12:00:00Z'),
+    );
+    expect(s?.promotedAt).toBe('2026-08-21T11:14:00Z');
   });
 
   it('tient exactement 21 jours, puis se tait', () => {
-    expect(corridorNewsSignal(HORMUZ, new Date('2026-09-01T00:00:00Z'))).not.toBeNull();
-    expect(corridorNewsSignal(HORMUZ, new Date('2026-09-03T00:00:00Z'))).toBeNull();
+    const items = [item('2026-08-11T20:00:00Z')];
+    expect(newsSignalFrom(items, new Date('2026-09-01T00:00:00Z'))).not.toBeNull();
+    expect(newsSignalFrom(items, new Date('2026-09-03T00:00:00Z'))).toBeNull();
   });
 
-  it('ne signale rien pour un corridor jamais promu — ce qui ne veut pas dire « calme »', () => {
-    expect(corridorNewsSignal('p0_maritime_canal_panama_canal', promotedDay)).toBeNull();
+  it('rend null sur un corridor sans promotion — ce qui ne veut pas dire « calme »', () => {
+    expect(newsSignalFrom([], new Date('2026-08-21T00:00:00Z'))).toBeNull();
   });
 
-  it('ne rend pas de libellé pour une date illisible plutôt que d’en inventer une', () => {
-    expect(newsSignalLabel('pas-une-date')).toBe('');
+  it('ignore une date absente ou illisible plutôt que de la lire comme fraîche', () => {
+    expect(
+      newsSignalFrom([item(''), item('pas une date')], new Date('2026-08-21T00:00:00Z')),
+    ).toBeNull();
+  });
+});
+
+describe('corridorNewsSignal — l’adaptateur lit le magasin, et rien de plus', () => {
+  it('ne signale rien pour un corridor absent du magasin', () => {
+    // Un identifiant qui n'existe pas : vrai quel que soit l'état des promotions, donc stable.
+    expect(
+      corridorNewsSignal('p9_corridor_qui_n_existe_pas', new Date('2026-08-21T00:00:00Z')),
+    ).toBeNull();
   });
 });
 

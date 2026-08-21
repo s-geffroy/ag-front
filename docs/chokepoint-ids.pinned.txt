@@ -10,8 +10,9 @@
 # archivés portent des identifiants d'époque : ce sont des traces, elles gardent le nom sous
 # lequel elles ont été écrites.
 #
-# Relevé le 2026-08-21 — 11 identifiants.
+# Relevé le 2026-08-21 — 12 identifiants.
 p0_maritime_canal_panama_canal	apps/public/src/content/atlas/panama.md
+p0_maritime_energy_trade_digital_system_red_sea_bab_el_mandeb_suez_system	apps/public/src/data/promoted-news.json
 p0_maritime_passage_cape_of_good_hope_route	apps/public/src/content/atlas/route-du-cap.md
 p0_maritime_strait_bab_el_mandeb_strait	apps/public/src/content/atlas/mer-rouge-suez.md
 p0_maritime_strait_singapore_strait	apps/public/src/content/atlas/singapour.md

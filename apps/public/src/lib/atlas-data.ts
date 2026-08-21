@@ -294,21 +294,35 @@ export async function loadCorridorConsensus(id: string): Promise<AtlasConsensus 
  */
 export const NEWS_SIGNAL_MAX_AGE_DAYS = 21;
 
-export function corridorNewsSignal(
-  id: string,
-  now: Date = new Date(),
+/**
+ * La règle, séparée du magasin.
+ *
+ * Elle vivait dans `corridorNewsSignal`, et ses tests affirmaient donc la date de l'unique promotion
+ * du dépôt. Ils sont devenus rouges à la promotion suivante — le jour où le flux au fil de l'eau a
+ * commencé à servir. Un test qui casse quand le produit marche finit désactivé : la règle s'éprouve
+ * maintenant sur des fixtures, et `corridorNewsSignal` n'est plus qu'un adaptateur.
+ */
+export function newsSignalFrom(
+  items: { promoted_at?: string }[],
+  now: Date,
 ): { promotedAt: string } | null {
-  const items = loadCorridorPromotedNews(id);
-  if (items.length === 0) return null;
   const latest = items
     .map((it) => it.promoted_at)
     .filter((d): d is string => typeof d === 'string' && d.length > 0)
+    .filter((d) => Number.isFinite(Date.parse(d)))
     .sort()
     .at(-1);
   if (!latest) return null;
   const age = (now.getTime() - new Date(latest).getTime()) / 86_400_000;
   if (!Number.isFinite(age) || age > NEWS_SIGNAL_MAX_AGE_DAYS) return null;
   return { promotedAt: latest };
+}
+
+export function corridorNewsSignal(
+  id: string,
+  now: Date = new Date(),
+): { promotedAt: string } | null {
+  return newsSignalFrom(loadCorridorPromotedNews(id), now);
 }
 
 /**
