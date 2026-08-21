@@ -596,6 +596,25 @@ function NewsCluster({ c, corridorId }: { c: NewsClusterOut; corridorId?: string
           {c.affected_chokepoints.map((a) => a.canonical_name ?? a.chokepoint_id).join(' · ')}
         </div>
       ) : null}
+      {/* PAYS DES MÉDIAS (contrat 1.3.0, leur 0031). `countries[]` compte des RÉDACTIONS, pas des
+          articles : une dépêche reprise par quarante stations locales est une histoire en quarante
+          endroits, pas quarante sources indépendantes. Et il ne se rend JAMAIS sans
+          `outlets_without_country` — un agrégat qui tait ses inconnus est exactement l'objet contre
+          lequel nous leur écrivions. Sur le plus gros regroupement d'Ormuz au 13/08 : 8 médias
+          déclarés, 29 sans pays. Aucun pourcentage n'est calculé ici : le dénominateur honnête est
+          la somme des deux, et il se lit. */}
+      {c.countries.length || c.outlets_without_country ? (
+        <div className="mt-1 text-[11px] text-muted">
+          Pays des médias :{' '}
+          {c.countries.length
+            ? c.countries.map((k) => `${k.code} ${k.outlets}`).join(' · ')
+            : 'aucun déclaré'}
+          {' · '}
+          <span title="Médias dont le registre amont ne déclare pas le pays. Jamais déduit d'un domaine.">
+            sans pays {c.outlets_without_country ?? 0}
+          </span>
+        </div>
+      ) : null}
       {c.articles.length ? (
         <ul className="mt-1 space-y-0.5 text-[11px]">
           {c.articles.slice(0, 8).map((a, i) => (

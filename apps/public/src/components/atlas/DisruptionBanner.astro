@@ -9,6 +9,14 @@
  *
  * Only the producer's structured fields are shown — name, dates, severity, status. No model prose
  * reaches this component (ADR 0071/0074).
+ *
+ * LA DATE DE DÉBUT EST RAPPORTÉE, PAS ÉTABLIE. Leur `0030` (2026-08-13) ouvre l'épisode d'Ormuz sur
+ * la foi du rapport pétrolier de l'AIE du 14 avril 2026, rouvert mot pour mot — mais écrit que la
+ * date elle-même, 2026-02-28, converge entre un produit du CRS et des sources encyclopédiques sans
+ * qu'aucune des deux ait pu être rouverte (Cloudflare sur congress.gov et unctad.org). Elle n'entre
+ * donc pas à leur registre de preuve, et l'épisode porte `source_confidence: medium` alors que sa
+ * fermeture est institutionnelle. « Si vous affichez la date, affichez-la comme un début RAPPORTÉ » :
+ * c'est leur demande, et elle est juste. La durée en dérive et hérite de la même réserve.
  */
 import { durationLabel } from '../../lib/disruption';
 import type { ChokepointEpisodeOut } from '@ag/chokepoints';
@@ -39,7 +47,10 @@ const now = new Date();
               <span class="font-medium text-ink">{e.name}</span>
               {d ? <span class="text-muted"> — {d}</span> : null}
               {e.started_on ? (
-                <span class="font-mono text-[11px] text-muted"> (depuis le {e.started_on})</span>
+                <span class="font-mono text-[11px] text-muted">
+                  {' '}
+                  (début rapporté : {e.started_on})
+                </span>
               ) : null}
             </li>
           );
@@ -47,7 +58,9 @@ const now = new Date();
       </ul>
       <p class="mt-2 text-xs leading-relaxed text-muted">
         Épisode déclaré par la base chokepoints. L’absence d’épisode sur une autre fiche ne signifie
-        pas qu’elle est calme : elle signifie qu’aucun épisode n’y est ouvert.
+        pas qu’elle est calme : elle signifie qu’aucun épisode n’y est ouvert. La date de début est
+        <strong class="font-medium">rapportée</strong> par ce registre, non établie par une source
+        rouvrable.
       </p>
     </aside>
   )
