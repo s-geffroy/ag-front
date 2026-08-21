@@ -145,7 +145,7 @@ export const methodeEn: MethodeCopy = {
         'No navigational or legal precision in map geometry.',
       ],
       measuredLimit: (f) =>
-        `As of ${f.measuredOn}: ${f.allEightDimensions} instructed corridors out of ${f.instructedCorpus} carry all eight dimensions, ${f.threeDimensions} carry only three, and every one of them sits in the top band. The grid discriminates in principle; the base does not discriminate yet in fact.`,
+        `As of ${f.measuredOn}: the ${f.instructedCorpus} instructed corridors occupy all four bands (${f.levelDistribution.critique} / ${f.levelDistribution.eleve} / ${f.levelDistribution.modere} / ${f.levelDistribution.bas}) — six weeks earlier the base discriminated across ONE. It distinguishes better because it asserts less: the concentration dimension was withdrawn from objects with no substitution study, and ${f.twoDimensions} corridors out of ${f.instructedCorpus} now carry only two dimensions.`,
       footnote:
         'An index that does not state its limits is not an index. It is an opinion with numbers — and the state of the base is one of those limits.',
     },

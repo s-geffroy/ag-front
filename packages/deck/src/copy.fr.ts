@@ -61,7 +61,7 @@ export const fr: DeckCopy = {
       'Concentration extrême, perturbation systémique.',
     ],
     footnote: (f) =>
-      `Huit dimensions. Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes. L’échelle dit ce que la grille peut établir, pas où en est la base : à cette date, les ${f.instructedCorpus} corridors instruits sont tous en bande ${f.observedLevel}.`,
+      `Huit dimensions. Chaque score affiche ses sources, sa date, son niveau de confiance et ses incertitudes. L’échelle dit ce que la grille peut établir, pas où en est la base : à cette date, les ${f.instructedCorpus} corridors instruits se répartissent sur les quatre bandes — ${f.levelDistribution.critique} critique, ${f.levelDistribution.eleve} élevé, ${f.levelDistribution.modere} modéré, ${f.levelDistribution.bas} bas.`,
   },
 
   cviScope: {
@@ -79,7 +79,7 @@ export const fr: DeckCopy = {
       'Aucune valeur navigationnelle ni juridique dans la géométrie des cartes.',
     ],
     measuredLimit: (f) =>
-      `À cette date, ${f.allEightDimensions} corridors instruits sur ${f.instructedCorpus} portent les huit dimensions, ${f.threeDimensions} n’en portent que trois. La grille est appliquée partout ; elle n’est pas partout renseignée.`,
+      `À cette date, ${f.allEightDimensions} corridors instruits sur ${f.instructedCorpus} portent les huit dimensions ; ${f.twoDimensions} n’en portent que deux. La grille est appliquée partout ; elle n’est pas partout renseignée.`,
     footnote:
       'Les lignes du bas comptent autant que celles du haut : un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée.',
   },

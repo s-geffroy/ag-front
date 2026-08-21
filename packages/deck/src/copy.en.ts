@@ -57,7 +57,7 @@ export const en: DeckCopy = {
       'Extreme concentration, systemic disruption.',
     ],
     footnote: (f) =>
-      `Eight dimensions. Every score carries its sources, its date, its confidence level and its uncertainties. The scale states what the grid can establish, not where the base stands: as of this date, all ${f.instructedCorpus} instructed corridors sit in the top band.`,
+      `Eight dimensions. Every score carries its sources, its date, its confidence level and its uncertainties. The scale states what the grid can establish, not where the base stands: as of this date, the ${f.instructedCorpus} instructed corridors spread across all four bands — ${f.levelDistribution.critique} critical, ${f.levelDistribution.eleve} high, ${f.levelDistribution.modere} moderate, ${f.levelDistribution.bas} low.`,
   },
 
   cviScope: {
@@ -75,7 +75,7 @@ export const en: DeckCopy = {
       'No navigational or legal precision in map geometry.',
     ],
     measuredLimit: (f) =>
-      `As of this date, ${f.allEightDimensions} instructed corridors out of ${f.instructedCorpus} carry all eight dimensions; ${f.threeDimensions} carry only three. The grid is applied everywhere; it is not populated everywhere.`,
+      `As of this date, ${f.allEightDimensions} instructed corridors out of ${f.instructedCorpus} carry all eight dimensions; ${f.twoDimensions} carry only two. The grid is applied everywhere; it is not populated everywhere.`,
     footnote:
       'The lines at the bottom matter as much as those at the top: an index that does not state its limits is not an index, it is an opinion with numbers.',
   },

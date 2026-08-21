@@ -153,7 +153,7 @@ export const methodeFr: MethodeCopy = {
         'Aucune valeur navigationnelle ni juridique dans la géométrie des cartes.',
       ],
       measuredLimit: (f) =>
-        `Au ${f.measuredOn} : ${f.allEightDimensions} corridors instruits sur ${f.instructedCorpus} portent les huit dimensions, ${f.threeDimensions} n’en portent que trois, et tous sont en bande ${f.observedLevel}. La grille discrimine en droit ; la base ne discrimine pas encore en fait.`,
+        `Au ${f.measuredOn} : les ${f.instructedCorpus} corridors instruits occupent les quatre bandes (${f.levelDistribution.critique} / ${f.levelDistribution.eleve} / ${f.levelDistribution.modere} / ${f.levelDistribution.bas}) — la base discriminait sur UNE bande six semaines plus tôt. Elle distingue mieux parce qu’elle affirme moins : la dimension concentration a été retirée des objets sans étude de substitution, et ${f.twoDimensions} corridors sur ${f.instructedCorpus} ne portent plus que deux dimensions.`,
       footnote:
         'Un indice qui ne dit pas ses limites n’est pas un indice, c’est une opinion chiffrée — et l’état de la base est une de ces limites.',
     },
