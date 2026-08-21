@@ -30,7 +30,6 @@ class AnalysisExposedTradeLossRow:
             scenario_closure_loss_usd (Union[None, Unset, float]):
             closure_days (Union[None, Unset, int]):
             daily_loss_rate_usd (Union[None, Unset, float]):
-            divergence_flag (Union[None, Unset, bool]):
             confidence (Union[None, Unset, str]):
      """
 
@@ -40,7 +39,6 @@ class AnalysisExposedTradeLossRow:
     scenario_closure_loss_usd: Union[None, Unset, float] = UNSET
     closure_days: Union[None, Unset, int] = UNSET
     daily_loss_rate_usd: Union[None, Unset, float] = UNSET
-    divergence_flag: Union[None, Unset, bool] = UNSET
     confidence: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -82,12 +80,6 @@ class AnalysisExposedTradeLossRow:
         else:
             daily_loss_rate_usd = self.daily_loss_rate_usd
 
-        divergence_flag: Union[None, Unset, bool]
-        if isinstance(self.divergence_flag, Unset):
-            divergence_flag = UNSET
-        else:
-            divergence_flag = self.divergence_flag
-
         confidence: Union[None, Unset, str]
         if isinstance(self.confidence, Unset):
             confidence = UNSET
@@ -111,8 +103,6 @@ class AnalysisExposedTradeLossRow:
             field_dict["closure_days"] = closure_days
         if daily_loss_rate_usd is not UNSET:
             field_dict["daily_loss_rate_usd"] = daily_loss_rate_usd
-        if divergence_flag is not UNSET:
-            field_dict["divergence_flag"] = divergence_flag
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
 
@@ -183,16 +173,6 @@ class AnalysisExposedTradeLossRow:
         daily_loss_rate_usd = _parse_daily_loss_rate_usd(d.pop("daily_loss_rate_usd", UNSET))
 
 
-        def _parse_divergence_flag(data: object) -> Union[None, Unset, bool]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, bool], data)
-
-        divergence_flag = _parse_divergence_flag(d.pop("divergence_flag", UNSET))
-
-
         def _parse_confidence(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -210,7 +190,6 @@ class AnalysisExposedTradeLossRow:
             scenario_closure_loss_usd=scenario_closure_loss_usd,
             closure_days=closure_days,
             daily_loss_rate_usd=daily_loss_rate_usd,
-            divergence_flag=divergence_flag,
             confidence=confidence,
         )
 

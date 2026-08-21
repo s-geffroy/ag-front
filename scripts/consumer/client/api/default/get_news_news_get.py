@@ -107,12 +107,19 @@ def sync_detailed(
 
      Live chokepoint news — media articles grouped by event and summarised (ADR 0076).
 
-    Serves the LATEST aggregation snapshot only (runs every 6h; older snapshots are swept at 14 days
-    and are always rebuildable from observations.event_signal, which is append-only). Derived and
-    candidate: press coverage is news context, never proof of a closure.
+    Serves the latest aggregation run THAT PRODUCED CLUSTERS (runs every 6h; older snapshots are swept
+    at 14 days and are always rebuildable from observations.event_signal, which is append-only). The
+    distinction matters: a pass that clusters nothing — an offline façade, a model outage — writes no
+    `news_cluster` row, so this keeps serving the previous run rather than emptying the feed. That is
+    deliberate, and it is legible rather than hidden: `run_id` and `generated_at` in the envelope name
+    exactly which pass the reader is holding and how old it is. Derived and candidate: press coverage is
+    news context, never proof of a closure.
 
     Args:
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back. Values above the aggregator's own collection window
+            cannot return more: one run is served and that run never saw older signals. The window
+            actually applied is reported as `since_days_effective` rather than silently substituted.
+            Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         chokepoint_id (Union[None, Unset, str]):
         category (Union[None, Unset, str]):
@@ -156,12 +163,19 @@ def sync(
 
      Live chokepoint news — media articles grouped by event and summarised (ADR 0076).
 
-    Serves the LATEST aggregation snapshot only (runs every 6h; older snapshots are swept at 14 days
-    and are always rebuildable from observations.event_signal, which is append-only). Derived and
-    candidate: press coverage is news context, never proof of a closure.
+    Serves the latest aggregation run THAT PRODUCED CLUSTERS (runs every 6h; older snapshots are swept
+    at 14 days and are always rebuildable from observations.event_signal, which is append-only). The
+    distinction matters: a pass that clusters nothing — an offline façade, a model outage — writes no
+    `news_cluster` row, so this keeps serving the previous run rather than emptying the feed. That is
+    deliberate, and it is legible rather than hidden: `run_id` and `generated_at` in the envelope name
+    exactly which pass the reader is holding and how old it is. Derived and candidate: press coverage is
+    news context, never proof of a closure.
 
     Args:
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back. Values above the aggregator's own collection window
+            cannot return more: one run is served and that run never saw older signals. The window
+            actually applied is reported as `since_days_effective` rather than silently substituted.
+            Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         chokepoint_id (Union[None, Unset, str]):
         category (Union[None, Unset, str]):
@@ -200,12 +214,19 @@ async def asyncio_detailed(
 
      Live chokepoint news — media articles grouped by event and summarised (ADR 0076).
 
-    Serves the LATEST aggregation snapshot only (runs every 6h; older snapshots are swept at 14 days
-    and are always rebuildable from observations.event_signal, which is append-only). Derived and
-    candidate: press coverage is news context, never proof of a closure.
+    Serves the latest aggregation run THAT PRODUCED CLUSTERS (runs every 6h; older snapshots are swept
+    at 14 days and are always rebuildable from observations.event_signal, which is append-only). The
+    distinction matters: a pass that clusters nothing — an offline façade, a model outage — writes no
+    `news_cluster` row, so this keeps serving the previous run rather than emptying the feed. That is
+    deliberate, and it is legible rather than hidden: `run_id` and `generated_at` in the envelope name
+    exactly which pass the reader is holding and how old it is. Derived and candidate: press coverage is
+    news context, never proof of a closure.
 
     Args:
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back. Values above the aggregator's own collection window
+            cannot return more: one run is served and that run never saw older signals. The window
+            actually applied is reported as `since_days_effective` rather than silently substituted.
+            Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         chokepoint_id (Union[None, Unset, str]):
         category (Union[None, Unset, str]):
@@ -249,12 +270,19 @@ async def asyncio(
 
      Live chokepoint news — media articles grouped by event and summarised (ADR 0076).
 
-    Serves the LATEST aggregation snapshot only (runs every 6h; older snapshots are swept at 14 days
-    and are always rebuildable from observations.event_signal, which is append-only). Derived and
-    candidate: press coverage is news context, never proof of a closure.
+    Serves the latest aggregation run THAT PRODUCED CLUSTERS (runs every 6h; older snapshots are swept
+    at 14 days and are always rebuildable from observations.event_signal, which is append-only). The
+    distinction matters: a pass that clusters nothing — an offline façade, a model outage — writes no
+    `news_cluster` row, so this keeps serving the previous run rather than emptying the feed. That is
+    deliberate, and it is legible rather than hidden: `run_id` and `generated_at` in the envelope name
+    exactly which pass the reader is holding and how old it is. Derived and candidate: press coverage is
+    news context, never proof of a closure.
 
     Args:
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back. Values above the aggregator's own collection window
+            cannot return more: one run is served and that run never saw older signals. The window
+            actually applied is reported as `since_days_effective` rather than silently substituted.
+            Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         chokepoint_id (Union[None, Unset, str]):
         category (Union[None, Unset, str]):

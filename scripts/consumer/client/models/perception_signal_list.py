@@ -7,8 +7,11 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 from ..types import UNSET, Unset
+from dateutil.parser import isoparse
 from typing import cast
+from typing import cast, Union
 from typing import Union
+import datetime
 
 if TYPE_CHECKING:
   from ..models.perception_consensus_out import PerceptionConsensusOut
@@ -24,10 +27,21 @@ T = TypeVar("T", bound="PerceptionSignalList")
 
 @_attrs_define
 class PerceptionSignalList:
-    """ 
+    """ The counted envelope matters MOST here, and this was the endpoint that lacked it.
+
+    ADR 0098 was written because `/chokepoints/{id}/event-signals` returned 500 rows of 6 488 in a shape
+    identical to a complete answer. Its immediate neighbour kept the old shape: measured 2026-08-14, the
+    Turkish Straits hold **30 021** odds rows and this endpoint returned 200 of them writing
+    `count: 200` — indistinguishable from an object that has exactly 200.
+
         Attributes:
+            returned (int):
+            total_count (int):
+            truncated (bool):
+            generated_at (datetime.datetime):
             chokepoint_id (str):
             count (int):
+            limit (Union[None, Unset, int]):
             consensus (Union[Unset, list['PerceptionConsensusOut']]):
             signals (Union[Unset, list['PerceptionSignalOut']]):
             disclaimer (Union[Unset, str]):  Default: "P3 perception signals from prediction markets (Polymarket, ADR 0037):
@@ -37,8 +51,13 @@ class PerceptionSignalList:
                 validation.".
      """
 
+    returned: int
+    total_count: int
+    truncated: bool
+    generated_at: datetime.datetime
     chokepoint_id: str
     count: int
+    limit: Union[None, Unset, int] = UNSET
     consensus: Union[Unset, list['PerceptionConsensusOut']] = UNSET
     signals: Union[Unset, list['PerceptionSignalOut']] = UNSET
     disclaimer: Union[Unset, str] = "P3 perception signals from prediction markets (Polymarket, ADR 0037): crowd anticipation, NOT event evidence. The raw signals are low-reliability (S5) and internal-only; this endpoint requires the 'read_tainted' scope. The DERIVED consensus aggregate is redistributable with Polymarket attribution — see GET /chokepoints/{id}/prediction-consensus. Data never enters canonical without human validation."
@@ -48,9 +67,23 @@ class PerceptionSignalList:
     def to_dict(self) -> dict[str, Any]:
         from ..models.perception_consensus_out import PerceptionConsensusOut
         from ..models.perception_signal_out import PerceptionSignalOut
+        returned = self.returned
+
+        total_count = self.total_count
+
+        truncated = self.truncated
+
+        generated_at = self.generated_at.isoformat()
+
         chokepoint_id = self.chokepoint_id
 
         count = self.count
+
+        limit: Union[None, Unset, int]
+        if isinstance(self.limit, Unset):
+            limit = UNSET
+        else:
+            limit = self.limit
 
         consensus: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.consensus, Unset):
@@ -76,9 +109,15 @@ class PerceptionSignalList:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({
+            "returned": returned,
+            "total_count": total_count,
+            "truncated": truncated,
+            "generated_at": generated_at,
             "chokepoint_id": chokepoint_id,
             "count": count,
         })
+        if limit is not UNSET:
+            field_dict["limit"] = limit
         if consensus is not UNSET:
             field_dict["consensus"] = consensus
         if signals is not UNSET:
@@ -95,9 +134,30 @@ class PerceptionSignalList:
         from ..models.perception_consensus_out import PerceptionConsensusOut
         from ..models.perception_signal_out import PerceptionSignalOut
         d = dict(src_dict)
+        returned = d.pop("returned")
+
+        total_count = d.pop("total_count")
+
+        truncated = d.pop("truncated")
+
+        generated_at = isoparse(d.pop("generated_at"))
+
+
+
+
         chokepoint_id = d.pop("chokepoint_id")
 
         count = d.pop("count")
+
+        def _parse_limit(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        limit = _parse_limit(d.pop("limit", UNSET))
+
 
         consensus = []
         _consensus = d.pop("consensus", UNSET)
@@ -122,8 +182,13 @@ class PerceptionSignalList:
         disclaimer = d.pop("disclaimer", UNSET)
 
         perception_signal_list = cls(
+            returned=returned,
+            total_count=total_count,
+            truncated=truncated,
+            generated_at=generated_at,
             chokepoint_id=chokepoint_id,
             count=count,
+            limit=limit,
             consensus=consensus,
             signals=signals,
             disclaimer=disclaimer,

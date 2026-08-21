@@ -7,8 +7,11 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 from ..types import UNSET, Unset
+from dateutil.parser import isoparse
 from typing import cast
+from typing import cast, Union
 from typing import Union
+import datetime
 
 if TYPE_CHECKING:
   from ..models.chokepoint_analysis_summary import ChokepointAnalysisSummary
@@ -25,14 +28,24 @@ T = TypeVar("T", bound="ChokepointAnalysisList")
 class ChokepointAnalysisList:
     """ 
         Attributes:
+            returned (int):
+            total_count (int):
+            truncated (bool):
+            generated_at (datetime.datetime):
             count (int):
+            limit (Union[None, Unset, int]):
             items (Union[Unset, list['ChokepointAnalysisSummary']]):
             disclaimer (Union[Unset, str]):  Default: 'Derived systemic analysis (Theory of Constraints + Leverage Points,
                 ADR 0027/0028). Figures are unvalidated public order-of-magnitude candidates pending human validation;
                 capacities and geometry are schematic. No canonical mutation or priority promotion.'.
      """
 
+    returned: int
+    total_count: int
+    truncated: bool
+    generated_at: datetime.datetime
     count: int
+    limit: Union[None, Unset, int] = UNSET
     items: Union[Unset, list['ChokepointAnalysisSummary']] = UNSET
     disclaimer: Union[Unset, str] = 'Derived systemic analysis (Theory of Constraints + Leverage Points, ADR 0027/0028). Figures are unvalidated public order-of-magnitude candidates pending human validation; capacities and geometry are schematic. No canonical mutation or priority promotion.'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -40,7 +53,21 @@ class ChokepointAnalysisList:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.chokepoint_analysis_summary import ChokepointAnalysisSummary
+        returned = self.returned
+
+        total_count = self.total_count
+
+        truncated = self.truncated
+
+        generated_at = self.generated_at.isoformat()
+
         count = self.count
+
+        limit: Union[None, Unset, int]
+        if isinstance(self.limit, Unset):
+            limit = UNSET
+        else:
+            limit = self.limit
 
         items: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.items, Unset):
@@ -57,8 +84,14 @@ class ChokepointAnalysisList:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({
+            "returned": returned,
+            "total_count": total_count,
+            "truncated": truncated,
+            "generated_at": generated_at,
             "count": count,
         })
+        if limit is not UNSET:
+            field_dict["limit"] = limit
         if items is not UNSET:
             field_dict["items"] = items
         if disclaimer is not UNSET:
@@ -72,7 +105,28 @@ class ChokepointAnalysisList:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chokepoint_analysis_summary import ChokepointAnalysisSummary
         d = dict(src_dict)
+        returned = d.pop("returned")
+
+        total_count = d.pop("total_count")
+
+        truncated = d.pop("truncated")
+
+        generated_at = isoparse(d.pop("generated_at"))
+
+
+
+
         count = d.pop("count")
+
+        def _parse_limit(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        limit = _parse_limit(d.pop("limit", UNSET))
+
 
         items = []
         _items = d.pop("items", UNSET)
@@ -87,7 +141,12 @@ class ChokepointAnalysisList:
         disclaimer = d.pop("disclaimer", UNSET)
 
         chokepoint_analysis_list = cls(
+            returned=returned,
+            total_count=total_count,
+            truncated=truncated,
+            generated_at=generated_at,
             count=count,
+            limit=limit,
             items=items,
             disclaimer=disclaimer,
         )

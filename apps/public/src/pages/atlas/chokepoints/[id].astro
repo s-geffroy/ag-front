@@ -75,7 +75,16 @@ const ongoing = ongoingEpisodes(detail);
                         {f.value_status ? ` · ${humanize(f.value_status)}` : ''}
                       </div>
                     ) : null}
-                    {f.method_note ? <div class="text-xs italic text-muted">{f.method_note}</div> : null}
+                    {/* Même règle que pour les notes de métrique : la phrase de l'amont sur son
+                        propre chiffre n'est pas une note de bas de page. Sur le flux GNL d'Ormuz,
+                        c'est elle qui porte l'argument de structure entier — « le GNL de ce détroit
+                        n'a aucun contournement » — depuis que la 4.0.0 a fusionné l'objet qui
+                        l'isolait. Rendue en gris italique, elle disparaissait sous un volume. */}
+                    {f.method_note ? (
+                      <div class="mt-1 rounded-[2px] border-l-2 border-l-accent bg-subtle px-2 py-1 text-xs leading-relaxed">
+                        {f.method_note}
+                      </div>
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -99,7 +108,15 @@ const ongoing = ongoingEpisodes(detail);
                       {m.value != null ? `${m.value} ${m.unit ?? ''}` : '—'}
                       {m.period ? ` · ${m.period}` : ''}
                     </div>
-                    {m.notes ? <div class="text-xs italic text-muted">{m.notes}</div> : null}
+                    {/* La note de l'amont porte parfois une RÉTRACTATION — une valeur retirée qui
+                        continue d'être servie, sa décision écrite en prose et aucun champ pour la
+                        marquer. Rendue en gris sous le nombre, elle était moins lisible que ce
+                        qu'elle corrige. Nous ne l'interprétons pas ; nous lui donnons son poids. */}
+                    {m.notes ? (
+                      <div class="mt-1 rounded-[2px] border-l-2 border-l-accent bg-subtle px-2 py-1 text-xs leading-relaxed">
+                        {m.notes}
+                      </div>
+                    ) : null}
                   </li>
                 ))}
               </ul>

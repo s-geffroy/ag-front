@@ -64,6 +64,7 @@ const SCHEMA_MAP: Record<string, z.ZodTypeAny> = {
   ChokepointEpisodeOut: schemas.ChokepointEpisodeOut,
   ChokepointList: schemas.ChokepointList,
   ChokepointSummary: schemas.ChokepointSummary,
+  ChokepointState: schemas.ChokepointState,
   CviAssessment: schemas.CviAssessmentOut,
   CviCounterfactualOut: schemas.CviCounterfactualOut,
   DerivedRelationGraphOut: schemas.DerivedRelationGraphOut,
@@ -148,6 +149,9 @@ const SCHEMA_MAP: Record<string, z.ZodTypeAny> = {
   RiskChokepointList: schemas.RiskChokepointList,
   SourceList: schemas.SourceList,
   StrategicSystemList: schemas.StrategicSystemList,
+  StateComponent: schemas.StateComponent,
+  StateCoverage: schemas.StateCoverage,
+  StateSummaryOut: schemas.StateSummaryOut,
   SystemChokepointList: schemas.SystemChokepointList,
 };
 

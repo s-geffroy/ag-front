@@ -347,6 +347,11 @@ export type ConsumerSurface = 'public' | 'cockpit' | 'hdde' | 'verdict';
  * ledger: an interim widening must be visible, and it must be taken back once the reason lapses.
  */
 export const CONSUMERS: Record<string, ConsumerSurface[]> = {
+  // 1.7.0 — cockpit uniquement, et délibérément. Ces pourcentages ne sont PAS comparables entre
+  // objets : les servir sur une surface publique reviendrait à inviter un classement que l'amont a
+  // refusé de rendre possible, comme `pressure_score` avant eux (ADR 0049 amont, notre `bd5633c`).
+  '/chokepoints/{chokepoint_id}/state': ['cockpit'],
+  '/analytics/state-summary': ['cockpit'],
   '/health': ['cockpit'],
   '/chokepoints': ['public', 'cockpit', 'hdde'],
   '/chokepoints/{chokepoint_id}': ['public', 'cockpit'],

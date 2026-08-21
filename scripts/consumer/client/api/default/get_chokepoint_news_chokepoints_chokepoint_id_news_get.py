@@ -94,7 +94,7 @@ def sync_detailed(
 
     Args:
         chokepoint_id (str):
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back; see `since_days_effective` on /news. Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         include_tainted (Union[Unset, bool]):  Default: False.
 
@@ -138,7 +138,7 @@ def sync(
 
     Args:
         chokepoint_id (str):
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back; see `since_days_effective` on /news. Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         include_tainted (Union[Unset, bool]):  Default: False.
 
@@ -177,7 +177,7 @@ async def asyncio_detailed(
 
     Args:
         chokepoint_id (str):
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back; see `since_days_effective` on /news. Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         include_tainted (Union[Unset, bool]):  Default: False.
 
@@ -221,7 +221,7 @@ async def asyncio(
 
     Args:
         chokepoint_id (str):
-        since (Union[Unset, int]):  Default: 7.
+        since (Union[Unset, int]): Days back; see `since_days_effective` on /news. Default: 7.
         limit (Union[Unset, int]):  Default: 50.
         include_tainted (Union[Unset, bool]):  Default: False.
 

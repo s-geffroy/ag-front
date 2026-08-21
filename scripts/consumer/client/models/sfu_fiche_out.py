@@ -13,8 +13,8 @@ from typing import Union
 
 if TYPE_CHECKING:
   from ..models.sfu_verdict_out import SfuVerdictOut
-  from ..models.sfu_dimension_out import SfuDimensionOut
   from ..models.sfu_completeness_out import SfuCompletenessOut
+  from ..models.sfu_dimension_out import SfuDimensionOut
 
 
 
@@ -68,8 +68,8 @@ class SfuFicheOut:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.sfu_verdict_out import SfuVerdictOut
-        from ..models.sfu_dimension_out import SfuDimensionOut
         from ..models.sfu_completeness_out import SfuCompletenessOut
+        from ..models.sfu_dimension_out import SfuDimensionOut
         id = self.id
 
         name = self.name
@@ -187,8 +187,8 @@ class SfuFicheOut:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.sfu_verdict_out import SfuVerdictOut
-        from ..models.sfu_dimension_out import SfuDimensionOut
         from ..models.sfu_completeness_out import SfuCompletenessOut
+        from ..models.sfu_dimension_out import SfuDimensionOut
         d = dict(src_dict)
         id = d.pop("id")
 

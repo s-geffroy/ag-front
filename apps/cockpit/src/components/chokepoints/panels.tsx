@@ -94,8 +94,13 @@ export function FlowsPanel({ flows }: { flows: FlowOut[] }) {
             ) : null}
             {/* The contract REQUIRES the method note beside any volume: it states what the figure
                 excludes. A `qualitative_scored` flow carries no volume at all, by design. */}
+            {/* La phrase de l'amont sur son propre chiffre, avec le poids qu'elle mérite. Sur le
+                flux GNL d'Ormuz elle porte l'argument de structure entier depuis que la 4.0.0 a
+                fusionné l'objet qui l'isolait — un contenu qu'aucun champ ne résume. */}
             {f.method_note ? (
-              <div className="text-xs italic text-muted">{f.method_note}</div>
+              <div className="mt-1 rounded-md border border-line bg-subtle px-2 py-1 text-[11px] leading-relaxed">
+                {f.method_note}
+              </div>
             ) : null}
             {f.sources.length ? (
               <div className="text-[11px] text-muted">Sources : {f.sources.join(' · ')}</div>
@@ -129,7 +134,21 @@ export function MetricsPanel({ metrics }: { metrics: MetricOut[] }) {
               {m.period ? ` · ${m.period}` : ''}
               {m.rank != null ? ` · rang ${m.rank}` : ''}
             </div>
-            {m.notes ? <div className="text-xs italic text-muted">{m.notes}</div> : null}
+            {/* LA NOTE DE L'AMONT N'EST PAS UNE NOTE DE BAS DE PAGE. Elle était rendue en petit,
+                gris, italique, SOUS le nombre — c'est-à-dire moins lisible que ce qu'elle corrige.
+                Mesuré le 2026-08-21 : `visa_purchase_transaction_share` = 38,66 % est toujours
+                servie, et sa note commence par « REJETÉE LE 2026-08-20 — LA VALEUR N'EST PAS DANS
+                LE DOCUMENT QUI LA PORTE ». Rien dans la charge utile ne distingue une métrique
+                rétractée d'une métrique courante : `MetricOut` ne porte aucun statut, la décision
+                vit dans la prose. Nous ne l'interprétons pas — analyser du texte libre pour décider
+                d'afficher un nombre serait une règle non versionnée portée par un consommateur,
+                exactement ce que nous refusons. Nous lui donnons son poids, et nous demandons le
+                champ. */}
+            {m.notes ? (
+              <div className="mt-1 rounded-md border border-status-at_risk/30 bg-status-at_risk/10 px-2 py-1 text-[11px] leading-relaxed text-status-at_risk">
+                {m.notes}
+              </div>
+            ) : null}
             {m.sources.length ? (
               <div className="text-[11px] text-muted">Sources : {m.sources.join(' · ')}</div>
             ) : null}

@@ -110,10 +110,10 @@ Layout:
 - `docker/` — `tools.Dockerfile`, `slides.Dockerfile`, `docker-compose.yml`, pinned Node stack.
 - `.claude/skills/` — adopted agent skills (see `docs/skills/README.md`).
 - `docs/decisions/` — ADRs.
-- **Chokepoints read API contract:** `docs/api-interface-contract_V6.md` is the current human
-  companion (API `1.6.0`); the machine truth is the pinned spec
+- **Chokepoints read API contract:** `docs/api-interface-contract_V7.md` is the current human
+  companion (API `4.0.0`); the machine truth is the pinned spec
   `scripts/consumer/contract/openapi.json`, kept in sync by `scripts/consumer/sync_contract.sh`.
-  The `_V2`…`_V5`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and
+  The `_V2`…`_V6`/unsuffixed variants are historical. `app-geo` consumes **every endpoint and
   every field**; `packages/chokepoints/src/contract-coverage.test.ts` fails the build otherwise
   (ADR 0066). Accepter une dérive, c'est **trois** gestes, pas un :
   `cp contract/openapi.live.json contract/openapi.json` → `scripts/consumer/gen_client.sh`

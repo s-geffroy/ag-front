@@ -57,10 +57,10 @@ modèle de fiche, et l'amont refuse d'en faire des objets-corridors.
 
 | Grandeur | Où la chercher | État |
 | --- | --- | --- |
-| Volumes GNL par passage | base, `metrics` | **omis plutôt que faux** : les prix GNL restent une fixture chez eux, les volumes ne sont donc pas valorisés (leur `0042`) |
+| Volumes GNL par passage | base, `flows[].estimated_volume` | **présents** — Ormuz : 10,5 milliards de pieds cubes/jour, 2024, `official_reported`, source EIA. Ce qui manque est leur **valorisation** : les prix GNL restent une fixture chez eux, donc aucun montant en dollars (leur `0042`) |
 | Part du GNL mondial transitant par Ormuz | AIE, GIIGNL, EIA via `pplx` | à réunir — externe obligatoire |
 | Capacité des contournements pétroliers (Yanbu, Fujairah) | EIA *World Oil Transit Chokepoints* | à réunir ; sert à établir l'**asymétrie**, pas à la supposer |
-| Absence de gazoduc de contournement d'Ormuz | affirmation de l'amont (`0058`) | **à re-sourcer nous-mêmes** : c'est le cœur de la thèse, il ne peut pas reposer sur une note de flux |
+| Absence de gazoduc de contournement d'Ormuz | `flows[]` du détroit, flux `LNG`, champ `method_note` | **lisible par l'API**, et l'argument y est entier — mais c'est une affirmation de structure de l'amont, pas une source. **À re-sourcer nous-mêmes** : c'est le cœur de la thèse |
 | `importance_score` sur le flux LNG | `by-flow/LNG` | disponible, **non comparable à un volume** |
 
 ## Ce que la base porte déjà (candidat, non validé)
@@ -74,8 +74,9 @@ modèle de fiche, et l'amont refuse d'en faire des objets-corridors.
 
 ## Angles morts connus d'avance
 
-1. **Aucun volume valorisé.** Les prix GNL sont une fixture chez eux ; ils omettent plutôt que
-   multiplier. La fiche ne trouvera donc aucun montant en base — tout chiffre viendra de l'extérieur.
+1. **Des volumes, aucune valorisation.** Les flux portent bien des volumes (Ormuz : 10,5 Gpi³/j en
+   2024, EIA), mais les prix GNL sont une fixture chez eux et ils omettent plutôt que multiplier : la
+   fiche ne trouvera **aucun montant en dollars** en base. Ne pas confondre les deux manques.
 2. **`importance_score` n'est pas un volume** et ne se compare pas d'un objet à l'autre. Il ordonne
    une liste, il ne mesure pas un flux.
 3. **Le fait central est une affirmation de l'amont.** « Le GNL d'Ormuz n'a aucun contournement » est

@@ -22,7 +22,11 @@ T = TypeVar("T", bound="DerivedRelationOut")
 
 @_attrs_define
 class DerivedRelationOut:
-    """ One candidate edge of the derived systemic graph (file-backed, pending validation).
+    """ One candidate edge of the derived systemic graph (`analytics.derived_relation`, pending validation).
+
+    Served from the DATABASE since 2.1.0, not from `seed/strategic_relations_candidates.yaml`. That file
+    is the fiche-extraction INPUT; the table is what `network_centrality` and `system_cascade` actually
+    build their graph from, so it is the wiring behind the `betweenness` on `/analysis`.
 
         Attributes:
             from_object_id (str):
@@ -38,6 +42,7 @@ class DerivedRelationOut:
             validation_status (Union[Unset, str]):  Default: 'not_validated'.
             evidence_file (Union[None, Unset, str]):
             evidence_quote (Union[None, Unset, str]):
+            origin (Union[None, Unset, str]):
      """
 
     from_object_id: str
@@ -53,6 +58,7 @@ class DerivedRelationOut:
     validation_status: Union[Unset, str] = 'not_validated'
     evidence_file: Union[None, Unset, str] = UNSET
     evidence_quote: Union[None, Unset, str] = UNSET
+    origin: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -115,6 +121,12 @@ class DerivedRelationOut:
         else:
             evidence_quote = self.evidence_quote
 
+        origin: Union[None, Unset, str]
+        if isinstance(self.origin, Unset):
+            origin = UNSET
+        else:
+            origin = self.origin
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -142,6 +154,8 @@ class DerivedRelationOut:
             field_dict["evidence_file"] = evidence_file
         if evidence_quote is not UNSET:
             field_dict["evidence_quote"] = evidence_quote
+        if origin is not UNSET:
+            field_dict["origin"] = origin
 
         return field_dict
 
@@ -226,6 +240,16 @@ class DerivedRelationOut:
         evidence_quote = _parse_evidence_quote(d.pop("evidence_quote", UNSET))
 
 
+        def _parse_origin(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        origin = _parse_origin(d.pop("origin", UNSET))
+
+
         derived_relation_out = cls(
             from_object_id=from_object_id,
             to=to,
@@ -240,6 +264,7 @@ class DerivedRelationOut:
             validation_status=validation_status,
             evidence_file=evidence_file,
             evidence_quote=evidence_quote,
+            origin=origin,
         )
 
 

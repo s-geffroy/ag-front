@@ -19,8 +19,9 @@ from typing import Union
 def _get_kwargs(
     *,
     relation_type: Union[None, Unset, str] = UNSET,
-    to_status: Union[None, Unset, str] = UNSET,
     from_object_id: Union[None, Unset, str] = UNSET,
+    origin: Union[None, Unset, str] = UNSET,
+    to_status: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 1000,
 
 ) -> dict[str, Any]:
@@ -37,19 +38,26 @@ def _get_kwargs(
         json_relation_type = relation_type
     params["relation_type"] = json_relation_type
 
-    json_to_status: Union[None, Unset, str]
-    if isinstance(to_status, Unset):
-        json_to_status = UNSET
-    else:
-        json_to_status = to_status
-    params["to_status"] = json_to_status
-
     json_from_object_id: Union[None, Unset, str]
     if isinstance(from_object_id, Unset):
         json_from_object_id = UNSET
     else:
         json_from_object_id = from_object_id
     params["from_object_id"] = json_from_object_id
+
+    json_origin: Union[None, Unset, str]
+    if isinstance(origin, Unset):
+        json_origin = UNSET
+    else:
+        json_origin = origin
+    params["origin"] = json_origin
+
+    json_to_status: Union[None, Unset, str]
+    if isinstance(to_status, Unset):
+        json_to_status = UNSET
+    else:
+        json_to_status = to_status
+    params["to_status"] = json_to_status
 
     params["limit"] = limit
 
@@ -99,12 +107,13 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     relation_type: Union[None, Unset, str] = UNSET,
-    to_status: Union[None, Unset, str] = UNSET,
     from_object_id: Union[None, Unset, str] = UNSET,
+    origin: Union[None, Unset, str] = UNSET,
+    to_status: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 1000,
 
 ) -> Response[Union[DerivedRelationGraphOut, HTTPValidationError]]:
-    """ List Derived Relations
+    r""" List Derived Relations
 
      Derived candidate strategic-relations graph (ADR 0065, piste 1) — file-backed, pending validation.
 
@@ -113,10 +122,26 @@ def sync_detailed(
     file-backed `/chokepoint-analyses`, this is derived/public order-of-magnitude analysis, not
     redistribution-restricted source data.
 
+    **Served from `analytics.derived_relation` since 2.1.0** — the graph the engines actually read, and
+    therefore the wiring behind the `betweenness` on `/chokepoints/{id}/analysis`. Until then this
+    endpoint published `seed/strategic_relations_candidates.yaml`, a different graph in both directions:
+    769 edges of fiche extraction, of which 333 point at names outside the corpus, and none of the ~936
+    edges the three SQL rules infer. A consumer tracing a served centrality was reading the wrong graph.
+
+    What changed for you: the 333 out-of-corpus targets are gone (they are unresolved TEXT the engines
+    never saw), ~936 co-location edges appear, and an edge disappears once a human promotes it to
+    canonical — where it becomes visible on `/relations`. `origin` says which generator asserted each
+    edge, because \"a human's fiche said so\" and \"both objects touch the same EEZ\" are not the same
+    claim.
+
     Args:
         relation_type (Union[None, Unset, str]):
-        to_status (Union[None, Unset, str]): in_corpus | external_candidate
         from_object_id (Union[None, Unset, str]):
+        origin (Union[None, Unset, str]): derived:fiche-extraction | derived:eez-colocation |
+            derived:system-comembership | derived:shared-country — which generator asserted the edge
+        to_status (Union[None, Unset, str]): Accepted and IGNORED since 2.1.0. Every edge is now
+            `in_corpus` by construction (both endpoints are foreign keys), so the filter has nothing
+            to select. Kept so a consumer passing it gets its rows rather than a 422.
         limit (Union[Unset, int]):  Default: 1000.
 
     Raises:
@@ -130,8 +155,9 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         relation_type=relation_type,
-to_status=to_status,
 from_object_id=from_object_id,
+origin=origin,
+to_status=to_status,
 limit=limit,
 
     )
@@ -146,12 +172,13 @@ def sync(
     *,
     client: AuthenticatedClient,
     relation_type: Union[None, Unset, str] = UNSET,
-    to_status: Union[None, Unset, str] = UNSET,
     from_object_id: Union[None, Unset, str] = UNSET,
+    origin: Union[None, Unset, str] = UNSET,
+    to_status: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 1000,
 
 ) -> Optional[Union[DerivedRelationGraphOut, HTTPValidationError]]:
-    """ List Derived Relations
+    r""" List Derived Relations
 
      Derived candidate strategic-relations graph (ADR 0065, piste 1) — file-backed, pending validation.
 
@@ -160,10 +187,26 @@ def sync(
     file-backed `/chokepoint-analyses`, this is derived/public order-of-magnitude analysis, not
     redistribution-restricted source data.
 
+    **Served from `analytics.derived_relation` since 2.1.0** — the graph the engines actually read, and
+    therefore the wiring behind the `betweenness` on `/chokepoints/{id}/analysis`. Until then this
+    endpoint published `seed/strategic_relations_candidates.yaml`, a different graph in both directions:
+    769 edges of fiche extraction, of which 333 point at names outside the corpus, and none of the ~936
+    edges the three SQL rules infer. A consumer tracing a served centrality was reading the wrong graph.
+
+    What changed for you: the 333 out-of-corpus targets are gone (they are unresolved TEXT the engines
+    never saw), ~936 co-location edges appear, and an edge disappears once a human promotes it to
+    canonical — where it becomes visible on `/relations`. `origin` says which generator asserted each
+    edge, because \"a human's fiche said so\" and \"both objects touch the same EEZ\" are not the same
+    claim.
+
     Args:
         relation_type (Union[None, Unset, str]):
-        to_status (Union[None, Unset, str]): in_corpus | external_candidate
         from_object_id (Union[None, Unset, str]):
+        origin (Union[None, Unset, str]): derived:fiche-extraction | derived:eez-colocation |
+            derived:system-comembership | derived:shared-country — which generator asserted the edge
+        to_status (Union[None, Unset, str]): Accepted and IGNORED since 2.1.0. Every edge is now
+            `in_corpus` by construction (both endpoints are foreign keys), so the filter has nothing
+            to select. Kept so a consumer passing it gets its rows rather than a 422.
         limit (Union[Unset, int]):  Default: 1000.
 
     Raises:
@@ -178,8 +221,9 @@ def sync(
     return sync_detailed(
         client=client,
 relation_type=relation_type,
-to_status=to_status,
 from_object_id=from_object_id,
+origin=origin,
+to_status=to_status,
 limit=limit,
 
     ).parsed
@@ -188,12 +232,13 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     relation_type: Union[None, Unset, str] = UNSET,
-    to_status: Union[None, Unset, str] = UNSET,
     from_object_id: Union[None, Unset, str] = UNSET,
+    origin: Union[None, Unset, str] = UNSET,
+    to_status: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 1000,
 
 ) -> Response[Union[DerivedRelationGraphOut, HTTPValidationError]]:
-    """ List Derived Relations
+    r""" List Derived Relations
 
      Derived candidate strategic-relations graph (ADR 0065, piste 1) — file-backed, pending validation.
 
@@ -202,10 +247,26 @@ async def asyncio_detailed(
     file-backed `/chokepoint-analyses`, this is derived/public order-of-magnitude analysis, not
     redistribution-restricted source data.
 
+    **Served from `analytics.derived_relation` since 2.1.0** — the graph the engines actually read, and
+    therefore the wiring behind the `betweenness` on `/chokepoints/{id}/analysis`. Until then this
+    endpoint published `seed/strategic_relations_candidates.yaml`, a different graph in both directions:
+    769 edges of fiche extraction, of which 333 point at names outside the corpus, and none of the ~936
+    edges the three SQL rules infer. A consumer tracing a served centrality was reading the wrong graph.
+
+    What changed for you: the 333 out-of-corpus targets are gone (they are unresolved TEXT the engines
+    never saw), ~936 co-location edges appear, and an edge disappears once a human promotes it to
+    canonical — where it becomes visible on `/relations`. `origin` says which generator asserted each
+    edge, because \"a human's fiche said so\" and \"both objects touch the same EEZ\" are not the same
+    claim.
+
     Args:
         relation_type (Union[None, Unset, str]):
-        to_status (Union[None, Unset, str]): in_corpus | external_candidate
         from_object_id (Union[None, Unset, str]):
+        origin (Union[None, Unset, str]): derived:fiche-extraction | derived:eez-colocation |
+            derived:system-comembership | derived:shared-country — which generator asserted the edge
+        to_status (Union[None, Unset, str]): Accepted and IGNORED since 2.1.0. Every edge is now
+            `in_corpus` by construction (both endpoints are foreign keys), so the filter has nothing
+            to select. Kept so a consumer passing it gets its rows rather than a 422.
         limit (Union[Unset, int]):  Default: 1000.
 
     Raises:
@@ -219,8 +280,9 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         relation_type=relation_type,
-to_status=to_status,
 from_object_id=from_object_id,
+origin=origin,
+to_status=to_status,
 limit=limit,
 
     )
@@ -235,12 +297,13 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     relation_type: Union[None, Unset, str] = UNSET,
-    to_status: Union[None, Unset, str] = UNSET,
     from_object_id: Union[None, Unset, str] = UNSET,
+    origin: Union[None, Unset, str] = UNSET,
+    to_status: Union[None, Unset, str] = UNSET,
     limit: Union[Unset, int] = 1000,
 
 ) -> Optional[Union[DerivedRelationGraphOut, HTTPValidationError]]:
-    """ List Derived Relations
+    r""" List Derived Relations
 
      Derived candidate strategic-relations graph (ADR 0065, piste 1) — file-backed, pending validation.
 
@@ -249,10 +312,26 @@ async def asyncio(
     file-backed `/chokepoint-analyses`, this is derived/public order-of-magnitude analysis, not
     redistribution-restricted source data.
 
+    **Served from `analytics.derived_relation` since 2.1.0** — the graph the engines actually read, and
+    therefore the wiring behind the `betweenness` on `/chokepoints/{id}/analysis`. Until then this
+    endpoint published `seed/strategic_relations_candidates.yaml`, a different graph in both directions:
+    769 edges of fiche extraction, of which 333 point at names outside the corpus, and none of the ~936
+    edges the three SQL rules infer. A consumer tracing a served centrality was reading the wrong graph.
+
+    What changed for you: the 333 out-of-corpus targets are gone (they are unresolved TEXT the engines
+    never saw), ~936 co-location edges appear, and an edge disappears once a human promotes it to
+    canonical — where it becomes visible on `/relations`. `origin` says which generator asserted each
+    edge, because \"a human's fiche said so\" and \"both objects touch the same EEZ\" are not the same
+    claim.
+
     Args:
         relation_type (Union[None, Unset, str]):
-        to_status (Union[None, Unset, str]): in_corpus | external_candidate
         from_object_id (Union[None, Unset, str]):
+        origin (Union[None, Unset, str]): derived:fiche-extraction | derived:eez-colocation |
+            derived:system-comembership | derived:shared-country — which generator asserted the edge
+        to_status (Union[None, Unset, str]): Accepted and IGNORED since 2.1.0. Every edge is now
+            `in_corpus` by construction (both endpoints are foreign keys), so the filter has nothing
+            to select. Kept so a consumer passing it gets its rows rather than a 422.
         limit (Union[Unset, int]):  Default: 1000.
 
     Raises:
@@ -267,8 +346,9 @@ async def asyncio(
     return (await asyncio_detailed(
         client=client,
 relation_type=relation_type,
-to_status=to_status,
 from_object_id=from_object_id,
+origin=origin,
+to_status=to_status,
 limit=limit,
 
     )).parsed

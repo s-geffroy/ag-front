@@ -34,6 +34,8 @@ class AnalysisWeaponizabilityBlock:
             key (AnalysisWeaponizabilityBlockKey):
             columns (Union[Unset, list[str]]):
             generated_at (Union[None, Unset, datetime.datetime]):
+            stale (Union[Unset, bool]):  Default: False.
+            engine_last_emitted_at (Union[None, Unset, datetime.datetime]):
             rows (Union[Unset, list['AnalysisWeaponizabilityRow']]):
      """
 
@@ -42,6 +44,8 @@ class AnalysisWeaponizabilityBlock:
     key: AnalysisWeaponizabilityBlockKey
     columns: Union[Unset, list[str]] = UNSET
     generated_at: Union[None, Unset, datetime.datetime] = UNSET
+    stale: Union[Unset, bool] = False
+    engine_last_emitted_at: Union[None, Unset, datetime.datetime] = UNSET
     rows: Union[Unset, list['AnalysisWeaponizabilityRow']] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -68,6 +72,16 @@ class AnalysisWeaponizabilityBlock:
         else:
             generated_at = self.generated_at
 
+        stale = self.stale
+
+        engine_last_emitted_at: Union[None, Unset, str]
+        if isinstance(self.engine_last_emitted_at, Unset):
+            engine_last_emitted_at = UNSET
+        elif isinstance(self.engine_last_emitted_at, datetime.datetime):
+            engine_last_emitted_at = self.engine_last_emitted_at.isoformat()
+        else:
+            engine_last_emitted_at = self.engine_last_emitted_at
+
         rows: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.rows, Unset):
             rows = []
@@ -89,6 +103,10 @@ class AnalysisWeaponizabilityBlock:
             field_dict["columns"] = columns
         if generated_at is not UNSET:
             field_dict["generated_at"] = generated_at
+        if stale is not UNSET:
+            field_dict["stale"] = stale
+        if engine_last_emitted_at is not UNSET:
+            field_dict["engine_last_emitted_at"] = engine_last_emitted_at
         if rows is not UNSET:
             field_dict["rows"] = rows
 
@@ -132,6 +150,28 @@ class AnalysisWeaponizabilityBlock:
         generated_at = _parse_generated_at(d.pop("generated_at", UNSET))
 
 
+        stale = d.pop("stale", UNSET)
+
+        def _parse_engine_last_emitted_at(data: object) -> Union[None, Unset, datetime.datetime]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                engine_last_emitted_at_type_0 = isoparse(data)
+
+
+
+                return engine_last_emitted_at_type_0
+            except: # noqa: E722
+                pass
+            return cast(Union[None, Unset, datetime.datetime], data)
+
+        engine_last_emitted_at = _parse_engine_last_emitted_at(d.pop("engine_last_emitted_at", UNSET))
+
+
         rows = []
         _rows = d.pop("rows", UNSET)
         for rows_item_data in (_rows or []):
@@ -148,6 +188,8 @@ class AnalysisWeaponizabilityBlock:
             key=key,
             columns=columns,
             generated_at=generated_at,
+            stale=stale,
+            engine_last_emitted_at=engine_last_emitted_at,
             rows=rows,
         )
 

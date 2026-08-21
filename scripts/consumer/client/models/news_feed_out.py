@@ -36,6 +36,8 @@ class NewsFeedOut:
             taint_class (Union[None, Unset, str]):
             generated_at (Union[None, Unset, datetime.datetime]):
             include_tainted (Union[Unset, bool]):  Default: False.
+            since_days_requested (Union[None, Unset, int]):
+            since_days_effective (Union[None, Unset, int]):
             items (Union[Unset, list['NewsClusterOut']]):
             run_notes (Union[Unset, list[str]]):
             model_notes (Union[Unset, list[str]]):
@@ -54,6 +56,8 @@ class NewsFeedOut:
     taint_class: Union[None, Unset, str] = UNSET
     generated_at: Union[None, Unset, datetime.datetime] = UNSET
     include_tainted: Union[Unset, bool] = False
+    since_days_requested: Union[None, Unset, int] = UNSET
+    since_days_effective: Union[None, Unset, int] = UNSET
     items: Union[Unset, list['NewsClusterOut']] = UNSET
     run_notes: Union[Unset, list[str]] = UNSET
     model_notes: Union[Unset, list[str]] = UNSET
@@ -87,6 +91,18 @@ class NewsFeedOut:
             generated_at = self.generated_at
 
         include_tainted = self.include_tainted
+
+        since_days_requested: Union[None, Unset, int]
+        if isinstance(self.since_days_requested, Unset):
+            since_days_requested = UNSET
+        else:
+            since_days_requested = self.since_days_requested
+
+        since_days_effective: Union[None, Unset, int]
+        if isinstance(self.since_days_effective, Unset):
+            since_days_effective = UNSET
+        else:
+            since_days_effective = self.since_days_effective
 
         items: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.items, Unset):
@@ -127,6 +143,10 @@ class NewsFeedOut:
             field_dict["generated_at"] = generated_at
         if include_tainted is not UNSET:
             field_dict["include_tainted"] = include_tainted
+        if since_days_requested is not UNSET:
+            field_dict["since_days_requested"] = since_days_requested
+        if since_days_effective is not UNSET:
+            field_dict["since_days_effective"] = since_days_effective
         if items is not UNSET:
             field_dict["items"] = items
         if run_notes is not UNSET:
@@ -190,6 +210,26 @@ class NewsFeedOut:
 
         include_tainted = d.pop("include_tainted", UNSET)
 
+        def _parse_since_days_requested(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        since_days_requested = _parse_since_days_requested(d.pop("since_days_requested", UNSET))
+
+
+        def _parse_since_days_effective(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        since_days_effective = _parse_since_days_effective(d.pop("since_days_effective", UNSET))
+
+
         items = []
         _items = d.pop("items", UNSET)
         for items_item_data in (_items or []):
@@ -216,6 +256,8 @@ class NewsFeedOut:
             taint_class=taint_class,
             generated_at=generated_at,
             include_tainted=include_tainted,
+            since_days_requested=since_days_requested,
+            since_days_effective=since_days_effective,
             items=items,
             run_notes=run_notes,
             model_notes=model_notes,

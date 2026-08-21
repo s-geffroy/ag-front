@@ -19,6 +19,7 @@ from typing import Union
 def _get_kwargs(
     *,
     engine_id: Union[None, Unset, str] = UNSET,
+    limit: Union[Unset, int] = 200,
 
 ) -> dict[str, Any]:
     
@@ -33,6 +34,8 @@ def _get_kwargs(
     else:
         json_engine_id = engine_id
     params["engine_id"] = json_engine_id
+
+    params["limit"] = limit
 
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -80,12 +83,22 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     engine_id: Union[None, Unset, str] = UNSET,
+    limit: Union[Unset, int] = 200,
 
 ) -> Response[Union[EngineRunList, HTTPValidationError]]:
     """ Analytics Engine Runs
 
+     Engine run history, newest first.
+
+    `analytics.engine_run` is the one append-only table behind a list endpoint: every cron pass adds a
+    row per engine, ~140 a day, and this returned all of them (1 417 at the time of writing) with no
+    bound. Same `limit` as the sibling /analytics/results, and the CountedList envelope already reports
+    `total_count` and `truncated`, so a capped page says so rather than looking complete. Ordered by
+    start time so the page you get is the recent history, not the alphabetically-first run ids.
+
     Args:
         engine_id (Union[None, Unset, str]):
+        limit (Union[Unset, int]):  Default: 200.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -98,6 +111,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         engine_id=engine_id,
+limit=limit,
 
     )
 
@@ -111,12 +125,22 @@ def sync(
     *,
     client: AuthenticatedClient,
     engine_id: Union[None, Unset, str] = UNSET,
+    limit: Union[Unset, int] = 200,
 
 ) -> Optional[Union[EngineRunList, HTTPValidationError]]:
     """ Analytics Engine Runs
 
+     Engine run history, newest first.
+
+    `analytics.engine_run` is the one append-only table behind a list endpoint: every cron pass adds a
+    row per engine, ~140 a day, and this returned all of them (1 417 at the time of writing) with no
+    bound. Same `limit` as the sibling /analytics/results, and the CountedList envelope already reports
+    `total_count` and `truncated`, so a capped page says so rather than looking complete. Ordered by
+    start time so the page you get is the recent history, not the alphabetically-first run ids.
+
     Args:
         engine_id (Union[None, Unset, str]):
+        limit (Union[Unset, int]):  Default: 200.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -130,6 +154,7 @@ def sync(
     return sync_detailed(
         client=client,
 engine_id=engine_id,
+limit=limit,
 
     ).parsed
 
@@ -137,12 +162,22 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     engine_id: Union[None, Unset, str] = UNSET,
+    limit: Union[Unset, int] = 200,
 
 ) -> Response[Union[EngineRunList, HTTPValidationError]]:
     """ Analytics Engine Runs
 
+     Engine run history, newest first.
+
+    `analytics.engine_run` is the one append-only table behind a list endpoint: every cron pass adds a
+    row per engine, ~140 a day, and this returned all of them (1 417 at the time of writing) with no
+    bound. Same `limit` as the sibling /analytics/results, and the CountedList envelope already reports
+    `total_count` and `truncated`, so a capped page says so rather than looking complete. Ordered by
+    start time so the page you get is the recent history, not the alphabetically-first run ids.
+
     Args:
         engine_id (Union[None, Unset, str]):
+        limit (Union[Unset, int]):  Default: 200.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -155,6 +190,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         engine_id=engine_id,
+limit=limit,
 
     )
 
@@ -168,12 +204,22 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     engine_id: Union[None, Unset, str] = UNSET,
+    limit: Union[Unset, int] = 200,
 
 ) -> Optional[Union[EngineRunList, HTTPValidationError]]:
     """ Analytics Engine Runs
 
+     Engine run history, newest first.
+
+    `analytics.engine_run` is the one append-only table behind a list endpoint: every cron pass adds a
+    row per engine, ~140 a day, and this returned all of them (1 417 at the time of writing) with no
+    bound. Same `limit` as the sibling /analytics/results, and the CountedList envelope already reports
+    `total_count` and `truncated`, so a capped page says so rather than looking complete. Ordered by
+    start time so the page you get is the recent history, not the alphabetically-first run ids.
+
     Args:
         engine_id (Union[None, Unset, str]):
+        limit (Union[Unset, int]):  Default: 200.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -187,5 +233,6 @@ async def asyncio(
     return (await asyncio_detailed(
         client=client,
 engine_id=engine_id,
+limit=limit,
 
     )).parsed

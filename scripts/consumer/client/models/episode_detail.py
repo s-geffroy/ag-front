@@ -37,7 +37,7 @@ class EpisodeDetail:
             severity (Union[None, Unset, str]):
             affected_flows (Union[Unset, list[str]]):
             object_count (Union[Unset, int]):  Default: 0.
-            validation_status (Union[Unset, str]):  Default: 'candidate'.
+            validation_status (Union[Unset, str]):  Default: 'not_validated'.
             members (Union[Unset, list['EpisodeMemberOut']]):
      """
 
@@ -50,7 +50,7 @@ class EpisodeDetail:
     severity: Union[None, Unset, str] = UNSET
     affected_flows: Union[Unset, list[str]] = UNSET
     object_count: Union[Unset, int] = 0
-    validation_status: Union[Unset, str] = 'candidate'
+    validation_status: Union[Unset, str] = 'not_validated'
     members: Union[Unset, list['EpisodeMemberOut']] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

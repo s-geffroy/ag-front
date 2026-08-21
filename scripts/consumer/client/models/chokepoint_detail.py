@@ -12,9 +12,9 @@ from typing import cast, Union
 from typing import Union
 
 if TYPE_CHECKING:
-  from ..models.alternative_out import AlternativeOut
-  from ..models.risk_out import RiskOut
   from ..models.geometry_out import GeometryOut
+  from ..models.risk_out import RiskOut
+  from ..models.alternative_out import AlternativeOut
   from ..models.metric_out import MetricOut
   from ..models.flow_out import FlowOut
   from ..models.chokepoint_episode_out import ChokepointEpisodeOut
@@ -74,9 +74,9 @@ class ChokepointDetail:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.alternative_out import AlternativeOut
-        from ..models.risk_out import RiskOut
         from ..models.geometry_out import GeometryOut
+        from ..models.risk_out import RiskOut
+        from ..models.alternative_out import AlternativeOut
         from ..models.metric_out import MetricOut
         from ..models.flow_out import FlowOut
         from ..models.chokepoint_episode_out import ChokepointEpisodeOut
@@ -215,9 +215,9 @@ class ChokepointDetail:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.alternative_out import AlternativeOut
-        from ..models.risk_out import RiskOut
         from ..models.geometry_out import GeometryOut
+        from ..models.risk_out import RiskOut
+        from ..models.alternative_out import AlternativeOut
         from ..models.metric_out import MetricOut
         from ..models.flow_out import FlowOut
         from ..models.chokepoint_episode_out import ChokepointEpisodeOut

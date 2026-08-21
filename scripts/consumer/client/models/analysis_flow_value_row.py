@@ -29,6 +29,7 @@ class AnalysisFlowValueRow:
             method (Union[None, Unset, str]):
             price_ref (Union[None, Unset, str]):
             confidence (Union[None, Unset, str]):
+            volume_basis (Union[None, Unset, str]):
      """
 
     flow_type: Union[None, Unset, str] = UNSET
@@ -36,6 +37,7 @@ class AnalysisFlowValueRow:
     method: Union[None, Unset, str] = UNSET
     price_ref: Union[None, Unset, str] = UNSET
     confidence: Union[None, Unset, str] = UNSET
+    volume_basis: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -70,6 +72,12 @@ class AnalysisFlowValueRow:
         else:
             confidence = self.confidence
 
+        volume_basis: Union[None, Unset, str]
+        if isinstance(self.volume_basis, Unset):
+            volume_basis = UNSET
+        else:
+            volume_basis = self.volume_basis
+
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -85,6 +93,8 @@ class AnalysisFlowValueRow:
             field_dict["price_ref"] = price_ref
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
+        if volume_basis is not UNSET:
+            field_dict["volume_basis"] = volume_basis
 
         return field_dict
 
@@ -143,12 +153,23 @@ class AnalysisFlowValueRow:
         confidence = _parse_confidence(d.pop("confidence", UNSET))
 
 
+        def _parse_volume_basis(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        volume_basis = _parse_volume_basis(d.pop("volume_basis", UNSET))
+
+
         analysis_flow_value_row = cls(
             flow_type=flow_type,
             value_usd=value_usd,
             method=method,
             price_ref=price_ref,
             confidence=confidence,
+            volume_basis=volume_basis,
         )
 
 

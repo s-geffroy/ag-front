@@ -12,23 +12,23 @@ from typing import cast, Union
 from typing import Union
 
 if TYPE_CHECKING:
-  from ..models.analysis_criticality_score_block import AnalysisCriticalityScoreBlock
-  from ..models.analysis_weaponizability_block import AnalysisWeaponizabilityBlock
-  from ..models.analysis_network_centrality_block import AnalysisNetworkCentralityBlock
-  from ..models.analysis_relation_out import AnalysisRelationOut
-  from ..models.analysis_claim_out import AnalysisClaimOut
-  from ..models.analysis_flow_exposure_block import AnalysisFlowExposureBlock
-  from ..models.analysis_event_pressure_block import AnalysisEventPressureBlock
-  from ..models.analysis_evidence_quality_block import AnalysisEvidenceQualityBlock
-  from ..models.analysis_prediction_consensus_block import AnalysisPredictionConsensusBlock
-  from ..models.analysis_control_concentration_block import AnalysisControlConcentrationBlock
-  from ..models.analysis_system_cascade_block import AnalysisSystemCascadeBlock
-  from ..models.analysis_substitution_score_block import AnalysisSubstitutionScoreBlock
-  from ..models.analysis_exposed_trade_loss_block import AnalysisExposedTradeLossBlock
-  from ..models.analysis_regime_assessment_block import AnalysisRegimeAssessmentBlock
-  from ..models.analysis_corroboration_block import AnalysisCorroborationBlock
   from ..models.analysis_flow_value_block import AnalysisFlowValueBlock
+  from ..models.analysis_claim_out import AnalysisClaimOut
+  from ..models.analysis_exposed_trade_loss_block import AnalysisExposedTradeLossBlock
+  from ..models.analysis_system_cascade_block import AnalysisSystemCascadeBlock
+  from ..models.analysis_criticality_score_block import AnalysisCriticalityScoreBlock
   from ..models.analysis_risk_state_block import AnalysisRiskStateBlock
+  from ..models.analysis_network_centrality_block import AnalysisNetworkCentralityBlock
+  from ..models.analysis_weaponizability_block import AnalysisWeaponizabilityBlock
+  from ..models.analysis_control_concentration_block import AnalysisControlConcentrationBlock
+  from ..models.analysis_regime_assessment_block import AnalysisRegimeAssessmentBlock
+  from ..models.analysis_event_pressure_block import AnalysisEventPressureBlock
+  from ..models.analysis_prediction_consensus_block import AnalysisPredictionConsensusBlock
+  from ..models.analysis_corroboration_block import AnalysisCorroborationBlock
+  from ..models.analysis_relation_out import AnalysisRelationOut
+  from ..models.analysis_evidence_quality_block import AnalysisEvidenceQualityBlock
+  from ..models.analysis_substitution_score_block import AnalysisSubstitutionScoreBlock
+  from ..models.analysis_flow_exposure_block import AnalysisFlowExposureBlock
 
 
 
@@ -68,23 +68,23 @@ class ChokepointAnalysisOut:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.analysis_criticality_score_block import AnalysisCriticalityScoreBlock
-        from ..models.analysis_weaponizability_block import AnalysisWeaponizabilityBlock
-        from ..models.analysis_network_centrality_block import AnalysisNetworkCentralityBlock
-        from ..models.analysis_relation_out import AnalysisRelationOut
-        from ..models.analysis_claim_out import AnalysisClaimOut
-        from ..models.analysis_flow_exposure_block import AnalysisFlowExposureBlock
-        from ..models.analysis_event_pressure_block import AnalysisEventPressureBlock
-        from ..models.analysis_evidence_quality_block import AnalysisEvidenceQualityBlock
-        from ..models.analysis_prediction_consensus_block import AnalysisPredictionConsensusBlock
-        from ..models.analysis_control_concentration_block import AnalysisControlConcentrationBlock
-        from ..models.analysis_system_cascade_block import AnalysisSystemCascadeBlock
-        from ..models.analysis_substitution_score_block import AnalysisSubstitutionScoreBlock
-        from ..models.analysis_exposed_trade_loss_block import AnalysisExposedTradeLossBlock
-        from ..models.analysis_regime_assessment_block import AnalysisRegimeAssessmentBlock
-        from ..models.analysis_corroboration_block import AnalysisCorroborationBlock
         from ..models.analysis_flow_value_block import AnalysisFlowValueBlock
+        from ..models.analysis_claim_out import AnalysisClaimOut
+        from ..models.analysis_exposed_trade_loss_block import AnalysisExposedTradeLossBlock
+        from ..models.analysis_system_cascade_block import AnalysisSystemCascadeBlock
+        from ..models.analysis_criticality_score_block import AnalysisCriticalityScoreBlock
         from ..models.analysis_risk_state_block import AnalysisRiskStateBlock
+        from ..models.analysis_network_centrality_block import AnalysisNetworkCentralityBlock
+        from ..models.analysis_weaponizability_block import AnalysisWeaponizabilityBlock
+        from ..models.analysis_control_concentration_block import AnalysisControlConcentrationBlock
+        from ..models.analysis_regime_assessment_block import AnalysisRegimeAssessmentBlock
+        from ..models.analysis_event_pressure_block import AnalysisEventPressureBlock
+        from ..models.analysis_prediction_consensus_block import AnalysisPredictionConsensusBlock
+        from ..models.analysis_corroboration_block import AnalysisCorroborationBlock
+        from ..models.analysis_relation_out import AnalysisRelationOut
+        from ..models.analysis_evidence_quality_block import AnalysisEvidenceQualityBlock
+        from ..models.analysis_substitution_score_block import AnalysisSubstitutionScoreBlock
+        from ..models.analysis_flow_exposure_block import AnalysisFlowExposureBlock
         chokepoint_id = self.chokepoint_id
 
         disclaimer = self.disclaimer
@@ -168,23 +168,23 @@ class ChokepointAnalysisOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.analysis_criticality_score_block import AnalysisCriticalityScoreBlock
-        from ..models.analysis_weaponizability_block import AnalysisWeaponizabilityBlock
-        from ..models.analysis_network_centrality_block import AnalysisNetworkCentralityBlock
-        from ..models.analysis_relation_out import AnalysisRelationOut
-        from ..models.analysis_claim_out import AnalysisClaimOut
-        from ..models.analysis_flow_exposure_block import AnalysisFlowExposureBlock
-        from ..models.analysis_event_pressure_block import AnalysisEventPressureBlock
-        from ..models.analysis_evidence_quality_block import AnalysisEvidenceQualityBlock
-        from ..models.analysis_prediction_consensus_block import AnalysisPredictionConsensusBlock
-        from ..models.analysis_control_concentration_block import AnalysisControlConcentrationBlock
-        from ..models.analysis_system_cascade_block import AnalysisSystemCascadeBlock
-        from ..models.analysis_substitution_score_block import AnalysisSubstitutionScoreBlock
-        from ..models.analysis_exposed_trade_loss_block import AnalysisExposedTradeLossBlock
-        from ..models.analysis_regime_assessment_block import AnalysisRegimeAssessmentBlock
-        from ..models.analysis_corroboration_block import AnalysisCorroborationBlock
         from ..models.analysis_flow_value_block import AnalysisFlowValueBlock
+        from ..models.analysis_claim_out import AnalysisClaimOut
+        from ..models.analysis_exposed_trade_loss_block import AnalysisExposedTradeLossBlock
+        from ..models.analysis_system_cascade_block import AnalysisSystemCascadeBlock
+        from ..models.analysis_criticality_score_block import AnalysisCriticalityScoreBlock
         from ..models.analysis_risk_state_block import AnalysisRiskStateBlock
+        from ..models.analysis_network_centrality_block import AnalysisNetworkCentralityBlock
+        from ..models.analysis_weaponizability_block import AnalysisWeaponizabilityBlock
+        from ..models.analysis_control_concentration_block import AnalysisControlConcentrationBlock
+        from ..models.analysis_regime_assessment_block import AnalysisRegimeAssessmentBlock
+        from ..models.analysis_event_pressure_block import AnalysisEventPressureBlock
+        from ..models.analysis_prediction_consensus_block import AnalysisPredictionConsensusBlock
+        from ..models.analysis_corroboration_block import AnalysisCorroborationBlock
+        from ..models.analysis_relation_out import AnalysisRelationOut
+        from ..models.analysis_evidence_quality_block import AnalysisEvidenceQualityBlock
+        from ..models.analysis_substitution_score_block import AnalysisSubstitutionScoreBlock
+        from ..models.analysis_flow_exposure_block import AnalysisFlowExposureBlock
         d = dict(src_dict)
         chokepoint_id = d.pop("chokepoint_id")
 
