@@ -208,8 +208,11 @@ app.view(MODAL_CALLBACK_ID, async ({ ack, view, logger }) => {
       // Repli si l'identifiant amont a changé entre l'ouverture de la fenêtre et la validation.
       article_urls: sub.urls,
       editorial_note: sub.note,
-      // Le brouillon repart pour entrer dans les textes que la note ne doit pas recopier (ADR 0079).
+      // Le brouillon repart : le cockpit trace ce qu'il est devenu (`note_origin`, ADR 0079 amendé).
       draft: sub.draft,
+      // L'AUTRE prose de modèle montrée dans la même fenêtre. Le cockpit ne peut pas la recalculer,
+      // et sans elle une phrase recopiée du modèle serait consignée « écrite par un humain ».
+      what_this_coverage_adds: sub.whatItAdds,
       // The journal is append-only and nominative: it must carry that this came through Slack.
       validated_by: validatedBy(OPERATOR),
     }),

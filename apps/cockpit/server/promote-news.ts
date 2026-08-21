@@ -46,7 +46,7 @@ export function toPromotedItem(
     promotedBy: string;
     promotedAt: string;
     editorialNote: string;
-    noteOrigin?: 'human_written' | 'draft_edited' | 'draft_accepted';
+    noteOrigin?: NoteOrigin;
   },
 ): PromotedNewsItemT {
   // Defence-in-depth: the route's resolvePromoteFromFeed already refuses a tainted cluster, but keep the
@@ -374,14 +374,40 @@ export function paraphraseCandidates(cluster: NewsClusterOut): string[] {
  * Le seuil de 0.9 est volontairement haut — on ne cherche pas à qualifier une réécriture partielle
  * de « acceptée », seulement à reconnaître un texte laissé pratiquement intact.
  */
+export type NoteOrigin =
+  | 'human_written'
+  | 'draft_edited'
+  | 'draft_accepted'
+  | 'model_text_accepted';
+
 export function noteOrigin(
   note: string,
   draft?: string,
-): 'human_written' | 'draft_edited' | 'draft_accepted' {
-  const d = (draft ?? '').trim();
-  if (!d) return 'human_written';
+  /**
+   * Les AUTRES textes de modèle mis sous les yeux de la personne dans la même fenêtre — aujourd'hui
+   * « ce que cette couverture ajoute ». Sans eux, recopier cette ligne-là produisait
+   * `human_written` : le journal, qui est nominatif et en ajout seul, affirmait qu'une phrase de
+   * machine avait été écrite par quelqu'un. Une trace fausse est pire qu'une trace absente.
+   */
+  otherModelTexts?: string[],
+): NoteOrigin {
   const n = note.trim();
-  if (n === d) return 'draft_accepted';
-  const score = containment(noteFingerprint(n), noteFingerprint(d));
-  return score >= 0.9 ? 'draft_accepted' : 'draft_edited';
+  const d = (draft ?? '').trim();
+  const fingerprint = noteFingerprint(n);
+
+  // Le brouillon PRIME : c'est le texte que la personne a explicitement endossé en le laissant dans
+  // le champ, et la valeur existante doit continuer de dire exactement cela.
+  if (d) {
+    if (n === d) return 'draft_accepted';
+    if (containment(fingerprint, noteFingerprint(d)) >= 0.9) return 'draft_accepted';
+  }
+
+  for (const text of otherModelTexts ?? []) {
+    const t = text.trim();
+    if (!t) continue;
+    if (n === t || containment(fingerprint, noteFingerprint(t)) >= 0.9)
+      return 'model_text_accepted';
+  }
+
+  return d ? 'draft_edited' : 'human_written';
 }

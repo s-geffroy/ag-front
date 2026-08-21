@@ -184,3 +184,39 @@ describe('noteOrigin — consigner d’où vient la phrase publiée', () => {
     ).toBe('draft_edited');
   });
 });
+
+describe('noteOrigin — le journal ne doit pas dire « écrit par un humain » d’une phrase de machine', () => {
+  const modele = 'La mort d’un chef mécanicien déplace le dossier vers l’atteinte aux personnes.';
+
+  it('reste inchangé quand rien de la machine n’est en jeu', () => {
+    expect(noteOrigin('Ma phrase à moi.', undefined)).toBe('human_written');
+    expect(noteOrigin('Ma phrase à moi.', 'Un brouillon sans rapport avec ce texte.')).toBe(
+      'draft_edited',
+    );
+  });
+
+  it('reconnaît le brouillon publié tel quel, comme avant', () => {
+    expect(noteOrigin('Un brouillon.', 'Un brouillon.')).toBe('draft_accepted');
+  });
+
+  it('RECONNAÎT UNE AUTRE PROSE DU MODÈLE recopiée — c’est ce qui passait pour « human_written »', () => {
+    expect(noteOrigin(modele, undefined, [modele])).toBe('model_text_accepted');
+    expect(noteOrigin(modele, 'Un brouillon sans rapport.', [modele])).toBe('model_text_accepted');
+  });
+
+  it('le brouillon prime : recopier le brouillon reste draft_accepted, pas l’autre valeur', () => {
+    expect(noteOrigin('Un brouillon.', 'Un brouillon.', ['Un brouillon.'])).toBe('draft_accepted');
+  });
+
+  it('ne se déclenche pas sur une phrase qui ne fait qu’effleurer le texte du modèle', () => {
+    expect(
+      noteOrigin('Les clauses d’équipage deviennent le point dur de la négociation.', undefined, [
+        modele,
+      ]),
+    ).toBe('human_written');
+  });
+
+  it('ignore les textes vides passés dans la liste', () => {
+    expect(noteOrigin('Ma phrase.', undefined, ['', '   '])).toBe('human_written');
+  });
+});

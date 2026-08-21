@@ -578,7 +578,10 @@ export function buildWritingModalWithDraft(
   return {
     type: 'modal' as const,
     callback_id: MODAL_CALLBACK_ID,
-    private_metadata: JSON.stringify({ ...pick, draft: draft.draft }),
+    // `whatItAdds` voyage AVEC la soumission : le cockpit ne peut pas le recalculer (il est produit
+    // par l'appel de brouillon, pas stocké), et sans lui `noteOrigin` inscrirait « human_written »
+    // sur une phrase recopiée du modèle.
+    private_metadata: JSON.stringify({ ...pick, draft: draft.draft, whatItAdds: adds ?? '' }),
     title: { type: 'plain_text' as const, text: 'Promouvoir' },
     submit: { type: 'plain_text' as const, text: 'Publier' },
     close: { type: 'plain_text' as const, text: 'Annuler' },
@@ -643,8 +646,10 @@ export interface Submission {
   clusterId: string;
   /** URL de repli, au cas où l'identifiant amont aurait changé depuis l'ouverture de la fenêtre. */
   urls: string[];
-  /** Le brouillon proposé. Repart au cockpit pour entrer dans les textes à ne pas recopier. */
+  /** Le brouillon proposé. Repart au cockpit, qui trace ce qu'il est devenu (`note_origin`). */
   draft: string;
+  /** L'autre prose de modèle affichée dans la même fenêtre. Repart pour la même raison. */
+  whatItAdds: string;
   note: string;
 }
 
@@ -659,7 +664,13 @@ export function parseSubmission(view: {
   const note = values[blockId]?.[NOTE_ACTION_ID] as { value?: string } | undefined;
   // Le sujet ne vient plus d'un menu : il a été choisi au bouton et voyage dans private_metadata,
   // avec les URL de repli et le brouillon qui a été mis sous les yeux de la personne.
-  let meta: { corridorId?: string; clusterId?: string; urls?: string[]; draft?: string };
+  let meta: {
+    corridorId?: string;
+    clusterId?: string;
+    urls?: string[];
+    draft?: string;
+    whatItAdds?: string;
+  };
   try {
     meta = JSON.parse(view.private_metadata ?? '{}');
   } catch {
@@ -673,6 +684,7 @@ export function parseSubmission(view: {
     clusterId: meta.clusterId,
     urls: Array.isArray(meta.urls) ? meta.urls : [],
     draft: typeof meta.draft === 'string' ? meta.draft : '',
+    whatItAdds: typeof meta.whatItAdds === 'string' ? meta.whatItAdds : '',
     note: (note?.value ?? '').trim(),
   };
 }

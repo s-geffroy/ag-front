@@ -1007,11 +1007,14 @@ export function createApiRouter(): Router {
         // a summary of article titles, and validating it while having read only those same titles is
         // the defect ag-back named in their 0026 §5 and we conceded.
         editorial_note: z.string().trim().min(1),
-        // Le brouillon qui a été MIS SOUS LES YEUX de la personne (ADR 0079). Il entre dans les
-        // textes que la note ne doit pas recopier — c'est ce qui empêche le pré-remplissage de
-        // vider la règle. Optionnel : une promotion depuis le cockpit peut n'avoir eu aucun
-        // brouillon, et son absence ne doit pas bloquer.
+        // Le brouillon qui a été MIS SOUS LES YEUX de la personne (ADR 0079 amendé). Le publier tel
+        // quel est permis ; ce qui compte est que `note_origin` dise lequel des cas s'est produit.
+        // Optionnel : une promotion depuis le cockpit peut n'avoir eu aucun brouillon.
         draft: z.string().optional(),
+        // L'autre prose de modèle affichée dans la même fenêtre (« ce que cette couverture
+        // ajoute »). Elle n'est ni stockée ni recalculable ici : si l'appelant ne la renvoie pas,
+        // une phrase qui la recopie serait consignée « human_written », ce qui serait faux.
+        what_this_coverage_adds: z.string().optional(),
         reserve: z.string().optional(),
       })
       .refine((b) => b.cluster_id || (b.article_urls && b.article_urls.length > 0), {
@@ -1057,7 +1060,9 @@ export function createApiRouter(): Router {
 
       // Trace, pas friction : la phrase publiée peut être le brouillon intact, et le magasin comme le
       // journal doivent dire laquelle des trois situations s'est produite.
-      const origin = noteOrigin(body.data.editorial_note, body.data.draft);
+      const origin = noteOrigin(body.data.editorial_note, body.data.draft, [
+        body.data.what_this_coverage_adds ?? '',
+      ]);
       const item = toPromotedItem(resolved.cluster, {
         promotedBy: body.data.validated_by,
         promotedAt: new Date().toISOString(),

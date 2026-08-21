@@ -70,7 +70,15 @@ export const PromotedNewsItem = z.object({
    * car les promotions antérieures à l'amendement n'ont pas cette information — et une absence ne se
    * lit pas « écrit à la main » (ADR 0077).
    */
-  note_origin: z.enum(['human_written', 'draft_edited', 'draft_accepted']).optional(),
+  /**
+   * `model_text_accepted` (2026-08-21) : la phrase publiée recopie une prose de modèle affichée dans
+   * la fenêtre qui n'était PAS le brouillon — « ce que cette couverture ajoute ». Sans cette valeur
+   * le cas tombait dans `human_written`, et le journal nominatif affirmait alors qu'une phrase de
+   * machine avait été écrite par quelqu'un.
+   */
+  note_origin: z
+    .enum(['human_written', 'draft_edited', 'draft_accepted', 'model_text_accepted'])
+    .optional(),
   // Model prose (candidate) — audit trail only, never rendered publicly ------------------------------
   headline: z.string().default(''),
   summary_text: z.string().default(''),

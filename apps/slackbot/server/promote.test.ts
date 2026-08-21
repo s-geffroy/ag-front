@@ -138,6 +138,8 @@ describe('parseSubmission', () => {
       clusterId: 'c1',
       urls: ['https://x.test/a'],
       draft: 'un brouillon machine',
+      // Cette fenêtre-là n'a montré aucune ligne « ce que la couverture ajoute ».
+      whatItAdds: '',
       note: 'Ma phrase.',
     });
   });
@@ -652,5 +654,35 @@ describe('buildWritingModalWithDraft — ce que la couverture ajoute, sous les y
   it('n’ouvre aucun bloc quand la ligne est absente ou vide', () => {
     const v = buildWritingModalWithDraft(pick, 'Sujet', { draft: 'Une phrase.', whatItAdds: '  ' });
     expect(JSON.stringify(v.blocks)).not.toMatch(/couverture ajoute/i);
+  });
+});
+
+describe('la prose de modèle affichée repart au cockpit, pour que le journal dise vrai', () => {
+  const pick = { corridorId: 'c', clusterId: 'k', urls: ['https://a.com/1'], title: 'Sujet' };
+
+  it('la fenêtre emporte « ce que la couverture ajoute » dans ses métadonnées', () => {
+    const v = buildWritingModalWithDraft(pick, 'Sujet', {
+      draft: 'Une phrase.',
+      whatItAdds: 'La mort d’un chef mécanicien.',
+    });
+    expect(JSON.parse(v.private_metadata).whatItAdds).toBe('La mort d’un chef mécanicien.');
+  });
+
+  it('la soumission le relit — sans lui, recopier cette ligne passait pour « écrit par un humain »', () => {
+    const sub = parseSubmission({
+      private_metadata: JSON.stringify({ ...pick, draft: 'Un brouillon.', whatItAdds: 'Ceci.' }),
+      state: {
+        values: { [NOTE_BLOCK_ID_DRAFT]: { [NOTE_ACTION_ID]: { value: 'Ceci.' } } },
+      },
+    } as never);
+    expect(sub.whatItAdds).toBe('Ceci.');
+  });
+
+  it('reste vide quand la fenêtre n’a montré aucun brouillon', () => {
+    const sub = parseSubmission({
+      private_metadata: JSON.stringify(pick),
+      state: { values: { [NOTE_BLOCK_ID]: { [NOTE_ACTION_ID]: { value: 'Ma phrase.' } } } },
+    } as never);
+    expect(sub.whatItAdds).toBe('');
   });
 });
