@@ -131,6 +131,22 @@ export function createApiRouter(): Router {
     res.json({ status: 'ok' });
   });
 
+  /**
+   * L'identité nominative de l'opérateur, seule et unique source (ADR 0046, exception du
+   * 2026-08-21). Le front du cockpit la lit déjà dans `/state`; cette route existe pour le
+   * SLACKBOT, qui portait jusqu'ici son propre nom dans `SLACK_OPERATOR_NAME` — deux sources du
+   * même nom, qui ont fini par diverger sur une page publique. Elle ne sert que ce champ : le
+   * journal complet n'a rien à faire sur le réseau Docker pour résoudre un nom.
+   */
+  r.get('/operator', async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { config } = await readState();
+      res.json({ operator: config.operator ?? '' });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   r.get('/state', async (_req: Request, res: Response, next: NextFunction) => {
     try {
       res.json(await readState());

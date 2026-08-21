@@ -288,7 +288,9 @@ services:
       SLACK_APP_TOKEN: '${SLACK_APP_TOKEN:-}'
       SLACK_BOT_TOKEN: '${SLACK_BOT_TOKEN:-}'
       SLACK_CHANNEL_ID: '${SLACK_CHANNEL_ID:-}'
-      SLACK_OPERATOR_NAME: '${SLACK_OPERATOR_NAME:-Sylvain Geffroy}'
+      # SLACK_OPERATOR_NAME a été RETIRÉE le 2026-08-21. C'était une deuxième source du nom du
+      # validateur, à côté de `config.json#operator` ; elles ont divergé et /veille a porté deux
+      # identités pour la même personne. Le slackbot lit désormais `GET /api/operator`.
       COCKPIT_URL: 'http://cockpit:8787'
     # `on-failure`, NOT `unless-stopped`: the latter restarts on ANY exit code, so the unconfigured
     # service — which logs why and exits 0 on purpose — would restart every second for ever. Here a

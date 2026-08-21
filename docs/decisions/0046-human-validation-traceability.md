@@ -85,7 +85,15 @@ dans le fichier ; elle vit ici et dans l'historique git.
 **Comment.** Édition directe du fichier, hors serveur : `POST /api/deliverables/:id/validate` refuse
 par construction toute mutation d'une entrée existante, et cette garde n'a pas été touchée.
 
-**La cause, qui reste à traiter.** L'identité du validateur a **deux sources indépendantes** —
-`config.json#operator` pour le cockpit, `SLACK_OPERATOR_NAME` pour le slackbot. Rien ne les lie, donc
-rien n'empêche qu'elles divergent, et c'est exactement ce qui s'est produit. Tant que la seconde ne
-dérive pas de la première, l'incident peut se reproduire.
+**La cause, traitée le jour même.** L'identité du validateur avait **deux sources indépendantes** —
+`config.json#operator` pour le cockpit, `SLACK_OPERATOR_NAME` pour le slackbot — que rien ne liait.
+Il n'y en a plus qu'une : le cockpit expose `GET /api/operator`, le slackbot l'interroge **à chaque
+promotion** (et non au démarrage : c'est le nom en vigueur au moment de l'acte qui doit entrer dans
+un journal append-only), et **refuse la promotion** si l'identité est indisponible — un acte
+nominatif dont l'auteur est inconnu ne s'écrit pas. Cela n'ajoute aucun mode de panne : la promotion
+transite déjà par ce cockpit.
+
+`SLACK_OPERATOR_NAME` a été retirée de `docker/.env`, de `docker/.env.example` et du compose. Elle
+n'est **pas** conservée « en surcharge » : un mécanisme de surcharge silencieuse est exactement ce
+qui a produit l'incident. Si la variable traîne encore dans un environnement, le slackbot annonce au
+démarrage qu'il l'ignore.

@@ -57,6 +57,28 @@ export function validatedBy(operator: string): string {
   return `${operator.trim()} (via Slack)`;
 }
 
+/**
+ * L'identité de l'opérateur, telle que le COCKPIT la déclare — l'unique source.
+ *
+ * POURQUOI CETTE FONCTION EXISTE. Le nom vivait ici dans `SLACK_OPERATOR_NAME` et là dans
+ * `config.json#operator`, sans rien pour les lier. Le 2026-08-21 ils ont divergé : trois promotions
+ * signées « Sylvain Geffroy », une signée « sge », sur la même page publique, pour la même personne
+ * — alors que le pied de page et les plaquettes désignent nommément le signataire. Le cockpit, lui,
+ * dérive DÉJÀ toutes ses validations de `config.json#operator` ; c'était le slackbot, et lui seul,
+ * qui parlait d'ailleurs.
+ *
+ * Retourne `null` plutôt qu'un repli : un acte nominatif dont l'auteur est inconnu ne s'écrit pas.
+ * Cela n'ajoute aucun mode de panne — la promotion elle-même passe par ce cockpit, donc un cockpit
+ * injoignable la refusait déjà.
+ */
+export function operatorFrom(payload: unknown): string | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const raw = (payload as { operator?: unknown }).operator;
+  if (typeof raw !== 'string') return null;
+  const name = raw.trim();
+  return name ? name : null;
+}
+
 export interface ClusterChoice {
   clusterId: string;
   /** Article titles + urls — the publishers' own words, the only text we put in front of a promoter. */

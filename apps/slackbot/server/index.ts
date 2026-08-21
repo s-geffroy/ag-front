@@ -28,6 +28,7 @@ import {
   parsePick,
   pickEntry,
   parseSubmission,
+  operatorFrom,
   validatedBy,
   type ClusterChoice,
   type PickPayload,
@@ -36,8 +37,30 @@ import {
 const APP_TOKEN = process.env.SLACK_APP_TOKEN;
 const BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 const CHANNEL = process.env.SLACK_CHANNEL_ID;
-const OPERATOR = process.env.SLACK_OPERATOR_NAME ?? 'Sylvain Geffroy';
 const COCKPIT = process.env.COCKPIT_URL ?? 'http://cockpit:8787';
+
+/**
+ * L'identité du validateur a UNE source : `config.json#operator`, servie par le cockpit.
+ *
+ * Elle en a eu deux — cette variable-ci et celle du cockpit — et le 2026-08-21 elles ont divergé
+ * assez longtemps pour que `/veille` porte deux identités de la même personne. `SLACK_OPERATOR_NAME`
+ * n'est donc plus lue : la garder « en surcharge » aurait conservé intact le mécanisme même de
+ * l'incident. Si elle traîne encore dans un `.env`, on le dit au démarrage plutôt que de l'ignorer
+ * en silence.
+ */
+if (process.env.SLACK_OPERATOR_NAME) {
+  console.log(
+    "[slackbot] SLACK_OPERATOR_NAME est ignorée : l'identité du validateur vient de " +
+      'config.json#operator (ADR 0046). Retirez-la de docker/.env.',
+  );
+}
+
+/** Le nom déclaré par le cockpit, ou `null` — auquel cas rien de nominatif ne sera écrit. */
+async function resolveOperator(): Promise<string | null> {
+  const r = await fetch(`${COCKPIT}/api/operator`).catch(() => null);
+  if (!r || !r.ok) return null;
+  return operatorFrom(await r.json().catch(() => null));
+}
 
 if (!APP_TOKEN || !BOT_TOKEN || !CHANNEL) {
   console.log(
@@ -200,6 +223,21 @@ app.view(MODAL_CALLBACK_ID, async ({ ack, view, logger }) => {
     return;
   }
 
+  // L'identité est résolue À CHAQUE PROMOTION, pas au démarrage : `config.json#operator` peut
+  // changer sans que ce processus redémarre, et c'est le nom en vigueur AU MOMENT DE L'ACTE qui doit
+  // entrer dans un journal append-only.
+  const operator = await resolveOperator();
+  if (!operator) {
+    await ack({
+      response_action: 'errors',
+      errors: {
+        [sub.blockId]:
+          "Identité de l'opérateur indisponible (config.json#operator). Promotion refusée : un acte nominatif ne s'écrit pas sans son auteur.",
+      },
+    });
+    return;
+  }
+
   const r = await fetch(`${COCKPIT}/api/promote-news/${encodeURIComponent(sub.corridorId)}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -214,7 +252,7 @@ app.view(MODAL_CALLBACK_ID, async ({ ack, view, logger }) => {
       // et sans elle une phrase recopiée du modèle serait consignée « écrite par un humain ».
       what_this_coverage_adds: sub.whatItAdds,
       // The journal is append-only and nominative: it must carry that this came through Slack.
-      validated_by: validatedBy(OPERATOR),
+      validated_by: validatedBy(operator),
     }),
   }).catch(() => null);
 

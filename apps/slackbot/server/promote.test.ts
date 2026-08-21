@@ -13,6 +13,7 @@ import {
   parseSubmission,
   parsePick,
   validatedBy,
+  operatorFrom,
   NOTE_ACTION_ID,
   PROMOTE_ACTION_PATTERN,
   promoteActionId,
@@ -61,6 +62,28 @@ describe('validatedBy', () => {
   it('inscrit le passage par Slack dans le journal nominatif', () => {
     expect(validatedBy('Sylvain Geffroy')).toBe('Sylvain Geffroy (via Slack)');
     expect(validatedBy('  Sylvain Geffroy  ')).toBe('Sylvain Geffroy (via Slack)');
+  });
+});
+
+describe('operatorFrom', () => {
+  // L'incident du 2026-08-21 : `SLACK_OPERATOR_NAME` et `config.json#operator` étaient deux sources
+  // indépendantes du MÊME nom. Elles ont divergé, et la page publique a porté deux identités pour
+  // une seule personne. Il n'y a plus qu'une source, et elle est ici.
+  it('lit le nom que le cockpit déclare', () => {
+    expect(operatorFrom({ operator: 'Sylvain Geffroy' })).toBe('Sylvain Geffroy');
+    expect(operatorFrom({ operator: '  Sylvain Geffroy  ' })).toBe('Sylvain Geffroy');
+  });
+
+  it("refuse plutôt que de deviner quand l'identité manque", () => {
+    // Aucun repli, et surtout aucun nom écrit en dur : un acte nominatif dont on ignore l'auteur ne
+    // doit pas être écrit du tout (ADR 0046).
+    expect(operatorFrom({ operator: '' })).toBeNull();
+    expect(operatorFrom({ operator: '   ' })).toBeNull();
+    expect(operatorFrom({})).toBeNull();
+    expect(operatorFrom(null)).toBeNull();
+    expect(operatorFrom(undefined)).toBeNull();
+    expect(operatorFrom('Sylvain Geffroy')).toBeNull();
+    expect(operatorFrom({ operator: 42 })).toBeNull();
   });
 });
 
