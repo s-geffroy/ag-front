@@ -33,9 +33,6 @@ sources:
   - label: US EIA — World Oil Transit Chokepoints (flux brut, GNL, produits raffinés)
     type: institutionnel
     url: https://www.eia.gov/international/analysis/special-topics/World_Oil_Transit_Chokepoints
-  - label: AIE — Strait of Hormuz oil security (substituabilité et capacités de contournement)
-    type: institutionnel
-    url: https://www.iea.org/
   - label: UNCTAD — Review of Maritime Transport 2024
     type: institutionnel
     url: https://unctad.org/publication/review-maritime-transport-2024
@@ -43,7 +40,7 @@ sources:
     type: donnees_ouvertes
   - label: Reuters — Le trafic à Ormuz se réduit alors que les marchés observent les pourparlers Iran-Oman (7 août 2026)
     type: presse_specialisee
-    url: https://www.reuters.com/
+    url: https://www.reuters.com/business/energy/vessel-traffic-through-hormuz-dwindles-this-week-markets-watch-iran-oman-talks-2026-08-07/
   - label: >-
       AIE — Strait of Hormuz : capacité de contournement disponible estimée à 3,5–5,5 Mb/j
       (Petroline plafonné à 5 Mb/j en maximum théorique, ADCOP 1,5–1,8 Mb/j)
@@ -57,19 +54,55 @@ sources:
   - label: US EIA — Short-Term Energy Outlook, communiqué du 4 juillet 2026 (fermetures de production, prévision Brent)
     type: institutionnel
     url: https://www.eia.gov/outlooks/steo/
-  - label: Iran / Oman — accord sur les coordonnées de la route d’Ormuz (5 août 2026)
+  - label: >-
+      Reuters — L’Iran et Oman s’entendent sur les coordonnées d’une route à travers Ormuz
+      (ministère iranien, 5 août 2026)
     type: presse_specialisee
-  - label: Ansar Allah — déclaration du 5 août 2026 (29 navires saoudiens empêchés, mer Rouge et mer d’Arabie)
+    url: https://www.reuters.com/world/middle-east/iran-oman-reach-understanding-coordinates-route-through-hormuz-iran-ministry-2026-08-05/
+  - label: >-
+      Ansar Allah — déclaration du 5 août 2026 : 29 pétroliers saoudiens déclarés refoulés en mer
+      Rouge et mer d’Arabie. Revendication d’un belligérant, rapportée par gCaptain qui précise que
+      ces chiffres n’ont pas pu être vérifiés de source indépendante
     type: source_contradictoire
+    url: https://gcaptain.com/houthis-escalate-red-sea-campaign-claim-eighth-saudi-tanker-attack/
+  - label: >-
+      Congressional Research Service — R45281, « The Strait of Hormuz: Security Developments and
+      Impacts on Oil, Gas, and Other Commodities », mise à jour du 7 août 2026 (chronologie ;
+      régime de péage sourcé par le CRS à Lloyd’s List du 25 mars 2026). URL de miroir : l’éditeur
+      rend 403
+    type: institutionnel
+    url: https://www.everycrsreport.com/files/2026-08-07_R45281_3d6151e227c61c7faf43873a9e30be6b8c9a6f08.pdf
+  - label: >-
+      CNBC — Trafic maritime à Ormuz inférieur d’environ 90 % à la moyenne journalière d’avant les
+      frappes (12 août 2026 ; Lloyd’s List Intelligence donne « plus de 90 % » sur les entrées du Golfe)
+    type: presse_specialisee
+    url: https://www.cnbc.com/2026/08/12/strait-hormuz-ship-traffic-iran-war-deal.html
+  - label: >-
+      Policy Center for the New South — Emran & Berahab, « Stress Test: The Hormuz Crisis and the
+      Fracturing of the Global Energy Order », PB-29/26, juin 2026 (estimation des 17,8 Mb/j)
+    type: analyse_secondaire
+    url: https://www.policycenter.ma/publications/stress-test-hormuz-crisis-and-fracturing-global-energy-order
+  - label: >-
+      Reuters — « Les Houthis cherchent à reproduire en mer Rouge le contrôle iranien sur Ormuz »,
+      selon le ministre yéménite des Affaires étrangères (27 juillet 2026)
+    type: presse_specialisee
+    url: https://www.reuters.com/world/middle-east/houthis-pushing-model-irans-hormuz-control-red-sea-yemeni-fm-says-2026-07-27/
+  - label: >-
+      Council on Foreign Relations — « Another Hormuz? What to Know About the Houthi Threat »
+      (analyse)
+    type: analyse_secondaire
+    url: https://www.cfr.org/articles/another-hormuz-the-red-seas-threat-to-the-global-economy
 ---
 
 ## Définition du corridor
 
 Bras de mer entre l’Iran et le sultanat d’Oman (péninsule de Musandam) reliant le golfe Persique au
 golfe d’Oman puis à la mer d’Arabie. Large de ~33 km au plus étroit, il n’offre que deux chenaux de
-navigation de 3 km, séparés par une zone tampon. C’est le point de passage **le moins substituable de
-l’économie mondiale** : contrairement à Bab el-Mandeb, qui se contourne par le Cap au prix de dix à
-seize jours, Ormuz **n’a pas de route maritime alternative**. Ce qui sort du Golfe passe par là, ou ne
+navigation de 3 km, séparés par une zone tampon. C’est, **au critère de la substituabilité par route maritime**, le point de passage le moins
+substituable de l’économie mondiale — les autres chokepoints majeurs en ont une, coûteuse : Bab
+el-Mandeb se contourne par le Cap au prix de dix à seize jours, Malacca par les détroits de la Sonde
+ou de Lombok, Panama par le cap Horn ou le rail transcontinental. Ormuz **n’a pas de route maritime
+alternative** du tout. Ce qui sort du Golfe passe par là, ou ne
 sort que par pipeline — et la capacité de ces pipelines est chiffrée plus bas : **3,5 à 5,5 Mb/j
 disponibles** contre **20,7 Mb/j** de pétrole en transit, et **rien du tout** pour le GNL. « Pas
 d’alternative » n’est donc pas une figure de style mais un **déficit mesuré d’environ 14 Mb/j**
@@ -94,20 +127,32 @@ Chiffres 2024 (US EIA, via la base chokepoints), avant la crise :
 
 ## État du corridor
 
+> **Chronologie.** Le Congressional Research Service place l’origine de la crise au **28 février
+> 2026** : « *As part of its response to U.S. and Israeli attacks beginning on February 28, 2026,
+> Iran has sought to exert control over the Strait of Hormuz* » (R45281, 7 août 2026). Cette date
+> **ouvre la période** et ne date pas l’acte qu’elle semble dater : le même rapport situe la
+> déclaration de fermeture « *days after* », sans en donner le jour. Le trafic s’est alors largement
+> arrêté, des centaines de navires restant bloqués dans le Golfe. Un **cessez-le-feu le 7 avril 2026**
+> a fermé cette phase. Ce qui dure depuis n’est donc pas une fermeture continue mais un **régime
+> dégradé post-cessez-le-feu** — c’est ce régime, et non une fermeture, que décrit cette fiche.
+>
 > **État au 10 août 2026.** Le trafic est effondré. La métrique PortWatch servie par la base
 > chokepoints donne **2,5 transits journaliers moyens** pour août 2026 — à comparer, même métrique et
-> même mois, à **36,5** pour Suez, **230,5** pour Malacca et **248** pour le détroit de Taïwan. Des
-> sources externes situent la restriction **au-delà de 90 %** et décrivent une perturbation sévère
-> sur l’essentiel des cinq derniers mois.
+> même mois, à **36,5** pour Suez, **230,5** pour Malacca et **248** pour le détroit de Taïwan. Hors
+> site, **CNBC** situe le trafic à environ **90 % en dessous** de la moyenne journalière d’avant les
+> frappes (12 août 2026) et **Lloyd’s List Intelligence** à « plus de 90 % » sur les entrées du Golfe.
 
 ## Vulnérabilités
 
 - **Non-substituabilité** — c’est la vulnérabilité première, et elle est géographique, non politique.
   Aucun réacheminement maritime n’existe. Les seules échappatoires sont deux pipelines et les stocks.
 - **Passage sous autorisation** — la nature du risque a changé. L’Iran **lie la réouverture à des
-  concessions américaines**, a convenu de **coordonnées de route avec Mascate**, et son Parlement
-  **examine un cadre législatif** sur la sécurité et le passage, jusqu’à d’éventuels droits de
-  transit. Le détroit fonctionne moins comme une zone de combat que comme un **guichet**.
+  concessions américaines**, a convenu de **coordonnées de route avec Mascate** (Reuters, 5 août
+  2026, citant le ministère iranien), et son Parlement **examine un cadre législatif** sur la
+  sécurité et le passage, jusqu’à d’éventuels droits de transit. Le détroit fonctionne moins comme
+  une zone de combat que comme un **guichet** — une lecture qui n’est pas la nôtre seule : le CRS
+  reprend la formule de **Lloyd’s List du 25 mars 2026**, « *Tehran’s 'toll booth' system is now
+  controlling Hormuz traffic* ».
 - **Assurance et disponibilité de la couverture** — le risque `insurance_cost_spike` est évalué à
   impact 4 dans la base. Nous ne disposons **d’aucune série primaire de primes** sur la période :
   cette dimension est nommée, pas mesurée.
@@ -168,14 +213,16 @@ mais un **déficit chiffré d’environ 14 Mb/j** sur le pétrole et de **la tot
 2. **Péage institutionnalisé** — le régime d’autorisation se formalise (droits de transit, tracé
    convenu). Le détroit fonctionne, à un coût et sous une dépendance politique nouveaux. C’est le
    scénario que le cadre législatif à l’examen rend le plus lisible.
-3. **Ré-escalade** — reprise des frappes, minage, fermeture longue. Les pipelines saturent, les
-   réserves s’épuisent, et la contrainte devient physique.
+3. **Ré-escalade** — reprise des frappes, minage, fermeture longue. *Dans cette hypothèse* — et ce
+   qui suit est une projection, non une mesure : les pipelines satureraient, les réserves
+   s’épuiseraient, et la contrainte redeviendrait physique. Nous ne disposons d’aucune série publique
+   sur les niveaux de réserves ni sur le taux d’utilisation courant des deux tubes.
 
 ## Effets systémiques
 
-- **Offre mondiale** — des travaux externes estiment que la fermeture effective a retiré ≈ **17,8 Mb/j**
-  de brut et de GNL, soit **environ un cinquième de l’offre échangée** — candidat, non recoupé par
-  nos soins.
+- **Offre mondiale** — le **Policy Center for the New South** (Emran & Berahab, PB-29/26, juin 2026)
+  estime que la fermeture effective a retiré ≈ **17,8 Mb/j** de brut et de GNL, soit **environ un
+  cinquième de l’offre échangée** — candidat, non recoupé par nos soins.
 - **Prix** — Brent à **103 $/b** de moyenne en mars 2026 ; les scénarios de conflit contenu situent le
   baril entre **100 et 120 $**, primes de risque incluses.
 - **Au-delà de l’énergie** — les premières données signalent des reculs marqués aussi sur les
@@ -186,9 +233,11 @@ mais un **déficit chiffré d’environ 14 Mb/j** sur le pétrole et de **la tot
 Les deux crises se lisent ensemble, et pas seulement parce qu’elles sont simultanées.
 
 Le 22 juillet 2026, les Houthis ont ouvert une campagne contre la navigation **saoudienne**, déclarant
-une interdiction de navigation et affirmant le 5 août avoir empêché **29 navires saoudiens** de
-passer, en mer Rouge comme en mer d’Arabie. Des analyses décrivent explicitement une tentative de
-**reproduire en mer Rouge le contrôle iranien sur Ormuz**.
+une interdiction de navigation et affirmant le 5 août avoir refoulé **29 pétroliers saoudiens** en mer
+Rouge comme en mer d’Arabie — **revendication d’un belligérant**, rapportée par gCaptain qui précise
+que le chiffre n’a pas pu être vérifié de source indépendante. La tentative de **reproduire en mer
+Rouge le contrôle iranien sur Ormuz** est décrite par le ministre yéménite des Affaires étrangères
+(Reuters, 27 juillet 2026) et analysée comme telle par le **Council on Foreign Relations**.
 
 C’est le même geste stratégique appliqué à deux détroits : convertir un passage en **passage autorisé**,
 et faire de l’autorisation un levier. La différence tient à la substituabilité — la mer Rouge se
@@ -196,8 +245,10 @@ contourne par le Cap, Ormuz ne se contourne pas. Le levier y est donc, structure
 fort.
 
 > **Ce que nous ne concluons pas.** Une coordination opérationnelle entre Téhéran et Ansar Allah est
-> *évoquée par des experts*, pas établie par nos soins. La convergence des méthodes est observable ;
-> la chaîne de commandement ne l’est pas.
+> *évoquée dans l’analyse du Council on Foreign Relations citée en sources*, pas établie par nos
+> soins — et la source la plus directe sur l’intention, le ministre yéménite des Affaires étrangères,
+> est une **partie au conflit**. La convergence des méthodes est observable ; la chaîne de
+> commandement ne l’est pas.
 
 ## Niveau de confiance
 
