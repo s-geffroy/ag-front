@@ -31,8 +31,10 @@ describe('le rayon EN ATTENTE ne s’affiche pas', () => {
     for (const id of Object.keys(CORRIDOR_NAME_FR_PENDING)) expect(rendus.has(id)).toBe(false);
   });
 
-  it('il reste des noms à arbitrer, et ils sont non vides', () => {
-    expect(Object.keys(CORRIDOR_NAME_FR_PENDING).length).toBeGreaterThan(0);
+  it('les propositions, s’il y en a, sont non vides', () => {
+    // Le rayon est vide depuis l'arbitrage du 2026-08-21 : ce cas passe donc à vide, et c'est
+    // voulu. La garde reste armée pour la prochaine entrée — une garde qu'on retire parce qu'elle
+    // n'a plus rien à garder est une garde qu'on remet trop tard.
     for (const v of Object.values(CORRIDOR_NAME_FR_PENDING))
       expect(v.trim().length).toBeGreaterThan(0);
   });
@@ -48,9 +50,24 @@ describe('la table ne contient rien qui ressemble à un identifiant fabriqué', 
     }
   });
 
-  it('aucun libellé rendu ne laisse d’anglais évident', () => {
+  it('aucun libellé rendu ne laisse d’anglais NON VOULU', () => {
+    // « Chokepoint » est arbitré : nous le gardons en français, comme la méthode CVI et les
+    // libellés de famille du site le font déjà. Ce test interdit l'anglais RÉSIDUEL — celui qu'on
+    // laisse par oubli — pas l'anglicisme choisi. La liste ne retient que des mots SANS ambiguïté :
+    // « Conversion » en a été retiré, il s'écrit à l'identique en français et faisait rougir
+    // « Conversion occidentale de combustible nucléaire », qui est pourtant du français.
     for (const nom of Object.values(CORRIDOR_NAME_FR)) {
-      expect(nom).not.toMatch(/\b(Strait|Canal of|Route of|System|Pipeline|Cluster|Network)\b/);
+      expect(nom).not.toMatch(
+        /\b(Strait|Canal of|Route of|System|Cluster|Network|Monopoly|Settlement|Clearing|Enrichment)\b/,
+      );
     }
+  });
+
+  it('« chokepoint » est écrit tel quel là où le nom le porte', () => {
+    // La décision du 2026-08-21, rendue vérifiable : ces deux objets s'appellent un chokepoint dans
+    // la base, et l'escamoter en français aurait été trancher le vocabulaire par omission.
+    const portant = Object.values(CORRIDOR_NAME_FR).filter((n) => /Chokepoint/.test(n));
+    expect(portant).toHaveLength(2);
+    for (const n of portant) expect(n).not.toMatch(/goulet|point de passage/i);
   });
 });

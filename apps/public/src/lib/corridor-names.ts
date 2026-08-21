@@ -70,21 +70,13 @@ export const CORRIDOR_NAME_FR: Record<string, string> = {
   p2_submarine_cable_corridor_egypt_red_sea_mediterranean_cable_corridor:
     'Corridor de câbles Égypte – mer Rouge – Méditerranée',
 
-  // — Infrastructure nommée : SUMED est un acronyme (SUez-MEDiterranean) et n'a pas d'exonyme
-  //   français ; seul le nom commun se traduit.
-  p0_pipeline_bypass_asset_sumed_pipeline: 'Oléoduc SUMED',
-};
+  // — Filières minérales, nucléaires et financières ————————————————————————
+  //   Arbitrées le 2026-08-21, et le mot qui les tenait toutes est tranché : nous gardons
+  //   « chokepoint », que la méthode CVI et les libellés de famille du site emploient déjà. Il
+  //   revient donc dans les deux noms qui le portent en propre, au lieu d'être escamoté.
+  //   « Occidentale » est conservé pour la conversion nucléaire : ce n'est pas une position ajoutée,
+  //   c'est ce qui distingue cette filière de celle de Rosatom, l'autre entrée de la table.
 
-/**
- * NON RENDUS — candidats en attente de validation humaine.
- *
- * Ces libellés ne se traduisent pas, ils s'arbitrent. « Chokepoint » n'a pas d'équivalent français
- * stable dans notre vocabulaire (goulet ? point de passage obligé ? le mot anglais, que la méthode
- * CVI emploie déjà ?), et « Western Nuclear Fuel Conversion » porte une qualification géopolitique
- * — « occidental » — qui est une position, pas une traduction. Les propositions ci-dessous sont là
- * pour être relues et corrigées, pas pour être affichées : `corridorNameFr` ne les lit pas.
- */
-export const CORRIDOR_NAME_FR_PENDING: Record<string, string> = {
   p1_critical_supply_chokepoint_bayan_obo_rare_earths: 'Terres rares de Bayan Obo (Chine)',
   p1_critical_supply_chokepoint_ganzhou_rare_earth_processing:
     'Pôle de traitement des terres rares de Ganzhou (Chine)',
@@ -99,17 +91,41 @@ export const CORRIDOR_NAME_FR_PENDING: Record<string, string> = {
   p3_critical_supply_chokepoint_urenco_uranium_enrichment:
     'Enrichissement d’uranium Urenco (Almelo / Gronau / Capenhurst)',
   p3_energy_infrastructure_chokepoint_nuclear_fuel_conversion_west:
-    'Conversion de combustible nucléaire (Orano / Cameco)',
+    'Conversion occidentale de combustible nucléaire (Orano / Cameco)',
   p3_infrastructure_chokepoint_swift_financial_messaging:
     'Réseau de messagerie financière SWIFT (La Hulpe)',
   p3_infrastructure_chokepoint_usd_clearing_chips_fedwire:
-    'Compensation en dollars (CHIPS / Fedwire)',
+    'Chokepoint de compensation en dollars (CHIPS / Fedwire)',
   p3_infrastructure_chokepoint_cls_fx_settlement: 'Système de règlement de change CLS',
   p3_infrastructure_chokepoint_euroclear_dtcc_securities_settlement:
-    'Règlement-livraison et conservation de titres (Euroclear / DTCC)',
+    'Chokepoint du règlement-livraison et de la conservation de titres (Euroclear / DTCC)',
   p3_infrastructure_chokepoint_correspondent_banking_network:
     'Réseau de banques correspondantes (accès nostro/vostro en USD)',
+
+  // — Infrastructure nommée : SUMED est un acronyme (SUez-MEDiterranean) et n'a pas d'exonyme
+  //   français ; seul le nom commun se traduit.
+  p0_pipeline_bypass_asset_sumed_pipeline: 'Oléoduc SUMED',
 };
+
+/**
+ * NON RENDUS — candidats en attente de validation humaine.
+ *
+ * Ces libellés ne se traduisent pas, ils s'arbitrent. « Chokepoint » n'a pas d'équivalent français
+ * stable dans notre vocabulaire (goulet ? point de passage obligé ? le mot anglais, que la méthode
+ * CVI emploie déjà ?), et « Western Nuclear Fuel Conversion » porte une qualification géopolitique
+ * — « occidental » — qui est une position, pas une traduction. Les propositions ci-dessous sont là
+ * pour être relues et corrigées, pas pour être affichées : `corridorNameFr` ne les lit pas.
+ */
+/**
+ * NON RENDUS — candidats en attente de validation humaine.
+ *
+ * VIDE, et c'est un état, pas un oubli : les treize libellés qui attendaient ici ont été arbitrés le
+ * 2026-08-21 et sont passés dans la table rendue. Le rayon reste, parce que le mécanisme reste : le
+ * jour où la base sert un objet dont le nom français demande un arbitrage plutôt qu'une traduction,
+ * il s'écrit ICI d'abord. `corridorNameFr` ne lit pas ce rayon, et un test le vérifie même à vide —
+ * une garde qu'on retire parce qu'elle n'a plus rien à garder est une garde qu'on remet trop tard.
+ */
+export const CORRIDOR_NAME_FR_PENDING: Record<string, string> = {};
 
 /**
  * Le nom à afficher : le français quand nous l'avons décidé, sinon le nom de la base, tel quel.

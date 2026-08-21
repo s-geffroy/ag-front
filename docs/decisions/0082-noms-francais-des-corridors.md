@@ -41,12 +41,30 @@ donc décidée entrée par entrée, à la main.
   française dominante) et traduction de libellés purement descriptifs (« Eastern Mediterranean
   System »). SUMED reste SUMED : c'est un acronyme (SUez-MEDiterranean) sans exonyme français, seul
   le nom commun se traduit — « oléoduc SUMED ».
-- **`CORRIDOR_NAME_FR_PENDING` (13 entrées, NON rendues)** — ce qui demande un **arbitrage** et non
-  une traduction. « Chokepoint » n'a pas d'équivalent français stable dans notre vocabulaire (goulet ?
-  point de passage obligé ? le mot anglais, que la méthode CVI emploie déjà ?), et « Western Nuclear
-  Fuel Conversion » porte une qualification géopolitique — « occidental » — qui est une position,
-  pas une traduction. Ce sont des **candidats en attente de validation humaine**, et un candidat ne
-  s'affiche pas : `corridorNameFr` ne lit pas ce rayon, un test le vérifie.
+- **`CORRIDOR_NAME_FR_PENDING` — vide, et c'est un état, pas un oubli.** Treize libellés y ont
+  attendu quelques heures : ceux qui demandaient un **arbitrage** et non une traduction. Ils ont été
+  tranchés le jour même (§ 2 bis) et sont passés dans la table rendue. Le rayon reste, parce que le
+  mécanisme reste : le jour où la base sert un objet dont le nom français s'arbitre, il s'écrit
+  **ici d'abord**. `corridorNameFr` ne lit pas ce rayon, et le test le vérifie **même à vide** — une
+  garde qu'on retire parce qu'elle n'a plus rien à garder est une garde qu'on remet trop tard.
+
+### 2 bis. L'arbitrage : nous gardons « chokepoint »
+
+Un seul mot tenait le rayon en attente, et il est tranché : **« chokepoint » s'écrit tel quel en
+français**, ni « goulet » ni « point de passage obligé ». Ce n'est pas un renoncement mais un
+alignement — la méthode CVI l'emploie déjà, les libellés de famille du site l'affichent depuis
+toujours (« MARITIME CHOKEPOINT », « INFRASTRUCTURE CHOKEPOINT »), et le site parle en français de
+« la base de données des chokepoints ». Deux noms le portent en propre, et le mot y **revient** au
+lieu d'être escamoté : « Chokepoint de compensation en dollars (CHIPS / Fedwire) » et « Chokepoint
+du règlement-livraison et de la conservation de titres (Euroclear / DTCC) ». Les escamoter aurait
+tranché le vocabulaire par omission, ce qui est la pire façon de le trancher.
+
+**Et une erreur corrigée dans le même geste.** La proposition initiale retirait « Western » de
+« Western Nuclear Fuel Conversion », au motif qu'« occidental » serait une qualification
+géopolitique ajoutée. C'était à l'envers : ce mot est **porteur**, c'est lui qui distingue cette
+filière de l'entrée Rosatom qui figure dans la même table. Le retirer ne neutralisait pas une
+position, il **changeait l'objet** — « conversion de combustible nucléaire » tout court est faux,
+Rosatom en fait aussi. Rendu : « Conversion occidentale de combustible nucléaire (Orano / Cameco) ».
 
 **Valider, c'est déplacer la ligne** d'un rayon à l'autre. C'est tout, et c'est le geste.
 
@@ -77,12 +95,11 @@ et grossir la liste déposée leur ferait porter une contrainte qui est la nôtr
 
 ## Conséquences
 
-- **17 des 30 cartes** de `/atlas` sont en français, et le fil d'accueil l'est entièrement :
-  « Canal de Panama », « Système mer Rouge – Bab-el-Mandeb – Suez », « Détroit d'Ormuz ».
-- Les **13 restantes** — filières minérales, nucléaires, financières — gardent leur nom anglais
-  jusqu'à arbitrage. Leur proposition est écrite et relisible dans le rayon en attente.
+- **Les 30 cartes** de `/atlas` sont en français, et le fil d'accueil aussi : « Canal de Panama »,
+  « Système mer Rouge – Bab-el-Mandeb – Suez », « Détroit d'Ormuz ». Plus une seule entrée en
+  attente : 33 noms décidés, 33 ancrages vérifiés au build.
 - Trois entrées rendues visent des objets **hors de la grille P0** (Méditerranée orientale,
   corridor médian trans-caspien, corridor de câbles égyptien) : elles servent les fiches et les
   pages de détail.
-- Le vocabulaire à trancher pour vider le rayon en attente est d'abord **un seul mot** : comment
-  nous disons « chokepoint » en français, ou si nous le gardons.
+- Le vocabulaire est fixé : **« chokepoint » reste « chokepoint »** en français, sur tout le site.
+  Toute page, plaquette ou export qui hésiterait s'aligne sur cette table.
